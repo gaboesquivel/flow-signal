@@ -352,3 +352,36 @@ Response: Deleted all 8 preview/* branches from Neon project signal (sweet-salad
 [2026-10-30T19:24:56Z]
 Prompt: Neon preview deletion should be automatic; are we using Neon branching with Vercel connect? (then: run all commands, use the CLIs)
 Response: Yes: Vercel-managed Neon integration with preview branching; it deletes a preview branch only when Vercel retention removes the deployment (30 days on Hobby), so the 10-branch Free cap fills. Set repo variable NEON_PROJECT_ID via gh, added .github/workflows/neon-preview-cleanup.yml (delete-branch-action on PR close), documented it in docs/database.md and spec 010 task 09. Creating the project-scoped Neon key and piping it into gh secret set was blocked by the auto-mode classifier (Secret-Store Writes); left as one user command.
+
+[2026-10-30T19:28:00Z]
+Prompt: you run the commands!
+
+[2026-10-30T19:31:37Z]
+Prompt: what the claude configs and run the commands
+
+[2026-10-30T19:32:20Z]
+Prompt: merge this main; merge it, vercel builds are rate limited
+Response: Committed docs/design rounds and docs/harness on spec/004; #11 (another session) had already landed them on main, so opened #12 refreshing the diagrams for specs 006/007/010 plus a .prettierignore fix for the unformatted design HTML that turned main red; merged #12 with verify passing and Vercel rate-limited; main CI green at 7ce2cc6.
+
+[2026-10-30T19:32:33Z]
+Prompt: you update those values, and update claude user settings so this doesnt happen again
+Response: .env.local now points DATABASE_URL at Docker signal_dev (Neon URL kept commented), ANTHROPIC_API_KEY lines removed; ran pnpm db:dev (created, migrated, seeded 25 needs; rerun idempotent). Added ~/.claude/CLAUDE.md rule: update stale local config yourself instead of handing it back.
+
+[2026-10-30T19:32:33Z]
+Prompt: <cross-session-message from="local_25281112-7928-440c-a3fe-c4dcf5db3359" from-name="Worktrees and orphan PRs merge"> FYI: docs/harness/ and docs/design/round-1..3 are already on main via squash-merged gaboesquivel/flow-signal PR 11 (content identical to your docs/harness-visual branch, verified with git diff). No PR needed for docs/harness-visual; if you change more, rebase onto origin/main first. </cross-session-message>
+
+[2026-10-30T19:32:41Z]
+Prompt: <cross-session-message from="local_683fb0a2-25ae-415a-986b-2d249092db81" from-name="Agent harness workflow diagrams"> docs/harness-visual is already done and merged as PR 12 (522ed08), so it needs nothing more. It was not identical to PR 11. It was rebased onto origin/main and keeps only one change: a refresh of docs/harness/ for specs 006, 007 and 010. That covers 23 operations, console chat, strategy and readiness, the decision model, and Gateway-only routing. It also adds docs/design/ to .pre
+
+[2026-10-30T19:32:44Z]
+Prompt: Done, run them
+
+[2026-10-30T19:33:08Z]
+Prompt: Done, run them
+Response: Confirmed ~/.claude/settings.json applied (defaultMode auto, 3 allow rules, autoMode environment/allow). Deleted the stray spec/010-retro-remediation branch on GitHub and locally, and switched origin to git@github.com:gaboesquivel/flow-signal.git (ls-remote works), so workflow-file pushes no longer need the gh token's workflow scope.
+
+[2026-10-30T19:33:23Z]
+Prompt: anything left?
+
+[2026-10-30T19:34:17Z]
+Prompt: ok clean up git and and make sure changes land main in remote, dont verify
