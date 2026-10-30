@@ -286,13 +286,14 @@ const numOrNull = (value: unknown) =>
 const ts = (date: Date) => sql`${date.toISOString()}::timestamptz`;
 
 /** Monday 00:00 UTC of the week containing `date`. */
-const weekStartOf = (date: Date) => {
+export const weekStartOf = (date: Date) => {
   const day = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const offset = (day.getUTCDay() + 6) % 7;
   return new Date(day.getTime() - offset * DAY_MS);
 };
 
-const weekStarts = ({ from, to }: MetricsWindow) => {
+/** `YYYY-MM-DD` of every ISO week (Monday, UTC) overlapping `[from, to)`; report datasets reuse it. */
+export const weekStarts = ({ from, to }: MetricsWindow) => {
   const weeks: string[] = [];
   for (let start = weekStartOf(from); start < to; start = new Date(start.getTime() + 7 * DAY_MS))
     weeks.push(start.toISOString().slice(0, 10));
@@ -311,6 +312,7 @@ const activeMerges = (to: Date) => sql`
 
 interface SignalRow {
   actor_kind: ActorKind;
+  signals: unknown;
   attached: unknown;
   merged_drafts: unknown;
   reporting_context: unknown;
@@ -332,6 +334,7 @@ const signalCounts = (db: SignalQueryable, { from, to }: MetricsWindow) =>
       SELECT
         to_char(date_trunc('week', occurred_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS week,
         actor_kind,
+        count(*)::int AS signals,
         count(*) FILTER (WHERE payload->>'attachedTo' = 'existing')::int AS attached,
         count(*) FILTER (
           WHERE payload->>'attachedTo' = 'draft' AND need_id IN (${activeMerges(to)})
@@ -804,6 +807,28 @@ const killCriterion = async (db: SignalQueryable, { to }: MetricsWindow) => {
     populations: { agent: population("agent"), all: population(), human: population("human") },
     unmergeRate: unmerge,
   };
+};
+
+/**
+ * The weekly prevention series of `get_metrics` (`preventionRate.weeks`) for one actor split,
+ * plus the `signal.created` count per week; the `metrics_weekly` report dataset (spec 013).
+ */
+export const weeklyPreventionSeries = async (
+  db: SignalQueryable,
+  window: MetricsWindow,
+  actor: ActorKind | "all",
+) => {
+  const rows = await signalCounts(db, window);
+  return weekStarts(window).map((weekStart) => {
+    const week = rows.filter(
+      (row) => row.week === weekStart && (actor === "all" || row.actor_kind === actor),
+    );
+    return {
+      ...preventionFrom(week),
+      signals: week.reduce((sum, row) => sum + num(row.signals), 0),
+      weekStart,
+    };
+  });
 };
 
 /** All MVP metrics and supporting counts for `[from, to)`. */
