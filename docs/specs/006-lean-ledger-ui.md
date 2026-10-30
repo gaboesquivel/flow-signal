@@ -51,8 +51,8 @@ Failure paths:
 All changes go through the operation registry (`lib/signal/operations/`) and appear on REST, MCP, and agent tools together, with parity tests.
 
 1. **`submit_signal` gains `trackingToken?`** (same schema as `trackingTokenSchema`). When it names an existing tracking link, the signal joins it and `trackingUrl` is that link's; when absent, or when the token resolves to no link, a new link is issued. Output adds `linkReused: boolean`. Idempotency is unchanged: a replay returns the original result.
-2. **Tracking links table.** `tracking_links (id, token unique, created_at)`; `signals.tracking_link_id` replaces `signals.tracking_token` (migration moves each existing token into its own link). `get_my_signals(token)` returns every signal on that link, newest first. Nothing reads or groups by email.
-3. **`resolve_suggestion` gains `reason?`** (≤ 500 chars) on `reject`; stored on the suggestion and in the `suggestion.rejected` event payload.
+2. **Tracking links, additive only.** Deploys refuse destructive migrations (`lib/db/migration-safety.ts`: no `UPDATE`, `DROP`, or `RENAME`), so the migration only adds: a `tracking_links (id, token unique, created_at)` table and a nullable `signals.tracking_link_id`. `signals.tracking_token` stays, unique per signal. New submissions create or reuse a link, set `tracking_link_id`, and return the link's token. A legacy token (a signal with no link) is adopted at runtime the first time it is used, in `get_my_signals` or as a `submit_signal` `trackingToken`: the app creates a link with that same token and attaches the legacy signal, so old URLs keep working. `get_my_signals(token)` returns every signal on that link, newest first. Nothing reads or groups by email.
+3. **`resolve_suggestion` gains `reason?`** (≤ 500 chars) on `reject`; kept in the `suggestion.rejected` event payload (no schema change).
 4. **New operator operation `list_operator_needs`** (`GET /api/operator/needs`, Operator MCP). Input: `themeId?`, `status?`, `query?`, `sort: priority | people | accounts | arr` (default priority, nulls last, then people). Output per live need: `id, statement, theme, status, people, accounts, arrCents, openDealCents, score | null, criterionScores | null, pendingSuggestions`. Replaces stitching `search_needs`, `get_demand_summary`, and `list_suggestions` in the client; Criteria's live re-rank computes from `criterionScores` in the browser.
 5. **New operator operation `check_public_text`** (`POST /api/operator/check-public-text`): `{ text, needId? }` → `{ findings: { kind: "person" | "account" | "email", match }[] }`, matching submitter names, account names, and emails in the workspace (deterministic, no model). Used by summary approval and the decision note; findings warn and block the button until edited, they don't fail `publish_decision`.
 6. **`get_demand_summary` gains `plan?`** (`Enterprise | Growth | Starter`) so "What are enterprise accounts blocked on?" is one call.
@@ -84,7 +84,7 @@ Public pages and `submit_signal` stay public and rate limited as in 001; a `trac
 
 ## Testing Decisions
 
-- Contract-first, red → green, as in 001: parity tests for each changed or new operation across REST, MCP, and agent tools; domain tests for link reuse (existing, unknown, replayed idempotency key), the migration of existing tokens, reject reasons, `check_public_text` matches, and `list_operator_needs` sorting with null scores.
+- Contract-first, red → green, as in 001: parity tests for each changed or new operation across REST, MCP, and agent tools; domain tests for link reuse (existing, unknown, legacy token adoption, replayed idempotency key), the additive migration passing `migration-safety`, reject reasons, `check_public_text` matches, and `list_operator_needs` sorting with null scores.
 - Isolation tests: the new operator operations are absent from public discovery and return `unauthorized` without the secret; `get_my_signals` never returns a signal from another link that shares the email.
 - Playwright on seeded data for the wizard (including AI unavailable, None of these, carry-forward and Start a new link), triage keyboard flow, and decide → publish. Prior art: `tests/mcp/operator-isolation.test.ts`, `tests/mcp/route.test.ts`, existing Playwright setup.
 - Visual checks from DESIGN.md → Checking rendered output: pencil vs ink, no PII on public pages, light/dark AA, no sideways scroll at 390px.
@@ -106,10 +106,122 @@ Human journey:
 
 Agent journey: an Assistant agent calls `preview_signal`, then `submit_signal` with `target.needId = N1` and the `trackingToken` Maya gave it → `linkReused: true`, and `get_my_signals` lists all three signals. An Operator agent calls `list_operator_needs` and `get_demand_summary { plan: "Enterprise" }` with the bearer secret → results; the same calls on public MCP are absent or `unauthorized`.
 
+## Tasks
+
+- [ ] 01: Ledger UI primitives
+- [ ] 02: My signals links that carry forward
+- [ ] 03: Operator contract additions
+- [ ] 04: Public board, submit wizard, and My signals UI
+- [ ] 05: Console shell, Triage, and Needs
+- [ ] 06: Need detail, decide, and publish
+- [ ] 07: Criteria, Metrics, and Chat
+- [ ] 08: Acceptance run and docs
+
+Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 run in parallel after 05; 08 last.
+
+### 01: Ledger UI primitives
+
+**What to build:** the shared pieces every Ledger screen uses, so public and console screens look and behave the same: pencil and ink blocks (with Suggested, edited, and rejected states), customer quote, status word with its shape, demand band, ruled list with a single inline-expanding row, side-by-side reading pair that stacks on phone, calm loading line, and quiet keyboard hint.
+
+**Area:** components, app/_components
+
+**Blocked by:** None (can start immediately)
+
+- [ ] Each primitive renders in light and dark with the DESIGN.md tokens; status never relies on colour alone.
+- [ ] The ruled list allows exactly one expanded row and is keyboard reachable; the side-by-side pair stacks at 390px with no sideways scroll.
+- [ ] Component tests cover pencil/ink states and the single-expansion rule.
+
+### 02: My signals links that carry forward
+
+**What to build:** a person who already holds a My signals link files new signals onto it, from the web or through an agent, and sees them all on one page; old per-signal links keep working; nothing is ever grouped by email.
+
+**Area:** lib/db, drizzle, lib/signal, agents, tests
+
+**Blocked by:** None (can start immediately)
+
+- [ ] Additive migration (tracking links table, nullable link reference on signals) passes `migration-safety`.
+- [ ] `submit_signal` accepts `trackingToken` and returns `linkReused`; existing, unknown, legacy, and replayed-idempotency cases behave as the spec says; parity on REST, public MCP, and the Assistant agent tool.
+- [ ] `get_my_signals` returns every signal on a link, adopting a legacy token on first use; two links sharing an email never see each other's signals.
+- [ ] The Assistant agent's instructions say to pass a token only when the submitter gave it.
+
+### 03: Operator contract additions
+
+**What to build:** what the console needs from the API in one place: every live need with people, accounts, ARR, open deals, score, criterion scores, and pending suggestions in one call; a deterministic check that flags names, accounts, and emails in public text; a reason on rejected suggestions; and a plan filter on the demand summary.
+
+**Area:** lib/signal, agents, tests
+
+**Blocked by:** None (can start immediately)
+
+- [ ] `list_operator_needs` and `check_public_text` exist on the Operator REST prefix, Operator MCP, and Operator agent tools, absent from public discovery, `unauthorized` without the secret, fail closed when `OPERATOR_SECRET` is unset.
+- [ ] `list_operator_needs` filters by theme, status, and query and sorts by priority (nulls last, then people), people, accounts, or ARR.
+- [ ] `resolve_suggestion` reject accepts `reason` and the `suggestion.rejected` event carries it; `get_demand_summary` filters by `plan`.
+- [ ] The typed client is regenerated; parity and domain tests are written red first.
+
+### 04: Public board, submit wizard, and My signals UI
+
+**What to build:** customers use the lean public pages: a ruled board and need page, the Describe → Check → Details → Done wizard with the side-by-side Check and no suggestions while typing, and a My signals page that collects every signal on the link, with the remembered link and "Start a new link".
+
+**Area:** app, components, lib/signal, tests
+
+**Blocked by:** 01, 02
+
+- [ ] Nothing is suggested while typing; `preview_signal` runs once on Continue and again only after the words change; Back keeps what was typed.
+- [ ] Check shows up to three matches with the first read side by side; "None of these" is one click; additional asks are offered in one line; AI-unavailable and database-unavailable states are explained.
+- [ ] Details shows where it lands with Change and which My signals link it files under; Done shows the link and whether it was reused.
+- [ ] Public pages show no PII of other customers; Playwright covers the wizard, carry-forward, and Start a new link.
+
+### 05: Console shell, Triage, and Needs
+
+**What to build:** a PM signs in to the Ledger console, clears the triage queue one row at a time from the keyboard (merges read side by side, Undo merge kept, reject with reason, All caught up), and scans every need in one sortable table whose rows expand to the top verbatim signals and score breakdown.
+
+**Area:** app/operator, components, lib/signal, tests
+
+**Blocked by:** 01, 03
+
+- [ ] Shell: Triage (live count) · Needs · Criteria · Metrics · Chat, behind Operator access; unauthorized shows the access page.
+- [ ] Triage: J/K/A/E/R/Esc work; each suggestion kind edits only what `resolve_suggestion` allows; summary approval runs `check_public_text` and blocks on findings.
+- [ ] Needs reads `list_operator_needs` with filters and sort in the URL.
+- [ ] Takes client plumbing from `build/t08` where it fits; Playwright covers the triage keyboard flow.
+
+### 06: Need detail, decide, and publish
+
+**What to build:** from a need, a PM reads every signal verbatim and the merge history, overrides one priority criterion with a note, drafts and edits a decision brief, decides status and public note side by side, and publishes; the confirmation shows what supporters see.
+
+**Area:** app/operator, components, tests
+
+**Blocked by:** 05
+
+- [ ] The override needs a note and is offered only while a priority suggestion is pending.
+- [ ] The brief stays pencil until accepted or edited; the public note runs `check_public_text` and Publish is blocked on findings.
+- [ ] After publishing, the need's status and note show on the public need and on the supporters' My signals pages.
+
+### 07: Criteria, Metrics, and Chat
+
+**What to build:** a PM changes criteria weights and sees needs re-rank before saving (with Undo), reads the three MVP metrics with people and agents apart, and asks the Operator chat demand questions answered with linked needs.
+
+**Area:** app/operator, components, agents, tests
+
+**Blocked by:** 05
+
+- [ ] Weights must sum to 1.00 to save; the preview re-ranks from `list_operator_needs` criterion scores; Undo restores the previous weights.
+- [ ] Metrics show 28 and 90 days, unknown baselines labelled, people and agents apart.
+- [ ] "What are enterprise accounts blocked on?" is answered through `get_demand_summary` with `plan: Enterprise`, rendered as pencil prose with a cited-needs list.
+
+### 08: Acceptance run and docs
+
+**What to build:** evidence the spec works end to end for people and agents: the acceptance scenario on a fresh seed, locally and on the deployment, and the project docs brought in line.
+
+**Area:** tests, docs, GLOSSARY.md, ARCHITECTURE.md
+
+**Blocked by:** 04, 06, 07
+
+- [ ] Every human and agent step of the acceptance scenario passes, with the metric step counting Maya's signal once.
+- [ ] GLOSSARY defines My signals link (carries forward); ARCHITECTURE notes tracking links and the new operator operations; DESIGN.md's "Checking rendered output" passes on every screen.
+
 ## Direction changes
 
 - [001](./001-signal-mvp.md) → Solution, UI: submit used a "form with debounced live preview" and matches shown "while a person or agent describes a need" → the web flow checks once after Describe, in a wizard; agents are unaffected.
-- [001](./001-signal-mvp.md) → Schema: `signals.tracking_token` unique per signal → tracking links shared by a holder's signals ([0005](../decisions/0005-my-signals-link-carries-forward.md)).
+- [001](./001-signal-mvp.md) → Schema: a tracking token per signal → tracking links shared by a holder's signals (the per-signal token column stays for compatibility) ([0005](../decisions/0005-my-signals-link-carries-forward.md)).
 - [001](./001-signal-mvp.md) → UI: "Visual direction is open" → settled in [DESIGN.md](../../DESIGN.md). Task 08 (Operator console UI) is replaced by this spec.
 
 ## Out of Scope
