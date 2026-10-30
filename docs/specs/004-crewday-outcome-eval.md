@@ -243,7 +243,7 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 
 - [x] 01: World format and fixture world
 - [ ] 02: Generate the Crewday worlds
-- [ ] 03: Simulation engine, policies, arms, and scorer (offline)
+- [x] 03: Simulation engine, policies, arms, and scorer (offline)
 - [ ] 04: Signal vs. vote board on Crewday (the lift run)
 - [ ] 05: Behaviour sweep with cached AI responses
 - [ ] 06: Tagged runs, history, and the regression rule
