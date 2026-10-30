@@ -39,12 +39,16 @@ const pencilLabel = "font-serif text-xs italic [font-variant-caps:all-small-caps
 
 const percent = (confidence: number) => `${Math.round(confidence * 100)}%`;
 
+/** A listed brief whose stored recommendation could not be read shows as "Brief pending". */
+const briefView = (brief: ReadyNeed["brief"]): BriefView | null =>
+  brief?.recommendation ? { ...brief, recommendation: brief.recommendation } : null;
+
 /** Spec 007 → "Ready to decide": needs past the readiness line, oldest ready first. */
 export function ReadyNeeds({ initial }: { initial: ReadyPage }) {
   const [needs, setNeeds] = useState<ReadyNeed[]>(initial.needs);
   const [cursor, setCursor] = useState(initial.nextCursor);
   const [briefs, setBriefs] = useState<Record<string, BriefView | null>>(() =>
-    Object.fromEntries(initial.needs.map((n) => [n.needId, n.brief])),
+    Object.fromEntries(initial.needs.map((n) => [n.needId, briefView(n.brief)])),
   );
   const [open, setOpen] = useState<string | null>(initial.needs[0]?.needId ?? null);
   const [published, setPublished] = useState<string | null>(null);
@@ -63,7 +67,7 @@ export function ReadyNeeds({ initial }: { initial: ReadyPage }) {
     setNeeds((prev) => [...prev, ...result.data.needs]);
     setBriefs((prev) => ({
       ...prev,
-      ...Object.fromEntries(result.data.needs.map((n) => [n.needId, n.brief])),
+      ...Object.fromEntries(result.data.needs.map((n) => [n.needId, briefView(n.brief)])),
     }));
     setCursor(result.data.nextCursor);
   };
