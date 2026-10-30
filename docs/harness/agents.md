@@ -1,6 +1,6 @@
 # Agents, MCP, and chat
 
-Source: `agents/*/agent/`, `lib/signal/adapters/agent.ts`, `lib/mcp/`, `app/api/`, `lib/ai/models.ts`, [docs/INTEROP.md](../INTEROP.md).
+Source: `agents/*/agent/`, `lib/signal/adapters/agent.ts`, `app/api/operator/chat/`, `lib/mcp/`, `lib/ai/models.ts`, [docs/INTEROP.md](../INTEROP.md), [spec 010](../specs/010-retro-remediation.md).
 
 ## Inventory
 
@@ -15,22 +15,22 @@ flowchart TB
     subgraph OPA[Operator agent · protected]
       OI1[instructions.md<br/>helps PMs run Signal; AI output is a suggestion]
       OT1[compose_ui · list_component_catalog · generate_demo_data]
-      OT2[signal.ts · defineDynamic<br/>all 17 operations; 6 writes gated by approval]
+      OT2[signal.ts · defineDynamic<br/>all 23 operations; 7 writes gated by approval]
     end
+  end
+  subgraph Console[PM console chat · /operator/chat]
+    CA[/api/operator/chat · secret<br/>AI SDK generateText, up to 8 steps<br/>Operator instructions + console rules<br/>8 read-only ops/]
   end
   subgraph MCPs[MCP Streamable HTTP]
     P[/api/mcp and /mcp · public<br/>health · catalog · compose_ui + public ops<br/>GenUI preview MCP App resource/]
     O[/api/mcp/operator · secret<br/>diagnostics + all ops/]
   end
-  subgraph Chat[HTTP chat · streamText, no tools]
-    C1[/api/chat/]
-    C2[/api/operator/chat · secret/]
+  subgraph Chat[Public HTTP chat]
+    C1[/api/chat<br/>streamText, no tools/]
   end
 ```
 
-Note: the two HTTP chat routes are plain `streamText` with a short system prompt and no tools; Signal actions go through Eve agents or MCP.
-
-## How a Signal tool reaches an agent
+## How a Signal tool reaches an Eve agent
 
 ```mermaid
 sequenceDiagram
@@ -40,7 +40,7 @@ sequenceDiagram
   participant Reg as registry
   participant Ex as executeOperation
   Eve->>Dyn: session.started
-  Dyn->>Ad: resolve tools for assistant | operator
+  Dyn->>Ad: resolve tools for assistant or operator
   Ad->>Reg: public ops, or all ops
   Ad-->>Eve: one defineTool per op<br/>durable callback + durable schema<br/>approval: always() if operator write
   Eve->>Ad: model calls tool(input)
@@ -49,13 +49,26 @@ sequenceDiagram
     Eve-->>Ad: approved
   end
   Ad->>Ex: run as actor kind agent, client eve:assistant or eve:operator
-  Ex-->>Ad: data, or { error } envelope (never throws)
+  Ex-->>Ad: data, or the error envelope (never throws)
   Ad-->>Eve: tool result
 ```
 
 Durable callbacks capture only the operation name, so a parked call replays in a fresh process.
 
-## Prompt-injection guardrails
+## Console chat answer
+
+```mermaid
+flowchart LR
+  Q[PM question<br/>what are enterprise accounts blocked on?] --> G[generateText<br/>Operator instructions + console rules]
+  G -->|plan or segment| DS[get_demand_summary plan]
+  G -->|overview| LN[list_operator_needs]
+  G -->|detail| ND[get_need_detail, get_need, search_needs]
+  G -->|context| OT[get_criteria, get_metrics, list_suggestions]
+  DS & LN & ND & OT --> A[Short answer<br/>needs linked as need:id, cited needs listed]
+  G -. asked to change something .-> PT[Points to Triage, need page, or Criteria]
+```
+
+## Guardrails in agent instructions
 
 ```mermaid
 flowchart LR
@@ -63,6 +76,8 @@ flowchart LR
   R -->|treated as data| OK[Read, summarize, answer]
   R -->|asks for a write| NO[Ignored: write only when<br/>the person in chat asked]
   W[Operator write tool] --> APP[PM approval per call]
+  PUBT[Public summary or decision note] --> CPT[check_public_text first,<br/>remove every finding]
+  TOK[My signals token] --> TR2[Only one the submitter gave in chat<br/>never guessed or looked up by email]
   G[compose_ui query] --> IG[injection-guard intent<br/>regex routing]
 ```
 
@@ -80,7 +95,7 @@ flowchart TD
 
 OAuth/OIDC for Operator is not implemented.
 
-## Model routing
+## Model routing: AI Gateway only
 
 ```mermaid
 flowchart LR
@@ -88,15 +103,17 @@ flowchart LR
     CH[Chat · CHAT_MODEL<br/>claude-sonnet-5.5]
     EV[Eve · EVE_AGENT_MODEL / EVE_OPERATOR_MODEL<br/>claude-sonnet-5.5]
     FA[Signal fast · SIGNAL_FAST_MODEL<br/>claude-haiku-5.5: extract, judge]
-    RE[Signal reasoning · SIGNAL_REASONING_MODEL<br/>claude-sonnet-5.5: scores, briefs, summaries]
+    RE[Signal reasoning · SIGNAL_REASONING_MODEL<br/>claude-sonnet-5.5: scores, themes, summaries]
+    DE[Signal decision · SIGNAL_DECISION_MODEL<br/>claude-sonnet-5.5: decision briefs]
     EM[Embeddings · SIGNAL_EMBEDDING_MODEL<br/>text-embedding-3-small, 1536 d]
     GU[GenUI · GENUI_MODEL<br/>claude-sonnet-4.6]
   end
-  Ids --> GW{Gateway available?<br/>AI_GATEWAY_API_KEY or VERCEL=1 OIDC}
-  GW -->|yes| VG[Vercel AI Gateway]
-  GW -->|no, FLOW_ALLOW_DIRECT_ANTHROPIC=1 + key| DA[Direct Anthropic, chat only]
-  GW -->|no| DEG[Degrade: chat 503, preview ai: unavailable,<br/>GenUI fixtures only]
+  Ids --> GW{Gateway credentials?<br/>AI_GATEWAY_API_KEY, VERCEL_OIDC_TOKEN, or VERCEL=1}
+  GW -->|yes| VG[Vercel AI Gateway<br/>billed on Gateway credentials]
+  GW -->|no| DEG[Degrade: chat 503, preview ai: unavailable,<br/>GenUI fixtures only, live evals skip]
 ```
+
+There is no direct provider path, and lint rejects direct provider SDK imports. The local OIDC token from `vercel env pull` expires after about 12 hours.
 
 ## GenUI compose (`compose_ui`, `/genui`)
 
