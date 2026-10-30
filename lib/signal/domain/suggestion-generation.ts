@@ -1,4 +1,3 @@
-import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -373,27 +372,27 @@ export const generateSuggestionsForSignal = async (
 
 export type SuggestionScheduler = (task: () => Promise<unknown>) => void;
 
-/** Runs the task after the response is sent; outside a request scope (scripts, Eve) it starts now. */
-export const afterResponse: SuggestionScheduler = (task) => {
-  try {
-    after(task);
-  } catch {
-    void task();
-  }
+/**
+ * Default: start the task now without awaiting it (scripts, Eve agents). Next.js route handlers
+ * install `after()` through `lib/signal/next.ts`, so this module stays framework-free and the Eve
+ * agent bundles can load it.
+ */
+export const startNow: SuggestionScheduler = (task) => {
+  void task().catch(() => null);
 };
 
-let scheduler: SuggestionScheduler = afterResponse;
+let scheduler: SuggestionScheduler = startNow;
 
 /**
  * Swaps how generation is scheduled. The test database harness installs a recorder so parity
  * stays deterministic (nothing runs in the background); `resetSuggestionScheduler` restores
- * `after()`.
+ * the default.
  */
 export const configureSuggestionScheduler = (next: SuggestionScheduler) => {
   scheduler = next;
 };
 export const resetSuggestionScheduler = () => {
-  scheduler = afterResponse;
+  scheduler = startNow;
 };
 
 /**

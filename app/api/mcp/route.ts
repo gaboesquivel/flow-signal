@@ -1,5 +1,6 @@
 import { createStarterMcpServer } from "@/lib/mcp/create-mcp-server";
 import { handleMcpRequest } from "@/lib/mcp/handle-mcp-request";
+import "@/lib/signal/next";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

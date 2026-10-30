@@ -1,6 +1,7 @@
 import { operatorAccessDeniedResponse, verifyOperatorRequest } from "@/lib/auth/operator-access";
 import { createOperatorMcpServer } from "@/lib/mcp/create-operator-mcp-server";
 import { handleMcpRequest } from "@/lib/mcp/handle-mcp-request";
+import "@/lib/signal/next";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

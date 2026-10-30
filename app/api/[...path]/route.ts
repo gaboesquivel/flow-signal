@@ -1,6 +1,7 @@
 import { jsonError, withExtraHeaders } from "@/lib/api/json-error";
 import { discoveryRateLimitHeaders } from "@/lib/api/rate-limit-headers";
 import { createSignalHttpHandler } from "@/lib/signal/adapters/http";
+import "@/lib/signal/next";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
