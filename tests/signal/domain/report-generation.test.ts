@@ -12,6 +12,7 @@ import type { ReportGenerationDeps } from "../../../lib/signal/domain/report-gen
 import { datasetColumns } from "../../../lib/signal/domain/report-datasets";
 import type { DatasetQuery, DatasetResult } from "../../../lib/signal/domain/report-datasets";
 import type { ReportSpec } from "../../../lib/signal/domain/report-spec";
+import { asModelCompose } from "../support/report-compose";
 
 const NOW = new Date("2026-10-30T09:00:00Z");
 const REPORTING = "11111111-1111-4111-8111-111111111111";
@@ -135,7 +136,10 @@ const setup = (
   const deps: ReportGenerationDeps = {
     now: NOW,
     reasoner: fakeReasoner({
-      report_compose: record("report_compose", handlers?.report_compose),
+      report_compose: record(
+        "report_compose",
+        handlers?.report_compose && asModelCompose(handlers.report_compose),
+      ),
       report_plan: record("report_plan", handlers?.report_plan),
     }),
     runDataset: (query) => {

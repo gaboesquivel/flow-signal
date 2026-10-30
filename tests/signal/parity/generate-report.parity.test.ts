@@ -7,6 +7,7 @@ import { generateReport } from "../../../lib/signal/operations/generate-report";
 import { configureSignalRuntime } from "../../../lib/signal/runtime";
 import { insertTheme } from "../support/builders";
 import { runParityTable } from "./harness";
+import { toModelCompose } from "../support/report-compose";
 
 const NOW = new Date("2026-10-30T09:00:00Z");
 const OUTAGE = "OUTAGE";
@@ -16,24 +17,25 @@ const NO_DATASET = "NPS by region";
 const reportAi = () =>
   createFakeAi({
     reasoner: fakeReasoner({
-      report_compose: () => ({
-        blocks: [
-          { kind: "heading", text: "Demand" },
-          {
-            items: [{ aggregate: "count", column: "needId", dataset: "d1", label: "Live needs" }],
-            kind: "kpi",
-          },
-          {
-            columns: ["statement", "people", "arrCents"],
-            dataset: "d1",
-            kind: "table",
-            limit: 10,
-            sort: { column: "arrCents", direction: "desc" },
-            title: "Top needs",
-          },
-        ],
-        title: "Demand by need",
-      }),
+      report_compose: () =>
+        toModelCompose({
+          blocks: [
+            { kind: "heading", text: "Demand" },
+            {
+              items: [{ aggregate: "count", column: "needId", dataset: "d1", label: "Live needs" }],
+              kind: "kpi",
+            },
+            {
+              columns: ["statement", "people", "arrCents"],
+              dataset: "d1",
+              kind: "table",
+              limit: 10,
+              sort: { column: "arrCents", direction: "desc" },
+              title: "Top needs",
+            },
+          ],
+          title: "Demand by need",
+        }),
       report_plan: ({ prompt }) => {
         if (prompt.includes(OUTAGE)) throw new SignalError("ai_unavailable", "Model down.");
         if (prompt.includes(NO_DATASET))

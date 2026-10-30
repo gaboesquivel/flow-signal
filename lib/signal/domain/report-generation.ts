@@ -228,36 +228,16 @@ export const reportPlanOutputSchema = z.object({
 });
 export type ReportPlanOutput = z.infer<typeof reportPlanOutputSchema>;
 
+/**
+ * Each block is its kind plus its other fields as a JSON string. Constrained decoding against a
+ * wide object of optional fields took 45–120 s+ per call; this shape decodes in seconds, and
+ * the fields are parsed and validated afterwards (bad JSON goes to the repair round).
+ */
 const composeBlockSchema = z.object({
-  aggregate: optionalText.describe(
-    "chart: how rows sharing an x combine: sum (default) | avg | count | min | max",
-  ),
-  caption: optionalText,
-  chart: optionalText.describe("chart: bar | line | area | scatter | donut"),
-  columns: z.array(z.string()).nullish().describe("table: column keys to show"),
-  dataset: optionalText.describe("chart, table: a dataset id"),
-  horizontal: z.boolean().nullish(),
-  items: z
-    .array(
-      z.object({
-        aggregate: z.string().describe("sum | count | avg | median | min | max | latest"),
-        column: z.string(),
-        dataset: z.string(),
-        label: z.string(),
-      }),
-    )
-    .nullish()
-    .describe("kpi: 1–4 headline figures"),
+  json: z
+    .string()
+    .describe('The block\'s other fields as a JSON object, e.g. {"text":"Demand by theme"}'),
   kind: z.enum(["heading", "text", "kpi", "chart", "table"]),
-  limit: z.number().nullish(),
-  markdown: optionalText.describe(`text: short markdown, ≤ ${MAX_TEXT_BLOCK_CHARS} characters`),
-  seriesBy: optionalText.describe("chart: a string column to split into series"),
-  sort: z.object({ column: z.string(), direction: z.string() }).nullish(),
-  stacked: z.boolean().nullish(),
-  text: optionalText.describe("heading: the heading"),
-  title: optionalText.describe("chart, table: title"),
-  x: optionalText.describe("chart: x column key"),
-  y: z.array(z.string()).nullish().describe("chart: numeric column keys"),
 });
 
 export const reportComposeOutputSchema = z.object({
@@ -284,6 +264,8 @@ Rules:
 
 const COMPOSE_SYSTEM = `You lay out a product manager's report in Signal from datasets the server already ran.
 You write a title and blocks that reference dataset ids and column keys; the app computes and draws every figure from the rows.
+
+Return each block as { kind, json }: json is a JSON object (as a string) of the block's other fields.
 
 Block kinds:
 - heading: { kind: "heading", text }
@@ -463,8 +445,19 @@ const blockKeys: Record<Block["kind"], string[]> = {
 
 type RawBlock = ReportComposeOutput["blocks"][number];
 
-const normalizeBlock = (raw: RawBlock) => {
-  const present = withoutNulls(raw);
+const blockFields = (raw: RawBlock): Record<string, unknown> | null => {
+  try {
+    const fields: unknown = JSON.parse(raw.json);
+    return fields && typeof fields === "object" && !Array.isArray(fields)
+      ? (fields as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const normalizeBlock = (raw: RawBlock, fields: Record<string, unknown>) => {
+  const present = withoutNulls({ ...fields, kind: raw.kind });
   if (raw.kind === "text" && present.markdown === undefined && present.text !== undefined)
     present.markdown = present.text;
   return Object.fromEntries(
@@ -506,7 +499,12 @@ const checkCompose = (
       issues.push({ index, kind: raw.kind, message: `at most ${MAX_REPORT_BLOCKS} blocks` });
       continue;
     }
-    const result = blockSchema.safeParse(normalizeBlock(raw));
+    const fields = blockFields(raw);
+    if (!fields) {
+      issues.push({ index, kind: raw.kind, message: "json must be one JSON object" });
+      continue;
+    }
+    const result = blockSchema.safeParse(normalizeBlock(raw, fields));
     if (result.success) parsed.push({ block: result.data, index });
     else
       issues.push({
