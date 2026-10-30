@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/mcp": ["./mcp-app/dist/genui-preview.html"],
     "/api/mcp/operator": ["./mcp-app/dist/genui-preview.html"],
+    "/api/operator/chat": ["./agents/operator/agent/instructions.md"],
     "/mcp": ["./mcp-app/dist/genui-preview.html"],
   },
   redirects() {
