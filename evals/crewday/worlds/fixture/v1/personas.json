@@ -1,0 +1,137 @@
+[
+  {
+    "key": "fx-p-dana",
+    "name": "Dana Whitfield",
+    "email": "dana@harborfreight.example",
+    "accountKey": "fx-harbor",
+    "role": "Ops admin",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-raj",
+    "name": "Raj Patel",
+    "email": "raj@harborfreight.example",
+    "accountKey": "fx-harbor",
+    "role": "Shift manager",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-lena",
+    "name": "Lena Okafor",
+    "email": "lena@harborfreight.example",
+    "accountKey": "fx-harbor",
+    "role": "Frontline staff",
+    "channel": "mcp",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-tom",
+    "name": "Tom Becker",
+    "email": "tom@northgate.example",
+    "accountKey": "fx-northgate",
+    "role": "Shift manager",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-ivy",
+    "name": "Ivy Chen",
+    "email": "ivy@northgate.example",
+    "accountKey": "fx-northgate",
+    "role": "HR and payroll",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-marco",
+    "name": "Marco Rossi",
+    "email": "marco@northgate.example",
+    "accountKey": "fx-northgate",
+    "role": "IT and security",
+    "channel": "mcp",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-sam",
+    "name": "Sam Alvarez",
+    "email": "sam@northgate.example",
+    "accountKey": "fx-northgate",
+    "role": "CSM",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-nora",
+    "name": "Nora Lindqvist",
+    "email": "nora@pinecrest.example",
+    "accountKey": "fx-pinecrest",
+    "role": "Ops admin",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-jade",
+    "name": "Jade Morgan",
+    "email": "jade@pinecrest.example",
+    "accountKey": "fx-pinecrest",
+    "role": "Frontline staff",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-kofi",
+    "name": "Kofi Mensah",
+    "email": "kofi@summitguard.example",
+    "accountKey": "fx-summit",
+    "role": "Shift manager",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-elle",
+    "name": "Elle Fournier",
+    "email": "elle@summitguard.example",
+    "accountKey": "fx-summit",
+    "role": "Compliance lead",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-ben",
+    "name": "Ben Carter",
+    "email": "ben@bluebird.example",
+    "accountKey": "fx-bluebird",
+    "role": "Frontline staff",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-zoe",
+    "name": "Zoe Park",
+    "email": "zoe@bluebird.example",
+    "accountKey": "fx-bluebird",
+    "role": "HR and payroll",
+    "channel": "web",
+    "actorKind": "human"
+  },
+  {
+    "key": "fx-p-copilot",
+    "name": "Lakeside support copilot",
+    "email": "copilot@lakeside.example",
+    "accountKey": "fx-lakeside",
+    "role": "Support copilot",
+    "channel": "mcp",
+    "actorKind": "agent"
+  },
+  {
+    "key": "fx-p-ana",
+    "name": "Ana Silva",
+    "email": "ana@harborfreight.example",
+    "accountKey": "fx-harbor",
+    "role": "Sales rep",
+    "channel": "web",
+    "actorKind": "human"
+  }
+]

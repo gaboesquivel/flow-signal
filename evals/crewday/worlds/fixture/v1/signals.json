@@ -1,0 +1,907 @@
+[
+  {
+    "id": "fx-s01",
+    "at": "2026-01-06T09:12:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Trading shifts is a nightmare",
+    "body": "I had to text 6 people to get my Saturday covered and my manager still had the old name on the rota.",
+    "useCase": "Covering a shift when my kid is sick",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s02",
+    "at": "2026-01-14T15:40:00Z",
+    "personaKey": "fx-p-raj",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Overtime surprises at month end",
+    "body": "Payroll told me one of my drivers did 20 extra hours last month. I had no idea until the report.",
+    "useCase": "Keeping labour cost on budget",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s03",
+    "at": "2026-01-21T08:03:00Z",
+    "personaKey": "fx-p-zoe",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Export hours to our bookkeeper",
+    "body": "Every other Friday I copy timesheets into a spreadsheet for our accountant. Can I just download a file she can import?",
+    "useCase": "Closing payroll",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-payroll-csv-accountants"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s04",
+    "at": "2026-02-02T11:30:00Z",
+    "personaKey": "fx-p-kofi",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Need to blast a open shift to everyone",
+    "body": "When a guard calls out at 5am i ring people one by one. Want to send the shift to all qualified guards and first one takes it.",
+    "useCase": "Covering call-outs",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill"],
+      "kind": "new",
+      "firstOccurrence": true,
+      "existedAtTime": false
+    }
+  },
+  {
+    "id": "fx-s05",
+    "at": "2026-02-09T13:15:00Z",
+    "personaKey": "fx-p-jade",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "swap with coworker?",
+    "body": "Is there a way to give my night to Priya without asking the charge nurse to fix the schedule?",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s06",
+    "at": "2026-02-17T10:05:00Z",
+    "personaKey": "fx-p-tom",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Hours creeping over 40",
+    "body": "I approved an extra shift and it pushed someone into overtime. Would love a heads-up before that happens.",
+    "useCase": "Approving extra shifts",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s07",
+    "at": "2026-02-24T16:45:00Z",
+    "personaKey": "fx-p-ivy",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Payroll CSV export for union audit",
+    "body": "Our union asked for every change made to members' hours. A CSV export with who edited what would let us answer.",
+    "useCase": "Answering union audit requests",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-union-audit-records"],
+      "kind": "same_solution",
+      "firstOccurrence": true,
+      "existedAtTime": false
+    }
+  },
+  {
+    "id": "fx-s08",
+    "at": "2026-03-03T07:55:00Z",
+    "personaKey": "fx-p-elle",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Guards clocking in from the bus",
+    "body": "We see clock-ins from 2km away. Clock-in should only work at the post.",
+    "useCase": "Billing clients for patrols",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-site-clock-in"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s09",
+    "at": "2026-03-10T12:20:00Z",
+    "personaKey": "fx-p-dana",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Shift trades + overtime warning",
+    "body": "Two things from our sites: staff want to trade shifts themselves, and managers want to see overtime coming before payroll.",
+    "useCase": "Running 14 warehouses",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap", "fx-overtime-warning"],
+      "kind": "multi_ask",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s10",
+    "at": "2026-03-10T12:22:00Z",
+    "personaKey": "fx-p-dana",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Shift trades + overtime warning",
+    "body": "Two things from our sites: staff want to trade shifts themselves, and managers want to see overtime coming before payroll.",
+    "useCase": "Running 14 warehouses",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap", "fx-overtime-warning"],
+      "kind": "multi_ask",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    },
+    "planted": "retry",
+    "retryOf": "fx-s09"
+  },
+  {
+    "id": "fx-s11",
+    "at": "2026-03-18T14:10:00Z",
+    "personaKey": "fx-p-copilot",
+    "accountKey": "fx-lakeside",
+    "channel": "mcp",
+    "actorKind": "agent",
+    "title": "Customer asks for shift trading",
+    "body": "Lakeside's front desk manager says staff keep swapping shifts on WhatsApp and the schedule is never right.",
+    "useCase": "Front desk scheduling",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s12",
+    "at": "2026-03-25T09:00:00Z",
+    "personaKey": "fx-p-zoe",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "CSV payroll export pls",
+    "body": "our accountant uses xero, she cant read the screenshots. need hours as a file",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-payroll-csv-accountants"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s13",
+    "at": "2026-04-01T18:30:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "App useless on Sundays",
+    "body": "Every Sunday the app shows last week's schedule. I only find out about changes on Monday.",
+    "useCase": null,
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "symptom",
+      "firstOccurrence": true,
+      "existedAtTime": false
+    }
+  },
+  {
+    "id": "fx-s14",
+    "at": "2026-04-08T10:10:00Z",
+    "personaKey": "fx-p-marco",
+    "accountKey": "fx-northgate",
+    "channel": "mcp",
+    "actorKind": "human",
+    "title": "Broadcast uncovered shifts",
+    "body": "Store managers lose the first hour of opening calling people when someone is out. Send the gap to everyone eligible.",
+    "useCase": "Opening stores on time",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s15",
+    "at": "2026-04-15T08:45:00Z",
+    "personaKey": "fx-p-nora",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Problem with Maria's timesheet",
+    "body": "Maria Gonzalez (employee ID 88412, phone +1 415 555 0142) swapped with a colleague but still got paged for the night. Staff need to swap without us redoing the rota.",
+    "useCase": "Night rota at the clinic",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    },
+    "planted": "pii",
+    "pii": ["Maria Gonzalez", "88412", "+1 415 555 0142"]
+  },
+  {
+    "id": "fx-s16",
+    "at": "2026-04-22T11:00:00Z",
+    "personaKey": "fx-p-raj",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Overtime again",
+    "body": "   ",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    },
+    "planted": "invalid"
+  },
+  {
+    "id": "fx-s17",
+    "at": "2026-04-29T15:35:00Z",
+    "personaKey": "fx-p-kofi",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Clock in only on site",
+    "body": "Same as before: we need clock-ins locked to the site address. Clients ask.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-site-clock-in"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s18",
+    "at": "2026-05-06T09:25:00Z",
+    "personaKey": "fx-p-ivy",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Who changed this timesheet?",
+    "body": "A supervisor edited a clock-out in March and the worker disputes it. I need to see every edit with who and when.",
+    "useCase": "Resolving pay disputes",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-union-audit-records"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s19",
+    "at": "2026-05-13T13:50:00Z",
+    "personaKey": "fx-p-sam",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Northgate: overtime visibility",
+    "body": "Northgate is at churn risk and keeps raising unplanned overtime cost. They want warnings, not reports.",
+    "useCase": "Renewal",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s20",
+    "at": "2026-05-20T07:40:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Schedule on phone still old",
+    "body": "Saturday night they moved my Sunday to 6am and my phone showed 9am. Got written up.",
+    "useCase": null,
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "symptom",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s21",
+    "at": "2026-05-27T16:00:00Z",
+    "personaKey": "fx-p-ana",
+    "accountKey": "fx-lakeside",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Prospect: covering call-outs",
+    "body": "Lakeside Hotels runs three hotels and asks if managers can push a missing shift to everyone at once. Deal depends on it.",
+    "useCase": "Hotel call-outs",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s22",
+    "at": "2026-06-03T08:15:00Z",
+    "personaKey": "fx-p-elle",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Prove guards were on site",
+    "body": "A client won't pay for night patrols unless we show where the guard clocked in. Need location evidence per clock-in.",
+    "useCase": "Client invoicing",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-clock-in-proof"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s23",
+    "at": "2026-06-10T10:30:00Z",
+    "personaKey": "fx-p-tom",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Let people trade shifts",
+    "body": "Our stores run on a whiteboard for swaps. Please add swaps in the app with manager approval.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s24",
+    "at": "2026-06-17T12:45:00Z",
+    "personaKey": "fx-p-dana",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Payroll CSV export",
+    "body": "Can we get a payroll CSV export? Our sites' payroll team retypes hours.",
+    "useCase": "Payroll at 14 sites",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-payroll-csv-accountants"],
+      "kind": "same_solution",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s25",
+    "at": "2026-06-24T14:05:00Z",
+    "personaKey": "fx-p-lena",
+    "accountKey": "fx-harbor",
+    "channel": "mcp",
+    "actorKind": "human",
+    "title": "cant clock in basement",
+    "body": "in the basement storeroom no signal, app spin and spin. i walk upstairs every morning before start",
+    "useCase": null,
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-clock-in-offline"],
+      "kind": "paraphrase",
+      "firstOccurrence": true,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s26",
+    "at": "2026-07-01T09:35:00Z",
+    "personaKey": "fx-p-copilot",
+    "accountKey": "fx-lakeside",
+    "channel": "mcp",
+    "actorKind": "agent",
+    "title": "Sunday schedule not updating",
+    "body": "Guest services staff at Lakeside say the app shows stale schedules all weekend.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "symptom",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s27",
+    "at": "2026-07-08T11:20:00Z",
+    "personaKey": "fx-p-jade",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Night shift swaps",
+    "body": "Nurses on our ward swap nights constantly. Doing it in the app would save the charge nurse an hour a week.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s28",
+    "at": "2026-07-15T15:10:00Z",
+    "personaKey": "fx-p-kofi",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Evidence of clock-in location for clients",
+    "body": "Our biggest client audits 20 shifts a quarter and asks where each clock-in happened.",
+    "useCase": "Quarterly client audit",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-clock-in-proof"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s29",
+    "at": "2026-07-22T08:50:00Z",
+    "personaKey": "fx-p-raj",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Weekly hours view",
+    "body": "Need to see who is close to 40 hours by Wednesday so I can move shifts around.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s30",
+    "at": "2026-07-29T13:30:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Sunday again",
+    "body": "Still useless on Sundays. Missed another change.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "symptom",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s31",
+    "at": "2026-08-05T10:00:00Z",
+    "personaKey": "fx-p-marco",
+    "accountKey": "fx-northgate",
+    "channel": "mcp",
+    "actorKind": "human",
+    "title": "Offline clock-in for loading docks",
+    "body": "Our docks have one bar of signal. Clock-ins should queue and sync later with the real time.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-clock-in-offline"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s32",
+    "at": "2026-08-12T16:20:00Z",
+    "personaKey": "fx-p-ivy",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "12 months of hours for an inspector",
+    "body": "Labour inspector wants a year of hours for one store including edits. We stitch exports by hand.",
+    "useCase": "Labour inspection",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-union-audit-records"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s33",
+    "at": "2026-08-19T09:45:00Z",
+    "personaKey": "fx-p-zoe",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Set my availability",
+    "body": "Can staff put in when they can't work? I keep scheduling our student on her lecture mornings.",
+    "useCase": "Scheduling part-timers",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-availability"],
+      "kind": "new",
+      "firstOccurrence": true,
+      "existedAtTime": false
+    }
+  },
+  {
+    "id": "fx-s34",
+    "at": "2026-08-26T12:10:00Z",
+    "personaKey": "fx-p-ana",
+    "accountKey": "fx-lakeside",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Open shifts + availability",
+    "body": "Lakeside asks two things: offer a missing shift to everyone, and let part-timers block out days they can't work.",
+    "useCase": "Hotel scheduling",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill", "fx-availability"],
+      "kind": "multi_ask",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s35",
+    "at": "2026-09-02T07:30:00Z",
+    "personaKey": "fx-p-nora",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Push open shifts to the pool",
+    "body": "When a nurse calls out we want the shift offered to every eligible nurse at once.",
+    "useCase": "Agency cover",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s36",
+    "at": "2026-09-09T14:40:00Z",
+    "personaKey": "fx-p-elle",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Clock-in photo for contracts",
+    "body": "Some contracts want a photo at clock-in as proof of presence.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-clock-in-proof"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s37",
+    "at": "2026-09-16T11:55:00Z",
+    "personaKey": "fx-p-tom",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Audit log of edits",
+    "body": "Union audit season. Need a log of every timesheet edit per member.",
+    "useCase": "Union audit",
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-union-audit-records"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s38",
+    "at": "2026-09-23T10:25:00Z",
+    "personaKey": "fx-p-lena",
+    "accountKey": "fx-harbor",
+    "channel": "mcp",
+    "actorKind": "human",
+    "title": "Swap my shift",
+    "body": "want to swap my friday with Ade. how?",
+    "useCase": null,
+    "urgency": "low",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s39",
+    "at": "2026-09-30T15:15:00Z",
+    "personaKey": "fx-p-dana",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Overtime alert before approval",
+    "body": "When approving extra shifts show if it causes overtime.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s40",
+    "at": "2026-10-07T09:05:00Z",
+    "personaKey": "fx-p-jade",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Weekend changes don't reach me",
+    "body": "Changes made on weekends only show up Monday. I want a notification when my shift moves.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s41",
+    "at": "2026-10-14T13:00:00Z",
+    "personaKey": "fx-p-sam",
+    "accountKey": "fx-northgate",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Northgate: offline clock-in",
+    "body": "Northgate's basement stockrooms have no signal; staff lose minutes every morning.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-clock-in-offline"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s42",
+    "at": "2026-10-21T08:20:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Can't work Tuesdays",
+    "body": "I have class Tuesdays. Can I mark that so I stop getting Tuesday shifts?",
+    "useCase": null,
+    "urgency": "low",
+    "labels": {
+      "needKeys": ["fx-availability"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s43",
+    "at": "2026-10-28T12:35:00Z",
+    "personaKey": "fx-p-copilot",
+    "accountKey": "fx-lakeside",
+    "channel": "mcp",
+    "actorKind": "agent",
+    "title": "Hotel needs open shift broadcast",
+    "body": "Lakeside manager wants to send an uncovered shift to all housekeepers at once.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-open-shift-fill"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s44",
+    "at": "2026-11-04T10:50:00Z",
+    "personaKey": "fx-p-zoe",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Accountant import file",
+    "body": "Bookkeeper rejected our file because the columns were wrong. Need an export in her format.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-payroll-csv-accountants"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s45",
+    "at": "2026-11-11T09:10:00Z",
+    "personaKey": "fx-p-kofi",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Geofence the posts",
+    "body": "Still seeing clock-ins from home. Lock it to the post.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-site-clock-in"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s46",
+    "at": "2026-11-18T14:25:00Z",
+    "personaKey": "fx-p-raj",
+    "accountKey": "fx-harbor",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Overtime is killing our margin",
+    "body": "Need overtime warnings per site before the shift is approved.",
+    "useCase": null,
+    "urgency": "high",
+    "labels": {
+      "needKeys": ["fx-overtime-warning"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s47",
+    "at": "2026-11-25T11:40:00Z",
+    "personaKey": "fx-p-nora",
+    "accountKey": "fx-pinecrest",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Availability for part-time nurses",
+    "body": "Part-time nurses need to block out days in advance.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-availability"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s48",
+    "at": "2026-12-02T08:00:00Z",
+    "personaKey": "fx-p-marco",
+    "accountKey": "fx-northgate",
+    "channel": "mcp",
+    "actorKind": "human",
+    "title": "Push alerts for rota changes",
+    "body": "Staff miss rota changes on weekends. Push notifications when a shift changes.",
+    "useCase": null,
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-weekend-schedule-sync"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s49",
+    "at": "2026-12-09T13:20:00Z",
+    "personaKey": "fx-p-elle",
+    "accountKey": "fx-summit",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "Payroll CSV export for audits",
+    "body": "We need a payroll CSV export so we can hand auditors every edit to hours.",
+    "useCase": "Audit prep",
+    "urgency": "medium",
+    "labels": {
+      "needKeys": ["fx-union-audit-records"],
+      "kind": "same_solution",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  },
+  {
+    "id": "fx-s50",
+    "at": "2026-12-16T10:15:00Z",
+    "personaKey": "fx-p-ben",
+    "accountKey": "fx-bluebird",
+    "channel": "web",
+    "actorKind": "human",
+    "title": "shift swap!!",
+    "body": "please let us swap shifts in the app, the whiteboard thing is not working",
+    "useCase": null,
+    "urgency": "low",
+    "labels": {
+      "needKeys": ["fx-shift-swap"],
+      "kind": "paraphrase",
+      "firstOccurrence": false,
+      "existedAtTime": true
+    }
+  }
+]
