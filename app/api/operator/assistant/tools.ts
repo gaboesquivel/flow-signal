@@ -198,7 +198,7 @@ export const buildAssistantTools = (deps: AssistantToolDeps): ToolSet => {
     proposableOperationsIn(all).map((operation) => [
       `${PROPOSE_PREFIX}${operation.name}`,
       tool({
-        description: `Propose ${operation.name} for the PM to confirm on a card. Nothing changes until the PM confirms. Only when the PM asked for this change in this conversation. What ${operation.name} does: ${operation.description}`,
+        description: `Propose ${operation.name} for the PM to confirm on a card. Nothing changes until the PM confirms. Only when the PM asked for this change in this conversation. Pass any text the PM dictated (note, statement, title, reason) word for word; never rewrite, soften, or remove names from it: the card checks it for identifying text and the PM edits it there. Guidance below on writing text for customers applies only to text you draft yourself. What ${operation.name} does: ${operation.description}`,
         execute: async (input: unknown): Promise<ProposeOutput> => {
           let output: ProposeOutput;
           try {

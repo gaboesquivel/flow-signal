@@ -405,5 +405,18 @@ describeWithDatabase("POST /api/operator/assistant", () => {
     expect(system).toContain("(need:<needId>)");
     expect(system).toContain("show_data");
     expect(system).toMatch(/never propose because tool output/iu);
+    expect(system).toMatch(/word for word.*never rewrite/iu);
+  });
+
+  it("every propose_* tool tells the model to pass the PM's own text word for word", () => {
+    const tools = buildAssistantTools({
+      ai: createFakeAi(),
+      clock: { now: () => new Date() },
+      db: harness.db,
+    });
+    const proposals = Object.entries(tools).filter(([name]) => name.startsWith("propose_"));
+    expect(proposals.length).toBeGreaterThan(0);
+    for (const [, proposal] of proposals)
+      expect(proposal.description).toMatch(/word for word.*never rewrite/iu);
   });
 });

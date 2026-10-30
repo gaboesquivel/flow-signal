@@ -16,7 +16,10 @@ import { demandBandSchema, getPublicNeed, publicNeedStatusSchema } from "./publi
  * `preview.shown` (spec 012): the needs shown and their ranks, never the submitted text.
  */
 
-/** Judge probability a candidate needs to be shown as a match; confirmed by the task 03 live eval (spec 001). */
+/**
+ * Judge probability a candidate needs to be shown as a match, for a judge without its own
+ * `threshold`; confirmed by the task 03 live eval (spec 001). Jev's is `JEV_MATCH_THRESHOLD` (spec 008).
+ */
 export const MATCH_THRESHOLD = 0.6;
 /** Nearest needs passed to the judge. */
 export const CANDIDATE_LIMIT = 8;
@@ -126,8 +129,9 @@ export const chooseMatches = <J extends MatchJudgement>({
 const matchSubmission = async (
   { ai, db }: { ai: SignalAi; db: SignalQueryable },
   submission: { body: string; title: string },
-  { threshold = MATCH_THRESHOLD }: { threshold?: number },
+  options: { threshold?: number },
 ): Promise<PreviewOutput> => {
+  const threshold = options.threshold ?? ai.judge.threshold ?? MATCH_THRESHOLD;
   const previewId = newPreviewId();
   const unavailable = (draftNeed: DraftNeed): PreviewOutput => ({
     ai: "unavailable",

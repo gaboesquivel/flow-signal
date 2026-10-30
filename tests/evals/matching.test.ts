@@ -7,10 +7,12 @@ import type { CaseKind, LabeledSubmission } from "@/evals/matching/dataset";
 import {
   meetsTargets,
   multiAskDetection,
+  multiAskScores,
   percentile,
   pickBestThreshold,
   scoreAt,
   shownMatches,
+  stepPercentile,
   sweep,
   thresholdRange,
 } from "@/evals/matching/metrics";
@@ -257,6 +259,52 @@ describe("cost per signal", () => {
     ]);
     expect(meter.take()).toEqual([]);
   });
+
+  test("the meter records decision-model calls with the Gateway's cost (spec 008)", () => {
+    const meter = new UsageMeter();
+    const telemetry = meter.telemetry() as unknown as {
+      experimental_onDecisionModelCallEnd: (event: unknown) => void;
+    };
+    telemetry.experimental_onDecisionModelCallEnd({
+      modelId: "typesafe-ai/jev",
+      providerMetadata: { gateway: { cost: "0.000017" } },
+      usage: { inputTokens: 407, outputTokens: 46 },
+    });
+    expect(meter.take()).toEqual([
+      { inputTokens: 407, modelId: "typesafe-ai/jev", outputTokens: 46, reportedCostUsd: 0.000017 },
+    ]);
+  });
+});
+
+describe("spec 008 diagnostics", () => {
+  test("multi-ask scores give recall on multi-ask cases and false positives on the rest", () => {
+    const runs = [
+      run("m1", ["n1"], [], { kind: "multi_ask", multiAskProbability: 0.9 }),
+      run("m2", ["n1"], [], { kind: "multi_ask", multiAskProbability: 0.2 }),
+      run("s1", [], [], { multiAskProbability: 0.7 }),
+      run("s2", [], [], { multiAskProbability: 0.1 }),
+      run("s3", [], []),
+    ];
+    expect(
+      multiAskScores(runs, (r) =>
+        r.multiAskProbability === undefined ? undefined : r.multiAskProbability >= 0.5,
+      ),
+    ).toEqual({ falsePositiveRate: 0.5, recall: 0.5 });
+    expect(multiAskScores(runs, (r) => r.additionalAsks.length > 0)).toEqual({
+      falsePositiveRate: 0,
+      recall: 0,
+    });
+  });
+
+  test("step percentiles read only runs that recorded the step", () => {
+    const runs = [
+      run("a", [], [], { steps: { judgeMs: 100 } }),
+      run("b", [], [], { steps: { judgeMs: 300 } }),
+      run("c", [], [], { steps: {} }),
+    ];
+    expect(stepPercentile(runs, "judgeMs", 50)).toBe(percentile([100, 300], 50));
+    expect(stepPercentile(runs, "embedMs", 95)).toBeUndefined();
+  });
 });
 
 describe("matching eval set", () => {
@@ -312,7 +360,33 @@ describe("matching eval runner (fake ports)", () => {
     expect(board?.candidates[0]?.needId).toBe("n1");
     expect(board?.draftStatement).toContain("Board");
     expect(board?.latencyMs).toBeGreaterThanOrEqual(0);
+    expect(board?.steps?.judgeMs).toBeGreaterThanOrEqual(0);
+    expect(board?.steps?.embedMs).toBeGreaterThanOrEqual(0);
     expect(shownMatches(board as CaseRun, 0.6)[0]?.needId).toBe("n1");
+  });
+
+  test("judgeWithDraft passes the drafted need to the judge; a multi-ask probe is recorded", async () => {
+    const drafts: (string | undefined)[] = [];
+    const judge = fakeJudge();
+    const runs = await runPipeline({
+      catalog,
+      options: { judgeWithDraft: true },
+      ports: {
+        embedder: fakeEmbedder(),
+        extractor: fakeExtractor(),
+        judge: {
+          judge: (input) => {
+            drafts.push(input.draft?.statement);
+            return judge.judge(input);
+          },
+          model: "spy",
+        },
+        multiAsk: { detect: () => Promise.resolve(0.25) },
+      },
+      submissions: sample.slice(0, 1),
+    });
+    expect(drafts[0]).toContain("Board");
+    expect(runs[0]?.multiAskProbability).toBe(0.25);
   });
 
   test("a failing port marks the submission as errored instead of aborting the run", async () => {

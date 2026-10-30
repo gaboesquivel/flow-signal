@@ -4,13 +4,17 @@
 // the metrics against PRODUCT.md's targets. Skips (exit 0) without AI Gateway access.
 //
 // Options:
-//   --threshold <t>        threshold to gate on (default: MATCH_THRESHOLD in lib/signal/domain/matching.ts)
+//   --threshold <t>        threshold to gate on (default: the judge's own threshold, else MATCH_THRESHOLD)
 //   --sweep <from:to:step> thresholds to sweep (default 0.3:0.95:0.05)
 //   --limit <n>            first n submissions only (a quick smoke run; never tune on it)
 //   --concurrency <n>      submissions in flight (default 4)
 //   --no-grade             skip the need-statement grader
 //   --no-gate              exit 0 even when the gated threshold misses the targets
 //   --out <path>           JSON report (default evals/matching/results/latest.json, gitignored)
+//   --judge <llm|jev>      match judge (default: SIGNAL_CLASSIFIER_CALLS, as in production; spec 008)
+//   --jev-design <choice|per_candidate>  Jev judge question design (default choice)
+//   --draft                wait for extraction and pass the drafted need to the judge (spec 008 variant)
+//   --multi-ask-probe      also ask Jev whether each submission has more than one ask (diagnostic)
 //   --fake                 offline smoke of the runner with the test fakes (not a result; no grading)
 import { refuseInCi } from "@/evals/ci-guard";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -22,14 +26,16 @@ import { registerTelemetry } from "ai";
 import {
   gatewayAvailable,
   gatewayProvider,
+  signalClassifierCalls,
   signalEmbeddingModelId,
   signalFastModelId,
 } from "@/lib/ai/models";
 import { fakeEmbedder, fakeExtractor, fakeJudge } from "@/lib/signal/ai/fakes";
 import { gatewayEmbedder, gatewayExtractor, gatewayJudge } from "@/lib/signal/ai/gateway";
+import { jevJudge, jevMultiAskDetector } from "@/lib/signal/ai/jev";
 import { MATCH_THRESHOLD } from "@/lib/signal/domain/matching";
 
-import { summarizeCost, pricesFromModelList, UsageMeter } from "./cost";
+import { costByModel, summarizeCost, pricesFromModelList, UsageMeter } from "./cost";
 import type { PriceTable } from "./cost";
 import { catalog, submissions } from "./dataset";
 import { gatewayGrader, meanScore } from "./grader";
@@ -40,11 +46,13 @@ import {
   meetsTargets,
   MIN_RUBRIC_SCORE,
   multiAskDetection,
+  multiAskScores,
   percentile,
   pickBestThreshold,
   PRODUCT_TARGETS,
   scoreAt,
   scoreByKind,
+  stepPercentile,
   sweep,
   thresholdRange,
 } from "./metrics";
@@ -63,10 +71,14 @@ const { values: args } = parseArgs({
   allowNegative: true,
   options: {
     concurrency: { default: "4", type: "string" },
+    draft: { default: false, type: "boolean" },
     fake: { default: false, type: "boolean" },
     gate: { default: true, type: "boolean" },
     grade: { default: true, type: "boolean" },
+    "jev-design": { default: "choice", type: "string" },
+    judge: { type: "string" },
     limit: { type: "string" },
+    "multi-ask-probe": { default: false, type: "boolean" },
     out: { default: "evals/matching/results/latest.json", type: "string" },
     sweep: { default: "0.3:0.95:0.05", type: "string" },
     threshold: { type: "string" },
@@ -80,7 +92,6 @@ if (!args.fake && !gatewayAvailable()) {
   process.exit(0);
 }
 
-const gateThreshold = args.threshold === undefined ? MATCH_THRESHOLD : Number(args.threshold);
 const [from, to, step] = (args.sweep ?? "").split(":").map(Number);
 const thresholds = thresholdRange(from ?? 0.3, to ?? 0.95, step ?? 0.05);
 const concurrency = Math.max(1, Number(args.concurrency) || 4);
@@ -89,9 +100,28 @@ const cases = args.limit ? submissions.slice(0, Number(args.limit)) : submission
 const meter = new UsageMeter();
 registerTelemetry(meter.telemetry());
 
+const judgeKind = args.judge ?? (signalClassifierCalls().has("match_judge") ? "jev" : "llm");
+if (judgeKind !== "llm" && judgeKind !== "jev") {
+  log(`[eval:matching] --judge must be llm or jev, not ${judgeKind}.`);
+  process.exit(2);
+}
 const ports = args.fake
   ? { embedder: fakeEmbedder(), extractor: fakeExtractor(), judge: fakeJudge() }
-  : { embedder: gatewayEmbedder(), extractor: gatewayExtractor(), judge: gatewayJudge() };
+  : {
+      embedder: gatewayEmbedder(),
+      extractor: gatewayExtractor(),
+      judge:
+        judgeKind === "jev"
+          ? jevJudge({
+              design: args["jev-design"] === "per_candidate" ? "per_candidate" : "choice",
+            })
+          : gatewayJudge(),
+      ...(args["multi-ask-probe"] ? { multiAsk: jevMultiAskDetector() } : {}),
+    };
+const gateThreshold =
+  args.threshold === undefined
+    ? (ports.judge.threshold ?? MATCH_THRESHOLD)
+    : Number(args.threshold);
 if (args.fake)
   log(
     "[eval:matching] FAKE PORTS: offline smoke of the runner. These numbers are not a matching result.",
@@ -119,7 +149,7 @@ const loadPrices = async (): Promise<PriceTable> => {
 const prices = args.fake ? {} : await loadPrices();
 
 log(
-  `[eval:matching] ${cases.length} submissions, ${catalog.length} catalog needs; extract/judge ${signalFastModelId()}, embeddings ${signalEmbeddingModelId()}`,
+  `[eval:matching] ${cases.length} submissions, ${catalog.length} catalog needs; extract ${signalFastModelId()}, judge ${ports.judge.model}${judgeKind === "jev" ? ` (${args["jev-design"]})` : ""}${args.draft ? " (with drafted need)" : ""}, embeddings ${signalEmbeddingModelId()}`,
 );
 const index = await indexCatalog(catalog, ports.embedder);
 meter.take();
@@ -133,10 +163,13 @@ const runs = await runPipeline({
     done += 1;
     if (done % 20 === 0 || done === cases.length) log(`  ${done}/${cases.length}`);
   },
+  options: { judgeWithDraft: args.draft },
   ports,
   submissions: cases,
 });
-const pipelineCost = summarizeCost(meter.take(), prices);
+const pipelineCalls = meter.take();
+const pipelineCost = summarizeCost(pipelineCalls, prices);
+const pipelineCostByModel = costByModel(pipelineCalls, prices);
 
 let grades: (Grade | undefined)[] = [];
 let grader: string | undefined;
@@ -182,8 +215,10 @@ log("Threshold sweep (matches shown = probability ≥ t, top 3):");
 log("  t     prec@3  false   new-rec match-rec  shown");
 for (const score of scores) log(row(score));
 log();
+const defaultThresholdSource =
+  ports.judge.threshold === undefined ? "MATCH_THRESHOLD" : "the judge's threshold";
 log(
-  `At the gated threshold ${gateThreshold} (${args.threshold === undefined ? "MATCH_THRESHOLD" : "--threshold"}):`,
+  `At the gated threshold ${gateThreshold} (${args.threshold === undefined ? defaultThresholdSource : "--threshold"}):`,
 );
 log(
   `  precision@3        ${pct(gated.precisionAt3)}  target ≥ ${pct(PRODUCT_TARGETS.minPrecisionAt3)}  ${mark((gated.precisionAt3 ?? 0) >= PRODUCT_TARGETS.minPrecisionAt3)}`,
@@ -196,6 +231,33 @@ log(
 );
 log(`  match recall@3     ${pct(gated.matchRecallAt3)}  (diagnostic)`);
 log(`  multi-ask detected ${pct(multiAskDetection(runs))}  (diagnostic)`);
+const extractorMultiAsk = multiAskScores(runs, (run) => run.additionalAsks.length > 0);
+const jevMultiAsk = multiAskScores(runs, (run) =>
+  run.multiAskProbability === undefined ? undefined : run.multiAskProbability >= 0.5,
+);
+log(
+  `  multi-ask (extractor)  recall ${pct(extractorMultiAsk.recall)}  false-positive ${pct(extractorMultiAsk.falsePositiveRate)}`,
+);
+if (args["multi-ask-probe"])
+  log(
+    `  multi-ask (Jev ≥ 0.5)  recall ${pct(jevMultiAsk.recall)}  false-positive ${pct(jevMultiAsk.falsePositiveRate)}`,
+  );
+const ms = (value: number | undefined) => (value === undefined ? "n/a" : `${Math.round(value)} ms`);
+const steps = {
+  embed: { p50: stepPercentile(runs, "embedMs", 50), p95: stepPercentile(runs, "embedMs", 95) },
+  extract: {
+    p50: stepPercentile(runs, "extractMs", 50),
+    p95: stepPercentile(runs, "extractMs", 95),
+  },
+  judge: { p50: stepPercentile(runs, "judgeMs", 50), p95: stepPercentile(runs, "judgeMs", 95) },
+};
+log(
+  `  step latency p50/p95  extract ${ms(steps.extract.p50)}/${ms(steps.extract.p95)}  embed ${ms(steps.embed.p50)}/${ms(steps.embed.p95)}  judge ${ms(steps.judge.p50)}/${ms(steps.judge.p95)}`,
+);
+for (const [modelId, cost] of Object.entries(pipelineCostByModel))
+  log(
+    `  cost per signal, ${modelId.padEnd(28)} $${(cases.length === 0 ? 0 : cost.totalUsd / cases.length).toFixed(6)}  (${cost.calls} calls)`,
+  );
 log(
   `  need-statement rubric ${rubric === null ? "n/a (not graded)" : `${rubric.toFixed(2)}/5`}  target ≥ ${MIN_RUBRIC_SCORE}  ${rubric === null ? "" : mark(rubric >= MIN_RUBRIC_SCORE)}`,
 );
@@ -231,11 +293,23 @@ await writeFile(
   `${JSON.stringify(
     {
       best,
-      cost: { grader: graderCost, perSignalUsd: costPerSignal, pipeline: pipelineCost },
+      cost: {
+        byModel: pipelineCostByModel,
+        grader: graderCost,
+        perSignalUsd: costPerSignal,
+        pipeline: pipelineCost,
+      },
       gateThreshold,
       gated,
-      latency: { p50: percentile(latencies, 50), p95 },
-      models: { embedding: signalEmbeddingModelId(), fast: signalFastModelId(), grader },
+      judgeWithDraft: args.draft,
+      latency: { p50: percentile(latencies, 50), p95, steps },
+      models: {
+        embedding: signalEmbeddingModelId(),
+        fast: signalFastModelId(),
+        grader,
+        judge: ports.judge.model,
+      },
+      multiAsk: { extractor: extractorMultiAsk, jev: jevMultiAsk },
       ranAt: new Date().toISOString(),
       rubric,
       runs: runs.map((run, position) => ({ ...run, grade: grades[position] })),

@@ -13,7 +13,7 @@ import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
 import { resolveExposure } from "./exposure";
 import type { Exposure } from "./exposure";
-import { CANDIDATE_LIMIT, chooseMatches } from "./matching";
+import { CANDIDATE_LIMIT, chooseMatches, MATCH_THRESHOLD } from "./matching";
 import { getPublicNeed, publicNeedStatusSchema } from "./public-needs";
 import { createTrackingLink, resolveTrackingLink, trackingTokenSchema } from "./tracking-links";
 
@@ -161,7 +161,11 @@ const checkSkippedPreview = async (
       draft: { additionalAsks: [], statement: input.target.newNeed.statement },
       submission: { body: input.body, title: input.title },
     });
-    return chooseMatches({ candidates, judgements }).map((j) => ({
+    return chooseMatches({
+      candidates,
+      judgements,
+      threshold: ai.judge.threshold ?? MATCH_THRESHOLD,
+    }).map((j) => ({
       needId: j.needId,
       probability: Math.round(j.probability * 1000) / 1000,
     }));

@@ -1,6 +1,6 @@
 # 0002 — Retrieve-then-judge matching as a bounded workflow on the hot path
 
-Status: Accepted (2026-10-30)
+Status: Accepted (2026-10-30); the judge step amended by [0012](./0012-jev-match-judge.md) (Jev on the Gateway)
 
 ## Context
 

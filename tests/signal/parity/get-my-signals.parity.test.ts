@@ -8,6 +8,7 @@ import { runParityTable } from "./harness";
 
 const LINK_TOKEN = "maya-link-token-0000000001";
 const OTHER_LINK_TOKEN = "other-link-token-000000001";
+const EARLY_LINK_TOKEN = "early-link-token-000000001";
 
 /**
  * The public board plus My signals links (spec 006 task 02): Maya's link holds two signals; a
@@ -102,6 +103,8 @@ runParityTable<Fixture>({
           },
         ]);
       },
+      // The decision predates this signal, so nothing is recorded as seen.
+      events: () => [],
       input: (fx) => ({ token: fx.decided.signals[0]!.trackingToken }),
       name: "includes the decision note supporters see",
     },
@@ -142,5 +145,50 @@ runParityTable<Fixture>({
     },
   ],
   fixture,
+  operation: getMySignals,
+});
+
+/**
+ * Close-the-loop rate: a link holding a signal filed before the decided need's decision. Reading
+ * it records `signal.decision_seen`, so every surface starts from a fresh fixture.
+ */
+const seenFixture = async (db: SignalDb) => {
+  const fx = await buildPublicNeedsFixture(db);
+  const [link] = await db.insert(trackingLinks).values({ token: EARLY_LINK_TOKEN }).returning();
+  const [signal] = await db
+    .insert(signals)
+    .values({
+      actorKind: "human",
+      attachedTo: "existing",
+      body: "Filed before the decision body",
+      channel: "web",
+      createdAt: new Date("2026-09-01T10:00:00Z"),
+      needId: fx.decided.need.id,
+      originalNeedId: fx.decided.need.id,
+      submitterId: fx.n1.signals[0]!.submitterId,
+      title: "Filed before the decision",
+      trackingLinkId: link!.id,
+      trackingToken: EARLY_LINK_TOKEN,
+    })
+    .returning();
+  return { signal: signal! };
+};
+
+runParityTable<Awaited<ReturnType<typeof seenFixture>>>({
+  cases: [
+    {
+      check: (output, fx) => {
+        const [signal, ...rest] = mine(output);
+        assert.equal(rest.length, 0);
+        assert.equal(signal!.signalId, fx.signal.id);
+        assert.equal(signal!.decisions.length, 1);
+      },
+      events: () => ["signal.decision_seen"],
+      input: () => ({ token: EARLY_LINK_TOKEN }),
+      name: "records that the holder saw a decision published after their signal",
+    },
+  ],
+  fixture: seenFixture,
+  mutates: true,
   operation: getMySignals,
 });

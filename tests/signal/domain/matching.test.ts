@@ -116,6 +116,16 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
     });
   });
 
+  it("gates on the judge's own threshold when it has one (spec 008)", async () => {
+    const { need } = await insertNeed(harness.db, {
+      ...embedded("Executives need dashboard snapshots for the board deck"),
+      signals: supporters(1),
+    });
+    const judge = fakeJudge({ [need.id]: { probability: 0.62, reason: "Close." } });
+    expect((await preview({ judge })).matches).toHaveLength(1);
+    expect((await preview({ judge: { ...judge, threshold: 0.65 } })).matches).toHaveLength(0);
+  });
+
   it("includes draft needs as candidates, shown as new", async () => {
     const { need } = await insertNeed(harness.db, {
       ...embedded(draft.statement),

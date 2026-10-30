@@ -3,7 +3,11 @@ import { z } from "zod";
 
 import { decisions, signals } from "@/lib/db/schema";
 
+import type { Actor } from "../context";
 import type { SignalQueryable } from "../db";
+import { describeUnexpectedError } from "../errors";
+import { recordEvents } from "../events";
+import type { SignalEvent } from "../events";
 import { suggestedMatchesForLink, suggestedMatchSchema } from "./duplicate-backstop";
 import { getPublicNeed, publicNeedSchema } from "./public-needs";
 import { resolveTrackingLink } from "./tracking-links";
@@ -47,7 +51,54 @@ const mySignalSchema = z.object({
 export const mySignalsOutputSchema = z.object({ signals: z.array(mySignalSchema) });
 type MySignalsOutput = z.infer<typeof mySignalsOutputSchema>;
 
-export const getMySignals = async (db: SignalQueryable, token: string) => {
+/** Who read a My signals link, and when; their reads are recorded as `signal.decision_seen`. */
+export interface MySignalsViewer {
+  actor: Actor;
+  now: Date;
+}
+
+/**
+ * Records `signal.decision_seen` for each signal shown with a decision published after the
+ * signal was created (close-the-loop rate, `lib/signal/metrics.ts`), once per signal and decision
+ * through the dedupe key, in one insert. Best effort: a failed insert is logged and the read
+ * still returns.
+ */
+const recordDecisionsSeen = async (
+  db: SignalQueryable,
+  { actor, now }: MySignalsViewer,
+  shown: {
+    history: { id: string; publishedAt: Date; status: string }[];
+    row: { createdAt: Date; id: string; needId: string };
+  }[],
+) => {
+  const seen: SignalEvent[] = shown.flatMap(({ history, row }) =>
+    history
+      .filter((decision) => decision.publishedAt > row.createdAt)
+      .map((decision) => ({
+        actor,
+        dedupeKey: `signal.decision_seen:${row.id}:${decision.id}`,
+        needId: row.needId,
+        occurredAt: now,
+        payload: { decisionId: decision.id, status: decision.status },
+        signalId: row.id,
+        type: "signal.decision_seen" as const,
+      })),
+  );
+  try {
+    await recordEvents(db, seen);
+  } catch (error) {
+    console.error(
+      `[signal] recording signal.decision_seen failed: ${describeUnexpectedError(error)}`,
+    );
+  }
+};
+
+/** A link's signals; pass `viewer` to record the decisions its holder sees (`get_my_signals`). */
+export const getMySignals = async (
+  db: SignalQueryable,
+  token: string,
+  viewer?: MySignalsViewer,
+) => {
   const link = await resolveTrackingLink(db, token);
   if (!link) return;
   const rows = await db
@@ -61,6 +112,7 @@ export const getMySignals = async (db: SignalQueryable, token: string) => {
     rows.map(async (row) => ({
       history: await db
         .select({
+          id: decisions.id,
           note: decisions.note,
           publishedAt: decisions.publishedAt,
           status: decisions.status,
@@ -81,9 +133,10 @@ export const getMySignals = async (db: SignalQueryable, token: string) => {
     result.push({
       attachedTo: row.attachedTo,
       body: row.body,
-      decisions: history.map((decision) => ({
-        ...decision,
-        publishedAt: decision.publishedAt.toISOString(),
+      decisions: history.map(({ note, publishedAt, status }) => ({
+        note,
+        publishedAt: publishedAt.toISOString(),
+        status,
       })),
       need,
       signalId: row.id,
@@ -94,5 +147,11 @@ export const getMySignals = async (db: SignalQueryable, token: string) => {
       useCase: row.useCase,
     });
   }
+  if (viewer)
+    await recordDecisionsSeen(
+      db,
+      viewer,
+      details.filter(({ need }) => need),
+    );
   return { signals: result } satisfies MySignalsOutput;
 };

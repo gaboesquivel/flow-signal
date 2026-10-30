@@ -49,4 +49,4 @@ My signals: signals point to a shared tracking link (`tracking_links`), so a sub
   | `agents/**`, `lib/mcp/**`                         | `pnpm eval:agents`                  |
   | `evals/crewday/**`, policy or metric code         | `pnpm eval:crewday`, when asked for |
 
-- **Models:** every model call goes through the AI Gateway: app and eval code through `lib/ai/models.ts`, Eve agents by Gateway model id. Lint rejects direct provider SDK imports.
+- **Models:** every model call goes through the AI Gateway: app and eval code through `lib/ai/models.ts`, Eve agents by Gateway model id. Lint rejects direct provider SDK imports. Closed-set calls can run on a Gateway decision model (Jev, `experimental_decide`) per `SIGNAL_CLASSIFIER_CALLS`; preview's match judge does ([spec 008](./docs/specs/008-jev-classification.md), [decision 0012](./docs/decisions/0012-jev-match-judge.md)).
