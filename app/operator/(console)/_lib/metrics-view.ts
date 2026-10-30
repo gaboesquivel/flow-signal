@@ -49,6 +49,14 @@ export const acceptanceRows = (byKind: readonly ByKind[]) =>
     .filter((row) => row.total > 0)
     .toSorted((left, right) => right.total - left.total || left.label.localeCompare(right.label));
 
+type KillVerdict = Metrics["killCriterion"]["populations"]["all"]["verdict"];
+
+export const verdictLabels: Record<KillVerdict, string> = {
+  fail: "Fails",
+  insufficient_data: "Not enough data",
+  pass: "Passes",
+};
+
 export const plural = (count: number, one: string, many = `${one}s`) =>
   `${count} ${count === 1 ? one : many}`;
 

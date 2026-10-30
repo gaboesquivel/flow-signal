@@ -145,7 +145,7 @@ In scope:
 - [x] 01: Record `preview.shown` with a random `previewId`
 - [x] 02: Stamp exposure on `signal.created`
 - [x] 03: Exposure and kill-criterion metrics in `get_metrics`
-- [ ] 04: Exposure panel on `/operator/metrics`
+- [x] 04: Exposure panel on `/operator/metrics`
 
 ### 01: Record `preview.shown` with a random `previewId`
 

@@ -11,6 +11,7 @@ import {
   formatWindow,
   plural,
   resolvedCount,
+  verdictLabels,
 } from "../_lib/metrics-view";
 import { WindowToggle } from "./window-toggle";
 
@@ -21,7 +22,16 @@ const metricNames: Record<string, string> = { close_the_loop_rate: "Close-the-lo
 
 /** The MVP metrics as large mono numbers with one-line definitions (DESIGN.md → Metrics). */
 export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metrics }) {
-  const { decisionLatency, preventionRate, suggestionAcceptance, supporting } = metrics;
+  const {
+    decisionLatency,
+    exposure,
+    killCriterion,
+    preventionRate,
+    suggestionAcceptance,
+    supporting,
+  } = metrics;
+  const shown = exposure.submissions;
+  const kill = killCriterion.populations;
   const prevention = preventionRate.overall;
   const preventionTotal = (side: (typeof prevention)["all"]) =>
     side.attachedToExisting + side.mergedDrafts;
@@ -133,6 +143,74 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
             split={{
               agents: acceptanceLine(acceptance.agent),
               people: acceptanceLine(acceptance.human),
+            }}
+          />
+        </ol>
+      </section>
+
+      <section aria-labelledby="exposure-heading" className="flex flex-col gap-3">
+        <h2 className={label} id="exposure-heading">
+          Match exposure
+        </h2>
+        <ol className="border-rule-strong m-0 list-none border-t p-0">
+          <Metric
+            baseline={
+              <>
+                Riskiest assumption 1 · baseline <b className="font-medium">unknown</b>
+              </>
+            }
+            definition="Submissions shown at least one matching need that joined one of them."
+            extra={
+              <ExposureBreakdown
+                counts={shown.all}
+                previews={exposure.previewsWithoutSubmission.all}
+              />
+            }
+            name="Match take-up"
+            value={
+              <BigNumber
+                detail={`${shown.all.taken} of ${plural(shown.all.shown, "submission")} shown a match`}
+                testId="match-take-up"
+                value={formatRate(shown.all.takeUpRate)}
+              />
+            }
+            split={{
+              agents: rateLine(
+                shown.agent.takeUpRate,
+                shown.agent.taken,
+                shown.agent.shown,
+                "none shown",
+              ),
+              people: rateLine(
+                shown.human.takeUpRate,
+                shown.human.taken,
+                shown.human.shown,
+                "none shown",
+              ),
+            }}
+          />
+          <Metric
+            baseline={
+              <>
+                Kill when prevention is under{" "}
+                <b className="font-medium">{formatRate(killCriterion.minPreventionRate)}</b> or
+                unmerges exceed{" "}
+                <b className="font-medium">{formatRate(killCriterion.maxUnmergeRate)}</b> · all
+                time, not just this window
+              </>
+            }
+            definition={`Real-user kill criterion: needs ${killCriterion.minShownSubmissions} submissions that were shown a match.`}
+            name="Kill criterion"
+            value={
+              <BigNumber
+                detail={`${verdictLabels[kill.all.verdict]} · prevention ${formatRate(kill.all.preventionRate.rate)} · unmerges ${formatRate(killCriterion.unmergeRate.rate)}`}
+                testId="kill-criterion"
+                value={`${kill.all.shownSubmissions} / ${killCriterion.minShownSubmissions}`}
+              />
+            }
+            split={{
+              agents: `${kill.agent.shownSubmissions} · ${verdictLabels[kill.agent.verdict]}`,
+              people: `${kill.human.shownSubmissions} · ${verdictLabels[kill.human.verdict]}`,
             }}
           />
         </ol>
@@ -297,6 +375,47 @@ function Metric({
         {extra}
       </div>
     </li>
+  );
+}
+
+function ExposureBreakdown({
+  counts,
+  previews,
+}: {
+  counts: Metrics["exposure"]["submissions"]["all"];
+  previews: number;
+}) {
+  const filed = counts.filedNewDespiteMatch;
+  const rows: [string, string][] = [
+    [
+      "Picked rank 1 / 2 / 3",
+      `${counts.chosenRank[1]} / ${counts.chosenRank[2]} / ${counts.chosenRank[3]}`,
+    ],
+    [
+      "Filed new anyway",
+      `${filed.total} · ${filed.mergedIntoShown} later merged into a shown need, ${filed.mergedElsewhere} elsewhere`,
+    ],
+    [
+      "Split off a taken match",
+      `${counts.movedOffTakenMatch.moved} · ${formatRate(counts.movedOffTakenMatch.rate)}`,
+    ],
+    ["No match shown", String(counts.noneShown)],
+    ["Skipped the check", String(counts.skipped)],
+    ["Unknown preview", String(counts.unknown)],
+    ["Previews never submitted", String(previews)],
+  ];
+  return (
+    <dl
+      className="m-0 grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-[13px]"
+      data-testid="exposure-breakdown"
+    >
+      {rows.map(([name, value]) => (
+        <div className="contents" key={name}>
+          <dt className={quiet}>{name}</dt>
+          <dd className="m-0 font-mono tabular-nums">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

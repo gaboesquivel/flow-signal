@@ -24,7 +24,8 @@ const SEED = 7;
 /** A simulated week holding the planted retry (fx-s09 and its retry fx-s10, 2026-03-10). */
 const RETRY_WEEK = { from: new Date("2026-03-09T00:00:00Z"), to: new Date("2026-03-16T00:00:00Z") };
 
-const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
+/** Per-run random ids: UUIDs and `preview_signal`'s `previewId` (spec 012). */
+const uuid = /pv_[\w-]{22}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
 
 /** Replaces each distinct id with its order of first appearance (ids are random per run). */
 const normalizeIds = (value: unknown) => {
@@ -167,6 +168,15 @@ describe("crewday simulation [pglite]", () => {
       const agent = year?.preventionRate.overall.agent;
       const agentDrafts = viaMcp.filter((s) => s.attachedTo === "draft").length;
       expect((agent?.attachedToExisting ?? 0) + agentDrafts).toBe(viaMcp.length);
+    }
+  });
+
+  test("both arms record match exposure, so take-up is comparable (spec 012)", () => {
+    for (const arm of ["signal", "board"] as const) {
+      const year = run(arm).snapshot.metrics.find((window) => window.label === "year")?.metrics;
+      const shown = year?.exposure.submissions.all;
+      expect(shown?.shown, arm).toBeGreaterThan(0);
+      expect(shown?.takeUpRate, arm).not.toBeNull();
     }
   });
 

@@ -23,7 +23,8 @@ import { findOperation } from "@/lib/signal/operations/registry";
 // and the tests in "follows_signal runs" fail; every other test here runs today.
 
 const SEED = 7;
-const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
+/** Per-run random ids: UUIDs and `preview_signal`'s `previewId` (spec 012). */
+const uuid = /pv_[\w-]{22}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
 
 const normalizeIds = (value: unknown) => {
   const ids = new Map<string, string>();
