@@ -52,3 +52,7 @@ Response: Created Neon project signal (wispy-paper-65345567, Gabo org, aws-us-ea
 
 [2026-10-30T14:29:28Z]
 (Follow-up within the same request.) Test run with the dev server up pulled Eve dev-runtime snapshots into vitest (48 failing files from bundled zod tests); widened the vitest exclude to **/.eve/** and reran: 20 files, 172 tests pass; lint and types pass. Updated decision 0001's context to record the approval. Committed the subagent's doc sync together with the database work.
+
+[2026-10-30T14:31:48Z]
+Prompt: Close the two spec gaps, then break spec 001 into tasks.
+Response: Added get_criteria (GET /api/operator/criteria) and defined set_criteria validation, get_demand_summary inputs, output and trend rule in spec 001. Wrote a Tasks section with 9 vertical-slice tasks (registry/schema/public reads; submit with duplicate check; matching eval; PM triage; prioritization and decisions; metrics; public UI; Operator UI; agent evals and acceptance run) with areas, blockers and acceptance criteria. Ready now: task 01. Committed on signal-mvp.
