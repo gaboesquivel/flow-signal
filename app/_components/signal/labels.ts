@@ -40,6 +40,9 @@ export const urgencyLabels = { high: "High", low: "Low", medium: "Medium" } as c
 export const supportersLabel = (count: number) =>
   count === 1 ? "1 supporter" : `${count} supporters`;
 
+/** "1 person" / "11 people": how public pages count who asked. */
+export const peopleLabel = (count: number) => (count === 1 ? "1 person" : `${count} people`);
+
 export const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(iso));
 
