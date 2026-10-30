@@ -1,6 +1,6 @@
 # 014 — Operator assistant: ask for data, see it charted, and confirm actions in chat (experimental)
 
-Status: accepted (2026-10-30)
+Status: implemented (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs), Where human judgment stays, Core journeys 9, Riskiest assumption 7, Diagnostics → Assistant action share. Decision: [0011](../decisions/0011-assistant-writes-are-server-held-proposals.md). Builds on [spec 006](./006-lean-ledger-ui.md) (console Chat, pencil answers), [spec 013](./013-pm-reports.md) (report spec, datasets, renderer), and [spec 001](./001-signal-mvp.md) (operations, `effects: "write"`, event log).
 
@@ -273,12 +273,12 @@ None needing a record. This spec extends spec 006's Chat ("question → pencil a
 
 ## Tasks
 
-- [ ] 01: Action contract, `preview` field, `assistant_actions` table, events, and the flag
-- [ ] 02: Previews for the nine write operations
-- [ ] 03: Propose, confirm, and reject, with action routes
-- [ ] 04: Streaming assistant route with reads, `show_data`, proposals, and traceability
-- [ ] 05: Assistant action share in `get_metrics`
-- [ ] 06: Assistant chat UI, action cards, and inline views
+- [x] 01: Action contract, `preview` field, `assistant_actions` table, events, and the flag
+- [x] 02: Previews for the nine write operations
+- [x] 03: Propose, confirm, and reject, with action routes
+- [x] 04: Streaming assistant route with reads, `show_data`, proposals, and traceability
+- [x] 05: Assistant action share in `get_metrics`
+- [x] 06: Assistant chat UI, action cards, and inline views
 
 ### 01: Action contract, `preview` field, `assistant_actions` table, events, and the flag
 
