@@ -67,6 +67,8 @@ export type ReasonerTask =
   | "merge"
   | "priority"
   | "public_summary"
+  | "report_compose"
+  | "report_plan"
   | "split"
   | "theme";
 

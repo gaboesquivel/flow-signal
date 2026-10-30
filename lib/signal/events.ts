@@ -20,6 +20,9 @@ import type { SignalQueryable } from "./db";
  * - `need.ready`: `needId`, payload `{ arrCents, supporters, strategyVersion }`; once per need (spec 007).
  * - `preview.shown` (spec 012): payload `{ previewId, ai, matches: [{ needId, probability, rank }],
  *   additionalAsks }` (a count); no need or signal id, and never the submitted text.
+ * - `report.saved` (spec 013): payload `{ reportId, created }`; `dedupeKey` from `idempotencyKey`.
+ * - `report.viewed` (spec 013): payload `{ reportId, via: "console" | "link" }`.
+ * - `report.shared` (spec 013): payload `{ reportId, action: "share" | "refresh" | "revoke" }`.
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
  */
@@ -31,6 +34,9 @@ export type SignalEventType =
   | "need.ready"
   | "need.split"
   | "preview.shown"
+  | "report.saved"
+  | "report.shared"
+  | "report.viewed"
   | "signal.created"
   | "suggestion.accepted"
   | "suggestion.created"

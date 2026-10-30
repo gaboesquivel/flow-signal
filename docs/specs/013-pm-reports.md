@@ -46,8 +46,7 @@ Agents get the same capability over Operator MCP (`generate_report`, `save_repor
 `lib/signal/domain/report-spec.ts` holds the zod schemas. Every surface validates against them. They are JSON only.
 
 ```ts
-type DatasetName =
-  "needs" | "signals_weekly" | "accounts" | "decisions" | "metrics_weekly";
+type DatasetName = "needs" | "signals_weekly" | "accounts" | "decisions" | "metrics_weekly";
 
 interface DatasetQuery {
   id: string; // "d1"… unique within a report; blocks reference it
@@ -77,8 +76,7 @@ type Block =
         label: string;
         dataset: string;
         column: string;
-        aggregate:
-          "sum" | "count" | "avg" | "median" | "min" | "max" | "latest";
+        aggregate: "sum" | "count" | "avg" | "median" | "min" | "max" | "latest";
       }[];
     } // 1–4
   | {
