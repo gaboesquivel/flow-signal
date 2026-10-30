@@ -72,6 +72,11 @@ export interface RunArmOptions {
   /** Extra `get_metrics` windows to snapshot (the scorer cross-checks each one). */
   metricsWindows?: { from: Date; to: Date }[];
   /**
+   * Smoke runs only: stop the replay after this many simulated weeks (signals after it are not
+   * sent). Never for results; the runner passes the same truncated world to the scorer.
+   */
+  limitWeeks?: number;
+  /**
    * The embedder for the oracle's "nearest need in the world" lookup. Default: the Signal arm's
    * own embedder (unmetered, so it never counts as a PM model call), or the offline fake.
    */
@@ -347,7 +352,10 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   const policy = resolvePolicy(options.policy);
   const start = worldStart(world);
   if (!start) throw new Error("The world has no signals and no startsAt.");
-  const end = addUtcMonths(start, 12);
+  const year = addUtcMonths(start, 12);
+  const end = options.limitWeeks
+    ? new Date(Math.min(year.getTime(), start.getTime() + options.limitWeeks * WEEK_MS))
+    : year;
   const progress = options.onProgress ?? (() => null);
 
   const opened = await openSimDatabase(options.db);
@@ -419,6 +427,7 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
 
     for (const signal of world.signals) {
       const at = new Date(signal.at);
+      if (at.getTime() >= end.getTime()) break;
       await runWeeksUntil(at.getTime());
       clock.set(at);
       meter.setPhase("submitter");

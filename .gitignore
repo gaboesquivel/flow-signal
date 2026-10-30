@@ -34,3 +34,5 @@ evals/matching/results/
 evals/agents/results/
 # crewday world generation cache (pnpm crewday:generate)
 evals/crewday/generate/.cache/
+# Crewday outcome eval reports (pnpm eval:crewday)
+evals/crewday/results/

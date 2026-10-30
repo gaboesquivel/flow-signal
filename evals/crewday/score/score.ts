@@ -211,13 +211,35 @@ const falseAttach = (ctx: Ctx) => {
   return scored(ctx, perNeed);
 };
 
+/**
+ * The true need a decision is judged against. A split trap's parent is left out once its signals
+ * moved to the children: a decision on a need whose identity is a split parent is scored as the
+ * child its year-end signals mostly belong to (ties by key), and dropped when no counted signal is
+ * left on it. A parent still holding mostly its own signals stays the parent. `undefined` means
+ * the decision is excluded from decision quality, revenue coverage, and close-the-loop.
+ */
+const decisionKeyOf = (ctx: Ctx, needId: string): string | null | undefined => {
+  const key = ctx.identity(needId);
+  const children = key ? ctx.needs.get(key)?.splitInto : undefined;
+  if (!children?.length) return key;
+  const counts = new Map<string, number>();
+  for (const { row, signal } of ctx.stored) {
+    const [main] = signal.labels.needKeys;
+    if (row.needId === needId && main) counts.set(main, (counts.get(main) ?? 0) + 1);
+  }
+  if (counts.size === 0) return undefined;
+  const [top] = [...counts].toSorted((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return top && children.includes(top[0]) ? top[0] : key;
+};
+
 /** Decision quality, plus the true needs decided and when each first got a correct decision. */
 const decisionOutcomes = (ctx: Ctx) => {
   const quality: PerNeed = {};
   const decided = new Set<string>();
   const correctAt = new Map<string, number>();
   for (const decision of ctx.snapshot.decisions) {
-    const key = ctx.identity(decision.needId);
+    const key = decisionKeyOf(ctx, decision.needId);
+    if (key === undefined) continue;
     const need = key ? ctx.needs.get(key) : undefined;
     const right = need?.strategyDecision.status === strategyStatus(decision.status);
     add(quality, ctx.keyOf(key), right ? 1 : 0, 1);
@@ -441,7 +463,7 @@ export const scoreRun = (world: World, run: RunResult, options: ScoreOptions = {
       modelSpendPerSignalUsd:
         run.modelSpendUsd === null || submitted === 0 ? null : run.modelSpendUsd / submitted,
       needStatementRubric: {
-        note: "Model-graded (as in evals/matching); live runs only, never used by a policy.",
+        note: "Not computed: grading is deferred (model grader as in evals/matching; never used by a policy).",
         value: null,
       },
       piiScan: piiScan(ctx),

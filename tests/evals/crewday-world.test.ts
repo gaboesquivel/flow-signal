@@ -284,11 +284,14 @@ describe("crewday held-out test world", () => {
    * - held-out.ts defines the token.
    * - world.ts is the loader that checks it (and `checkRecipes`, which loads both recipes).
    * - generate/run.ts reads the test recipe and writes the frozen test world (task 02).
-   * Tagged and acceptance runners (spec 004, tasks 06 and 07) are added here when they exist.
+   * - run.ts is the `pnpm eval:crewday` entry point; `--world test` is the acceptance run
+   *   (spec 004 → Acceptance scenario).
+   * Other tagged and acceptance runners are added here when they exist.
    */
   const allowlist = new Set([
     "evals/crewday/generate/run.ts",
     "evals/crewday/held-out.ts",
+    "evals/crewday/run.ts",
     "evals/crewday/world.ts",
   ]);
   const forbidden = [
