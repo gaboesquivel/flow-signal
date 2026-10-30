@@ -6,6 +6,7 @@ import {
   applyBlockData,
   computeKpi,
   formatValue,
+  pruneReportData,
   reportSpecSchema,
   validateReportSpec,
 } from "../../../lib/signal/domain/report-spec";
@@ -49,6 +50,22 @@ const weekly: DatasetResult = {
   ],
   truncated: false,
 };
+
+const sortedChart = (sort: string, seriesBy?: string) =>
+  validateReportSpec(
+    spec([
+      {
+        chart: "bar",
+        dataset: "d1",
+        kind: "chart",
+        ...(seriesBy ? { seriesBy } : {}),
+        sort: { column: sort, direction: "desc" },
+        title: "x",
+        x: "statement",
+        y: ["arrCents"],
+      },
+    ]),
+  );
 
 describe("report spec validation", () => {
   it("accepts references to declared datasets and existing columns", () => {
@@ -115,6 +132,27 @@ describe("report spec validation", () => {
     expect(issues[3]?.message).toContain("exactly one y");
   });
 
+  it("lets a chart sort only by its x or a y column", () => {
+    expect(sortedChart("arrCents")).toEqual([]);
+    expect(sortedChart("score")[0]?.message).toContain('not "score"');
+    expect(sortedChart("arrCents", "theme")[0]?.message).toContain('not "arrCents"');
+  });
+
+  it("prunes data to the columns and datasets a spec shows", () => {
+    const shown = spec([{ columns: ["statement"], dataset: "d1", kind: "table", title: "x" }]);
+    const pruned = pruneReportData(shown, {
+      d1: {
+        columns: datasetColumns.needs,
+        rows: [{ arrCents: 5, statement: "a" }],
+        truncated: false,
+      },
+      d2: weekly,
+    });
+    expect(Object.keys(pruned)).toEqual(["d1"]);
+    expect(pruned.d1?.columns.map((column) => column.key)).toEqual(["statement"]);
+    expect(pruned.d1?.rows).toEqual([{ statement: "a" }]);
+  });
+
   it("allows count on a string column but requires numbers for other aggregates", () => {
     const issues = validateReportSpec(
       spec([
@@ -173,8 +211,8 @@ describe("applyBlockData", () => {
     const { rows, series } = applyBlockData(block, weekly);
     expect(series.map((entry) => entry.label)).toEqual(["Reporting", "Integrations"]);
     expect(rows).toEqual([
-      { s_Integrations: 1, s_Reporting: 3, weekStart: "2026-10-05" },
-      { s_Integrations: 0, s_Reporting: 4, weekStart: "2026-10-12" },
+      { s0: 3, s1: 1, weekStart: "2026-10-05" },
+      { s0: 4, s1: 0, weekStart: "2026-10-12" },
     ]);
   });
 
@@ -206,6 +244,35 @@ describe("applyBlockData", () => {
       { score: 3, theme: "Reporting" },
       { score: null, theme: "Integrations" },
     ]);
+  });
+
+  it("applies the chart aggregate inside a pivot", () => {
+    const { rows } = applyBlockData(
+      {
+        aggregate: "avg",
+        chart: "line",
+        dataset: "d2",
+        kind: "chart",
+        seriesBy: "group",
+        title: "Average signals",
+        x: "weekStart",
+        y: ["signals"],
+      },
+      {
+        ...weekly,
+        rows: [
+          ...weekly.rows,
+          {
+            attachedDraft: 0,
+            attachedExisting: 0,
+            group: "Reporting",
+            signals: 5,
+            weekStart: "2026-10-05",
+          },
+        ],
+      },
+    );
+    expect(rows[0]).toEqual({ s0: 4, s1: 1, weekStart: "2026-10-05" });
   });
 
   it("sorts with nulls last and applies the limit", () => {

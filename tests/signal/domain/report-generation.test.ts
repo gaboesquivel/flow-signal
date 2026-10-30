@@ -285,6 +285,27 @@ describe("generateReport", () => {
     expect(result.warnings[0]).toContain("72");
   });
 
+  it("traces numbers in chart captions too", async () => {
+    const chart = {
+      caption: "ARR up 40% quarter over quarter",
+      chart: "bar",
+      dataset: "d1",
+      kind: "chart",
+      title: "ARR by theme",
+      x: "theme",
+      y: ["arrCents"],
+    };
+    const { deps } = setup({
+      report_compose: () => ({ blocks: [...goodBlocks, chart], title: "Demand" }),
+      report_plan: () => needsPlan,
+    });
+    const result = await generateReport(deps, { prompt: "Demand" });
+
+    expect(result.report.blocks).toEqual(goodBlocks);
+    expect(result.warnings[0]).toMatch(/chart block/u);
+    expect(result.warnings[0]).toContain("40%");
+  });
+
   it("drops a block with a bad column after repair, and fails when no block survives", async () => {
     const bad = {
       chart: "bar",

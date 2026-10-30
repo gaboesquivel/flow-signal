@@ -544,18 +544,26 @@ const checkCompose = (
     prompt,
   );
   const traced = parsed.filter(({ block, index }) => {
-    if (block.kind !== "text") return true;
-    const untraceable = findUntraceableNumbers(block.markdown, allowed);
+    const untraceable = blockProse(block).flatMap((text) => findUntraceableNumbers(text, allowed));
     if (untraceable.length === 0) return true;
     issues.push({
       index,
-      kind: "text",
+      kind: block.kind,
       message: `cites ${untraceable.map((raw) => `"${raw}"`).join(", ")}, which ${untraceable.length === 1 ? "does" : "do"} not appear in the data`,
     });
     return false;
   });
 
   return { blocks: traced, issues: issues.toSorted((a, b) => a.index - b.index), title };
+};
+
+/** Every model-written string a block shows: text, headings, titles, captions, KPI labels. */
+const blockProse = (block: Block): string[] => {
+  if (block.kind === "text") return [block.markdown];
+  if (block.kind === "heading") return [block.text];
+  if (block.kind === "kpi") return block.items.map((item) => item.label);
+  if (block.kind === "chart") return [block.title, block.caption ?? ""];
+  return [block.title];
 };
 
 const describeIssue = ({ index, kind, message }: BlockIssue) =>

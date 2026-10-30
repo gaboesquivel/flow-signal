@@ -1,6 +1,6 @@
 import { cn } from "cn";
 
-import { BriefMarkdown } from "@/app/operator/(console)/needs/[id]/brief-markdown";
+import { BriefMarkdown } from "@/components/brief-markdown";
 import type { Block, ReportData, ReportSpec } from "@/lib/signal/domain/report-spec";
 
 import { ReportChart } from "./report-chart";

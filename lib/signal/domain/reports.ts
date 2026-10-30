@@ -13,7 +13,7 @@ import { findIdentifyingText, loadIdentifyingCandidates } from "./public-text";
 import type { PublicTextFinding } from "./public-text";
 import { runReportDataset } from "./report-datasets";
 import type { DatasetQuery, DatasetResult } from "./report-datasets";
-import { reportSpecSchema, validateReportSpec } from "./report-spec";
+import { pruneReportData, reportSpecSchema, validateReportSpec } from "./report-spec";
 import type { ReportData, ReportSpec } from "./report-spec";
 
 /**
@@ -261,17 +261,25 @@ const shareOf = (row: ReportRow) =>
       }
     : null;
 
-/** A saved report with its queries re-run now; records `report.viewed` (console). */
-export const getReport = async ({ actor, db, now, runDataset }: ReportDeps, reportId: string) => {
+/**
+ * A saved report with its queries re-run now; records `report.viewed` (console) unless
+ * `recordView` is false: the page a save lands on is not a reuse.
+ */
+export const getReport = async (
+  { actor, db, now, runDataset }: ReportDeps,
+  reportId: string,
+  { recordView = true }: { recordView?: boolean } = {},
+) => {
   const row = await requireReport(db, reportId);
   const spec = reportSpecSchema.parse(row.spec);
   const data = await runAll(spec, runDataset);
-  await recordEvent(db, {
-    actor,
-    occurredAt: now,
-    payload: { reportId: row.id, via: "console" },
-    type: "report.viewed",
-  });
+  if (recordView)
+    await recordEvent(db, {
+      actor,
+      occurredAt: now,
+      payload: { reportId: row.id, via: "console" },
+      type: "report.viewed",
+    });
   return {
     asOf: now.toISOString(),
     data,
@@ -333,8 +341,16 @@ export const shareReport = async (
       return { status: "revoked" as const };
     });
 
+  if (input.action === "refresh" && !row.shareToken)
+    throw new SignalError("validation_failed", "This report has no live link; share it first.");
+
   const spec = reportSpecSchema.parse(row.spec);
-  const snapshot: Snapshot = { data: await runAll(spec, runDataset), spec, title: row.title };
+  // The link carries only what the report shows: unreferenced datasets and columns are dropped.
+  const snapshot: Snapshot = {
+    data: pruneReportData(spec, await runAll(spec, runDataset)),
+    spec,
+    title: row.title,
+  };
   // One scan over the joined text; blank lines keep matches from spanning two values.
   const flags = findIdentifyingText(
     snapshotTexts(snapshot).join("\n\n"),
@@ -376,16 +392,19 @@ export const getSharedReport = async (
   const [row] = await db.select().from(reports).where(eq(reports.shareToken, token)).limit(1);
   if (!row) throw missing;
   const snapshot = row.snapshot as unknown as Snapshot;
+  const spec = reportSpecSchema.parse(snapshot.spec);
+  // Once per viewer per report per UTC day, so reloads and link-preview bots count once.
   await recordEvent(db, {
     actor,
+    dedupeKey: `report.viewed:link:${row.id}:${actor.kind}:${actor.ref}:${now.toISOString().slice(0, 10)}`,
     occurredAt: now,
     payload: { reportId: row.id, via: "link" },
     type: "report.viewed",
   });
   return {
-    data: snapshot.data,
+    data: pruneReportData(spec, snapshot.data),
     snapshotAt: row.snapshotAt.toISOString(),
-    spec: reportSpecSchema.parse(snapshot.spec),
+    spec,
     title: snapshot.title,
   };
 };

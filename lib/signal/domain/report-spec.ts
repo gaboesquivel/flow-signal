@@ -125,7 +125,12 @@ export const validateReportSpec = (spec: ReportSpec): ReportSpecIssue[] => {
       column(block.dataset, block.x, block.chart === "scatter" ? "number" : undefined);
       for (const key of block.y) column(block.dataset, key, "number");
       if (block.seriesBy) column(block.dataset, block.seriesBy, "string");
-      if (block.sort) column(block.dataset, block.sort.column);
+      if (block.sort) {
+        // Grouped and pivoted rows keep only x and the plotted values.
+        const sortable = block.seriesBy ? [block.x] : [block.x, ...block.y];
+        if (!sortable.includes(block.sort.column))
+          fail(`A chart sorts by its x or a y column, not "${block.sort.column}".`);
+      }
       if (block.chart === "donut" && block.y.length !== 1)
         fail("A donut chart takes exactly one y.");
       if (block.seriesBy && block.y.length !== 1) fail("`seriesBy` takes exactly one y.");
@@ -167,9 +172,8 @@ export interface BlockData {
   series: ChartSeries[];
 }
 
-/** Series keys are sanitized so they are safe as CSS variable names in the chart config. */
-export const seriesKey = (value: string) =>
-  `s_${value.replaceAll(/[^a-zA-Z0-9]+/gu, "_").slice(0, 40)}`;
+/** A series key by position: safe as a CSS variable name and never shared by two series. */
+export const seriesKey = (index: number) => `s${index}`;
 
 const combine = (aggregate: (typeof chartAggregates)[number], values: number[]) => {
   if (aggregate === "count") return values.length;
@@ -228,24 +232,26 @@ export const applyBlockData = (
 
   const [y] = block.y as [string];
   const { seriesBy } = block;
+  // Keyed by position, so distinct names never collide in the chart config.
   const series = new Map<string, ChartSeries>();
-  const byX = new Map<string, Row>();
+  const byX = new Map<string, { values: Map<string, number[]>; x: Cell }>();
   for (const row of result.rows) {
     const xValue = row[block.x] ?? null;
     const name = String(row[seriesBy] ?? "None");
-    const key = seriesKey(name);
-    if (!series.has(key)) series.set(key, { key, label: name });
+    if (!series.has(name)) series.set(name, { key: seriesKey(series.size), label: name });
     const xKey = String(xValue);
-    const pivot = byX.get(xKey) ?? { [block.x]: xValue };
+    const entry = byX.get(xKey) ?? { values: new Map<string, number[]>(), x: xValue };
     const value = row[y];
-    const prior = pivot[key];
-    pivot[key] =
-      typeof value === "number" ? (typeof prior === "number" ? prior : 0) + value : (prior ?? null);
-    byX.set(xKey, pivot);
+    const values = entry.values.get(name) ?? [];
+    if (typeof value === "number") values.push(value);
+    entry.values.set(name, values);
+    byX.set(xKey, entry);
   }
   // Every pivoted row has every series (0 where a group had no row), so stacks line up.
-  const rows = [...byX.values()].map((row) => {
-    for (const { key } of series.values()) row[key] ??= 0;
+  const rows = [...byX.values()].map(({ values, x }) => {
+    const row: Row = { [block.x]: x };
+    for (const [name, { key }] of series)
+      row[key] = combine(block.aggregate ?? "sum", values.get(name) ?? []) ?? 0;
     return row;
   });
   const sorted = sortRows(rows, block.sort ?? { column: block.x, direction: "asc" });
@@ -303,6 +309,49 @@ export const formatValue = (value: Cell | undefined, column?: Pick<ColumnDef, "t
   if (unit === "percent") return `${oneDecimal.format(value * 100)}%`;
   if (unit === "days" || unit === "score") return oneDecimal.format(value);
   return Math.abs(value) >= 10_000 ? compact.format(value) : oneDecimal.format(value);
+};
+
+/** Every column a spec shows, per dataset id (x, y, seriesBy, table and KPI columns, sorts). */
+export const referencedColumns = (spec: ReportSpec) => {
+  const used = new Map<string, Set<string>>();
+  const add = (dataset: string, ...keys: (string | undefined)[]) => {
+    const set = used.get(dataset) ?? new Set<string>();
+    for (const key of keys) if (key) set.add(key);
+    used.set(dataset, set);
+  };
+  for (const block of spec.blocks) {
+    if (block.kind === "kpi") for (const item of block.items) add(item.dataset, item.column);
+    if (block.kind === "table") add(block.dataset, ...block.columns, block.sort?.column);
+    if (block.kind === "chart")
+      add(block.dataset, block.x, ...block.y, block.seriesBy, block.sort?.column);
+  }
+  return used;
+};
+
+/**
+ * Keeps only the datasets and columns a spec shows, so a shared snapshot carries nothing the
+ * report does not render (rows stay whole: KPIs aggregate over all of them).
+ */
+export const pruneReportData = (spec: ReportSpec, data: ReportData): ReportData => {
+  const used = referencedColumns(spec);
+  return Object.fromEntries(
+    [...used].flatMap(([id, keys]) => {
+      const result = data[id];
+      if (!result) return [];
+      return [
+        [
+          id,
+          {
+            columns: result.columns.filter((column) => keys.has(column.key)),
+            rows: result.rows.map((row) =>
+              Object.fromEntries(Object.entries(row).filter(([key]) => keys.has(key))),
+            ),
+            truncated: result.truncated,
+          },
+        ],
+      ];
+    }),
+  );
 };
 
 /** Report data keyed by dataset id, as every report operation returns it. */

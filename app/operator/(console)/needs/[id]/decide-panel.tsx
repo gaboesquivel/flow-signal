@@ -26,7 +26,7 @@ import {
   decisionStatuses,
   publishBlock,
 } from "../../_lib/decide";
-import { BriefMarkdown } from "./brief-markdown";
+import { BriefMarkdown } from "@/components/brief-markdown";
 import { sectionLabel, useAfterWrite } from "./need-shared";
 
 type ClientError = Pick<SignalClientError, "code" | "message">;

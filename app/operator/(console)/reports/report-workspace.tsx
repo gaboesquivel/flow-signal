@@ -99,8 +99,8 @@ export function ReportWorkspace({
     setBusy(null);
     if (!result.ok) return setError(result.error);
     setDirty(false);
-    if (reportId) router.refresh();
-    else router.replace(`/operator/reports/${result.data.reportId}`);
+    // Land with `?saved=1` so the reload after a save is not counted as reuse.
+    router.replace(`/operator/reports/${result.data.reportId}?saved=1`);
   };
 
   const refresh = async () => {

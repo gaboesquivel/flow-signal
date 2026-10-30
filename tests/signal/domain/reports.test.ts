@@ -292,6 +292,49 @@ describeWithDatabase("saved reports and sharing", () => {
       ).toEqual(["share", "refresh", "revoke"]);
     });
 
+    it("links carry only the columns the report shows, and refresh needs a live link", async () => {
+      const kpiOnly: ReportSpec = {
+        ...spec,
+        blocks: [
+          {
+            items: [{ aggregate: "count", column: "theme", dataset: "d1", label: "Needs" }],
+            kind: "kpi",
+          },
+        ],
+      };
+      const { reportId } = await save({ spec: kpiOnly });
+      expect((await errorCode(shareReport(deps(), { action: "refresh", reportId }))).code).toBe(
+        "validation_failed",
+      );
+      const shared = await shareReport(deps(), { action: "share", reportId });
+      if (shared.status !== "shared") throw new Error("expected shared");
+      const viewed = await getSharedReport(deps(), shared.path.slice(3));
+      expect(viewed.data.d1?.columns.map((column) => column.key)).toEqual(["theme"]);
+      expect(viewed.data.d1?.rows).toEqual([{ theme: "Reporting" }]);
+      expect(JSON.stringify(viewed)).not.toContain("Export to CSV");
+    });
+
+    it("counts one link view per viewer per day", async () => {
+      const { reportId } = await save();
+      const shared = await shareReport(deps(), { action: "share", reportId });
+      if (shared.status !== "shared") throw new Error("expected shared");
+      const token = shared.path.slice(3);
+      await getSharedReport(deps(), token);
+      await getSharedReport(deps(), token);
+      await getSharedReport(deps(agent), token);
+      at(1);
+      await getSharedReport(deps(), token);
+      const views = (await reportEvents()).filter((event) => event.type === "report.viewed");
+      expect(views.map((event) => event.actorKind)).toEqual(["human", "agent", "human"]);
+    });
+
+    it("does not record a view when recordView is false (the page a save lands on)", async () => {
+      const { reportId } = await save();
+      await getReport(deps(), reportId, { recordView: false });
+      expect((await reportEvents()).map((event) => event.type)).toEqual(["report.saved"]);
+      expect((await reuse()).human).toEqual({ rate: 0, reused: 0, saved: 1 });
+    });
+
     it("is not_found for an unknown token or report", async () => {
       expect((await errorCode(getSharedReport(deps(), "x".repeat(43)))).code).toBe("not_found");
       expect((await errorCode(getSharedReport(deps(), "short"))).code).toBe("not_found");

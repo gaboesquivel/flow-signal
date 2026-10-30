@@ -445,7 +445,7 @@ function ScatterPlot({
       ) : null}
       <ChartContainer className={cn(chartChrome, "h-64")} config={config}>
         <ScatterChart accessibilityLayer margin={{ bottom: 0, left: 0, right: 8, top: 8 }}>
-          <CartesianGrid />
+          <CartesianGrid vertical={false} />
           <XAxis
             axisLine={{ stroke: "var(--border)" }}
             dataKey="x"
@@ -534,7 +534,7 @@ function Donut({
   const data = slices.map((slice, index) => ({
     ...slice,
     fill: slotColor(index),
-    key: seriesKey(slice.name),
+    key: seriesKey(index),
   }));
   const config = Object.fromEntries(
     data.map((slice) => [slice.key, { color: slice.fill, label: slice.name }]),
