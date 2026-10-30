@@ -65,6 +65,17 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --font-sans: var(--font-sans);
+  /* Ledger loading line (components/loading-line.tsx): a short bar sliding along a hairline */
+  --animate-loading-line: loading-line 1.4s ease-in-out infinite;
+
+  @keyframes loading-line {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
 }
 
 :root {
