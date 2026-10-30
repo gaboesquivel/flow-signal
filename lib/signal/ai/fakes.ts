@@ -73,12 +73,16 @@ const overlap = (left: string, right: string) => {
 export const fakeJudge = (
   judgements: Record<string, { probability: number; reason: string }> = {},
 ): MatchJudge => ({
-  judge: ({ candidates, draft }) =>
+  judge: ({ candidates, draft, submission }) =>
     Promise.resolve(
       candidates.map(({ needId, statement }) => {
         const fixed = judgements[needId];
         if (fixed) return { needId, ...fixed };
-        const { score, shared } = overlap(draft.statement, statement);
+        // Preview judges before extraction finishes, so fall back to the submission's words.
+        const { score, shared } = overlap(
+          draft?.statement ?? `${submission.title} ${submission.body}`,
+          statement,
+        );
         return {
           needId,
           probability: Math.min(1, score),

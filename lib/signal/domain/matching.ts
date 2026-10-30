@@ -9,7 +9,7 @@ import { demandBandSchema, getPublicNeed, publicNeedStatusSchema } from "./publi
 
 /**
  * The submission hot path (spec 001 → Architecture and AI choices; decision 0002): a fixed
- * extract → retrieve → judge workflow. Any AI step that fails degrades the preview to
+ * extract → retrieve → judge workflow, with extraction running concurrently with the rest. Any AI step that fails degrades the preview to
  * `ai: "unavailable"` with no matches; database errors still propagate.
  */
 
@@ -110,37 +110,60 @@ export const previewSubmission = async (
     previewId,
   });
 
-  let draftNeed: DraftNeed;
-  try {
-    draftNeed = cleanDraft(await ai.extractor.extract(submission), submission.title);
-  } catch (error) {
-    if (isAiUnavailable(error)) return unavailable(fallbackDraft(submission.title));
-    throw error;
-  }
+  // Extraction runs alongside embed → retrieve → judge, so preview costs one fast-model call of
+  // latency instead of two. Retrieval and judging use the submission text; the drafted
+  // statement only feeds the response. Settled here so a failure never goes unhandled.
+  const settleExtraction = async () => {
+    try {
+      return {
+        draft: cleanDraft(await ai.extractor.extract(submission), submission.title),
+        ok: true as const,
+      };
+    } catch (error) {
+      return { error, ok: false as const };
+    }
+  };
+  const extraction = settleExtraction();
+  const draftOrFallback = async (): Promise<DraftNeed> => {
+    const settled = await extraction;
+    if (settled.ok) return settled.draft;
+    if (isAiUnavailable(settled.error)) return fallbackDraft(submission.title);
+    throw settled.error;
+  };
+  const extractedDraft = async (): Promise<DraftNeed | undefined> => {
+    const settled = await extraction;
+    if (settled.ok) return settled.draft;
+    if (isAiUnavailable(settled.error)) return undefined;
+    throw settled.error;
+  };
 
   let embedding: number[] | undefined;
   try {
-    [embedding] = await ai.embedder.embed([draftNeed.statement]);
+    [embedding] = await ai.embedder.embed([`${submission.title}\n\n${submission.body}`]);
   } catch (error) {
-    if (isAiUnavailable(error)) return unavailable(draftNeed);
+    if (isAiUnavailable(error)) return unavailable(await draftOrFallback());
     throw error;
   }
-  if (!embedding) return unavailable(draftNeed);
+  if (!embedding) return unavailable(await draftOrFallback());
 
   const candidates = await ai.retriever.retrieve({ db, embedding, limit: CANDIDATE_LIMIT });
-  if (candidates.length === 0) return { ai: "ok", draftNeed, matches: [], previewId };
 
-  let judgements;
-  try {
-    judgements = await ai.judge.judge({
-      candidates: candidates.map(({ needId, statement }) => ({ needId, statement })),
-      draft: draftNeed,
-      submission,
-    });
-  } catch (error) {
-    if (isAiUnavailable(error)) return unavailable(draftNeed);
-    throw error;
+  let judgements: MatchJudgement[] = [];
+  if (candidates.length > 0) {
+    try {
+      judgements = await ai.judge.judge({
+        candidates: candidates.map(({ needId, statement }) => ({ needId, statement })),
+        submission,
+      });
+    } catch (error) {
+      if (isAiUnavailable(error)) return unavailable(await draftOrFallback());
+      throw error;
+    }
   }
+
+  const draftNeed = await extractedDraft();
+  if (!draftNeed) return unavailable(fallbackDraft(submission.title));
+  if (candidates.length === 0) return { ai: "ok", draftNeed, matches: [], previewId };
 
   const chosen = chooseMatches({ candidates, judgements, threshold });
 

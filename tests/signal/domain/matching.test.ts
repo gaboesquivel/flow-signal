@@ -1,3 +1,5 @@
+import { once } from "node:events";
+
 import { beforeEach, expect, it } from "vitest";
 
 import {
@@ -35,6 +37,40 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
       },
       submission,
     );
+
+  it("judges candidates while the need is still being extracted (one model call of latency)", async () => {
+    const { need } = await insertNeed(harness.db, {
+      ...embedded("Executives need dashboard snapshots for the board deck"),
+      signals: supporters(2),
+    });
+    const gate = new EventTarget();
+    const extractionGate = once(gate, "release");
+    let judgedBeforeExtraction = false;
+    let extracted = false;
+    const result = await preview({
+      extractor: {
+        extract: async () => {
+          await extractionGate;
+          extracted = true;
+          return draft;
+        },
+      },
+      judge: {
+        judge: ({ candidates }) => {
+          judgedBeforeExtraction = !extracted;
+          gate.dispatchEvent(new Event("release"));
+          return Promise.resolve(
+            candidates.map(({ needId }) => ({ needId, probability: 0.9, reason: "Same need." })),
+          );
+        },
+        model: "fake",
+      },
+    });
+
+    expect(judgedBeforeExtraction).toBe(true);
+    expect(result.draftNeed.statement).toBe(draft.statement);
+    expect(result.matches.map((match) => match.needId)).toEqual([need.id]);
+  });
 
   it("returns at most 3 matches at or above the threshold, most probable first", async () => {
     const needs = await Promise.all(
@@ -86,8 +122,11 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
 
   it("never returns merged needs or needs without an embedding until they are backfilled", async () => {
     const live = await insertNeed(harness.db, { statement: draft.statement });
-    await insertNeed(harness.db, { ...embedded(draft.statement), status: "merged" });
-    const judge = fakeJudge();
+    const merged = await insertNeed(harness.db, { ...embedded(draft.statement), status: "merged" });
+    const judge = fakeJudge({
+      [live.need.id]: { probability: 0.9, reason: "Same need." },
+      [merged.need.id]: { probability: 0.9, reason: "Same need." },
+    });
 
     expect((await preview({ judge })).matches).toEqual([]);
 

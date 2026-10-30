@@ -52,7 +52,8 @@ export interface MatchJudgement {
 export interface MatchJudge {
   judge: (input: {
     candidates: { needId: string; statement: string }[];
-    draft: DraftNeed;
+    /** Optional: preview judges before extraction finishes; the eval may pass it. */
+    draft?: DraftNeed;
     submission: { body: string; title: string };
   }) => Promise<MatchJudgement[]>;
   model: string;

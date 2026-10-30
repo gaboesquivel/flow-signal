@@ -86,7 +86,6 @@ const generateFast = async <T>(
       model: model ?? gatewayModel(signalFastModelId()),
       output: Output.object({ schema }),
       prompt,
-      temperature: 0,
     });
     return schema.parse(result.output);
   } catch (error) {
@@ -156,7 +155,7 @@ export const gatewayJudge = (options: FastModelOptions = {}): MatchJudge => ({
       .join("\n");
     const value = await generateFast("Match judging", options, {
       instructions: JUDGE_INSTRUCTIONS,
-      prompt: `Customer request:\n${submissionText(submission)}\nDrafted need: ${quote(draft.statement)}\n\nCandidate needs:\n${list}`,
+      prompt: `Customer request:\n${submissionText(submission)}\n${draft ? `Drafted need: ${quote(draft.statement)}\n` : ""}\nCandidate needs:\n${list}`,
       schema: judgementSchema,
     });
     const seen = new Set<number>();

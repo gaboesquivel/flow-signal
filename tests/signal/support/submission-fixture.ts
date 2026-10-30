@@ -52,17 +52,16 @@ const extractor = (): NeedExtractor => {
   };
 };
 
-const scenarioStatements = new Set([mayaDraft.statement, twoAsksStatement]);
+const scenarioTitles = new Set([maya.title, twoAsks.title]);
 
-/** Fixed verdicts for the scenario's drafts; word overlap (the default fake) for anything else. */
+/** Fixed verdicts for the scenario's submissions; word overlap (the default fake) for anything else. */
 const scenarioJudge = (
   verdicts: Record<string, { probability: number; reason: string }>,
 ): MatchJudge => {
   const fixed = fakeJudge(verdicts);
   const overlap = fakeJudge();
   return {
-    judge: (input) =>
-      (scenarioStatements.has(input.draft.statement) ? fixed : overlap).judge(input),
+    judge: (input) => (scenarioTitles.has(input.submission.title) ? fixed : overlap).judge(input),
     model: fixed.model,
   };
 };

@@ -91,9 +91,17 @@ export const runCase = async (
   const started = now();
   let draftStatement: string | undefined;
   try {
-    const draft = await ports.extractor.extract(input);
-    draftStatement = draft.statement;
-    const [embedding] = await ports.embedder.embed([draft.statement]);
+    // Same flow as `previewSubmission` (lib/signal/domain/matching.ts): extraction runs alongside
+    // embed → retrieve → judge on the submission text, so latency is one fast-model call.
+    const settleExtraction = async () => {
+      try {
+        return { draft: await ports.extractor.extract(input), ok: true as const };
+      } catch (error) {
+        return { error, ok: false as const };
+      }
+    };
+    const extraction = settleExtraction();
+    const [embedding] = await ports.embedder.embed([`${input.title}\n\n${input.body}`]);
     if (!embedding) throw new Error("The embedder returned no embedding.");
     const candidates = await retriever.retrieve({
       db: noDatabase,
@@ -105,9 +113,12 @@ export const runCase = async (
         ? []
         : await ports.judge.judge({
             candidates: candidates.map(({ needId, statement }) => ({ needId, statement })),
-            draft,
             submission: input,
           });
+    const settled = await extraction;
+    if (!settled.ok) throw settled.error;
+    const { draft } = settled;
+    draftStatement = draft.statement;
     return {
       ...base,
       additionalAsks: draft.additionalAsks,
