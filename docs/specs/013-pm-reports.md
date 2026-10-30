@@ -1,6 +1,6 @@
 # 013 — PM Reports: describe any report, get grounded charts, save and share it
 
-Status: accepted (2026-10-30)
+Status: implemented (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs, agents, stakeholders), Core journeys 8, Diagnostics → Report reuse, Riskiest assumption 6. Decision: [0010](../decisions/0010-reports-as-typed-specs-over-named-datasets.md). Builds on [spec 001](./001-signal-mvp.md) (operations, event log, `get_metrics`), [spec 006](./006-lean-ledger-ui.md) (Operator console, `check_public_text`, Lean Ledger design), and [spec 007](./007-decision-direction.md) (decisions, readiness).
 
@@ -255,12 +255,12 @@ In scope:
 
 ## Tasks
 
-- [ ] 01: Report contract, dataset catalog types, and planned operation stubs
-- [ ] 02: `get_report_dataset` and the five datasets
-- [ ] 03: `generate_report` with plan, compose, validation, and traceability
-- [ ] 04: Saved reports, sharing, events, and the reuse metric
-- [ ] 05: Report renderer components and chart tokens
-- [ ] 06: Reports pages, shared page, nav, and the `/genui` redirect
+- [x] 01: Report contract, dataset catalog types, and planned operation stubs
+- [x] 02: `get_report_dataset` and the five datasets
+- [x] 03: `generate_report` with plan, compose, validation, and traceability
+- [x] 04: Saved reports, sharing, events, and the reuse metric
+- [x] 05: Report renderer components and chart tokens
+- [x] 06: Reports pages, shared page, nav, and the `/genui` redirect
 
 ### 01: Report contract, dataset catalog types, and planned operation stubs
 
@@ -330,3 +330,7 @@ In scope:
 - The 30 s target in step 2 is a hypothesis. It is two reasoning-model calls plus SQL. If it is too slow, `report_compose` can move to the fast model.
 - Assumption 6 is measured informally at first: the warnings from `gaps` show which datasets are missing. Logging `gaps` into an event is a follow-up.
 - Starter prompts: "Demand by theme, ARR-weighted", "Signals per week by plan", "Decision latency by month", "Top Enterprise needs", "Prevention rate trend".
+- Built findings (2026-10-30):
+  - `report_compose` returns each block as `{ kind, json }` (the block's fields as a JSON string), validated after. Constrained decoding on a wide object of optional fields took 45–120+ s per call; this shape composes in seconds. Live runs: 6–11 s per report.
+  - Saved snapshots hold `{ title, spec, data }`, so a shared link shows exactly what passed the names check. Saving a shared report leaves its link unchanged until Refresh.
+  - Catalog gap seen live: "by month" requests plot one point per decision because no dataset buckets by month. That is the first evidence for assumption 6, and a candidate dataset param.
