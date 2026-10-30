@@ -315,8 +315,27 @@ export const strategies = pgTable(
   ],
 );
 
+/**
+ * A saved PM report (spec 013): the spec plus the snapshot of its datasets as of `snapshot_at`.
+ * `share_token` is set while a read-only `/r/<token>` link is live; revoking clears it.
+ */
+export const reports = pgTable("reports", {
+  createdAt: createdAt(),
+  createdByKind: actorKind("created_by_kind").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  prompt: text("prompt").notNull(),
+  shareToken: text("share_token").unique(),
+  sharedAt: timestamp("shared_at", { withTimezone: true }),
+  snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
+  snapshotAt: timestamp("snapshot_at", { withTimezone: true }).notNull(),
+  spec: jsonb("spec").$type<Record<string, unknown>>().notNull(),
+  title: text("title").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /** Every Signal table; the test harness and the seed truncate these. */
 export const signalTableNames = [
+  "reports",
   "events",
   "strategies",
   "decisions",

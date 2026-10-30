@@ -174,8 +174,10 @@ describe("surfaces generated from the registry", () => {
       "merge_needs",
       "publish_decision",
       "resolve_suggestion",
+      "save_report",
       "set_criteria",
       "set_strategy",
+      "share_report",
       "split_need",
       "undo_merge",
     ];
