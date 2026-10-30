@@ -67,7 +67,7 @@ function RuledList({
     if (event.defaultPrevented || (event.key !== "ArrowDown" && event.key !== "ArrowUp")) return;
     const triggers = [
       ...event.currentTarget.querySelectorAll<HTMLButtonElement>(
-        ":scope > li > [data-slot=ruled-row-trigger]",
+        ":scope > li > [data-slot=ruled-row-trigger], :scope > li > div > [data-slot=ruled-row-trigger]",
       ),
     ];
     const index = triggers.indexOf(document.activeElement as HTMLButtonElement);
@@ -108,18 +108,44 @@ function RuledItem({ className, ...props }: React.ComponentProps<"li">) {
  * `children` show inline only while this row is the open one.
  */
 function RuledRow({
+  actions,
   children,
   className,
   summary,
   value,
   ...props
-}: Omit<React.ComponentProps<"li">, "value"> & { summary: React.ReactNode; value: string }) {
+}: Omit<React.ComponentProps<"li">, "value"> & {
+  /** Controls that stay on the row while it is closed (e.g. "Undo merge"); beside the head. */
+  actions?: React.ReactNode;
+  summary: React.ReactNode;
+  value: string;
+}) {
   const context = React.use(RuledListContext);
   if (!context) throw new Error("RuledRow must be inside a RuledList");
   const { expanded, id, setExpanded } = context;
   const open = expanded === value;
   const panelId = `${id}-${value}`;
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const trigger = (
+    <button
+      aria-controls={open ? panelId : undefined}
+      aria-expanded={open}
+      className="focus-visible:ring-ring/50 group/ruled-row flex w-full min-w-0 items-center gap-4 rounded-sm py-3.5 text-left outline-none focus-visible:ring-3"
+      data-slot="ruled-row-trigger"
+      onClick={() => setExpanded(toggleExpanded(expanded, value))}
+      ref={triggerRef}
+      type="button"
+    >
+      <span className="min-w-0 flex-1">{summary}</span>
+      <ChevronRight
+        aria-hidden="true"
+        className={cn(
+          "text-muted-foreground size-4 shrink-0 transition-transform motion-reduce:transition-none",
+          open && "rotate-90",
+        )}
+      />
+    </button>
+  );
 
   return (
     <li
@@ -134,24 +160,16 @@ function RuledRow({
       }}
       {...props}
     >
-      <button
-        aria-controls={open ? panelId : undefined}
-        aria-expanded={open}
-        className="focus-visible:ring-ring/50 group/ruled-row flex w-full min-w-0 items-center gap-4 rounded-sm py-3.5 text-left outline-none focus-visible:ring-3"
-        data-slot="ruled-row-trigger"
-        onClick={() => setExpanded(toggleExpanded(expanded, value))}
-        ref={triggerRef}
-        type="button"
-      >
-        <span className="min-w-0 flex-1">{summary}</span>
-        <ChevronRight
-          aria-hidden="true"
-          className={cn(
-            "text-muted-foreground size-4 shrink-0 transition-transform motion-reduce:transition-none",
-            open && "rotate-90",
-          )}
-        />
-      </button>
+      {actions ? (
+        <div className="flex min-w-0 items-center gap-3">
+          {trigger}
+          <div className="shrink-0" data-slot="ruled-row-actions">
+            {actions}
+          </div>
+        </div>
+      ) : (
+        trigger
+      )}
       {open ? (
         <div className="min-w-0 pb-8" data-slot="ruled-row-panel" id={panelId}>
           {children}

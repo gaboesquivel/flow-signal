@@ -27,8 +27,9 @@ export default defineConfig({
       },
     },
     {
-      // Tests build database fixtures step by step and index into rows they just inserted.
-      files: ["tests/**"],
+      // Tests build database fixtures step by step and index into rows they just inserted;
+      // browser specs (e2e) drive one page through ordered steps.
+      files: ["tests/**", "e2e/**"],
       rules: {
         "eslint/no-await-in-loop": "off",
         "typescript/no-non-null-assertion": "off",
