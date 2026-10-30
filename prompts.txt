@@ -9,3 +9,27 @@ Response: Checked the staged set for secrets and build output (none), then commi
 [2026-10-30T13:46:10Z]
 Prompt: Start a new project called Signal — AI that prevents duplicate feature requests at submission, steers users to support existing requests, and helps product managers understand demand, decide, and measure impact.
 Response: Ran /start in place on the template clone (slug signal, host signal.localhost, preset minimal). User approved pushing to origin gaboesquivel/flow-signal. Bootstrap (rename, setup, baseline docs, Flow block, checks, initial commit, push, deployment) runs in a worker while explore shapes the product.
+
+[2026-10-30T13:54:11Z]
+Prompt: Answered explore questions (customer submissions first but PM decision workflow in MVP; Signal hosts the board; agents are first-class users; main metric = duplicates prevented without losing customer context, plus PM metrics) and shared the full assignment brief (AI-first Feature Intelligence System, core requirements, required documentation). Asked to zoom out and spec the first MVP before slicing.
+Response: Read baseline docs and the AI stack, drafted the PRODUCT.md brief covering the required documentation points, and asked for confirmation before writing it on a branch and specifying the MVP.
+
+[2026-10-30T13:59:29Z]
+Prompt: Let's explore a bit more (brief not yet approved).
+Response: Kept the brief unwritten and asked five follow-up questions with guesses: build exercise vs. real pilot, the core data model (need vs. request), what customer context is visible to whom, submitter identity, and the default priority criteria.
+
+[2026-10-30T14:04:52Z]
+Prompt: Confirmed: it's a build exercise (eval set + seeded demo), no auth for submitters (email only), default priority criteria OK. Asked to zoom into the need-vs-request data model and the visibility of customer context.
+Response: Proposed a three-level model (signal -> need -> theme), worked through edge cases (bundled asks, same solution for different needs, need granularity, merges), proposed a public vs. PM visibility split, and asked targeted questions with guesses. Nothing written yet.
+
+[2026-10-30T14:10:11Z]
+Prompt: Approved the signal/need/theme model, edge-case handling, and visibility rules; asked what metrics we are optimizing for.
+Response: Laid out the metric set for the new model: one main metric (duplicate prevention at submission), offline AI-quality metrics for the exercise, PM workflow metrics, and guardrails, each with what it counts and its source. Brief still unwritten.
+
+[2026-10-30T14:13:26Z]
+Prompt: Approved prevention rate as the one metric that matters; asked for two more MVP metrics, one on decision-making.
+Response: Proposed decision latency (decision-making) and AI suggestion acceptance (trust and the workflow shift) as the two MVP metrics alongside the OMTM, with definitions; other metrics stay as diagnostics and guardrails. Brief still unwritten.
+
+[2026-10-30T14:14:56Z]
+Prompt: Lock and write.
+Response: On new branch signal-mvp (from 02a1133), wrote the confirmed product brief into PRODUCT.md (model, visibility, three MVP metrics, assumptions, kill criterion, journeys) and added Signal, Need, Draft need, Theme, Proposed solution, Merge, Decision and Prevention rate to GLOSSARY.md, then committed.
