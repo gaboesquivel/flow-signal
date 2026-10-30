@@ -10,7 +10,6 @@ import {
   DEFAULT_SIGNAL_EMBEDDING_MODEL,
   DEFAULT_SIGNAL_FAST_MODEL,
   DEFAULT_SIGNAL_REASONING_MODEL,
-  directModelId,
   gatewayAvailable,
   signalDecisionModelId,
   signalEmbeddingModelId,
@@ -55,10 +54,6 @@ describe("model defaults", () => {
     expect(signalDecisionModelId({ SIGNAL_DECISION_MODEL: " anthropic/claude-sonnet-5.5 " })).toBe(
       "anthropic/claude-sonnet-5.5",
     );
-  });
-
-  it("maps gateway ids to direct Anthropic ids", () => {
-    expect(directModelId("anthropic/claude-sonnet-5.5")).toBe("claude-sonnet-5-5");
   });
 });
 

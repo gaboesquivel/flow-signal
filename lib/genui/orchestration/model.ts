@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 
-import { gatewayAvailable, genuiModelId } from "../../ai/models";
+import { gatewayAvailable, gatewayModel, genuiModelId } from "../../ai/models";
 
 export const synthesizeOpenEndedAnswer = async ({
   query,
@@ -11,7 +11,7 @@ export const synthesizeOpenEndedAnswer = async ({
 }) => {
   if (!gatewayAvailable()) return null;
 
-  const model = genuiModelId();
+  const model = gatewayModel(genuiModelId());
 
   const result = await generateText({
     abortSignal: signal,

@@ -1,6 +1,6 @@
 # 004 — Crewday outcome eval: prove Signal moves the core metrics against a vote board
 
-Status: accepted (2026-10-30). Amended by [007](./007-decision-direction.md) (adds a `follows_signal` PM policy beside the oracle PM; no change to existing runs).
+Status: accepted (2026-10-30). Amended by [007](./007-decision-direction.md) (adds a `follows_signal` PM policy beside the oracle PM; no change to existing runs). Amended by [010](./010-retro-remediation.md) (worlds as shipped: ~600 signals, review deferred; `pnpm eval:crewday` runs on demand, outside `pnpm eval`).
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Metrics, Riskiest assumptions. Builds on [spec 001](./001-signal-mvp.md) (operation registry, event log, `get_metrics`, matching eval). Agent outcome runs on the same worlds: [spec 005](./005-agent-outcome-eval.md) (candidate).
 Decisions: [0004 Simulated customer world with scripted behaviour as the outcome eval](../decisions/0004-simulated-world-outcome-eval.md) (Accepted).
@@ -90,7 +90,7 @@ Among the signals: two-ask submissions, vague complaints, typos and non-native E
 1. People hand-write the recipe: needs, traps, backlog, accounts, personas, and the strategy memo.
 2. A model from a different family than Signal's runtime models writes each signal from a **persona and a scenario**: who they are, what went wrong at work that week, and optionally a solution they have in mind. It never sees the need statement. The label is attached by construction before the text exists.
 3. **Leakage check:** for every signal, rank the world's needs by keyword search (the vote-board arm's retriever) on the signal's title and body. The **keyword-findable share** is the share whose true need ranks first. The world is rejected and regenerated if more than 60% of signals that should match an existing need are keyword-findable (at least 40% must need meaning, not words). Every report prints this share.
-4. A stratified sample is reviewed (weighted toward traps), and any signal that drifted from its scenario's need is fixed or dropped. _Open: who reviews and how much; see Further Notes._
+4. A stratified sample is reviewed (weighted toward traps), and any signal that drifted from its scenario's need is fixed or dropped. _Deferred to v1.1: v1 shipped without review; see Further Notes._
 5. Each world is frozen. Any change is a new version (`v2`), never an edit in place. Generation scripts record model ids, prompts, and RNG seeds.
 
 ### Simulation
@@ -206,7 +206,7 @@ On `crewday-test`, default policy, Signal arm vs. vote board. A criterion passes
 
 - `pnpm eval:crewday`: `crewday-dev`, both arms, default policy; report to `evals/crewday/results/latest.json` and a terminal table.
 - Flags: `--world dev|test`, `--arm signal|board|both`, `--sweep`, `--cached`, `--seed`, `--tag <name>` (test world only; appends to `history/`), `--component matching`.
-- Joins `pnpm eval` with the dev world and `--cached`. It skips with a clear message without AI Gateway access, as `eval:matching` does.
+- Runs on demand only, outside `pnpm eval` ([spec 010](./010-retro-remediation.md)). It skips with a clear message without AI Gateway access, as `eval:matching` does.
 
 **Exposure:** none. This adds eval code and fixtures only, with no route, operation, or deployable behaviour. The runner writes only to a test database: local Docker or PGlite per [0003](../decisions/0003-local-test-databases.md). It refuses to start when its database URL is the `DATABASE_URL` from `.env.local` or any Neon `main` or dev branch.
 
@@ -266,17 +266,17 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 
 ### 02: Generate the Crewday worlds
 
-**What to build:** the written Crewday recipe and the scripts that generate `crewday-dev@v1` and `crewday-test@v1` from it. Signals are written by a non-Signal model family from persona and scenario, never from need statements. Each world is checked for keyword leakage, a stratified sample is reviewed, and both worlds are frozen and committed.
+**What to build:** the written Crewday recipe and the scripts that generate `crewday-dev@v1` and `crewday-test@v1` from it. Signals are written by a non-Signal model family from persona and scenario, never from need statements. Each world is checked for keyword leakage, a stratified sample is reviewed (deferred to v1.1, see Further Notes), and both worlds are frozen and committed.
 
 **Area:** evals/crewday, package.json
 
 **Blocked by:** 01
 
 - [ ] The recipe holds the company, strategy memo, account and persona mix, six themes, about 120 needs with arrival curves and true priorities, about 20 traps, and a migrated backlog of about 40 needs with about 8 duplicate pairs.
-- [ ] Each world has about 40 accounts, about 200 personas, and about 1,500 signals over 12 months, and loads through task 01's loader. The two worlds share no needs, accounts, or personas.
+- [ ] Each world has about 40 accounts, about 200 personas, and about 600 signals over 12 months (v1 shipped 604 per world), and loads through task 01's loader. The two worlds share no needs, accounts, or personas.
 - [ ] The generator never passes a need statement to the model. It records model ids, prompts, and RNG seeds.
 - [ ] The keyword-findable share is ≤ 60% in each world and is recorded with the world.
-- [ ] The stratified review is done and recorded: who reviewed, how many signals, and what was fixed or dropped. v1 uses the third-family model check described in Further Notes.
+- [x] The review method is recorded in each world's manifest. v1 shipped with the review deferred (`"review": "none (deferred)"`); the stratified third-family check moves to v1.1 (Further Notes).
 
 ### 03: Simulation engine, policies, arms, and scorer (offline)
 
@@ -316,7 +316,7 @@ This task answers the bet on the dev world.
 - [ ] The report confirms no planted PII reached an approved public summary.
 - [ ] The first live run's model spend per world is measured and recorded in the spec's open assumptions.
 - [ ] Acceptance scenario steps 1–5 pass on `crewday-test`.
-- [ ] `pnpm eval` includes the dev-world run.
+- [ ] `pnpm eval:crewday` runs the dev world on demand (not part of `pnpm eval`, [spec 010](./010-retro-remediation.md)).
 
 ### 05: Behaviour sweep with cached AI responses
 

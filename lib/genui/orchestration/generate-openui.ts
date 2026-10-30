@@ -1,7 +1,7 @@
 import { generateObject } from "ai";
 import { z } from "zod";
 
-import { gatewayAvailable, genuiModelId } from "../../ai/models";
+import { gatewayAvailable, gatewayModel, genuiModelId } from "../../ai/models";
 
 import { validateCompositionEnvelope } from "../contract/compiler";
 import type { CompositionEnvelope, GroundedRecord } from "../core/envelope";
@@ -38,7 +38,7 @@ export const synthesizeOpenUiComposition = async ({
 }): Promise<CompositionEnvelope | null> => {
   if (!gatewayAvailable()) return null;
 
-  const model = genuiModelId();
+  const model = gatewayModel(genuiModelId());
   const seedRecords = [...acmeCatalogRecords, ...supportDashboardRecords];
 
   const result = await generateObject({
@@ -94,7 +94,7 @@ export const refineOpenUiComposition = async ({
 }): Promise<CompositionEnvelope | null> => {
   if (!gatewayAvailable()) return null;
 
-  const model = genuiModelId();
+  const model = gatewayModel(genuiModelId());
   const transcript = turnTranscript(turns);
 
   const result = await generateObject({

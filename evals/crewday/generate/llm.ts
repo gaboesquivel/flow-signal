@@ -2,8 +2,10 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { createGateway, generateText, Output } from "ai";
+import { generateText, Output } from "ai";
 import type { z } from "zod";
+
+import { gatewayModel, gatewayProvider } from "@/lib/ai/models";
 
 /**
  * Cached structured calls to the AI Gateway for world generation. Every response is stored under
@@ -50,14 +52,10 @@ class UnpricedCallError extends Error {
   override name = "UnpricedCallError";
 }
 
-// An empty key falls back to the Gateway's own resolution (VERCEL_OIDC_TOKEN).
-const provider = () =>
-  createGateway({ apiKey: process.env.AI_GATEWAY_API_KEY?.trim() || undefined });
-
 let prices: Record<string, { input: number; output: number }> | undefined;
 const priceOf = async (modelId: string) => {
   if (!prices) {
-    const { models } = await provider().getAvailableModels();
+    const { models } = await gatewayProvider().getAvailableModels();
     prices = Object.fromEntries(
       models.flatMap((model) =>
         model.pricing
@@ -116,7 +114,7 @@ export const callStructured = async <Schema extends z.ZodType>(
       const result = await generateText({
         instructions,
         maxRetries: 2,
-        model: provider()(modelId),
+        model: gatewayModel(modelId),
         output: Output.object({ schema }),
         prompt,
         ...(temperature === undefined ? {} : { temperature }),

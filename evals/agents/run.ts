@@ -23,10 +23,10 @@ import { parseArgs } from "node:util";
 
 import { PGlite } from "@electric-sql/pglite";
 import { vector } from "@electric-sql/pglite-pgvector";
-import { createGateway, gateway, generateText, registerTelemetry } from "ai";
+import { generateText, registerTelemetry } from "ai";
 import { drizzle } from "drizzle-orm/pglite";
 
-import { gatewayAvailable, gatewayModel } from "@/lib/ai/models";
+import { gatewayAvailable, gatewayModel, gatewayProvider } from "@/lib/ai/models";
 import { prepareTestDatabase, schemaStatements } from "@/lib/db/prepare-database";
 import * as schema from "@/lib/db/schema";
 import { createFakeAi, fakeReasoner } from "@/lib/signal/ai/fakes";
@@ -179,9 +179,7 @@ meter.take();
 
 const loadPrices = async (): Promise<PriceTable> => {
   try {
-    const apiKey = process.env.AI_GATEWAY_API_KEY?.trim();
-    const provider = apiKey ? createGateway({ apiKey }) : gateway;
-    return pricesFromModelList(await provider.getAvailableModels());
+    return pricesFromModelList(await gatewayProvider().getAvailableModels());
   } catch {
     return {};
   }

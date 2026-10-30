@@ -34,4 +34,14 @@ My signals: signals point to a shared tracking link (`tracking_links`), so a sub
 
 - **Automated tests cover the API, MCP, and agent surfaces only:** operation contracts, the parity suite (REST, MCP, and agent tools agree on output, error codes, events, and access), domain behaviour on a test database, migration safety, and agent tool behaviour. Parity proves the surfaces agree; behaviour cases belong in domain tests.
 - **No UI tests:** no component, unit, or browser (Playwright) tests for pages or components. UI is checked by hand in a browser against [DESIGN.md](./DESIGN.md) → Checking rendered output.
-- **CI is light:** `pnpm qa` (lint, types, and unit/parity/domain tests on in-process PGlite). Live-model evals (`pnpm eval`) run on demand and whenever agent code changes, never in CI.
+- **CI is light:** `pnpm qa` (lint, types, and unit/parity/domain tests on in-process PGlite). Live-model evals never run in CI.
+- **Each check runs once:** workers and the integrator run `pnpm test:changed` plus lint and types for their files; CI runs the full suite once. Don't re-run a green suite to confirm it.
+- **Evals match the change, on demand** ([spec 010](./docs/specs/010-retro-remediation.md)). `pnpm eval` is the cheap tier (offline GenUI, Eve smoke, matching, agents); Crewday costs dollars and runs only when asked:
+
+  | Changed path                                      | Eval                                |
+  | ------------------------------------------------- | ----------------------------------- |
+  | `lib/signal/ai/**`, `lib/signal/domain/matching*` | `pnpm eval:matching`                |
+  | `agents/**`, `lib/mcp/**`                         | `pnpm eval:agents`                  |
+  | `evals/crewday/**`, policy or metric code         | `pnpm eval:crewday`, when asked for |
+
+- **Models:** every model call goes through the AI Gateway: app and eval code through `lib/ai/models.ts`, Eve agents by Gateway model id. Lint rejects direct provider SDK imports.

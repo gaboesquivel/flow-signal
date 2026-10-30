@@ -2,7 +2,13 @@
 
 ## Prompt Logging
 
-Every time you receive a new instruction or prompt, append it to prompts.txt in the project root with a timestamp (ISO 8601) and a brief summary of what you did in response. Create the file if it doesn't exist. Keep this log updated throughout all sessions.
+A hook (`tooling/hooks/log-prompt.mjs`) appends each prompt to prompts.txt with its real timestamp. After responding, append one `Response:` line under it with a brief summary of what you did.
+
+## Environment
+
+- The GitHub repo `gaboesquivel/flow-signal`, the Vercel project `flow-signal`, and the Neon project `signal` are the user's own; run their CLIs directly. In an unlinked worktree, use `vercel --cwd <main checkout>` or copy `.env.local` and `.vercel/` (Claude Code worktrees get them from `.worktreeinclude`).
+- Pipe secrets into CLIs; never print them. Merge a PR only after `gh pr checks <n> --watch` passes.
+- Workers run `pnpm test:changed` plus lint and types for their files; the full suite runs once, in CI. Live evals run on demand, matched to the changed path (ARCHITECTURE.md → Testing).
 
 <!-- BEGIN FLOW -->
 

@@ -59,6 +59,23 @@ export default defineConfig({
   ],
   rules: {
     curly: "off",
+    // Every model call goes through the AI Gateway (spec 010): no direct provider SDKs.
+    "eslint/no-restricted-imports": [
+      "error",
+      {
+        paths: [
+          "@ai-sdk/anthropic",
+          "@ai-sdk/openai",
+          "@ai-sdk/google",
+          "@anthropic-ai/sdk",
+          "openai",
+        ].map((name) => ({
+          message:
+            "Use gatewayModel / gatewayEmbeddingModel / gatewayProvider from lib/ai/models.ts (AI Gateway only, spec 010).",
+          name,
+        })),
+      },
+    ],
     "eslint/no-use-before-define": "off",
     "func-style": "off",
     "no-alert": "off",

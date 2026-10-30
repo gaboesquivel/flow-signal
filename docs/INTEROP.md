@@ -53,19 +53,17 @@ Operator web (`/operator`), `/api/operator/chat`, and `/api/mcp/operator` use a 
 
 ## Chat and inference
 
-| Variable                      | Purpose                                                                                                                                                                |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AI_GATEWAY_API_KEY`          | Preferred live inference via Vercel AI Gateway (Assistant, Operator HTTP chat, GenUI compose when configured)                                                          |
-| `FLOW_ALLOW_DIRECT_ANTHROPIC` | Set to `1` to allow direct Anthropic when Gateway is unset (local override only)                                                                                       |
-| `ANTHROPIC_API_KEY`           | Direct chat with `FLOW_ALLOW_DIRECT_ANTHROPIC=1` (Signal decision tasks run on Gateway credentials, [0007](./decisions/0007-decision-model-on-gateway-credentials.md)) |
-| `CHAT_MODEL`                  | Optional model override (Gateway model id)                                                                                                                             |
-| `EVE_AGENT_MODEL`             | Eve default model override                                                                                                                                             |
-| `TYPESAFE_API_KEY`            | Optional compose routing                                                                                                                                               |
-| `GENUI_MODEL`                 | Optional compose model override                                                                                                                                        |
+| Variable             | Purpose                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `AI_GATEWAY_API_KEY` | Preferred live inference via Vercel AI Gateway (Assistant, Operator HTTP chat, GenUI compose when configured) |
+| `CHAT_MODEL`         | Optional model override (Gateway model id)                                                                    |
+| `EVE_AGENT_MODEL`    | Eve default model override                                                                                    |
+| `TYPESAFE_API_KEY`   | Optional compose routing                                                                                      |
+| `GENUI_MODEL`        | Optional compose model override                                                                               |
 
 Gateway credentials are `AI_GATEWAY_API_KEY`, or Vercel OIDC: automatic on Vercel deployments, and locally `VERCEL_OIDC_TOKEN` from `vercel env pull .env.local` (an empty `AI_GATEWAY_API_KEY` beside it is fine). The OIDC token expires after about 12 hours; pull again when live evals (`pnpm eval:*`) skip with "the AI Gateway is unavailable".
 
-Without Gateway credentials and without the explicit direct-Anthropic override, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
+Every model call (chat, GenUI, Signal operations, Eve agents, and evals) goes through the AI Gateway (app and eval code via `lib/ai/models.ts`; Eve agents by Gateway model id); there is no direct provider path, and lint rejects direct provider SDK imports ([spec 010](./specs/010-retro-remediation.md)). Without Gateway credentials, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
 
 ## Environment variables (summary)
 
@@ -73,7 +71,6 @@ Without Gateway credentials and without the explicit direct-Anthropic override, 
 | -------------------- | ------------------------------------------------------------------------- |
 | `OPERATOR_SECRET`    | Enables Operator MCP and web console when ≥16 chars; fail-closed if unset |
 | `AI_GATEWAY_API_KEY` | GenUI compose and HTTP chat via Vercel AI Gateway                         |
-| `ANTHROPIC_API_KEY`  | Optional direct chat only with `FLOW_ALLOW_DIRECT_ANTHROPIC=1`            |
 
 ## Template differences
 
