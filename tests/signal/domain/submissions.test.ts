@@ -73,7 +73,7 @@ describeWithDatabase("submit_signal domain", () => {
       actorKind: "human",
       dedupeKey: "signal.created:key-0001",
       needId: need.id,
-      payload: { attachedTo: "existing" },
+      payload: { attachedTo: "existing", hasUseCase: true },
       signalId: result.signalId,
       type: "signal.created",
     });
@@ -106,7 +106,7 @@ describeWithDatabase("submit_signal domain", () => {
       [
         "signal.created",
         "agent",
-        { attachedTo: "draft", client: "support-copilot", previewId: "pv_abc" },
+        { attachedTo: "draft", client: "support-copilot", hasUseCase: false, previewId: "pv_abc" },
       ],
     ]);
   });

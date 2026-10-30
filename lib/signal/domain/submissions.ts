@@ -248,7 +248,11 @@ export const submitSignal = async (
         dedupeKey: `signal.created:${input.idempotencyKey}`,
         needId,
         occurredAt: now,
-        payload: { attachedTo, ...(input.previewId ? { previewId: input.previewId } : {}) },
+        payload: {
+          attachedTo,
+          hasUseCase: Boolean(input.useCase),
+          ...(input.previewId ? { previewId: input.previewId } : {}),
+        },
         signalId: signal.id,
         type: "signal.created",
       });
