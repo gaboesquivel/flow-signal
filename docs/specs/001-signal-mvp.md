@@ -18,7 +18,7 @@ A customer who wants something files it in their own words, unaware that ten oth
 - **My signals.** After submitting, the submitter gets a private, unguessable link that shows their signals, status changes, and decision notes.
 - **PM triage (Operator).** A queue of AI suggestions (draft needs, merges, themes, priority scores, public summaries, splits) to accept, edit, or reject; merges can be undone.
 - **PM decide and communicate.** Priority scores against editable criteria with reasons, an AI-drafted decision brief, and publishing a decision with a note supporters see.
-- **Agents.** The same capabilities over MCP: public tools for submitters, protected tools for PMs.
+- **Agent- and API-first.** Every capability is one operation, exposed as a REST route, an MCP tool (public `/api/mcp` or Operator `/api/mcp/operator`), and an Eve agent tool; the UI is built last on a typed client generated from the same operations.
 - **Metrics.** An append-only event log; the Operator shows prevention rate, decision latency, and suggestion acceptance, split human vs. agent.
 - **Seed and eval.** A realistic seeded workspace for the demo, and a labeled eval set that gates matching quality in `pnpm eval`.
 
@@ -42,9 +42,10 @@ A customer who wants something files it in their own words, unaware that ten oth
 7. As a PM, I want priority scores per criterion with reasons and editable weights, so that prioritization is consistent and explainable; I can override any score.
 8. As a PM, I want an AI-drafted decision brief for a need, so that I can decide and publish a decision with a note quickly.
 9. As a PM, I want the three MVP metrics with human vs. agent split, so that I can see whether Signal works.
-10. As an agent acting for a customer, I want to preview matches, submit a signal, and add support with context over MCP, so that I file requests the same way a person does.
-11. As an agent acting for a PM, I want to list and resolve suggestions, get a demand summary, draft a decision brief, publish a decision, and read metrics over the protected MCP.
-12. Failure: when AI is unavailable, submission still works without suggestions and says so; when the database is unavailable, signal endpoints fail with `database_unavailable` and nothing is half-written.
+10. As an agent acting for a customer, I want to search needs, preview matches, submit a signal or add support with context, and read a submitter's signals over the public MCP, so that I file requests the same way a person does.
+11. As an agent acting for a PM, I want every Operator operation over the Operator MCP (triage suggestions, merge, undo, split, set criteria, get a demand summary, draft a decision brief, publish a decision, read metrics), so that I can do a PM's work under the same rules.
+12. As a developer integrating Signal, I want the same operations as REST endpoints with the same inputs, outputs, and error codes as the MCP tools, so that every client behaves the same.
+13. Failure: when AI is unavailable, submission still works without suggestions and says so; when the database is unavailable, signal endpoints fail with `database_unavailable` and nothing is half-written.
 
 ## Implementation Decisions
 
@@ -58,7 +59,7 @@ Recorded as [0002](../decisions/0002-retrieve-then-judge-matching.md); summary:
   - Priority scoring, theme suggestion, public summaries, decision briefs, demand summaries: `anthropic/claude-sonnet-5.5` (`SIGNAL_REASONING_MODEL`); these run off the hot path.
   - Embeddings: a Gateway embedding model (`SIGNAL_EMBEDDING_MODEL`, default `openai/text-embedding-3-small`, 1536 dimensions). _Assumption: confirm the id against the Gateway model list in the first task._
 - **Off-hot-path work** (re-embedding, priority rescoring, theme and summary suggestions after a signal lands) runs with Next.js `after()` so the submit response is not delayed; results land as suggestions.
-- **Agents.** The existing Eve **Operator** agent gets Signal tools for open-ended PM questions ("what are enterprise accounts blocked on?"); the Eve **Assistant** agent gets the public tools. Agents call the same domain functions as the UI and MCP; they do not reimplement logic.
+- **Agents.** The existing Eve **Operator** agent gets Signal tools for open-ended PM questions ("what are enterprise accounts blocked on?"); the Eve **Assistant** agent gets the public tools. Agent tools, MCP tools, and REST routes all call the same operations (below); none reimplements logic.
 - **Human judgment is enforced in the domain layer, not the UI:** nothing auto-merges, approves, publishes a summary, or publishes a decision without a PM action. AI output is always a `suggestion` row until resolved.
 
 ### Agent- and API-first: one operation registry
@@ -133,36 +134,37 @@ Thin adapters expose the registry and contain no business logic:
 
 ### Typed API contract (before any UI)
 
-Route handlers validate with zod and share types with the UI. Every error is `{ error: { code, message, retryable } }` with codes `validation_failed`, `not_found`, `conflict`, `rate_limited`, `ai_unavailable`, `database_unavailable`, `unauthorized`.
+Generated from the operation registry: route handlers validate with the operation's zod schemas, and the UI uses only the generated client in `lib/signal/client.ts`. The same inputs, outputs, and error codes apply to the MCP and agent tools. Every error is `{ error: { code, message, retryable } }` with codes `validation_failed`, `not_found`, `conflict`, `rate_limited`, `ai_unavailable`, `database_unavailable`, `unauthorized`.
 
 Public (no auth, rate limited per IP, body limits):
 
-| Method and path              | Input                                                                                                                                       | Output                                                                                                                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `POST /api/signals/preview`  | `{ title, body }`                                                                                                                           | `{ previewId, draftNeed: { statement, proposedSolution?, additionalAsks: string[] }, matches: [{ needId, statement, status, supporterCount, demandBand, probability, reason }], ai: "ok" \| "unavailable" }` |
-| `POST /api/signals`          | `{ title, body, useCase?, urgency?, email, name?, company?, target: { needId } \| { newNeed: { statement } }, previewId?, idempotencyKey }` | `{ signalId, needId, attachedTo, trackingUrl }`                                                                                                                                                              |
-| `GET /api/needs`             | `?q&theme&status&cursor`                                                                                                                    | public need list                                                                                                                                                                                             |
-| `GET /api/needs/:id`         | —                                                                                                                                           | public need view (no PII, approved summary only)                                                                                                                                                             |
-| `GET /api/my-signals/:token` | —                                                                                                                                           | the token holder's signals with need status and decision notes                                                                                                                                               |
+| Operation        | Method and path              | Input                                                                                                                                       | Output                                                                                                                                                                                                       |
+| ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `search_needs`   | `GET /api/needs`             | `?q&theme&status&cursor`                                                                                                                    | public need list                                                                                                                                                                                             |
+| `get_need`       | `GET /api/needs/:id`         | —                                                                                                                                           | public need view (no PII, approved summary only)                                                                                                                                                             |
+| `preview_signal` | `POST /api/signals/preview`  | `{ title, body }`                                                                                                                           | `{ previewId, draftNeed: { statement, proposedSolution?, additionalAsks: string[] }, matches: [{ needId, statement, status, supporterCount, demandBand, probability, reason }], ai: "ok" \| "unavailable" }` |
+| `submit_signal`  | `POST /api/signals`          | `{ title, body, useCase?, urgency?, email, name?, company?, target: { needId } \| { newNeed: { statement } }, previewId?, idempotencyKey }` | `{ signalId, needId, attachedTo, trackingUrl }`                                                                                                                                                              |
+| `get_my_signals` | `GET /api/my-signals/:token` | —                                                                                                                                           | the token holder's signals with need status and decision notes                                                                                                                                               |
 
 Operator (`verifyOperatorRequest`; fail closed when `OPERATOR_SECRET` is unset):
 
-| Method and path                               | Purpose                                                       |
-| --------------------------------------------- | ------------------------------------------------------------- |
-| `GET /api/operator/suggestions?kind&status`   | triage queue                                                  |
-| `POST /api/operator/suggestions/:id/resolve`  | `{ action: accept \| edit \| reject, edit? }`                 |
-| `POST /api/operator/needs/:id/merge`          | `{ intoNeedId }`; `conflict` if either need is already merged |
-| `POST /api/operator/merges/:id/undo`          | restores signals to the original need                         |
-| `POST /api/operator/needs/:id/split`          | `{ signalIds, statement }`                                    |
-| `GET /api/operator/needs/:id`                 | full need: verbatim signals, accounts, scores, suggestions    |
-| `PUT /api/operator/criteria`                  | `{ weights }`                                                 |
-| `POST /api/operator/needs/:id/decision-brief` | creates a `decision_brief` suggestion                         |
-| `POST /api/operator/needs/:id/decision`       | `{ status, note }` publishes a decision                       |
-| `GET /api/operator/metrics?from&to`           | the three metrics and supporting counts, human vs. agent      |
+| Operation              | Method and path                               | Purpose                                                                   |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------------------------------- |
+| `list_suggestions`     | `GET /api/operator/suggestions?kind&status`   | triage queue                                                              |
+| `resolve_suggestion`   | `POST /api/operator/suggestions/:id/resolve`  | `{ action: accept \| edit \| reject, edit? }`                             |
+| `merge_needs`          | `POST /api/operator/needs/:id/merge`          | `{ intoNeedId }`; `conflict` if either need is already merged             |
+| `undo_merge`           | `POST /api/operator/merges/:id/undo`          | restores signals to the original need                                     |
+| `split_need`           | `POST /api/operator/needs/:id/split`          | `{ signalIds, statement }`; moves those signals to a new need             |
+| `get_need_detail`      | `GET /api/operator/needs/:id`                 | full need: verbatim signals, accounts, scores, suggestions                |
+| `set_criteria`         | `PUT /api/operator/criteria`                  | `{ weights }`                                                             |
+| `get_demand_summary`   | `GET /api/operator/demand`                    | demand across needs (supporters, accounts, business value), AI-summarized |
+| `draft_decision_brief` | `POST /api/operator/needs/:id/decision-brief` | creates a `decision_brief` suggestion                                     |
+| `publish_decision`     | `POST /api/operator/needs/:id/decision`       | `{ status, note }` publishes a decision                                   |
+| `get_metrics`          | `GET /api/operator/metrics?from&to`           | the three metrics and supporting counts, human vs. agent                  |
 
 ### MCP tools
 
-Tools come from the operation registry above: `access: "public"` operations on `/api/mcp`, all operations on `/api/mcp/operator`. MCP calls run with actor kind `agent` and `client` from MCP client info; `submit_signal` requires `idempotencyKey` on every surface.
+Tools come from the operation registry above, named after their operation: `access: "public"` operations on `/api/mcp`, all operations on `/api/mcp/operator`. The Eve Assistant agent gets the public operations as tools and the Operator agent gets all of them. MCP and agent calls run with actor kind `agent` and `client` from MCP client info or the agent name; `submit_signal` requires `idempotencyKey` on every surface.
 
 Public discovery (OpenAPI, `.well-known`, server card) lists public tools only, as today. No MCP App: plain tools cover the agent journeys.
 
@@ -183,14 +185,14 @@ Definitions are in [PRODUCT.md → Metrics](../../PRODUCT.md#metrics); calculati
 ### Exposure
 
 - Runs on the existing Vercel deployment (public, `flow-signal-eta.vercel.app`) and locally at `signal.localhost`.
-- **Public writes are open by design** (no submitter auth in the MVP): `POST /api/signals*` and the public MCP write tool are rate limited per IP, size limited, and never return other customers' PII. Submitter emails are stored and shown only to PMs.
-- **PM writes fail closed:** every Operator route and Operator MCP tool returns `unauthorized` unless `OPERATOR_SECRET` is configured and presented.
+- **Public writes are open by design** (no submitter auth in the MVP): `preview_signal` and `submit_signal` (`POST /api/signals/preview`, `POST /api/signals`, and their public MCP and Assistant agent tools) are rate limited per IP, size limited, and never return other customers' PII. Submitter emails are stored and shown only to PMs.
+- **PM writes fail closed:** every `access: "operator"` operation returns `unauthorized` over REST and Operator MCP unless `OPERATOR_SECRET` is configured and presented.
 - **Without `DATABASE_URL`** every signal endpoint returns `database_unavailable` (503); the board shows an explanatory empty state. **Without AI Gateway access** preview returns `ai: "unavailable"` with no matches and submission still works.
 - **Database:** Neon, provisioned with `pnpm neon:setup` (approved 2026-10-30), with a `test` branch for the test suites; see [docs/database.md](../database.md) and [0001](../decisions/0001-neon-postgres-pgvector.md).
 
 ### UI
 
-Replaces the template's home stub. Public: `/` (board and search), `/submit` (form with debounced live preview), `/needs/[id]`, `/my/[token]`. Operator: `/operator/triage`, `/operator/needs/[id]`, `/operator/criteria`, `/operator/metrics`, and the existing Operator chat with Signal tools. Visual direction is open (`design` can run first).
+Built last, on the generated client only, once an operation's parity suite is green; no page calls the domain or database directly. Replaces the template's home stub. Public: `/` (board and search), `/submit` (form with debounced live preview), `/needs/[id]`, `/my/[token]`. Operator: `/operator/triage`, `/operator/needs/[id]`, `/operator/criteria`, `/operator/metrics`, and the existing Operator chat with Signal tools (open-ended demand questions go through `get_demand_summary`). Visual direction is open (`design` can run first).
 
 ## Testing Decisions
 
@@ -213,8 +215,8 @@ Human journey:
 1. Maya (maya@acme.example, Acme, Enterprise) opens `/submit` and types title "Export dashboards to PDF" and body "Our CEO wants the KPI dashboard in the board deck every month." → within 2 s the preview shows N1 first with a reason mentioning sharing with executives, and does not rank N2 first.
 2. Maya picks N1, adds use case "monthly board deck" and urgency high, enters her email, and submits → response has `attachedTo: existing` and a `trackingUrl`; N1 shows 12 supporters on the board; the board shows no Acme or Maya details.
 3. A retry of the same submit with the same `idempotencyKey` → returns the same `signalId`; N1 still shows 12; one `signal.created` event exists.
-4. In `/operator/triage` the PM sees a pending `priority` suggestion for N1 (business value raised, reason cites Acme's ARR) and a pending `public_summary` update → the PM accepts the score and edits the summary → `suggestion.accepted` and `suggestion.edited` events recorded; the approved summary appears on N1 without Acme's name.
-5. The PM requests a decision brief for N1 → a `decision_brief` suggestion with demand, accounts, value, and options appears; the PM accepts it and publishes decision `planned` with note "Targeting Q1" → N1 status is `planned`.
+4. In `/operator/triage` (`list_suggestions`) the PM sees a pending `priority` suggestion for N1 (business value raised, reason cites Acme's ARR) and a pending `public_summary` update → the PM accepts the score and edits the summary (`resolve_suggestion`) → `suggestion.accepted` and `suggestion.edited` events recorded; the approved summary appears on N1 without Acme's name.
+5. The PM requests a decision brief for N1 (`draft_decision_brief`) → a `decision_brief` suggestion with demand, accounts, value, and options appears; the PM accepts it and publishes decision `planned` with note "Targeting Q1" (`publish_decision`) → N1 status is `planned`.
 6. Maya opens her `trackingUrl` → she sees N1 as Planned with "Targeting Q1".
 7. `/operator/metrics` for this week → prevention rate counts Maya's signal once in the numerator under human; decision latency includes N1 (first signal date to today); suggestion acceptance counts 2 accepted (score, brief) and 1 edited (summary); a submission that failed validation earlier in the week is not counted.
 
@@ -224,6 +226,8 @@ Agent journey (same starting state):
 2. It calls `submit_signal` with `target.needId = N1`, Maya's email, and an `idempotencyKey` → returns `attachedTo: existing`; calling again with the same key returns the same `signalId`.
 3. A PM agent calls `draft_decision_brief` then `publish_decision` on `/api/mcp/operator` with the bearer secret → N1 is `planned`; the same calls without the secret return `unauthorized`.
 4. `get_metrics` → the agent signal is counted once under agent, not human; the decision is attributed `published_by_kind = agent`.
+
+The same steps through the REST API and the Eve agent tools are covered by the parity suite: same outputs, error codes, and events on every surface.
 
 ## Out of Scope
 
@@ -237,15 +241,15 @@ Agent journey (same starting state):
 
 Where the assignment's required documentation lives:
 
-| Required                                      | Location                                                                           |
-| --------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Business problem prioritized and why          | PRODUCT.md → Problem                                                               |
-| Who benefits                                  | PRODUCT.md → Who                                                                   |
-| Why AI is appropriate                         | PRODUCT.md → Why AI                                                                |
-| How AI changes the workflow                   | PRODUCT.md → Why AI; this spec → Solution                                          |
-| Agent, model, framework, architecture and why | This spec → Architecture and AI choices; decisions 0001, 0002                      |
-| Where human judgment remains                  | PRODUCT.md → Where human judgment stays; enforced in the domain layer here         |
-| Measuring business impact                     | PRODUCT.md → Metrics; this spec → Metrics instrumentation                          |
-| Assumptions, risks, tradeoffs                 | PRODUCT.md → Riskiest assumptions, Pre-mortem; decisions 0001, 0002 → Consequences |
+| Required                                      | Location                                                                            |
+| --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Business problem prioritized and why          | PRODUCT.md → Problem                                                                |
+| Who benefits                                  | PRODUCT.md → Who                                                                    |
+| Why AI is appropriate                         | PRODUCT.md → Why AI                                                                 |
+| How AI changes the workflow                   | PRODUCT.md → Why AI; this spec → Solution                                           |
+| Agent, model, framework, architecture and why | This spec → Architecture and AI choices, Agent- and API-first; decisions 0001, 0002 |
+| Where human judgment remains                  | PRODUCT.md → Where human judgment stays; enforced in the domain layer here          |
+| Measuring business impact                     | PRODUCT.md → Metrics; this spec → Metrics instrumentation                           |
+| Assumptions, risks, tradeoffs                 | PRODUCT.md → Riskiest assumptions, Pre-mortem; decisions 0001, 0002 → Consequences  |
 
 Open assumptions: the embedding model id and dimension; the 0.6 judge threshold (tuned on the eval set); test speed against the Neon `test` branch over HTTP staying acceptable for a red-green loop; Haiku latency meeting 2 s p95 for extract plus judge of 8 candidates.

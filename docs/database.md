@@ -11,7 +11,36 @@ Signal stores everything in Neon Postgres with the pgvector extension ([decision
 
 Tests never touch `main`. Each test file resets the tables it uses.
 
-## First-time setup
+## Current project
+
+Provisioned on 2026-10-30:
+
+- Neon project `signal` (`wispy-paper-65345567`) in the **Gabo** org (`org-rough-dust-14948184`), region `aws-us-east-1` (next to Vercel's default `iad1`), Postgres 18.
+- Branches `main` and `test`; schema pushed to both.
+- `DATABASE_URL` (pooled `main`) set on the Vercel project `flow-signal` for production, preview, and development as a sensitive variable.
+- Locally, `.env.local` holds `DATABASE_URL` and `DATABASE_URL_TEST` (gitignored). Get them again with `neonctl connection-string <branch> --project-id wispy-paper-65345567 --pooled`.
+
+## First-time setup with signed-in CLIs
+
+This is how the current project was created; it needs no tokens, only `neonctl` and `vercel` signed in. Pass `--org-id` when your Neon account has more than one org.
+
+```bash
+neonctl projects create --name signal --org-id <neon org id> --region-id aws-us-east-1
+```
+
+```bash
+neonctl branches create --project-id <project id> --name test
+```
+
+Write `neonctl connection-string main --project-id <project id> --pooled` to `DATABASE_URL` and the `test` equivalent to `DATABASE_URL_TEST` in `.env.local`, then add `DATABASE_URL` to Vercel for each environment (the value is read from stdin; don't paste it into shell history):
+
+```bash
+vercel env add DATABASE_URL production --sensitive
+```
+
+Repeat for `preview` and `development`, then push the schema to both branches as below.
+
+## First-time setup with tokens
 
 Needs a Neon API key and a Vercel token, passed for this one command only (never written to files):
 
@@ -39,12 +68,14 @@ neonctl connection-string test --project-id <project id> --pooled
 
 Put that string in `.env.local` as `DATABASE_URL_TEST`, then push the schema to both branches:
 
+`drizzle-kit` does not read `.env.local`, so load it into the shell first:
+
 ```bash
-pnpm db:migrate
+set -a && . ./.env.local && set +a && pnpm db:migrate
 ```
 
 ```bash
-DATABASE_URL="$DATABASE_URL_TEST" pnpm db:migrate
+set -a && . ./.env.local && set +a && DATABASE_URL="$DATABASE_URL_TEST" pnpm db:migrate
 ```
 
 Spec 001's schema enables pgvector (`CREATE EXTENSION IF NOT EXISTS vector`) on each branch when it is pushed.

@@ -4,7 +4,7 @@ Status: Proposed (2026-10-30)
 
 ## Context
 
-Signal needs durable relational data (needs, signals, merges, suggestions, decisions, an append-only event log) and nearest-neighbour search over need embeddings on every submission. The template ships Drizzle and the Neon serverless driver, but the project was set up with the `minimal` preset, so no database exists yet. Provisioning Neon creates external resources and needs the user's explicit yes.
+Signal needs durable relational data (needs, signals, merges, suggestions, decisions, an append-only event log) and nearest-neighbour search over need embeddings on every submission. The template ships Drizzle and the Neon serverless driver, but the project was set up with the `minimal` preset, so it started without a database. Provisioning Neon creates external resources, so it waited for the user's explicit yes (given 2026-10-30).
 
 ## Options
 

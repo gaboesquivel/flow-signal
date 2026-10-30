@@ -16,7 +16,7 @@ Product teams receive feature requests from customers, prospects, support teams,
 
 - **Submitters (primary):** customers, prospects, and support or sales staff filing on a customer's behalf. They want to be heard and to see what happens. No sign-in: they identify by email (and company).
 - **Product managers (primary):** triage, group, prioritize, decide, and communicate decisions, in the protected Operator console.
-- **Agent users (first-class, alongside humans):** AI assistants and agents use the same workflow over MCP: search needs, submit through the same duplicate check, add support with context on a customer's behalf (public MCP); review suggestions, get demand summaries and decision briefs (protected MCP).
+- **Agent users (first-class, alongside humans):** AI assistants and agents use the same workflow over MCP: search needs, submit through the same duplicate check, add support with context on a customer's behalf (public MCP); review suggestions, get demand summaries and decision briefs, publish decisions (Operator MCP).
 - **Stakeholders:** leadership and go-to-market teams consume decision briefs and status.
 
 ## Product model
@@ -63,14 +63,14 @@ Default criteria, with PM-editable weights; AI scores each with reasons, PMs ove
 
 ## Visibility
 
-| Data                                  | Public (board, public MCP)               | PM (Operator, protected MCP) |
-| ------------------------------------- | ---------------------------------------- | ---------------------------- |
-| Need statement, status, decision note | Yes                                      | Yes                          |
-| Proposed solutions                    | Yes                                      | Yes                          |
-| Supporters                            | People count only                        | People, accounts, revenue    |
-| Use cases                             | Anonymized AI summary, after PM approval | Every signal, verbatim       |
-| Submitter name, email, company        | No                                       | Yes                          |
-| Priority                              | Demand band only (high / medium / low)   | Full score breakdown         |
+| Data                                  | Public (board, public MCP)               | PM (Operator, Operator MCP) |
+| ------------------------------------- | ---------------------------------------- | --------------------------- |
+| Need statement, status, decision note | Yes                                      | Yes                         |
+| Proposed solutions                    | Yes                                      | Yes                         |
+| Supporters                            | People count only                        | People, accounts, revenue   |
+| Use cases                             | Anonymized AI summary, after PM approval | Every signal, verbatim      |
+| Submitter name, email, company        | No                                       | Yes                         |
+| Priority                              | Demand band only (high / medium / low)   | Full score breakdown        |
 
 Submitters track their own signals through a private, unguessable "My signals" link shown after submission (no email is sent); status changes and decision notes appear there and over MCP.
 
@@ -103,7 +103,7 @@ Product decisions get made faster.
 
 PMs trust the AI enough that their work shifts from organizing to deciding.
 
-- **Counts:** share of AI proposals (merges, need statements, themes, priority scores, decision briefs) a PM accepts as-is; edited and rejected are counted separately, by suggestion type.
+- **Counts:** share of AI proposals (need statements, merges, splits, themes, priority scores, public summaries, decision briefs) a PM accepts as-is; edited and rejected are counted separately, by suggestion type.
 - **Source:** `suggestion.accepted | edited | rejected`.
 - **Target:** ≥ 70% accepted as-is (hypothesis). High acceptance with a rising unmerge rate means rubber-stamping.
 
@@ -147,7 +147,7 @@ Signal's angle: prevention at submission that keeps every customer's own words, 
 - CRM revenue data (account context is seeded or entered by hand).
 - Roadmap or Jira sync.
 - Multiple customer organizations, SSO, submitter sign-in, granular permissions.
-- Email notifications (updates appear in the app and over MCP only).
+- Email or Slack notifications (updates appear in the app and over MCP only).
 
 ## Pre-mortem
 
@@ -163,3 +163,5 @@ Six months from now it failed because:
 - Package / Portless slug: `signal`
 - Local dev host: `signal.localhost`
 - Template: `flow-next` at `4dcbf0f`
+- Database: Neon Postgres with pgvector; `main` and `test` branches ([docs/database.md](./docs/database.md))
+- Agent- and API-first: every capability is one operation in a registry, exposed as REST, MCP, and agent tools, built test-first; the UI comes last ([spec 001](./docs/specs/001-signal-mvp.md))

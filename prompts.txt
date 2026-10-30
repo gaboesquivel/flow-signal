@@ -41,3 +41,14 @@ Response: Wrote draft spec 001 (Signal MVP: duplicate check at submission, board
 [2026-10-30T14:24:28Z]
 Prompt: Before breaking down tasks, make spec 001 agent- and API-first with TDD for agent, MCP and API and consistency between them; provision the database with the repo's neon:setup script and document it.
 Response: Added an operation registry (one definition per capability, thin HTTP/MCP/Eve adapters, generated client, per-operation build order) and a TDD plan (parity suite across all three surfaces, domain tests on a real Neon test branch, contract and agent behaviour tests) to spec 001. Found no neon:setup script, so added one as an alias for the existing Neon preset; documented setup, branches and env in docs/database.md, README, ARCHITECTURE and .env.example; switched tests from PGlite to a Neon test branch in decision 0001. Provisioning waits on the user's Neon and Vercel tokens.
+
+[2026-10-30T14:25:51Z]
+Prompt: Asked whether /start succeeded and whether the repo is ready for development.
+Response: Confirmed the /start bootstrap succeeded (02a1133 pushed and deployed, all checks passed). Started the dev server: home, GenUI and public MCP work; Operator was disabled and the database is not configured. Generated a local OPERATOR_SECRET in .env.local (not printed or committed) and added .claude/launch.json for the dev server. The database still needs provisioning.
+
+[2026-10-30T14:28:25Z]
+Prompt: Provision Neon with the already signed-in CLIs; meanwhile, in a subagent, make sure PRODUCT.md and the specs are up to date.
+Response: Created Neon project signal (wispy-paper-65345567, Gabo org, aws-us-east-1) with main and test branches, wrote pooled DATABASE_URL and DATABASE_URL_TEST to .env.local, added DATABASE_URL to Vercel production/preview/development, pushed the schema to both branches, and confirmed /api/db returns 200 in dev. Documented the CLI route and current project in docs/database.md. A subagent synced PRODUCT.md, GLOSSARY.md and the specs with the operation registry, TDD and database decisions.
+
+[2026-10-30T14:29:28Z]
+(Follow-up within the same request.) Test run with the dev server up pulled Eve dev-runtime snapshots into vitest (48 failing files from bundled zod tests); widened the vitest exclude to **/.eve/** and reran: 20 files, 172 tests pass; lint and types pass. Updated decision 0001's context to record the approval. Committed the subagent's doc sync together with the database work.
