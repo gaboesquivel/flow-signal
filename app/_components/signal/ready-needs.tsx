@@ -31,7 +31,7 @@ interface BriefView {
     status: DecisionStatus;
     strategyFit?: { inFocus: boolean; reason: string } | null;
   };
-  status: "pending" | "accepted" | "edited" | "rejected";
+  status: "pending" | "accepted" | "edited" | "rejected" | "superseded";
   suggestionId: string;
 }
 

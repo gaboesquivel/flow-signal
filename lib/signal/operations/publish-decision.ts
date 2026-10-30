@@ -11,7 +11,7 @@ import { defineOperation } from "./types";
 export const publishDecision = defineOperation({
   access: "operator",
   description:
-    "Publish a decision on a need: sets the need's status (planned, in_progress, shipped, declined) and a note every supporter sees on their My signals link and the public board. Write the note for customers: no account names, people, or revenue. The need's latest accepted brief is attached. `conflict` for a merged need.",
+    "Publish a decision on a need: sets the need's status (planned, in_progress, shipped, declined) and a note every supporter sees on their My signals link and the public board. Write the note for customers: no account names, people, or revenue. The need's latest accepted brief is attached; any brief still pending on the need is closed as `superseded`. `conflict` for a merged need.",
   effects: "write",
   errors: ["not_found", "conflict"],
   http: { method: "POST", path: "/api/operator/needs/:id/decision" },

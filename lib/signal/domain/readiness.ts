@@ -260,7 +260,7 @@ export const readyNeedSchema = z.object({
     .object({
       /** The brief's recommendation as stored (null when it is malformed). */
       recommendation: recommendationViewSchema.nullable(),
-      status: z.enum(["pending", "accepted", "edited", "rejected"]),
+      status: z.enum(["pending", "accepted", "edited", "rejected", "superseded"]),
       suggestionId: z.uuid(),
     })
     .nullable(),
