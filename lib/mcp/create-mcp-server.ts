@@ -6,9 +6,11 @@ import {
   genuiPreviewResourceDescription,
   readGenuiPreviewHtml,
 } from "./genui-preview-resource";
+import { registerSignalMcpTools } from "@/lib/signal/adapters/mcp";
+
 import { registerStarterMcpTools } from "./register-tools";
 
-export const createStarterMcpServer = () => {
+export const createStarterMcpServer = (request?: Request) => {
   const server = new McpServer({
     name: "signal",
     version: "1.0.0",
@@ -33,5 +35,6 @@ export const createStarterMcpServer = () => {
   );
 
   registerStarterMcpTools(server);
+  registerSignalMcpTools(server, { access: "public", request });
   return server;
 };
