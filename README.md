@@ -23,9 +23,11 @@ Then ask your agent to `/start` (or say "start a new project"): Flow's skills sh
 | `pnpm db:migrate`   | Apply versioned migrations (never destructive)          |
 | `pnpm db:generate`  | Write a migration from schema changes                   |
 | `pnpm db:dev`       | Local Docker database: create, migrate, seed (once)     |
+| `pnpm env:sync`     | Add missing local defaults from `.env.example`          |
 | `pnpm dev`          | Development via Portless                                |
 | `pnpm qa`           | Lint, types, tests                                      |
 | `pnpm test:changed` | Tests affected by changes since `origin/main`           |
+| `pnpm smoke`        | HTTP check of key surfaces on a running server          |
 | `pnpm build`        | Production build (includes MCP App bundle)              |
 | `pnpm eval`         | Offline GenUI, Eve smoke, live matching and agent evals |
 | `pnpm eval:crewday` | Crewday outcome eval (live, dollars; on demand)         |
