@@ -237,7 +237,7 @@ The same steps through the REST API and the Eve agent tools are covered by the p
 ## Tasks
 
 - [x] 01: Operation registry, schema, and public read of needs
-- [ ] 02: Submit with a duplicate check
+- [x] 02: Submit with a duplicate check
 - [ ] 03: Matching eval set and threshold
 - [ ] 04: PM triage of AI suggestions
 - [ ] 05: Prioritization, demand, and decisions
