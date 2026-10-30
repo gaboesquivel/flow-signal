@@ -173,6 +173,7 @@ runParityTable({
           movedOffTakenMatch: { moved: 0, rate: 0 },
           noneShown: 0,
           shown: 2,
+          skipRate: 0,
           skipped: 0,
           takeUpRate: 0.5,
           taken: 1,

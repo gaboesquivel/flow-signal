@@ -7,6 +7,7 @@ import type { z } from "zod";
 
 import { callSignalOperation } from "./client-runtime";
 import type { SignalCallOptions, SignalClientOptions, SignalResult } from "./client-runtime";
+import type { answerSuggestedMatch } from "./operations/answer-suggested-match";
 import type { checkPublicText } from "./operations/check-public-text";
 import type { draftDecisionBrief } from "./operations/draft-decision-brief";
 import type { generateReport } from "./operations/generate-report";
@@ -36,6 +37,7 @@ import type { setStrategy } from "./operations/set-strategy";
 import type { shareReport } from "./operations/share-report";
 import type { splitNeed } from "./operations/split-need";
 import type { submitSignal } from "./operations/submit-signal";
+import type { sweepDuplicates } from "./operations/sweep-duplicates";
 import type { undoMerge } from "./operations/undo-merge";
 
 export type {
@@ -51,6 +53,12 @@ type InputOf<T> = T extends { input: infer I extends z.ZodType } ? z.input<I> : 
 type OutputOf<T> = T extends { output: infer O extends z.ZodType } ? z.output<O> : never;
 
 export const signalRoutes = {
+  answer_suggested_match: {
+    access: "public",
+    method: "POST",
+    name: "answer_suggested_match",
+    path: "/api/my-signals/:token/matches/:suggestionId",
+  },
   check_public_text: {
     access: "operator",
     method: "POST",
@@ -210,6 +218,12 @@ export const signalRoutes = {
     path: "/api/operator/needs/:id/split",
   },
   submit_signal: { access: "public", method: "POST", name: "submit_signal", path: "/api/signals" },
+  sweep_duplicates: {
+    access: "operator",
+    method: "POST",
+    name: "sweep_duplicates",
+    path: "/api/operator/duplicates/sweep",
+  },
   undo_merge: {
     access: "operator",
     method: "POST",
@@ -221,6 +235,10 @@ export const signalRoutes = {
 export type SignalOperationName = keyof typeof signalRoutes;
 
 export interface SignalOperations {
+  answer_suggested_match: {
+    input: InputOf<typeof answerSuggestedMatch>;
+    output: OutputOf<typeof answerSuggestedMatch>;
+  };
   check_public_text: {
     input: InputOf<typeof checkPublicText>;
     output: OutputOf<typeof checkPublicText>;
@@ -283,10 +301,18 @@ export interface SignalOperations {
   share_report: { input: InputOf<typeof shareReport>; output: OutputOf<typeof shareReport> };
   split_need: { input: InputOf<typeof splitNeed>; output: OutputOf<typeof splitNeed> };
   submit_signal: { input: InputOf<typeof submitSignal>; output: OutputOf<typeof submitSignal> };
+  sweep_duplicates: {
+    input: InputOf<typeof sweepDuplicates>;
+    output: OutputOf<typeof sweepDuplicates>;
+  };
   undo_merge: { input: InputOf<typeof undoMerge>; output: OutputOf<typeof undoMerge> };
 }
 
 export interface SignalClient {
+  answerSuggestedMatch: (
+    input: SignalOperations["answer_suggested_match"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["answer_suggested_match"]["output"]>>;
   checkPublicText: (
     input: SignalOperations["check_public_text"]["input"],
     call?: SignalCallOptions,
@@ -403,6 +429,10 @@ export interface SignalClient {
     input: SignalOperations["submit_signal"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["submit_signal"]["output"]>>;
+  sweepDuplicates: (
+    input: SignalOperations["sweep_duplicates"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["sweep_duplicates"]["output"]>>;
   undoMerge: (
     input: SignalOperations["undo_merge"]["input"],
     call?: SignalCallOptions,
@@ -410,6 +440,8 @@ export interface SignalClient {
 }
 
 export const createSignalClient = (options: SignalClientOptions = {}): SignalClient => ({
+  answerSuggestedMatch: (input, call) =>
+    callSignalOperation(signalRoutes.answer_suggested_match, input, options, call),
   checkPublicText: (input, call) =>
     callSignalOperation(signalRoutes.check_public_text, input, options, call),
   draftDecisionBrief: (input, call) =>
@@ -461,5 +493,7 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
   splitNeed: (input, call) => callSignalOperation(signalRoutes.split_need, input, options, call),
   submitSignal: (input, call) =>
     callSignalOperation(signalRoutes.submit_signal, input, options, call),
+  sweepDuplicates: (input, call) =>
+    callSignalOperation(signalRoutes.sweep_duplicates, input, options, call),
   undoMerge: (input, call) => callSignalOperation(signalRoutes.undo_merge, input, options, call),
 });

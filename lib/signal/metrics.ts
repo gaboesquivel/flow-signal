@@ -201,6 +201,8 @@ const exposureCountsSchema = z.object({
   noneShown: count,
   /** Submissions shown at least one match. */
   shown: count,
+  /** skipped ÷ all submissions in the window (spec 009); null with none. */
+  skipRate: rateSchema,
   /** No `previewId` was sent. */
   skipped: count,
   /** taken ÷ shown; null with no shown submissions. */
@@ -808,6 +810,7 @@ const exposureFrom = (rows: ExposureRow[], kind?: ActorKind): ExposureCounts => 
     movedOffTakenMatch: { moved, rate: ratio(moved, taken) },
     noneShown: sum("none_shown"),
     shown,
+    skipRate: ratio(sum("skipped"), shown + sum("none_shown") + sum("skipped") + sum("unknown")),
     skipped: sum("skipped"),
     takeUpRate: ratio(taken, shown),
     taken,

@@ -55,6 +55,9 @@ const specTable = [
   ["get_report", "operator", "GET", "/api/operator/reports/:reportId"],
   ["share_report", "operator", "POST", "/api/operator/reports/:reportId/share"],
   ["get_shared_report", "public", "GET", "/api/shared-reports/:token"],
+  // Spec 009 → Implementation Decisions.
+  ["answer_suggested_match", "public", "POST", "/api/my-signals/:token/matches/:suggestionId"],
+  ["sweep_duplicates", "operator", "POST", "/api/operator/duplicates/sweep"],
 ] as const;
 
 const withoutDialect = (schema: Record<string, unknown>) => {
@@ -179,6 +182,7 @@ describe("surfaces generated from the registry", () => {
       "set_strategy",
       "share_report",
       "split_need",
+      "sweep_duplicates",
       "undo_merge",
     ];
     expect(

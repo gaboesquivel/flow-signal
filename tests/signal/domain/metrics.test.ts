@@ -589,6 +589,8 @@ describeWithDatabase("metrics from the event log", () => {
         chosenRank: { 1: 1, 2: 1, 3: 0 },
         noneShown: 1,
         shown: 4,
+        // Spec 009: skipped ÷ every submission with exposure (4 + 1 + 1 + 0).
+        skipRate: 0.1667,
         skipped: 1,
         takeUpRate: 0.5,
         taken: 2,
@@ -597,6 +599,7 @@ describeWithDatabase("metrics from the event log", () => {
       expect(exposure.submissions.agent).toMatchObject({
         chosenRank: { 1: 0, 2: 0, 3: 1 },
         shown: 1,
+        skipRate: 0,
         takeUpRate: 1,
         unknown: 1,
       });

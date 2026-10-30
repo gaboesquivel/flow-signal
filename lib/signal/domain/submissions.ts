@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { accounts, needs, signals, submitters, trackingLinks } from "@/lib/db/schema";
+import { accounts, events, needs, signals, submitters, trackingLinks } from "@/lib/db/schema";
 import { resolveSiteOrigin } from "@/lib/site-url";
 
 import type { OperationContext } from "../context";
@@ -12,6 +12,9 @@ import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
 import { resolveExposure } from "./exposure";
+import type { Exposure } from "./exposure";
+import { CANDIDATE_LIMIT, chooseMatches } from "./matching";
+import { getPublicNeed, publicNeedStatusSchema } from "./public-needs";
 import { createTrackingLink, resolveTrackingLink, trackingTokenSchema } from "./tracking-links";
 
 /**
@@ -61,11 +64,26 @@ export const submitInputSchema = z.object({
 });
 export type SubmitInput = z.infer<typeof submitInputSchema>;
 
+const possibleDuplicateSchema = z.object({
+  needId: z.uuid(),
+  /** The match judge's probability that it is the same underlying need. */
+  probability: z.number().min(0).max(1),
+  statement: z.string(),
+  status: publicNeedStatusSchema,
+  supporterCount: z.number().int().nonnegative(),
+});
+
 export const submitOutputSchema = z.object({
   attachedTo: z.enum(["existing", "draft"]),
   /** True when the signal joined the link named by `trackingToken`; false when a new link was issued. */
   linkReused: z.boolean(),
   needId: z.uuid(),
+  /**
+   * Existing needs this new need may duplicate (spec 009), found by Signal's own check when the
+   * submission created a new need without a usable `previewId`; empty otherwise. Ask the
+   * submitter: they can add their voice to one from My signals (`answer_suggested_match`).
+   */
+  possibleDuplicates: z.array(possibleDuplicateSchema),
   signalId: z.uuid(),
   /** Private, unguessable My signals link (`get_my_signals`) holding this signal. Share it only with them. */
   trackingUrl: z.url(),
@@ -98,6 +116,61 @@ const resolveLiveNeed = async (db: SignalQueryable, needId: string) => {
   throw new SignalError("not_found", `Need ${needId} has no live need to attach to.`);
 };
 
+/** What `signal.created` records of the server check: need ids and probabilities only. */
+const recordedDuplicatesSchema = z.array(z.object({ needId: z.string(), probability: z.number() }));
+type RecordedDuplicates = z.infer<typeof recordedDuplicatesSchema>;
+
+/** The recorded matches as the needs are now; merged-away needs drop out. */
+const renderDuplicates = async (db: SignalQueryable, recorded: RecordedDuplicates) => {
+  const views = await Promise.all(recorded.map((match) => getPublicNeed(db, match.needId)));
+  return recorded.flatMap((match, index) => {
+    const need = views[index];
+    if (!need || need.status === "merged") return [];
+    return [
+      {
+        needId: need.id,
+        probability: match.probability,
+        statement: need.statement,
+        status: need.status,
+        supporterCount: need.supporterCount,
+      },
+    ];
+  });
+};
+
+/**
+ * Signal's own duplicate check (spec 009) for a new need filed without a usable preview: the
+ * preview's retrieve and judge steps, on the draft statement's embedding. Runs before the
+ * transaction; AI being down means no matches, never a failed submission.
+ */
+const checkSkippedPreview = async (
+  { ai, db }: Pick<OperationContext, "ai" | "db">,
+  {
+    embedding,
+    exposure,
+    input,
+  }: { embedding: number[] | null; exposure: Exposure; input: SubmitInput },
+): Promise<RecordedDuplicates> => {
+  if (!("newNeed" in input.target) || !embedding) return [];
+  if (exposure.kind !== "skipped" && exposure.kind !== "unknown") return [];
+  const candidates = await ai.retriever.retrieve({ db, embedding, limit: CANDIDATE_LIMIT });
+  if (candidates.length === 0) return [];
+  try {
+    const judgements = await ai.judge.judge({
+      candidates: candidates.map(({ needId, statement }) => ({ needId, statement })),
+      draft: { additionalAsks: [], statement: input.target.newNeed.statement },
+      submission: { body: input.body, title: input.title },
+    });
+    return chooseMatches({ candidates, judgements }).map((j) => ({
+      needId: j.needId,
+      probability: Math.round(j.probability * 1000) / 1000,
+    }));
+  } catch (error) {
+    if (error instanceof SignalError && error.code === "ai_unavailable") return [];
+    throw error;
+  }
+};
+
 /** The stored result for an idempotency key, or undefined. A different submission is a conflict. */
 const findPrior = async (db: SignalQueryable, input: SubmitInput) => {
   const [prior] = await db
@@ -126,12 +199,19 @@ const findPrior = async (db: SignalQueryable, input: SubmitInput) => {
       "conflict",
       "This idempotencyKey was already used for a different submission; use a new key.",
     );
+  const [created] = await db
+    .select({ payload: events.payload })
+    .from(events)
+    .where(eq(events.dedupeKey, `signal.created:${input.idempotencyKey}`))
+    .limit(1);
+  const recorded = recordedDuplicatesSchema.safeParse(created?.payload.possibleDuplicates);
   // A new link takes its first signal's token, so the link was reused exactly when the tokens
   // differ; a legacy signal (no link) was filed before links existed.
   return {
     attachedTo: prior.attachedTo,
     linkReused: prior.linkToken !== null && prior.linkToken !== prior.trackingToken,
     needId: prior.needId,
+    possibleDuplicates: await renderDuplicates(db, recorded.success ? recorded.data : []),
     signalId: prior.signalId,
     trackingUrl: trackingUrlFor(prior.linkToken ?? prior.trackingToken),
   } satisfies SubmitOutput;
@@ -226,9 +306,10 @@ export const submitSignal = async (
   });
   const attachedTo = existingNeedId ? "existing" : "draft";
   const trackingToken = newTrackingToken();
+  const possibleDuplicates = await checkSkippedPreview({ ai, db }, { embedding, exposure, input });
 
   try {
-    return await db.transaction(async (tx) => {
+    const stored = await db.transaction(async (tx) => {
       const submitterId = await upsertSubmitter(tx, {
         company: input.company,
         email,
@@ -288,6 +369,7 @@ export const submitSignal = async (
           attachedTo,
           exposure,
           hasUseCase: Boolean(input.useCase),
+          ...(possibleDuplicates.length > 0 ? { possibleDuplicates } : {}),
           ...(input.previewId ? { previewId: input.previewId } : {}),
         },
         signalId: signal.id,
@@ -298,11 +380,13 @@ export const submitSignal = async (
         attachedTo,
         linkReused: Boolean(held),
         needId,
+        possibleDuplicates: [],
         replayed: false,
         signalId: signal.id,
         trackingUrl: trackingUrlFor(link.token),
       } satisfies SubmitResult;
     });
+    return { ...stored, possibleDuplicates: await renderDuplicates(db, possibleDuplicates) };
   } catch (error) {
     if (!(error instanceof DuplicateSubmissionError)) throw error;
     const raced = await findPrior(db, input);

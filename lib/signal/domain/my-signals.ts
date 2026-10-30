@@ -4,6 +4,7 @@ import { z } from "zod";
 import { decisions, signals } from "@/lib/db/schema";
 
 import type { SignalQueryable } from "../db";
+import { suggestedMatchesForLink, suggestedMatchSchema } from "./duplicate-backstop";
 import { getPublicNeed, publicNeedSchema } from "./public-needs";
 import { resolveTrackingLink } from "./tracking-links";
 
@@ -33,6 +34,11 @@ const mySignalSchema = z.object({
   need: publicNeedSchema,
   signalId: z.uuid(),
   submittedAt: z.iso.datetime({ offset: true }),
+  /**
+   * Existing needs Signal thinks this request duplicates (spec 009), offered only while the
+   * signal is on a draft need the holder alone supports. Answer with `answer_suggested_match`.
+   */
+  suggestedMatches: z.array(suggestedMatchSchema),
   title: z.string(),
   urgency: z.enum(["low", "medium", "high"]).nullable(),
   useCase: z.string().nullable(),
@@ -66,6 +72,9 @@ export const getMySignals = async (db: SignalQueryable, token: string) => {
       row,
     })),
   );
+  const suggested = await suggestedMatchesForLink(db, link.id, [
+    ...new Set(rows.map((row) => row.needId)),
+  ]);
   const result: MySignalsOutput["signals"] = [];
   for (const { history, need, row } of details) {
     if (!need) continue;
@@ -79,6 +88,7 @@ export const getMySignals = async (db: SignalQueryable, token: string) => {
       need,
       signalId: row.id,
       submittedAt: row.createdAt.toISOString(),
+      suggestedMatches: suggested.get(row.needId) ?? [],
       title: row.title,
       urgency: row.urgency,
       useCase: row.useCase,
