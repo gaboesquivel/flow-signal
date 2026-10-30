@@ -458,6 +458,7 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
     const pmTime = (week: number) =>
       new Date(Math.min(start.getTime() + (week + 1) * WEEK_MS, end.getTime()) - 60_000);
     const memory = createPmMemory();
+    const startedAt = performance.now();
     let week = 0;
     const background = createBackground(state, Math.max(1, options.generationConcurrency ?? 8));
     const runWeeksUntil = async (limit: number) => {
@@ -468,9 +469,9 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
         await runPmWeek(state, memory, week);
         await drain(state);
         week += 1;
-        if (week % 13 === 0)
+        if (week % 4 === 0)
           progress(
-            `[${arm}] week ${week}/${weeks}: rest ${state.router.mix.rest}, public MCP ${state.router.mix.public_mcp}, Operator MCP ${state.router.mix.operator_mcp}`,
+            `[${arm}] week ${week}/${weeks} (${Math.round((performance.now() - startedAt) / 1000)} s): rest ${state.router.mix.rest}, public MCP ${state.router.mix.public_mcp}, Operator MCP ${state.router.mix.operator_mcp}`,
           );
       }
     };
