@@ -61,11 +61,59 @@ Recorded as [0002](../decisions/0002-retrieve-then-judge-matching.md); summary:
 - **Agents.** The existing Eve **Operator** agent gets Signal tools for open-ended PM questions ("what are enterprise accounts blocked on?"); the Eve **Assistant** agent gets the public tools. Agents call the same domain functions as the UI and MCP; they do not reimplement logic.
 - **Human judgment is enforced in the domain layer, not the UI:** nothing auto-merges, approves, publishes a summary, or publishes a decision without a PM action. AI output is always a `suggestion` row until resolved.
 
+### Agent- and API-first: one operation registry
+
+Agents and the API are the product's primary interfaces; the UI is a client of the API and comes last. Every capability is defined **once** as an operation in `lib/signal/operations/`:
+
+```ts
+// lib/signal/operations/types.ts
+type Operation<I extends z.ZodType, O extends z.ZodType> = {
+  name: string; // snake_case; the MCP and agent tool name
+  description: string; // shared by MCP, agent tool, and OpenAPI
+  access: "public" | "operator";
+  input: I; // zod; the REST body/query, MCP inputSchema, and agent tool schema
+  output: O; // zod; parsed before returning on every surface
+  errors: readonly ErrorCode[]; // the only codes this operation may return
+  http: { method: "GET" | "POST" | "PUT"; path: string };
+  run: (input: z.infer<I>, ctx: OperationContext) => Promise<z.infer<O>>;
+};
+// OperationContext: { actor: { kind: "human" | "agent"; ref: string; client?: string }, repo, ai, clock }
+```
+
+Thin adapters expose the registry and contain no business logic:
+
+- `lib/signal/adapters/http.ts` → Next route handlers (zod validation, error envelope, rate limits).
+- `lib/signal/adapters/mcp.ts` → `registerAppTool` on the public or Operator MCP server by `access`.
+- `lib/signal/adapters/agent.ts` → Eve tools for the Assistant (public) and Operator (all) agents.
+- OpenAPI and public discovery are generated from the same registry; public discovery lists `access: "public"` only.
+- `lib/signal/client.ts` → a typed fetch client generated from the registry; the UI uses only this.
+
+| Operation              | Access   | REST                                          | MCP / agent tool       |
+| ---------------------- | -------- | --------------------------------------------- | ---------------------- |
+| `search_needs`         | public   | `GET /api/needs`                              | `search_needs`         |
+| `get_need`             | public   | `GET /api/needs/:id`                          | `get_need`             |
+| `preview_signal`       | public   | `POST /api/signals/preview`                   | `preview_signal`       |
+| `submit_signal`        | public   | `POST /api/signals`                           | `submit_signal`        |
+| `get_my_signals`       | public   | `GET /api/my-signals/:token`                  | `get_my_signals`       |
+| `list_suggestions`     | operator | `GET /api/operator/suggestions`               | `list_suggestions`     |
+| `resolve_suggestion`   | operator | `POST /api/operator/suggestions/:id/resolve`  | `resolve_suggestion`   |
+| `merge_needs`          | operator | `POST /api/operator/needs/:id/merge`          | `merge_needs`          |
+| `undo_merge`           | operator | `POST /api/operator/merges/:id/undo`          | `undo_merge`           |
+| `split_need`           | operator | `POST /api/operator/needs/:id/split`          | `split_need`           |
+| `get_need_detail`      | operator | `GET /api/operator/needs/:id`                 | `get_need_detail`      |
+| `set_criteria`         | operator | `PUT /api/operator/criteria`                  | `set_criteria`         |
+| `get_demand_summary`   | operator | `GET /api/operator/demand`                    | `get_demand_summary`   |
+| `draft_decision_brief` | operator | `POST /api/operator/needs/:id/decision-brief` | `draft_decision_brief` |
+| `publish_decision`     | operator | `POST /api/operator/needs/:id/decision`       | `publish_decision`     |
+| `get_metrics`          | operator | `GET /api/operator/metrics`                   | `get_metrics`          |
+
+**Build order per operation:** contract (zod input, output, errors) → parity tests (red) → domain tests (red) → domain implementation → adapters (green) → agent tool behaviour → UI. No UI work starts on an operation until its parity suite is green.
+
 ### Domain module and ports
 
-`lib/signal/` holds the domain: pure functions over a repository and AI ports, injected like `pingDatabase`'s `query` parameter so tests run without network.
+`lib/signal/` holds the domain: pure functions over a repository and AI ports, injected like `pingDatabase`'s `query` parameter so AI is faked in tests while the database is real.
 
-- `SignalRepository` (Drizzle on Neon in production, PGlite with the `vector` extension in tests).
+- `SignalRepository` (Drizzle on Neon; tests run against the Neon `test` branch, see [docs/database.md](../database.md)).
 - `NeedExtractor`, `NeedRetriever`, `MatchJudge`, `Reasoner` (scores, summaries, briefs), `Embedder` — AI SDK implementations plus test fakes.
 - `recordEvent` writes every metric-relevant event in the same transaction as the change it describes.
 
@@ -114,13 +162,7 @@ Operator (`verifyOperatorRequest`; fail closed when `OPERATOR_SECRET` is unset):
 
 ### MCP tools
 
-Public `/api/mcp` (same domain functions; actor_kind `agent`, `agent_client` from MCP client info):
-
-- `search_needs`, `get_need`, `preview_signal`, `submit_signal` (requires `idempotencyKey`), `get_my_signals`.
-
-Operator `/api/mcp/operator`:
-
-- `list_suggestions`, `resolve_suggestion`, `merge_needs`, `undo_merge`, `get_need_detail`, `get_demand_summary`, `draft_decision_brief`, `publish_decision`, `get_metrics`.
+Tools come from the operation registry above: `access: "public"` operations on `/api/mcp`, all operations on `/api/mcp/operator`. MCP calls run with actor kind `agent` and `client` from MCP client info; `submit_signal` requires `idempotencyKey` on every surface.
 
 Public discovery (OpenAPI, `.well-known`, server card) lists public tools only, as today. No MCP App: plain tools cover the agent journeys.
 
@@ -144,7 +186,7 @@ Definitions are in [PRODUCT.md → Metrics](../../PRODUCT.md#metrics); calculati
 - **Public writes are open by design** (no submitter auth in the MVP): `POST /api/signals*` and the public MCP write tool are rate limited per IP, size limited, and never return other customers' PII. Submitter emails are stored and shown only to PMs.
 - **PM writes fail closed:** every Operator route and Operator MCP tool returns `unauthorized` unless `OPERATOR_SECRET` is configured and presented.
 - **Without `DATABASE_URL`** every signal endpoint returns `database_unavailable` (503); the board shows an explanatory empty state. **Without AI Gateway access** preview returns `ai: "unavailable"` with no matches and submission still works.
-- **Database provisioning requires the user's explicit yes** before running setup with the `neon` preset ([0001](../decisions/0001-neon-postgres-pgvector.md)).
+- **Database:** Neon, provisioned with `pnpm neon:setup` (approved 2026-10-30), with a `test` branch for the test suites; see [docs/database.md](../database.md) and [0001](../decisions/0001-neon-postgres-pgvector.md).
 
 ### UI
 
@@ -152,8 +194,13 @@ Replaces the template's home stub. Public: `/` (board and search), `/submit` (fo
 
 ## Testing Decisions
 
-- **Domain tests** (`tests/signal/`): run `lib/signal` against PGlite with fake AI ports; cover matching thresholds, attach vs. draft, split, merge and undo, visibility filtering, suggestion resolution, decision publishing, and every metric calculation. Prior art: the injected `query` in `lib/db/ping.ts` and `tests/db-ping.test.ts`.
-- **Contract tests**: route handlers (prior art `tests/genui-compose.route.test.ts`) and MCP tools (`tests/mcp/route.test.ts`, `tests/mcp/operator-isolation.test.ts`), including that public responses never contain email, company, revenue, or verbatim text of other submitters, and that Operator tools are absent from public discovery.
+**Test-driven, surface by surface.** Every operation is built red → green → refactor, starting from the interfaces agents and API clients use, never from the UI. A test is written and seen failing before the code that makes it pass; a bug fix starts with a failing test that reproduces it.
+
+- **Parity suite** (`tests/signal/parity/`, written first for each operation): one table of cases per operation (input, actor, expected output or error code) runs through all three surfaces: the HTTP route handler, the MCP tool (public or Operator server, by access), and the Eve agent tool. Each case asserts the same output (after removing surface envelopes), the same error code, the same events written, and that `access: "operator"` operations return `unauthorized` over HTTP and are absent from public MCP and the Assistant agent. A registry test fails if an operation is missing from any surface or its schemas differ between surfaces.
+- **Domain tests** (`tests/signal/domain/`): `lib/signal` against the real Neon `test` branch with fake AI ports; cover matching thresholds, attach vs. draft, split, merge and undo, visibility filtering, suggestion resolution, decision publishing, and every metric calculation. Each test file runs in its own schema-reset transaction or truncates its tables. Prior art: the injected `query` in `lib/db/ping.ts` and `tests/db-ping.test.ts`.
+- **Contract tests**: HTTP status codes and the error envelope (prior art `tests/genui-compose.route.test.ts`), MCP protocol and isolation (`tests/mcp/route.test.ts`, `tests/mcp/operator-isolation.test.ts`), including that public responses never contain email, company, revenue, or verbatim text of other submitters, and that Operator tools are absent from public discovery.
+- **Agent behaviour tests** (`evals/agents/`, prior art `evals/eve-smoke.test.ts`): given a PM or submitter request, the Eve agent picks the expected operation with valid input (for example "add Acme's vote to the PDF need" → `submit_signal` with `target.needId`), and never calls an Operator tool from the Assistant. These run with live models in `pnpm eval`, not in `pnpm test`.
+- **Database availability:** tests needing a database read `DATABASE_URL_TEST`; without it they are skipped with a message locally and fail in CI, where it is a required secret.
 - **Eval**: `evals/matching` thresholds are the kill criterion for the MVP; failing them blocks calling the bet proven, not the build.
 - **Model ids**: extend `lib/ai/models.test.ts` to the new ids.
 
@@ -201,4 +248,4 @@ Where the assignment's required documentation lives:
 | Measuring business impact                     | PRODUCT.md → Metrics; this spec → Metrics instrumentation                          |
 | Assumptions, risks, tradeoffs                 | PRODUCT.md → Riskiest assumptions, Pre-mortem; decisions 0001, 0002 → Consequences |
 
-Open assumptions: the embedding model id and dimension; the 0.6 judge threshold (tuned on the eval set); PGlite's `vector` extension covering the queries used in production; Haiku latency meeting 2 s p95 for extract plus judge of 8 candidates.
+Open assumptions: the embedding model id and dimension; the 0.6 judge threshold (tuned on the eval set); test speed against the Neon `test` branch over HTTP staying acceptable for a red-green loop; Haiku latency meeting 2 s p95 for extract plus judge of 8 candidates.

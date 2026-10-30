@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "setup": "node tooling/setup/setup.mjs",
+    "neon:setup": "FLOW_PRESET=neon node tooling/setup/setup.mjs",
     "skills:install": "pnpm dlx skills@1.7.4 experimental_install",
     "skills:update": "pnpm dlx skills@1.7.4 update -p -y",
     "setup:portless": "portless trust && portless proxy start",
