@@ -118,19 +118,36 @@ export const listSuggestions = async (db: SignalQueryable, filter: SuggestionFil
   };
 };
 
+/** A PM's optional note on why a suggestion was rejected (kept for review and tuning). */
+export const MAX_REJECT_REASON_LENGTH = 500;
+
 const resolvedStatus = { accept: "accepted", edit: "edited", reject: "rejected" } as const;
 export type ResolveAction = keyof typeof resolvedStatus;
 
 /**
  * Accept, edit, or reject one pending suggestion. The kind's effect, the status change, and the
- * `suggestion.accepted | edited | rejected` event (actor = resolver, payload `{ kind }`) commit
- * together; if applying fails (for example the need was merged meanwhile) nothing is written.
+ * `suggestion.accepted | edited | rejected` event (actor = resolver, payload `{ kind }`, plus
+ * `reason` on a rejection that gives one) commit together; if applying fails (for example the
+ * need was merged meanwhile) nothing is written. The reason lives only in the event payload.
  */
 export const resolveSuggestion = async (
   { actor, ai, clock, db }: OperationContext,
-  { action, edit, id }: { action: ResolveAction; edit?: Record<string, unknown>; id: string },
+  {
+    action,
+    edit,
+    id,
+    reason,
+  }: { action: ResolveAction; edit?: Record<string, unknown>; id: string; reason?: string },
 ) => {
   const now = clock.now();
+  const rejectReason = reason?.trim() || undefined;
+  if (reason !== undefined && action !== "reject")
+    throw new SignalError("validation_failed", "`reason` is only allowed with action `reject`.");
+  if (rejectReason && rejectReason.length > MAX_REJECT_REASON_LENGTH)
+    throw new SignalError(
+      "validation_failed",
+      `\`reason\` must be at most ${MAX_REJECT_REASON_LENGTH} characters.`,
+    );
   const outcome = await db.transaction(async (tx) => {
     const [suggestion] = await tx
       .select()
@@ -184,7 +201,7 @@ export const resolveSuggestion = async (
       actor,
       needId: suggestion.needId,
       occurredAt: now,
-      payload: { kind: suggestion.kind },
+      payload: { kind: suggestion.kind, ...(rejectReason ? { reason: rejectReason } : {}) },
       suggestionId: id,
       type: `suggestion.${status}`,
     });

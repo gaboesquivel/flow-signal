@@ -22,7 +22,8 @@ import {
  * the model: without it, `summary` is null and `ai` is "unavailable".
  *
  * - Needs: not merged, shipped, or declined (`draft`, `open`, `planned`, `in_progress`), filtered
- *   by `themeId`, and by `accountId` to needs that account supports (numbers stay whole-need).
+ *   by `themeId`, by `accountId` to needs that account supports, and by `plan` to needs some
+ *   account on that plan supports (numbers stay whole-need).
  * - `supporters`: distinct submitters on the need now (all time). `accounts`: their accounts.
  * - `businessValueCents`: ARR + open deals of those accounts.
  * - `newSupportersInWindow`: supporters whose first signal on the need is in `[since, until)`.
@@ -34,6 +35,9 @@ import {
 export const DEFAULT_DEMAND_DAYS = 90;
 export const DEFAULT_DEMAND_LIMIT = 10;
 export const MAX_DEMAND_LIMIT = 50;
+/** Account plans (`accounts.plan`) that `plan` filters on. */
+export const accountPlans = ["Enterprise", "Growth", "Starter"] as const;
+export type AccountPlan = (typeof accountPlans)[number];
 
 export const demandNeedSchema = z.object({
   accounts: z.array(z.object({ accountId: z.uuid(), name: z.string(), plan: z.string() })),
@@ -63,6 +67,7 @@ export type DemandSummary = z.infer<typeof demandSummaryOutputSchema>;
 export interface DemandFilter {
   accountId?: string;
   limit: number;
+  plan?: AccountPlan;
   since: Date;
   themeId?: string;
   until: Date;
@@ -94,6 +99,12 @@ export const loadDemandNeeds = async (db: SignalQueryable, filter: DemandFilter)
     conditions.push(sql`exists (
       select 1 from signals s join submitters u on u.id = s.submitter_id
       where s.need_id = n.id and u.account_id = ${filter.accountId}
+    )`);
+  if (filter.plan)
+    conditions.push(sql`exists (
+      select 1 from signals s join submitters u on u.id = s.submitter_id
+      join accounts ac on ac.id = u.account_id
+      where s.need_id = n.id and ac.plan = ${filter.plan}
     )`);
   const rows = await queryRows<DemandRow>(
     db,

@@ -189,6 +189,31 @@ describeWithDatabase("PM triage", () => {
     ).rejects.toMatchObject({ code: "conflict" });
   });
 
+  it("keeps a rejection reason in the suggestion.rejected event payload only", async () => {
+    await resolveSuggestion(ctx(pm), {
+      action: "reject",
+      id: f.suggestions.theme.id,
+      reason: "  Too broad  ",
+    });
+    await resolveSuggestion(ctx(pm), { action: "reject", id: f.suggestions.split.id, reason: "" });
+    const rejected = await eventsOf("suggestion.rejected");
+    expect(rejected.map((e) => [e.suggestionId, e.payload])).toEqual([
+      [f.suggestions.theme.id, { kind: "theme", reason: "Too broad" }],
+      [f.suggestions.split.id, { kind: "split" }],
+    ]);
+    const [row] = await harness.db
+      .select()
+      .from(suggestions)
+      .where(eq(suggestions.id, f.suggestions.theme.id));
+    expect(row!.payload).toEqual(f.suggestions.theme.payload);
+  });
+
+  it("accepts a reason only when rejecting", async () => {
+    await expect(
+      resolveSuggestion(ctx(pm), { action: "accept", id: f.suggestions.theme.id, reason: "No" }),
+    ).rejects.toMatchObject({ code: "validation_failed" });
+  });
+
   it("never shows a public summary until a PM approves it", async () => {
     await harness.db
       .update(needs)
