@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 
 import { createSignalClient } from "@/lib/signal/client";
 import type { SignalClient, SignalResult } from "@/lib/signal/client";
@@ -13,6 +14,14 @@ export const pendingCountKey = ["operator", "pending-count"] as const;
 export const needDetailPrefix = ["operator", "need-detail"] as const;
 export const needDetailKey = (id: string) => [...needDetailPrefix, id] as const;
 export const operatorNeedsKey = ["operator", "needs", "all"] as const;
+
+/** After any console write: the Triage count, need details, and the needs table may change. */
+export const invalidateAfterWrite = (queryClient: QueryClient) =>
+  Promise.all([
+    queryClient.invalidateQueries({ queryKey: pendingCountKey }),
+    queryClient.invalidateQueries({ queryKey: needDetailPrefix }),
+    queryClient.invalidateQueries({ queryKey: operatorNeedsKey }),
+  ]);
 
 /** A failed call, kept whole so the view can explain it. */
 export class OperatorCallError extends Error {

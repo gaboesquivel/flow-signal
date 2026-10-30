@@ -31,9 +31,8 @@ import { ConsoleError, ConsoleHeading, ConsoleStatus } from "../_components/cons
 import {
   OperatorCallError,
   browserSignal,
-  needDetailPrefix,
+  invalidateAfterWrite,
   operatorNeedsKey,
-  pendingCountKey,
   unwrap,
   useNeedDetail,
 } from "../_components/operator-browser";
@@ -55,6 +54,7 @@ import {
   themesOf,
   triageCommand,
 } from "../_lib/console";
+import { CheckLine, checkKey, checkText, useTextCheck } from "../_components/public-text-check";
 import { MergePanel, NeedSignals, SplitSignals } from "./triage-panels";
 
 type ClientError = Pick<SignalClientError, "code" | "message">;
@@ -111,12 +111,6 @@ const headRule: Record<PencilState, string> = {
   edited: "border-rule-strong text-foreground",
   rejected: "border-border text-muted-foreground line-through",
   suggested: "border-ai text-ai-foreground border-dashed",
-};
-
-const findingLabels: Record<PublicTextFinding["kind"], string> = {
-  account: "Account",
-  email: "Email",
-  person: "Person",
 };
 
 const saveLabel = (checking: boolean, kind: SuggestionKind) => {
@@ -200,9 +194,7 @@ export function TriageView({
 
   /** Counts, needs, and need details all change when a suggestion is applied or undone. */
   const refreshAfterChange = () => {
-    queryClient.invalidateQueries({ queryKey: pendingCountKey });
-    queryClient.invalidateQueries({ queryKey: needDetailPrefix });
-    queryClient.invalidateQueries({ queryKey: operatorNeedsKey });
+    void invalidateAfterWrite(queryClient);
   };
 
   const fail = (id: string, error: ClientError) =>
@@ -439,73 +431,6 @@ export function TriageView({
           })}
         </RuledList>
       ) : null}
-    </div>
-  );
-}
-
-const checkKey = (text: string, needId: string | null) =>
-  ["operator", "check-public-text", needId, text] as const;
-
-const checkText = async (text: string, needId: string | null) => {
-  try {
-    const { findings } = await unwrap(
-      browserSignal.checkPublicText({ needId: needId ?? undefined, text }),
-    );
-    return findings;
-  } catch (error) {
-    if (error instanceof OperatorCallError) return error;
-    throw error;
-  }
-};
-
-function useTextCheck(text: string, needId: string | null, enabled: boolean) {
-  return useQuery({
-    enabled: enabled && text.trim().length > 0,
-    queryFn: async () => {
-      const findings = await checkText(text, needId);
-      if (findings instanceof OperatorCallError) throw findings;
-      return findings;
-    },
-    queryKey: checkKey(text, needId),
-    staleTime: 60_000,
-  });
-}
-
-/** The check line under a public summary: what identifying text was found, if any. */
-function CheckLine({
-  error,
-  findings,
-  loading,
-}: {
-  error: ClientError | null;
-  findings: PublicTextFinding[] | undefined;
-  loading: boolean;
-}) {
-  if (loading)
-    return (
-      <p className="text-muted-foreground text-xs">Checking for names, accounts, and emails…</p>
-    );
-  if (error) return <ConsoleError error={error} />;
-  if (!findings) return null;
-  if (findings.length === 0)
-    return (
-      <p
-        className="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
-        data-testid="check-line"
-      >
-        <Check aria-hidden="true" className="size-3.5" /> No names, accounts, or emails found.
-      </p>
-    );
-  return (
-    <div className="text-destructive text-sm" data-testid="check-line" role="alert">
-      <p className="font-medium">Remove identifying text before approving:</p>
-      <ul className="mt-1 list-disc pl-5">
-        {findings.map((finding) => (
-          <li key={`${finding.kind}-${finding.match}`}>
-            {findingLabels[finding.kind]}: <span className="font-mono">{finding.match}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
