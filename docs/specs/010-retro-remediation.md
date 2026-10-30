@@ -253,6 +253,17 @@ Then, from a terminal, run `claude auto-mode critique`. After that, remove `ANTH
 - **Spec 004:** a ~1,500-signal world, a review required for v1, and Crewday inside `pnpm eval` change to 604 signals, review deferred, and Crewday on demand. This records what shipped and widens nothing.
 - **PRODUCT.md:** assumption 4 drops from _high_ to _medium_ confidence, decision quality becomes a non-inferiority check, and the metrics are split into tiers.
 
+## Tasks
+
+- [x] 01: Gateway-only models
+- [x] 02: Worktree environment
+- [x] 03: Permission rules
+- [x] 04: Environment line for agents and the classifier
+- [x] 05: Check economy
+- [x] 06: Docs match what shipped
+- [x] 07: Prompt-log hook
+- [ ] 08: Repository hygiene _(runs after this PR merges)_
+
 ## Out of Scope
 
 - **The Crewday lift run** (spec 004 task 04). It is the next step after this spec and needs a live budget of about $6–8.
