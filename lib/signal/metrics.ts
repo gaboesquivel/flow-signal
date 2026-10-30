@@ -58,6 +58,22 @@ import type { SignalQueryable } from "./db";
  *     (same `payload.mergeId`) reverted before `to`.
  *   - Close-the-loop rate is not computed yet; see `unsupportedMetrics`.
  *
+ * - **Match exposure** (spec 012) reads `signal.created` `payload.exposure` (from
+ *   `domain/exposure.ts`) for signals created in the window, split by `actor_kind`:
+ *   - Take-up: `kind = shown` with a non-null `chosenRank` ÷ all `kind = shown`.
+ *   - Filed new despite a match: `kind = shown` and `attachedTo = draft`; its draft need
+ *     (`need_id`) merged as of `to` into a need in `shownNeedIds` (`need.merged`
+ *     `payload.intoNeedId`, not undone), merged elsewhere, or unmerged.
+ *   - Moved off a taken match: `kind = shown` with a `chosenRank` whose `signal_id` is in a
+ *     later `need.split` `payload.signalIds` from that signal's `need_id`, before `to`.
+ *   - Previews without a submission: `preview.shown` in the window with at least one match and
+ *     no `signal.created` carrying its `payload.previewId` within 24 hours.
+ *
+ * - **Kill criterion** (PRODUCT.md → Kill criterion, with real users; spec 012) ignores `from`:
+ *   every `signal.created` with `exposure.kind = shown` before `to`, its prevention rate (as
+ *   above, over that population), and the all-time unmerge rate before `to` (merges are
+ *   need-level, so the guardrail is not split by population).
+ *
  * Counting rules: events are written in the same transaction as the change, so failed or
  * rejected requests write none; `dedupe_key` makes retries write once, and these queries also
  * count each `signal_id` / `suggestion_id` once in case the same fact was recorded twice.
@@ -69,6 +85,15 @@ const DEFAULT_WINDOW_DAYS = 28;
 export const MAX_WINDOW_DAYS = 366;
 /** A need with no decision this long after its first signal is reported as open. */
 const OPEN_NEED_DAYS = 30;
+
+/** PRODUCT.md → Kill criterion (with real users): submissions shown a match before a verdict. */
+export const KILL_CRITERION_MIN_SHOWN = 200;
+/** Kill when prevention rate over shown submissions is below this... */
+const KILL_CRITERION_MIN_PREVENTION = 0.3;
+/** ...or when the unmerge rate exceeds this. */
+const KILL_CRITERION_MAX_UNMERGE = 0.1;
+/** A preview with no submission this long after it is counted as abandoned (spec 012). */
+const PREVIEW_SUBMIT_HOURS = 24;
 
 const unsupportedMetrics = [
   {
@@ -129,6 +154,44 @@ const matchSchema = z.object({
 const split = <T extends z.ZodType>(schema: T) =>
   z.object({ agent: schema, all: schema, human: schema });
 
+const count = z.number().int().nonnegative();
+
+const exposureCountsSchema = z.object({
+  /** Submissions that picked a shown need, by its rank. */
+  chosenRank: z.object({ 1: count, 2: count, 3: count }),
+  /** Shown a match and filed a new need anyway, by what a PM later did with the draft. */
+  filedNewDespiteMatch: z.object({
+    /** Merged into a need other than the ones shown (Signal showed the wrong needs). */
+    mergedElsewhere: count,
+    /** Merged into one of the shown needs (the submitter turned down a correct match). */
+    mergedIntoShown: count,
+    total: count,
+    unmerged: count,
+  }),
+  /** Taken matches a PM later split off the need they were filed on (live false-match proxy). */
+  movedOffTakenMatch: z.object({ moved: count, rate: rateSchema }),
+  /** A preview was found and showed no match. */
+  noneShown: count,
+  /** Submissions shown at least one match. */
+  shown: count,
+  /** No `previewId` was sent. */
+  skipped: count,
+  /** taken ÷ shown; null with no shown submissions. */
+  takeUpRate: rateSchema,
+  /** Shown submissions that picked a shown need. */
+  taken: count,
+  /** A `previewId` Signal never issued, or one older than 24 hours. */
+  unknown: count,
+});
+type ExposureCounts = z.infer<typeof exposureCountsSchema>;
+
+const killPopulationSchema = z.object({
+  preventionRate: preventionSchema,
+  shownSubmissions: count,
+  verdict: z.enum(["insufficient_data", "pass", "fail"]),
+});
+type KillPopulation = z.infer<typeof killPopulationSchema>;
+
 export const metricsSchema = z.object({
   decisionLatency: z.object({
     /** First decisions published in the window, by who published them. */
@@ -146,6 +209,19 @@ export const metricsSchema = z.object({
     /** matched ÷ total; null with no decisions that carry a recommendation. */
     rate: rateSchema,
     total: z.number().int().nonnegative(),
+  }),
+  /** What submitters were shown at preview and what they chose (spec 012). */
+  exposure: z.object({
+    previewsWithoutSubmission: split(count),
+    submissions: split(exposureCountsSchema),
+  }),
+  /** PRODUCT.md's real-user kill criterion, over all time before `window.to` (spec 012). */
+  killCriterion: z.object({
+    maxUnmergeRate: z.number(),
+    minPreventionRate: z.number(),
+    minShownSubmissions: count,
+    populations: split(killPopulationSchema),
+    unmergeRate: z.object({ merges: count, rate: rateSchema, undone: count }),
   }),
   preventionRate: z.object({
     overall: split(preventionSchema),
@@ -545,6 +621,191 @@ const unmergeRate = async (db: SignalQueryable, { from, to }: MetricsWindow) => 
   return { merges, rate: ratio(undone, merges), undone };
 };
 
+/** Need merges active as of `to`, with the need each was merged into. */
+const activeMergeTargets = (to: Date) => sql`
+  SELECT m.need_id, m.payload->>'intoNeedId' AS into_need_id FROM events m
+  WHERE m.type = 'need.merged' AND m.need_id IS NOT NULL AND m.occurred_at < ${ts(to)}
+    AND NOT EXISTS (
+      SELECT 1 FROM events u
+      WHERE u.type = 'merge.undone' AND u.occurred_at < ${ts(to)}
+        AND u.payload->>'mergeId' = m.payload->>'mergeId'
+    )`;
+
+interface ExposureRow {
+  actor_kind: ActorKind;
+  filed_new: unknown;
+  merged_elsewhere: unknown;
+  merged_into_shown: unknown;
+  moved_off: unknown;
+  none_shown: unknown;
+  rank_1: unknown;
+  rank_2: unknown;
+  rank_3: unknown;
+  shown: unknown;
+  skipped: unknown;
+  taken: unknown;
+  unknown: unknown;
+}
+
+const exposureCounts = (db: SignalQueryable, { from, to }: MetricsWindow) =>
+  query<ExposureRow>(
+    db,
+    sql`
+      WITH created AS (
+        SELECT DISTINCT ON (COALESCE(signal_id, id))
+          signal_id, actor_kind, need_id, occurred_at, payload,
+          payload->'exposure'->>'kind' AS kind,
+          (payload->'exposure'->>'chosenRank')::int AS chosen_rank,
+          payload->'exposure'->'shownNeedIds' AS shown_ids
+        FROM events
+        WHERE type = 'signal.created' AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
+        ORDER BY COALESCE(signal_id, id), occurred_at
+      ), merges AS (${activeMergeTargets(to)}),
+      shown AS (
+        SELECT c.*,
+          EXISTS (
+            SELECT 1 FROM merges mg
+            WHERE mg.need_id = c.need_id AND c.shown_ids @> jsonb_build_array(mg.into_need_id)
+          ) AS into_shown,
+          EXISTS (SELECT 1 FROM merges mg WHERE mg.need_id = c.need_id) AS merged,
+          EXISTS (
+            SELECT 1 FROM events s
+            WHERE s.type = 'need.split' AND s.need_id = c.need_id
+              AND s.occurred_at >= c.occurred_at AND s.occurred_at < ${ts(to)}
+              AND s.payload->'signalIds' @> jsonb_build_array(c.signal_id::text)
+          ) AS moved
+        FROM created c WHERE c.kind = 'shown'
+      )
+      SELECT actor_kind,
+        count(*) FILTER (WHERE kind = 'shown')::int AS shown,
+        count(*) FILTER (WHERE kind = 'none_shown')::int AS none_shown,
+        count(*) FILTER (WHERE kind = 'skipped')::int AS skipped,
+        count(*) FILTER (WHERE kind = 'unknown')::int AS unknown,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.chosen_rank IS NOT NULL)::int AS taken,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.chosen_rank = 1)::int AS rank_1,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.chosen_rank = 2)::int AS rank_2,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.chosen_rank = 3)::int AS rank_3,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.payload->>'attachedTo' = 'draft')::int AS filed_new,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.payload->>'attachedTo' = 'draft' AND s.into_shown)::int AS merged_into_shown,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.payload->>'attachedTo' = 'draft' AND s.merged AND NOT s.into_shown)::int
+          AS merged_elsewhere,
+        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
+          AND s.chosen_rank IS NOT NULL AND s.moved)::int AS moved_off
+      FROM created c
+      GROUP BY actor_kind
+    `,
+  );
+
+const exposureFrom = (rows: ExposureRow[], kind?: ActorKind): ExposureCounts => {
+  const matching = rows.filter((row) => !kind || row.actor_kind === kind);
+  const sum = (key: Exclude<keyof ExposureRow, "actor_kind">) =>
+    matching.reduce((total, row) => total + num(row[key]), 0);
+  const filedNew = sum("filed_new");
+  const mergedIntoShown = sum("merged_into_shown");
+  const mergedElsewhere = sum("merged_elsewhere");
+  const taken = sum("taken");
+  const shown = sum("shown");
+  const moved = sum("moved_off");
+  return {
+    chosenRank: { 1: sum("rank_1"), 2: sum("rank_2"), 3: sum("rank_3") },
+    filedNewDespiteMatch: {
+      mergedElsewhere,
+      mergedIntoShown,
+      total: filedNew,
+      unmerged: filedNew - mergedIntoShown - mergedElsewhere,
+    },
+    movedOffTakenMatch: { moved, rate: ratio(moved, taken) },
+    noneShown: sum("none_shown"),
+    shown,
+    skipped: sum("skipped"),
+    takeUpRate: ratio(taken, shown),
+    taken,
+    unknown: sum("unknown"),
+  };
+};
+
+const abandonedPreviews = async (db: SignalQueryable, { from, to }: MetricsWindow) => {
+  const rows = await query<{ actor_kind: ActorKind; previews: unknown }>(
+    db,
+    sql`
+      SELECT p.actor_kind, count(*)::int AS previews
+      FROM events p
+      WHERE p.type = 'preview.shown' AND p.occurred_at >= ${ts(from)} AND p.occurred_at < ${ts(to)}
+        AND jsonb_array_length(COALESCE(p.payload->'matches', '[]'::jsonb)) > 0
+        AND NOT EXISTS (
+          SELECT 1 FROM events s
+          WHERE s.type = 'signal.created' AND s.payload->>'previewId' = p.payload->>'previewId'
+            AND s.occurred_at >= p.occurred_at
+            AND s.occurred_at < p.occurred_at + make_interval(hours => ${PREVIEW_SUBMIT_HOURS})
+        )
+      GROUP BY p.actor_kind
+    `,
+  );
+  const of = (kind?: ActorKind) =>
+    rows
+      .filter((row) => !kind || row.actor_kind === kind)
+      .reduce((sum, row) => sum + num(row.previews), 0);
+  return { agent: of("agent"), all: of(), human: of("human") };
+};
+
+const killCriterion = async (db: SignalQueryable, { to }: MetricsWindow) => {
+  const rows = await query<{
+    actor_kind: ActorKind;
+    attached: unknown;
+    merged_drafts: unknown;
+    shown: unknown;
+  }>(
+    db,
+    sql`
+      WITH created AS (
+        SELECT DISTINCT ON (COALESCE(signal_id, id)) actor_kind, need_id, payload
+        FROM events
+        WHERE type = 'signal.created' AND occurred_at < ${ts(to)}
+          AND payload->'exposure'->>'kind' = 'shown'
+        ORDER BY COALESCE(signal_id, id), occurred_at
+      )
+      SELECT actor_kind,
+        count(*)::int AS shown,
+        count(*) FILTER (WHERE payload->>'attachedTo' = 'existing')::int AS attached,
+        count(*) FILTER (
+          WHERE payload->>'attachedTo' = 'draft' AND need_id IN (${activeMerges(to)})
+        )::int AS merged_drafts
+      FROM created
+      GROUP BY actor_kind
+    `,
+  );
+  const unmerge = await unmergeRate(db, { from: new Date(0), to });
+  const population = (kind?: ActorKind): KillPopulation => {
+    const matching = rows.filter((row) => !kind || row.actor_kind === kind);
+    const total = (key: "attached" | "merged_drafts" | "shown") =>
+      matching.reduce((sum, row) => sum + num(row[key]), 0);
+    const preventionRate = toPrevention(total("attached"), total("merged_drafts"));
+    const shownSubmissions = total("shown");
+    let verdict: KillPopulation["verdict"] = "pass";
+    if (shownSubmissions < KILL_CRITERION_MIN_SHOWN) verdict = "insufficient_data";
+    else if (
+      (preventionRate.rate ?? 0) < KILL_CRITERION_MIN_PREVENTION ||
+      (unmerge.rate ?? 0) > KILL_CRITERION_MAX_UNMERGE
+    )
+      verdict = "fail";
+    return { preventionRate, shownSubmissions, verdict };
+  };
+  return {
+    maxUnmergeRate: KILL_CRITERION_MAX_UNMERGE,
+    minPreventionRate: KILL_CRITERION_MIN_PREVENTION,
+    minShownSubmissions: KILL_CRITERION_MIN_SHOWN,
+    populations: { agent: population("agent"), all: population(), human: population("human") },
+    unmergeRate: unmerge,
+  };
+};
+
 /** All MVP metrics and supporting counts for `[from, to)`. */
 export const computeMetrics = async (
   db: SignalQueryable,
@@ -557,10 +818,22 @@ export const computeMetrics = async (
   const unmerge = await unmergeRate(db, window);
   const direction = await directionAccuracy(db, window);
   const readiness = await readinessLeadTime(db, window);
+  const exposureRows = await exposureCounts(db, window);
+  const abandoned = await abandonedPreviews(db, window);
+  const kill = await killCriterion(db, window);
 
   return {
     decisionLatency: latency,
     directionAccuracy: direction,
+    exposure: {
+      previewsWithoutSubmission: abandoned,
+      submissions: {
+        agent: exposureFrom(exposureRows, "agent"),
+        all: exposureFrom(exposureRows),
+        human: exposureFrom(exposureRows, "human"),
+      },
+    },
+    killCriterion: kill,
     preventionRate: {
       overall: {
         agent: preventionFrom(signalRows, "agent"),

@@ -1,4 +1,6 @@
-import { asc, eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+
+import { and, asc, eq } from "drizzle-orm";
 import { beforeEach, expect, it } from "vitest";
 
 import { accounts, events, needs, signals, submitters } from "../../../lib/db/schema";
@@ -9,8 +11,10 @@ import {
   fakeEmbedding,
 } from "../../../lib/signal/ai/fakes";
 import type { SignalAi } from "../../../lib/signal/ai/ports";
+import { recordEvent } from "../../../lib/signal/events";
 import type { Actor } from "../../../lib/signal/context";
 import { embedNeeds, embedMissingNeeds } from "../../../lib/signal/domain/embeddings";
+import { EXPOSURE_WINDOW_MS } from "../../../lib/signal/domain/exposure";
 import { getMySignals } from "../../../lib/signal/domain/my-signals";
 import { submitSignal } from "../../../lib/signal/domain/submissions";
 import type { SubmitInput } from "../../../lib/signal/domain/submissions";
@@ -106,7 +110,13 @@ describeWithDatabase("submit_signal domain", () => {
       [
         "signal.created",
         "agent",
-        { attachedTo: "draft", client: "support-copilot", hasUseCase: false, previewId: "pv_abc" },
+        {
+          attachedTo: "draft",
+          client: "support-copilot",
+          exposure: { kind: "unknown", previewId: "pv_abc" },
+          hasUseCase: false,
+          previewId: "pv_abc",
+        },
       ],
     ]);
   });
@@ -236,5 +246,109 @@ describeWithDatabase("submit_signal domain", () => {
     expect(row!.embedding).toEqual(
       fakeEmbedding("brand new statement").map((value) => expect.closeTo(value, 5)),
     );
+  });
+
+  // Match exposure (spec 012).
+  const shown = (previewId: string, needIds: string[], occurredAt = now) =>
+    recordEvent(harness.db, {
+      actor: human,
+      dedupeKey: `preview.shown:${previewId}`,
+      occurredAt,
+      payload: {
+        additionalAsks: 0,
+        ai: "ok",
+        matches: needIds.map((needId, index) => ({ needId, probability: 0.9, rank: index + 1 })),
+        previewId,
+      },
+      type: "preview.shown",
+    });
+
+  const exposureOf = async (signalId: string) => {
+    const [event] = await harness.db
+      .select()
+      .from(events)
+      .where(and(eq(events.signalId, signalId), eq(events.type, "signal.created")));
+    return (event!.payload as { exposure: unknown }).exposure;
+  };
+
+  it.each([1, 2, 3])("records rank %i when the submitter picks that shown need", async (rank) => {
+    const shownNeeds = [
+      await insertNeed(harness.db),
+      await insertNeed(harness.db),
+      await insertNeed(harness.db),
+    ].map(({ need }) => need.id);
+    await shown("pv_ranked", shownNeeds);
+    const result = await submit(
+      input({ previewId: "pv_ranked", target: { needId: shownNeeds[rank - 1]! } }),
+    );
+    expect(await exposureOf(result.signalId)).toEqual({
+      chosenRank: rank,
+      kind: "shown",
+      previewId: "pv_ranked",
+      shownNeedIds: shownNeeds,
+    });
+  });
+
+  it("records a null rank for a new need and for a need that was not shown", async () => {
+    const { need: shownNeed } = await insertNeed(harness.db);
+    const { need: elsewhere } = await insertNeed(harness.db);
+    await shown("pv_new", [shownNeed.id]);
+    const fresh = await submit(
+      input({
+        previewId: "pv_new",
+        target: { newNeed: { statement: "Admins need audit logs so that reviews are fast" } },
+      }),
+    );
+    const other = await submit(
+      input({
+        idempotencyKey: "key-0002",
+        previewId: "pv_new",
+        target: { needId: elsewhere.id },
+      }),
+    );
+    for (const signalId of [fresh.signalId, other.signalId])
+      expect(await exposureOf(signalId)).toMatchObject({ chosenRank: null, kind: "shown" });
+  });
+
+  it("records the rank of the shown need a merged-away target resolves to", async () => {
+    const { need: live } = await insertNeed(harness.db);
+    const { need: stale } = await insertNeed(harness.db, {
+      mergedIntoId: live.id,
+      status: "merged",
+    });
+    await shown("pv_stale_target", [randomUUID(), live.id]);
+    const result = await submit(
+      input({ previewId: "pv_stale_target", target: { needId: stale.id } }),
+    );
+    expect(await exposureOf(result.signalId)).toMatchObject({ chosenRank: 2, kind: "shown" });
+  });
+
+  it("records none_shown, skipped, and unknown without failing the submission", async () => {
+    const { need } = await insertNeed(harness.db);
+    await shown("pv_empty", []);
+    await shown("pv_stale", [need.id], new Date(now.getTime() - EXPOSURE_WINDOW_MS - 1));
+    const cases = [
+      ["pv_empty", { kind: "none_shown", previewId: "pv_empty" }],
+      [undefined, { kind: "skipped" }],
+      ["pv_forged", { kind: "unknown", previewId: "pv_forged" }],
+      ["pv_stale", { kind: "unknown", previewId: "pv_stale" }],
+    ] as const;
+    for (const [index, [previewId, exposure]] of cases.entries()) {
+      const result = await submit(
+        input({ idempotencyKey: `key-exp-${index}`, previewId, target: { needId: need.id } }),
+      );
+      expect(await exposureOf(result.signalId)).toEqual(exposure);
+    }
+  });
+
+  it("a retry keeps one signal.created with the first exposure", async () => {
+    const { need } = await insertNeed(harness.db);
+    await shown("pv_retry", [need.id]);
+    const value = input({ previewId: "pv_retry", target: { needId: need.id } });
+    const first = await submit(value);
+    const again = await submit(value);
+    expect(again.signalId).toBe(first.signalId);
+    const created = (await allEvents()).filter((event) => event.type === "signal.created");
+    expect(created).toHaveLength(1);
   });
 });

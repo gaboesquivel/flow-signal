@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { Actor } from "../../../lib/signal/context";
@@ -17,6 +18,14 @@ const thisWeek = { from: new Date("2026-10-26T00:00:00Z"), to: now };
 const human: Actor = { kind: "human", ref: "web" };
 const agent: Actor = { client: "support-copilot", kind: "agent", ref: "mcp:support-copilot" };
 const operator: Actor = { kind: "human", ref: "operator" };
+
+/** Match exposure as `submit_signal` records it for a shown preview (spec 012). */
+const shownTo = (chosenRank: number | null, shownNeedIds = [randomUUID(), randomUUID()]) => ({
+  chosenRank,
+  kind: "shown",
+  previewId: `pv_${randomUUID()}`,
+  shownNeedIds,
+});
 
 describeWithDatabase("metrics from the event log", () => {
   const harness = useTestDatabase();
@@ -488,6 +497,259 @@ describeWithDatabase("metrics from the event log", () => {
     });
   });
 
+  /** A signal as `submit_signal` records it with match exposure (spec 012); returns its ids. */
+  const exposed = async (
+    exposure: Record<string, unknown>,
+    options: {
+      actor?: Actor;
+      at?: Date;
+      attachedTo?: "existing" | "draft";
+      previewId?: string;
+    } = {},
+  ) => {
+    const needId = randomUUID();
+    const signalId = randomUUID();
+    const actor = options.actor ?? human;
+    const at = options.at ?? daysAgo(1);
+    const attachedTo =
+      options.attachedTo ??
+      ("chosenRank" in exposure && exposure.chosenRank !== null ? "existing" : "draft");
+    if (attachedTo === "draft")
+      await record({ actor, needId, occurredAt: at, signalId, type: "need.created" });
+    await record({
+      actor,
+      dedupeKey: `signal.created:${signalId}`,
+      needId,
+      occurredAt: at,
+      payload: {
+        attachedTo,
+        exposure,
+        hasUseCase: false,
+        ...(options.previewId ? { previewId: options.previewId } : {}),
+      },
+      signalId,
+      type: "signal.created",
+    });
+    return { needId, signalId };
+  };
+  const mergeInto = async (needId: string, intoNeedId: string, at = daysAgo(0.8)) => {
+    const mergeId = randomUUID();
+    await record({
+      actor: operator,
+      needId,
+      occurredAt: at,
+      payload: { intoNeedId, mergeId },
+      type: "need.merged",
+    });
+    return mergeId;
+  };
+  const previewShown = (previewId: string, matches: number, at = daysAgo(2)) =>
+    record({
+      actor: human,
+      dedupeKey: `preview.shown:${previewId}`,
+      occurredAt: at,
+      payload: {
+        additionalAsks: 0,
+        ai: "ok",
+        matches: Array.from({ length: matches }, (_, index) => ({
+          needId: randomUUID(),
+          probability: 0.9,
+          rank: index + 1,
+        })),
+        previewId,
+      },
+      type: "preview.shown",
+    });
+
+  /** Writes `count` shown submissions; the first `taken` picked a shown need. */
+  const shownBatch = async (
+    count: number,
+    taken: number,
+    actor: Actor = human,
+    at = daysAgo(1),
+  ) => {
+    for (let index = 0; index < count; index += 1)
+      await exposed(shownTo(index < taken ? 1 : null), { actor, at });
+  };
+
+  describe("match exposure (spec 012)", () => {
+    it("computes take-up and chosen ranks, split human vs. agent", async () => {
+      await exposed(shownTo(1));
+      await exposed(shownTo(2));
+      await exposed(shownTo(null));
+      await exposed(shownTo(null));
+      await exposed(shownTo(3), { actor: agent });
+      await exposed({ kind: "skipped" }, { attachedTo: "existing" });
+      await exposed({ kind: "none_shown", previewId: "pv_none" });
+      await exposed({ kind: "unknown", previewId: "pv_forged" }, { actor: agent });
+      await signal("existing");
+
+      const { exposure } = await metrics();
+      expect(exposure.submissions.human).toMatchObject({
+        chosenRank: { 1: 1, 2: 1, 3: 0 },
+        noneShown: 1,
+        shown: 4,
+        skipped: 1,
+        takeUpRate: 0.5,
+        taken: 2,
+        unknown: 0,
+      });
+      expect(exposure.submissions.agent).toMatchObject({
+        chosenRank: { 1: 0, 2: 0, 3: 1 },
+        shown: 1,
+        takeUpRate: 1,
+        unknown: 1,
+      });
+      expect(exposure.submissions.all).toMatchObject({ shown: 5, takeUpRate: 0.6, taken: 3 });
+    });
+
+    it("counts a retry once and leaves out signals outside the window", async () => {
+      const { needId, signalId } = await exposed(shownTo(1));
+      await record({
+        actor: human,
+        needId,
+        occurredAt: daysAgo(1),
+        payload: { attachedTo: "existing", exposure: shownTo(1) },
+        signalId,
+        type: "signal.created",
+      });
+      await exposed(shownTo(1), { at: daysAgo(10) });
+      expect((await metrics()).exposure.submissions.all).toMatchObject({ shown: 1, taken: 1 });
+    });
+
+    it("splits filed-new-despite-match by what the PM later did, and an undone merge returns it", async () => {
+      const shownNeed = randomUUID();
+      const intoShown = await exposed(shownTo(null, [shownNeed]));
+      const elsewhere = await exposed(shownTo(null));
+      await exposed(shownTo(null));
+      const mergeId = await mergeInto(intoShown.needId, shownNeed);
+      await mergeInto(elsewhere.needId, randomUUID());
+
+      expect((await metrics()).exposure.submissions.all.filedNewDespiteMatch).toEqual({
+        mergedElsewhere: 1,
+        mergedIntoShown: 1,
+        total: 3,
+        unmerged: 1,
+      });
+
+      await undo(intoShown.needId, mergeId);
+      expect((await metrics()).exposure.submissions.all.filedNewDespiteMatch).toEqual({
+        mergedElsewhere: 1,
+        mergedIntoShown: 0,
+        total: 3,
+        unmerged: 2,
+      });
+    });
+
+    it("counts taken matches a PM later split off their need", async () => {
+      const moved = await exposed(shownTo(1));
+      await exposed(shownTo(2));
+      await record({
+        actor: operator,
+        needId: moved.needId,
+        occurredAt: daysAgo(0.5),
+        payload: { newNeedId: randomUUID(), signalIds: [moved.signalId] },
+        type: "need.split",
+      });
+      expect((await metrics()).exposure.submissions.all.movedOffTakenMatch).toEqual({
+        moved: 1,
+        rate: 0.5,
+      });
+    });
+
+    it("counts previews with matches that no submission followed within 24 hours", async () => {
+      await previewShown("pv_abandoned", 2);
+      await previewShown("pv_empty", 0);
+      await previewShown("pv_submitted", 1);
+      await exposed(shownTo(1), { at: daysAgo(1.5), previewId: "pv_submitted" });
+      await previewShown("pv_late", 1, daysAgo(4));
+      await exposed(shownTo(1), { at: daysAgo(1), previewId: "pv_late" });
+
+      expect((await metrics()).exposure.previewsWithoutSubmission).toEqual({
+        agent: 0,
+        all: 2,
+        human: 2,
+      });
+    });
+  });
+
+  describe("kill criterion (spec 012)", () => {
+    it("reports insufficient data under 200 shown submissions, ignoring the window start", async () => {
+      await shownBatch(150, 150, human, daysAgo(120));
+      await shownBatch(49, 49);
+      const { killCriterion } = await metrics();
+      expect(killCriterion.populations.all).toMatchObject({
+        shownSubmissions: 199,
+        verdict: "insufficient_data",
+      });
+      expect(killCriterion.minShownSubmissions).toBe(200);
+    });
+
+    it("passes at 200 with enough prevention and fails below 30% or above 10% unmerges", async () => {
+      await shownBatch(200, 60);
+      let { killCriterion } = await metrics();
+      expect(killCriterion.populations.all.preventionRate.rate).toBe(1);
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+      expect(killCriterion.populations.agent.verdict).toBe("insufficient_data");
+
+      // Unmerged drafts stay out of the denominator; one merged draft makes it 60 / 61.
+      const { needId } = await exposed(shownTo(null));
+      await mergeInto(needId, randomUUID());
+      ({ killCriterion } = await metrics());
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+
+      const mergeId = await mergeInto(randomUUID(), randomUUID());
+      await undo(randomUUID(), mergeId);
+      ({ killCriterion } = await metrics());
+      expect(killCriterion.unmergeRate).toEqual({ merges: 2, rate: 0.5, undone: 1 });
+      expect(killCriterion.populations.all.verdict).toBe("fail");
+    });
+
+    it("passes at exactly 30% prevention and exactly 10% unmerges", async () => {
+      await shownBatch(200, 60);
+      const drafts = await harness.db.execute(sql`
+        SELECT need_id FROM events
+        WHERE type = 'signal.created' AND payload->>'attachedTo' = 'draft'
+      `);
+      const rows = (
+        Array.isArray(drafts) ? drafts : (drafts as { rows: { need_id: string }[] }).rows
+      ) as { need_id: string }[];
+      const merges: [string, string][] = [];
+      for (const row of rows)
+        merges.push([row.need_id, await mergeInto(row.need_id, randomUUID())]);
+      let { killCriterion } = await metrics();
+      expect(killCriterion.populations.all.preventionRate.rate).toBe(0.3);
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+
+      // 14 of 140 merges undone is exactly 10%.
+      for (const [needId, mergeId] of merges.slice(0, 14)) await undo(needId, mergeId);
+      ({ killCriterion } = await metrics());
+      expect(killCriterion.unmergeRate.rate).toBe(0.1);
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+    });
+
+    it("fails when prevention over shown submissions is under 30%", async () => {
+      await shownBatch(200, 50);
+      const drafts = await harness.db.execute(sql`
+        SELECT need_id FROM events
+        WHERE type = 'signal.created' AND payload->>'attachedTo' = 'draft'
+      `);
+      const rows = (
+        Array.isArray(drafts) ? drafts : (drafts as { rows: { need_id: string }[] }).rows
+      ) as {
+        need_id: string;
+      }[];
+      for (const row of rows) await mergeInto(row.need_id, randomUUID());
+      const { killCriterion } = await metrics();
+      expect(killCriterion.populations.all.preventionRate).toEqual({
+        attachedToExisting: 50,
+        mergedDrafts: 150,
+        rate: 0.25,
+      });
+      expect(killCriterion.populations.all.verdict).toBe("fail");
+    });
+  });
+
   describe("window", () => {
     it("defaults to the 28 days before now", () => {
       expect(resolveMetricsWindow({}, now)).toEqual({ from: daysAgo(28), to: now });
@@ -508,6 +770,8 @@ describeWithDatabase("metrics from the event log", () => {
       expect(result.decisionLatency.decided.all.medianDays).not.toBeNull();
       expect(result.decisionLatency.openPast30Days.needs).toBeGreaterThan(0);
       expect(result.suggestionAcceptance.overall.all.acceptanceRate).not.toBeNull();
+      // Seeded history carries no exposure, so it never counts toward the kill criterion.
+      expect(result.killCriterion.populations.all.shownSubmissions).toBe(0);
       expect(result.suggestionAcceptance.byKind.length).toBeGreaterThan(0);
       expect(result.supporting.contextRate.all.rate).not.toBeNull();
     });

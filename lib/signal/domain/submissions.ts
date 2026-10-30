@@ -11,6 +11,7 @@ import type { SignalQueryable } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
+import { resolveExposure } from "./exposure";
 import { createTrackingLink, resolveTrackingLink, trackingTokenSchema } from "./tracking-links";
 
 /**
@@ -216,6 +217,13 @@ export const submitSignal = async (
   const embedding = newStatement ? await tryEmbed(ai.embedder, newStatement) : null;
 
   const now = clock.now();
+  // What the submitter was shown (spec 012), read before the transaction like the embedding.
+  const exposure = await resolveExposure(db, {
+    chosenNeedIds:
+      "needId" in input.target && existingNeedId ? [input.target.needId, existingNeedId] : [],
+    now,
+    previewId: input.previewId,
+  });
   const attachedTo = existingNeedId ? "existing" : "draft";
   const trackingToken = newTrackingToken();
 
@@ -278,6 +286,7 @@ export const submitSignal = async (
         occurredAt: now,
         payload: {
           attachedTo,
+          exposure,
           hasUseCase: Boolean(input.useCase),
           ...(input.previewId ? { previewId: input.previewId } : {}),
         },

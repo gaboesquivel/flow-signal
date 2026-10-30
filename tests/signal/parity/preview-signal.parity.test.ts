@@ -1,4 +1,5 @@
-import { previewIdFor } from "../../../lib/signal/domain/matching";
+import { expect } from "vitest";
+
 import { previewSignal } from "../../../lib/signal/operations/preview-signal";
 import { assertNoPrivateData } from "../support/public-needs-fixture";
 import {
@@ -10,6 +11,9 @@ import {
 } from "../support/submission-fixture";
 import type { SubmissionFixture } from "../support/submission-fixture";
 import { runParityTable } from "./harness";
+
+/** Random per call (spec 012); the harness normalizes it when comparing surfaces. */
+const anyPreviewId = expect.stringMatching(/^pv_[\w-]{22}$/u) as unknown as string;
 
 const n1Match = (fx: SubmissionFixture) => ({
   demandBand: "high",
@@ -31,7 +35,7 @@ runParityTable<SubmissionFixture>({
           ai: "ok",
           draftNeed: mayaDraft,
           matches: [n1Match(fx)],
-          previewId: previewIdFor(maya),
+          previewId: anyPreviewId,
         },
       }),
       input: () => ({ body: maya.body, title: maya.title }),
@@ -50,7 +54,7 @@ runParityTable<SubmissionFixture>({
               "Executives need to share dashboard snapshots outside the product so that board meetings use current numbers",
           },
           matches: [n1Match(fx)],
-          previewId: previewIdFor(twoAsks),
+          previewId: anyPreviewId,
         },
       }),
       input: () => twoAsks,
@@ -65,10 +69,7 @@ runParityTable<SubmissionFixture>({
             statement: "Dark mode for the mobile app: Night shifts strain our eyes.",
           },
           matches: [],
-          previewId: previewIdFor({
-            body: "Night shifts strain our eyes.",
-            title: "Dark mode for the mobile app",
-          }),
+          previewId: anyPreviewId,
         },
       }),
       input: () => ({
@@ -83,7 +84,7 @@ runParityTable<SubmissionFixture>({
           ai: "unavailable",
           draftNeed: { additionalAsks: [], statement: AI_DOWN_TITLE },
           matches: [],
-          previewId: previewIdFor({ body: "Anything at all.", title: AI_DOWN_TITLE }),
+          previewId: anyPreviewId,
         },
       }),
       input: () => ({ body: "Anything at all.", title: AI_DOWN_TITLE }),
@@ -101,5 +102,7 @@ runParityTable<SubmissionFixture>({
     },
   ],
   fixture: buildSubmissionFixture,
+  // Each preview writes preview.shown.
+  mutates: true,
   operation: previewSignal,
 });

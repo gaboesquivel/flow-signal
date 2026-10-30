@@ -18,7 +18,7 @@ const operator: Actor = { kind: "human", ref: "operator" };
 
 /**
  * A week of history: Maya's human signal and an agent's signal attach to N1, a draft need is
- * merged into it, N1 gets a decision from an agent, and the PM resolves three suggestions.
+ * merged into it (Maya took N1 when shown it; the draft's submitter was shown N1 and filed new), N1 gets a decision from an agent, and the PM resolves three suggestions.
  */
 const buildFixture = async (db: SignalDb) => {
   configureSignalRuntime({ clock: { now: () => now } });
@@ -30,15 +30,21 @@ const buildFixture = async (db: SignalDb) => {
     occurredAt: at("2026-10-02T10:00:00Z"),
     type: "need.created",
   });
-  for (const [actor, when] of [
-    [human, "2026-10-27T10:00:00Z"],
-    [agent, "2026-10-28T10:00:00Z"],
+  const shownN1 = (chosenRank: number | null) => ({
+    chosenRank,
+    kind: "shown",
+    previewId: `pv_${randomUUID()}`,
+    shownNeedIds: [n1],
+  });
+  for (const [actor, when, exposure] of [
+    [human, "2026-10-27T10:00:00Z", shownN1(1)],
+    [agent, "2026-10-28T10:00:00Z", { kind: "skipped" }],
   ] as const)
     await recordEvent(db, {
       actor,
       needId: n1,
       occurredAt: at(when),
-      payload: { attachedTo: "existing", hasUseCase: true },
+      payload: { attachedTo: "existing", exposure, hasUseCase: true },
       signalId: randomUUID(),
       type: "signal.created",
     });
@@ -54,7 +60,7 @@ const buildFixture = async (db: SignalDb) => {
     actor: human,
     needId: draft,
     occurredAt: at("2026-10-27T12:00:00Z"),
-    payload: { attachedTo: "draft", hasUseCase: false },
+    payload: { attachedTo: "draft", exposure: shownN1(null), hasUseCase: false },
     signalId: draftSignal,
     type: "signal.created",
   });
@@ -160,6 +166,23 @@ runParityTable({
           matched: 1,
           rate: 1,
           total: 1,
+        });
+        assert.deepEqual(metrics.exposure.submissions.human, {
+          chosenRank: { 1: 1, 2: 0, 3: 0 },
+          filedNewDespiteMatch: { mergedElsewhere: 0, mergedIntoShown: 1, total: 1, unmerged: 0 },
+          movedOffTakenMatch: { moved: 0, rate: 0 },
+          noneShown: 0,
+          shown: 2,
+          skipped: 0,
+          takeUpRate: 0.5,
+          taken: 1,
+          unknown: 0,
+        });
+        assert.equal(metrics.exposure.submissions.agent.skipped, 1);
+        assert.deepEqual(metrics.killCriterion.populations.all, {
+          preventionRate: { attachedToExisting: 1, mergedDrafts: 1, rate: 0.5 },
+          shownSubmissions: 2,
+          verdict: "insufficient_data",
         });
         assert.deepEqual(metrics.readinessLeadTime, {
           decided: 1,
