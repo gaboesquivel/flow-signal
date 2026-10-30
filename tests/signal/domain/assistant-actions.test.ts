@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { isOperatorAssistantEnabled } from "../../../lib/flags/operator-assistant";
 import {
   actionPreviewSchema,
-  fingerprint,
   writeEventTypes,
 } from "../../../lib/signal/domain/assistant-action-contract";
 import type { ActionPreview } from "../../../lib/signal/domain/assistant-action-contract";
+import { fingerprint } from "../../../lib/signal/domain/assistant-actions";
 import { operations } from "../../../lib/signal/operations/registry";
 import { isPlanned } from "../../../lib/signal/operations/types";
 

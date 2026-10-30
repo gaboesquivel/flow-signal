@@ -75,10 +75,27 @@ export function ConsoleError({
 }
 
 /** Page heading: serif title and one muted line. */
-export function ConsoleHeading({ children, title }: { children?: React.ReactNode; title: string }) {
+export function ConsoleHeading({
+  children,
+  marker,
+  title,
+}: {
+  children?: React.ReactNode;
+  /** A quiet word after the title, e.g. "Experimental". */
+  marker?: string;
+  title: string;
+}) {
   return (
     <div className="min-w-0">
-      <h1 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">{title}</h1>
+      <h1 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
+        {title}
+        {marker ? (
+          <span className="text-muted-foreground ml-3 align-middle font-sans text-[11px] font-semibold tracking-[0.08em] uppercase">
+            <span aria-hidden="true">· </span>
+            {marker}
+          </span>
+        ) : null}
+      </h1>
       {children ? (
         <p className="text-muted-foreground mt-1 font-serif text-base" aria-live="polite">
           {children}
