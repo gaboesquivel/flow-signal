@@ -1,4 +1,12 @@
 /**
+ * How the PM decides (spec 007 → Crewday). `oracle` (spec 004, the default) observes readiness
+ * from the database and decides by the strategy; `follows_signal` (Signal arm only) writes the
+ * strategy with `set_strategy`, reads `list_ready_needs`, and publishes the brief's recommendation.
+ */
+export const pmPolicies = ["oracle", "follows_signal"] as const;
+export type PmPolicy = (typeof pmPolicies)[number];
+
+/**
  * Behaviour parameters for the scripted submitter and PM (spec 004 → Simulation). The defaults
  * are the spec's hypotheses; the sweep (task 05) varies them. Every probability is per decision
  * and drawn from the run's seeded streams.
@@ -25,6 +33,13 @@ export interface PolicyParams {
   handBriefActions: number;
   /** Scorer: a ready need's decision counts for revenue coverage within this many days. */
   coverageWindowDays: number;
+  /** PM: decision policy (spec 007). The board arm always runs `oracle`. */
+  pmPolicy: PmPolicy;
+  /**
+   * PM, `follows_signal` only: chance per decision of publishing the strategy-implied status
+   * instead of the brief's recommendation (spec 007's 0.2 is a hypothesis to sweep).
+   */
+  pPmOverride: number;
 }
 
 export const defaultPolicy: PolicyParams = {
@@ -33,8 +48,10 @@ export const defaultPolicy: PolicyParams = {
   pAttach: 0.8,
   pManualFind: 0.3,
   pPmError: 0.05,
+  pPmOverride: 0.2,
   pWrong: 0.1,
   pmActions: 60,
+  pmPolicy: "oracle",
   readinessArrCents: 10_000_000,
   triageActionCap: 30,
 };

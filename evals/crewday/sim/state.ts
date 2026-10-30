@@ -59,18 +59,35 @@ export interface VerdictRecord {
   trueNeedKey: string | null;
 }
 
+export type RecommendedStatus = "planned" | "in_progress" | "shipped" | "declined";
+
 export interface DecisionRecord {
   at: string;
   needId: string;
   needKey: string | null;
-  /** When the PM first saw the need ready. */
+  /**
+   * `follows_signal` only: the PM published the strategy-implied status instead of the brief's
+   * recommendation (an override draw that changed the outcome). Absent under `oracle`.
+   */
+  overridden?: boolean;
+  /**
+   * When the need became ready: under `oracle`, when the PM first saw it ready (end of a week);
+   * under `follows_signal`, Signal's `readyAt` from `list_ready_needs`.
+   */
   readyAt: string;
+  /**
+   * The status the reviewed Signal brief recommended (spec 007 → direction accuracy); null when
+   * the decision had no drafted brief (board arm, hand brief) or the brief named none.
+   */
+  recommendedStatus: RecommendedStatus | null;
   status: "planned" | "declined";
   via: "brief" | "hand";
 }
 
 export interface SimLog {
   actions: PmAction[];
+  /** The `set_strategy` input the engine wrote at world start (`follows_signal` only). */
+  strategy?: Record<string, unknown>;
   decisions: DecisionRecord[];
   invalid: InvalidRecord[];
   previewLatencyMs: number[];
