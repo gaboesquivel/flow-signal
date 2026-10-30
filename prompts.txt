@@ -79,3 +79,15 @@ Response: Ran the interview skill: read PRODUCT.md, spec 001, the matching eval 
 
 [2026-10-30T15:53:57Z]
 (Follow-up within the API/MCP/agents focus.) Fixed the failing Vercel preview build (Next.js import reached the Eve agent bundles; moved after() into lib/signal/next.ts with a guard test). Ran the full agent acceptance journey over MCP with live AI on the Neon dev branch (all steps pass) and committed it as pnpm acceptance:mcp (on demand). Cut fast-model latency by disabling extended thinking; live eval: precision@3 100%, false-match 0%, p95 4.7 s (target 2 s, open).
+
+[2026-10-30T16:14:00Z]
+Prompt: Crewday is FICTIONAL; the goal is to verify the system really helps optimize the core metrics in PRODUCT.md.
+Response: Updated the interview hypothesis (simulated Crewday world scored on prevention rate, decision latency, suggestion acceptance plus guardrails) and asked batched closed questions on simulating human behaviour, the baseline, and dataset scale.
+
+[2026-10-30T16:18:00Z]
+Prompt: Answered interview form: oracle + noise simulation; baseline is the plain vote board (testing MCP, agents and APIs first); world size ~1.5k signals over 12 months.
+Response: Raised confidence to ~65% and asked the next open question: how ground truth is generated and who verifies it, to avoid a self-graded eval.
+
+[2026-10-30T15:58:41Z]
+Prompt: Ship partial (API, MCP and agents without the Operator UI) once the agent evals pass.
+Response: Started an independent review of signal-mvp against spec 001 while the task 09 agent evals finish; the plan is to merge 09, fix blocking findings, confirm CI, merge PR #1 with spec 001 left accepted (tasks 08 and the browser part of 09 open), and check production liveness.
