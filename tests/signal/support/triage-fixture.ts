@@ -132,6 +132,24 @@ export const buildTriageFixture = async (db: SignalDb) => {
     },
     signalIds: [n1.signals[2]!.id],
   });
+  const priority = await suggest({
+    createdAt: at(5),
+    kind: "priority",
+    model: "fake/reasoner",
+    needId: n2.need.id,
+    payload: {
+      reason: "Audit season raises demand.",
+      reasons: { business_value: "Small accounts.", demand: "One supporter." },
+      scores: { business_value: 2, demand: 1 },
+    },
+  });
+  const brief = await suggest({
+    createdAt: at(6),
+    kind: "decision_brief",
+    model: "fake/reasoner",
+    needId: n1.need.id,
+    payload: { markdown: "## N1\n\nShip PDF export.", reason: "Requested by the PM." },
+  });
   const rejected = await suggest({
     createdAt: at(10),
     kind: "merge",
@@ -153,7 +171,7 @@ export const buildTriageFixture = async (db: SignalDb) => {
     n2,
     reporting,
     secrets: ["maya@acme.example", "Maya Lindqvist", "Acme Corp", "48000000"],
-    suggestions: { draftNeed, merge, rejected, split, summary, theme },
+    suggestions: { brief, draftNeed, merge, priority, rejected, split, summary, theme },
   };
 };
 

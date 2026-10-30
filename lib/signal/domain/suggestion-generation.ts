@@ -10,12 +10,14 @@ import type { SignalDb } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
+import { suggestPriorityScores } from "./priority";
 import type { SuggestionKind } from "./suggestion-types";
 
 /**
  * Off-hot-path suggestion generation (spec 001 → PM triage, Off-hot-path work). After a signal
  * lands, the reasoning model proposes `draft_need`, `merge`, `theme`, `public_summary`, and
- * `split` suggestions with reasons. Results are only ever pending `suggestions` rows (each with
+ * `split` suggestions with reasons, and task 05's `suggestPriorityScores` rescores the need
+ * (refreshing a pending `priority` suggestion rather than adding another). Results are only ever pending `suggestions` rows (each with
  * a `suggestion.created` event); nothing is applied until a PM resolves it.
  *
  * Wiring: `submit_signal` calls `scheduleSuggestionGeneration(ctx, signalId)` after its write
@@ -328,9 +330,25 @@ export const generateSuggestionsForSignal = async (
     ["public_summary", () => proposePublicSummary(ai, current)],
     ["split", () => proposeSplit(ai, current)],
   ];
+  const rescore = async () => {
+    try {
+      const { refreshed, suggestion } = await suggestPriorityScores(
+        { ai, db, now: deps.clock.now() },
+        current.need.id,
+      );
+      if (refreshed)
+        outcome.skipped.push({ kind: "priority", reason: "refreshed pending suggestion" });
+      else outcome.created.push({ id: suggestion.id, kind: "priority" });
+    } catch (error) {
+      if (!(error instanceof SignalError && error.code === "ai_unavailable"))
+        console.error("[signal] priority suggestion failed", describeError(error));
+      outcome.skipped.push({ kind: "priority", reason: describeError(error) });
+    }
+  };
   // Kinds are independent model calls: run them together, store each as it is ready.
-  await Promise.all(
-    proposers.map(async ([kind, propose]) => {
+  await Promise.all([
+    rescore(),
+    ...proposers.map(async ([kind, propose]) => {
       if (current.pendingKinds.has(kind)) {
         outcome.skipped.push({ kind, reason: "already pending" });
         return;
@@ -349,17 +367,33 @@ export const generateSuggestionsForSignal = async (
         outcome.skipped.push({ kind, reason: describeError(error) });
       }
     }),
-  );
+  ]);
   return outcome;
 };
 
-/** Runs the task after the response is sent; outside a request scope (scripts, tests) it starts now. */
-const afterResponse = (task: () => Promise<unknown>) => {
+export type SuggestionScheduler = (task: () => Promise<unknown>) => void;
+
+/** Runs the task after the response is sent; outside a request scope (scripts, Eve) it starts now. */
+export const afterResponse: SuggestionScheduler = (task) => {
   try {
     after(task);
   } catch {
     void task();
   }
+};
+
+let scheduler: SuggestionScheduler = afterResponse;
+
+/**
+ * Swaps how generation is scheduled. The test database harness installs a recorder so parity
+ * stays deterministic (nothing runs in the background); `resetSuggestionScheduler` restores
+ * `after()`.
+ */
+export const configureSuggestionScheduler = (next: SuggestionScheduler) => {
+  scheduler = next;
+};
+export const resetSuggestionScheduler = () => {
+  scheduler = afterResponse;
 };
 
 /**
@@ -369,7 +403,7 @@ const afterResponse = (task: () => Promise<unknown>) => {
 export const scheduleSuggestionGeneration = (
   deps: GenerationDeps,
   signalId: string,
-  schedule: (task: () => Promise<unknown>) => void = afterResponse,
+  schedule: SuggestionScheduler = scheduler,
 ) => {
   schedule(() => generateSuggestionsForSignal(deps, { signalId }));
 };

@@ -60,6 +60,7 @@ runParityTable({
             f.suggestions.split.id,
             f.suggestions.summary.id,
             f.suggestions.rejected.id,
+            f.suggestions.brief.id,
           ].toSorted(),
         );
       },

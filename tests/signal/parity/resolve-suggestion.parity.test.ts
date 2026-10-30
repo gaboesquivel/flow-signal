@@ -54,6 +54,53 @@ runParityTable({
       name: "accepting a draft need approves it",
     },
     {
+      check: (output, f) => {
+        const { result } = output as Resolution;
+        assert.equal(result?.needId, f.n2.need.id);
+        assert.deepEqual(result?.scores, [
+          { criterion: "demand", reason: "One supporter.", score: 1, source: "ai" },
+          { criterion: "business_value", reason: "PM: two big deals.", score: 4, source: "pm" },
+        ]);
+      },
+      input: (f) => ({
+        action: "edit",
+        edit: { reasons: { business_value: "PM: two big deals." }, scores: { business_value: 4 } },
+        id: f.suggestions.priority.id,
+      }),
+      name: "editing a priority suggestion stores PM overrides",
+    },
+    {
+      check: (output) =>
+        assert.deepEqual((output as Resolution).result?.markdown, "## N1\n\nShip PDF export."),
+      input: (f) => ({ action: "accept", id: f.suggestions.brief.id }),
+      name: "accepts a decision brief",
+    },
+    {
+      check: (output) => {
+        const { result, suggestion } = output as Resolution & {
+          suggestion: { payload: Record<string, unknown> };
+        };
+        assert.equal(result?.markdown, "## N1\n\nPlan for Q1.");
+        assert.equal(suggestion.payload.markdown, "## N1\n\nPlan for Q1.");
+        assert.equal(suggestion.payload.originalMarkdown, "## N1\n\nShip PDF export.");
+      },
+      input: (f) => ({
+        action: "edit",
+        edit: { markdown: "## N1\n\nPlan for Q1." },
+        id: f.suggestions.brief.id,
+      }),
+      name: "edits a decision brief",
+    },
+    {
+      expect: () => ({ error: "validation_failed" }),
+      input: (f) => ({
+        action: "edit",
+        edit: { scores: { demand: 9 } },
+        id: f.suggestions.priority.id,
+      }),
+      name: "validates a priority edit",
+    },
+    {
       expect: () => ({ error: "conflict" }),
       input: (f) => ({ action: "accept", id: f.suggestions.rejected.id }),
       name: "returns conflict for a resolved suggestion",

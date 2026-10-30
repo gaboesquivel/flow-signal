@@ -29,6 +29,8 @@ runParityTable({
             f.suggestions.theme.id,
             f.suggestions.merge.id,
             f.suggestions.draftNeed.id,
+            f.suggestions.brief.id,
+            f.suggestions.priority.id,
           ],
         );
         assert.equal(page.nextCursor, null);
@@ -60,6 +62,7 @@ runParityTable({
           f.suggestions.split.id,
           f.suggestions.summary.id,
           f.suggestions.merge.id,
+          f.suggestions.brief.id,
         ]);
       },
       input: (f) => ({ needId: f.n1.need.id }),

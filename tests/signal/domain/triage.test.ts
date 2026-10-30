@@ -5,6 +5,7 @@ import {
   events,
   merges,
   needs,
+  priorityScores,
   proposedSolutions,
   signals,
   suggestions,
@@ -248,14 +249,39 @@ describeWithDatabase("PM triage", () => {
     expect(n2.themeId).not.toBeNull();
   });
 
-  it("resolves kinds without a handler by recording the decision only", async () => {
-    expect(suggestionKindHandlers.priority).toBeUndefined();
-    const [priority] = await harness.db
-      .insert(suggestions)
-      .values({ kind: "priority", needId: f.n1.need.id, payload: { reason: "ARR" } })
-      .returning();
-    const resolved = await resolveSuggestion(ctx(), { action: "accept", id: priority!.id });
-    expect(resolved).toMatchObject({ result: null, suggestion: { status: "accepted" } });
+  it("resolves task 05's priority and decision_brief kinds through the same path", async () => {
+    await resolveSuggestion(ctx(pm), { action: "accept", id: f.suggestions.priority.id });
+    const scores = await harness.db
+      .select()
+      .from(priorityScores)
+      .where(eq(priorityScores.needId, f.n2.need.id));
+    expect(scores.map((s) => [s.criterion, s.score, s.source]).toSorted()).toEqual([
+      ["business_value", 2, "ai"],
+      ["demand", 1, "ai"],
+    ]);
+    await resolveSuggestion(ctx(copilot), {
+      action: "edit",
+      edit: { markdown: "Plan for Q1." },
+      id: f.suggestions.brief.id,
+    });
+    const [brief] = await harness.db
+      .select()
+      .from(suggestions)
+      .where(eq(suggestions.id, f.suggestions.brief.id));
+    expect(brief).toMatchObject({
+      payload: { edit: { markdown: "Plan for Q1." }, markdown: "Plan for Q1." },
+      resolvedByKind: "agent",
+      status: "edited",
+    });
+    const kinds = (await harness.db.select().from(events))
+      .filter((e) => e.type === "suggestion.accepted" || e.type === "suggestion.edited")
+      .map((e) => [e.type, e.payload.kind, e.actorKind])
+      .toSorted();
+    expect(kinds).toEqual([
+      ["suggestion.accepted", "priority", "human"],
+      ["suggestion.edited", "decision_brief", "agent"],
+    ]);
+    expect(suggestionKindHandlers.decision_brief?.edit).toBeDefined();
     await expect(
       resolveSuggestion(ctx(), { action: "edit", edit: { x: 1 }, id: f.suggestions.split.id }),
     ).rejects.toMatchObject({ code: "validation_failed" });

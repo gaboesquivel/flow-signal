@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, or } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
@@ -167,8 +167,12 @@ export const resolveSuggestion = async (
     const [updated] = await tx
       .update(suggestions)
       .set({
-        payload:
-          action === "edit" ? { ...suggestion.payload, edit: parsedEdit } : suggestion.payload,
+        // Merged into the stored payload: a kind's `apply` may have updated it (decision briefs).
+        ...(action === "edit"
+          ? {
+              payload: sql`${suggestions.payload} || ${JSON.stringify({ edit: parsedEdit })}::jsonb`,
+            }
+          : {}),
         resolvedAt: now,
         resolvedByKind: actor.kind,
         status,

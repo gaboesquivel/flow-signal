@@ -10,7 +10,15 @@ import {
   scheduleSuggestionGeneration,
 } from "../../../lib/signal/domain/suggestion-generation";
 import { insertAccount, insertNeed, insertSubmitter, insertTheme } from "../support/builders";
-import { describeWithDatabase, resetDatabase, useTestDatabase } from "../support/database";
+import { executeOperation } from "../../../lib/signal/operations/execute";
+import { submitSignal } from "../../../lib/signal/operations/submit-signal";
+import { configureSignalRuntime } from "../../../lib/signal/runtime";
+import {
+  describeWithDatabase,
+  resetDatabase,
+  scheduledGenerations,
+  useTestDatabase,
+} from "../support/database";
 
 const now = new Date("2026-10-30T09:00:00Z");
 const clock = { now: () => now };
@@ -35,6 +43,13 @@ const reasoner = (
     merge: ({ prompt }) => ({
       candidate: pick(prompt, "Executives need to share"),
       reason: "Same board-meeting outcome.",
+    }),
+    priority: () => ({
+      business_value: { reason: "Acme's ARR.", score: 4 },
+      demand: { reason: "Two supporters.", score: 2 },
+      effort: { reason: "Small.", score: 4 },
+      strategic_fit: { reason: "Reporting theme.", score: 3 },
+      summary: "New signal from an enterprise account.",
     }),
     public_summary: () => ({
       reason: "Anonymized from use cases.",
@@ -103,6 +118,7 @@ describeWithDatabase("suggestion generation", () => {
     expect(outcome.created.map((c) => c.kind).toSorted()).toEqual([
       "draft_need",
       "merge",
+      "priority",
       "public_summary",
       "split",
       "theme",
@@ -135,7 +151,7 @@ describeWithDatabase("suggestion generation", () => {
       .select()
       .from(events)
       .where(eq(events.type, "suggestion.created"));
-    expect(created).toHaveLength(5);
+    expect(created).toHaveLength(6);
     expect(created.every((e) => e.actorKind === "agent" && e.actorRef === "signal:ai")).toBe(true);
 
     const [need] = await harness.db.select().from(needs).where(eq(needs.id, f.draft.need.id));
@@ -146,7 +162,7 @@ describeWithDatabase("suggestion generation", () => {
       { signalId: f.signal.id },
     );
     expect(again.created).toEqual([]);
-    expect((await harness.db.select().from(suggestions)).length).toBe(5);
+    expect((await harness.db.select().from(suggestions)).length).toBe(6);
   });
 
   it("drops a public summary that names a customer, and proposals that point nowhere", async () => {
@@ -163,7 +179,7 @@ describeWithDatabase("suggestion generation", () => {
       { ai, clock, db: harness.db },
       { signalId: f.signal.id },
     );
-    expect(outcome.created.map((c) => c.kind)).toEqual(["draft_need"]);
+    expect(outcome.created.map((c) => c.kind).toSorted()).toEqual(["draft_need", "priority"]);
     expect(outcome.skipped.map((s) => s.kind).toSorted()).toEqual([
       "merge",
       "public_summary",
@@ -212,6 +228,37 @@ describeWithDatabase("suggestion generation", () => {
       tasks.push(task());
     });
     await Promise.all(tasks);
-    expect((await harness.db.select().from(suggestions)).length).toBe(5);
+    expect((await harness.db.select().from(suggestions)).length).toBe(6);
+  });
+
+  it("submit_signal schedules generation after responding", async () => {
+    const f = await build();
+    configureSignalRuntime({ ai: createFakeAi({ reasoner: reasoner() }), clock });
+    scheduledGenerations.length = 0;
+    const result = await executeOperation(
+      submitSignal,
+      {
+        body: "Board members want the KPI dashboard as a monthly snapshot.",
+        email: "lee@example.test",
+        idempotencyKey: "gen-0001",
+        target: {
+          newNeed: {
+            statement:
+              "Board members need monthly KPI snapshots so that meetings use current numbers",
+          },
+        },
+        title: "Monthly KPI snapshot",
+      },
+      { kind: "human", ref: "web" },
+    );
+    expect(result.ok).toBe(true);
+    expect(scheduledGenerations).toHaveLength(1);
+    expect(await harness.db.select().from(suggestions)).toEqual([]);
+    await scheduledGenerations[0]!();
+    const kinds = (await harness.db.select().from(suggestions)).map((row) => row.kind).toSorted();
+    expect(kinds).toContain("draft_need");
+    expect(kinds).toContain("priority");
+    expect(f.n1.need.id).toBeTruthy();
+    configureSignalRuntime({ ai: createFakeAi(), clock: { now: () => new Date() } });
   });
 });

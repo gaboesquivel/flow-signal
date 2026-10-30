@@ -5,7 +5,9 @@ import { needs, suggestions, themes } from "@/lib/db/schema";
 
 import type { SignalTx } from "../db";
 import { SignalError } from "../errors";
+import { applyDecisionBriefSuggestion, decisionBriefEditSchema } from "./decisions";
 import { mergeNeeds } from "./merges";
+import { applyPrioritySuggestion, priorityEditSchema } from "./priority";
 import { splitNeed } from "./splits";
 import { defineSuggestionKind } from "./suggestion-types";
 import type { SuggestionKind, SuggestionKindHandler, SuggestionRow } from "./suggestion-types";
@@ -193,10 +195,28 @@ const split = defineSuggestionKind({
   edit: z.object({ signalIds: z.array(z.uuid()).min(1).optional(), statement }),
 });
 
-/** Handlers by kind. Task 05: add `priority` and `decision_brief` here. */
+/** Task 05: store the scores (PM-set ones with source `pm`). */
+const priority = defineSuggestionKind({
+  async apply({ edit, now, suggestion, tx }) {
+    return { result: await applyPrioritySuggestion(tx, { edit, now, suggestion }) };
+  },
+  edit: priorityEditSchema,
+});
+
+/** Task 05: a brief is advice; an edit replaces its markdown. `publish_decision` publishes. */
+const decisionBrief = defineSuggestionKind({
+  async apply({ edit, suggestion, tx }) {
+    return { result: await applyDecisionBriefSuggestion(tx, { edit, suggestion }) };
+  },
+  edit: decisionBriefEditSchema,
+});
+
+/** Handlers by kind; a new kind adds one entry. */
 export const suggestionKindHandlers: Partial<Record<SuggestionKind, SuggestionKindHandler>> = {
+  decision_brief: decisionBrief,
   draft_need: draftNeed,
   merge,
+  priority,
   public_summary: publicSummary,
   split,
   theme,

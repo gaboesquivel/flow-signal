@@ -9,19 +9,12 @@ import {
   gatewayModel,
   signalEmbeddingModelId,
   signalFastModelId,
-  signalReasoningModelId,
 } from "@/lib/ai/models";
 import { needs } from "@/lib/db/schema";
 
 import { SignalError } from "../errors";
-import type {
-  Embedder,
-  MatchJudge,
-  NeedExtractor,
-  NeedRetriever,
-  Reasoner,
-  SignalAi,
-} from "./ports";
+import { reasoningModelReasoner } from "./reasoning-model";
+import type { Embedder, MatchJudge, NeedExtractor, NeedRetriever, SignalAi } from "./ports";
 
 const unavailable = (what: string, cause?: unknown) => {
   const error = new SignalError("ai_unavailable", `${what} is unavailable.`);
@@ -185,41 +178,8 @@ export const gatewayJudge = (options: FastModelOptions = {}): MatchJudge => ({
   },
 });
 
-/** Off-hot-path reasoning (after() or Operator requests) may take longer than the hot path. */
-const REASONING_TIMEOUT_MS = 60_000;
-
-interface ReasoningModelOptions {
-  /** Injected in tests (`MockLanguageModelV4`); defaults to `SIGNAL_REASONING_MODEL` on the Gateway. */
-  model?: LanguageModel;
-  /** Recorded as the suggestion's `model`; defaults to `signalReasoningModelId()`. */
-  modelId?: string;
-}
-
-/**
- * Reasoner (spec 001 → Models): AI SDK structured output on the reasoning model for suggestion
- * generation, scores, briefs, and summaries. The caller's zod schema shapes and validates the
- * value; any failure (no Gateway, network, timeout, bad JSON) is ai_unavailable.
- */
-export const gatewayReasoner = (options: ReasoningModelOptions = {}): Reasoner => ({
-  async generate({ prompt, schema, system, task }) {
-    const what = `Reasoning (${task})`;
-    if (!options.model) requireGateway(what);
-    const modelId = options.modelId ?? signalReasoningModelId();
-    try {
-      const result = await generateText({
-        abortSignal: AbortSignal.timeout(REASONING_TIMEOUT_MS),
-        maxRetries: 2,
-        model: options.model ?? gatewayModel(modelId),
-        output: Output.object({ schema }),
-        prompt,
-        ...(system ? { instructions: system } : {}),
-      });
-      return { model: modelId, value: schema.parse(result.output) };
-    } catch (error) {
-      throw unavailable(what, error);
-    }
-  },
-});
+/** The reasoner is task-agnostic; its single implementation lives in `reasoning-model.ts`. */
+export const gatewayReasoner = reasoningModelReasoner;
 
 export const createGatewayAi = (): SignalAi => ({
   embedder: gatewayEmbedder(),
