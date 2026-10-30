@@ -219,7 +219,8 @@ export const submitSignal = async (
   const now = clock.now();
   // What the submitter was shown (spec 012), read before the transaction like the embedding.
   const exposure = await resolveExposure(db, {
-    chosenNeedId: "needId" in input.target ? input.target.needId : undefined,
+    chosenNeedIds:
+      "needId" in input.target && existingNeedId ? [input.target.needId, existingNeedId] : [],
     now,
     previewId: input.previewId,
   });

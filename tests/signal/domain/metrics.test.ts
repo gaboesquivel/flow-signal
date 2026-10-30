@@ -705,6 +705,29 @@ describeWithDatabase("metrics from the event log", () => {
       expect(killCriterion.populations.all.verdict).toBe("fail");
     });
 
+    it("passes at exactly 30% prevention and exactly 10% unmerges", async () => {
+      await shownBatch(200, 60);
+      const drafts = await harness.db.execute(sql`
+        SELECT need_id FROM events
+        WHERE type = 'signal.created' AND payload->>'attachedTo' = 'draft'
+      `);
+      const rows = (
+        Array.isArray(drafts) ? drafts : (drafts as { rows: { need_id: string }[] }).rows
+      ) as { need_id: string }[];
+      const merges: [string, string][] = [];
+      for (const row of rows)
+        merges.push([row.need_id, await mergeInto(row.need_id, randomUUID())]);
+      let { killCriterion } = await metrics();
+      expect(killCriterion.populations.all.preventionRate.rate).toBe(0.3);
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+
+      // 14 of 140 merges undone is exactly 10%.
+      for (const [needId, mergeId] of merges.slice(0, 14)) await undo(needId, mergeId);
+      ({ killCriterion } = await metrics());
+      expect(killCriterion.unmergeRate.rate).toBe(0.1);
+      expect(killCriterion.populations.all.verdict).toBe("pass");
+    });
+
     it("fails when prevention over shown submissions is under 30%", async () => {
       await shownBatch(200, 50);
       const drafts = await harness.db.execute(sql`

@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { and, asc, eq } from "drizzle-orm";
 import { beforeEach, expect, it } from "vitest";
 
@@ -306,6 +308,19 @@ describeWithDatabase("submit_signal domain", () => {
     );
     for (const signalId of [fresh.signalId, other.signalId])
       expect(await exposureOf(signalId)).toMatchObject({ chosenRank: null, kind: "shown" });
+  });
+
+  it("records the rank of the shown need a merged-away target resolves to", async () => {
+    const { need: live } = await insertNeed(harness.db);
+    const { need: stale } = await insertNeed(harness.db, {
+      mergedIntoId: live.id,
+      status: "merged",
+    });
+    await shown("pv_stale_target", [randomUUID(), live.id]);
+    const result = await submit(
+      input({ previewId: "pv_stale_target", target: { needId: stale.id } }),
+    );
+    expect(await exposureOf(result.signalId)).toMatchObject({ chosenRank: 2, kind: "shown" });
   });
 
   it("records none_shown, skipped, and unknown without failing the submission", async () => {

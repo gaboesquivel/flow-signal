@@ -11,7 +11,7 @@ import type { SignalQueryable } from "../db";
  * here and stamps the result on `signal.created` as `exposure`, which `get_metrics` reads.
  */
 
-/** A preview older than this at submit time no longer counts as what the submitter saw. */
+/** A preview this old or older at submit time no longer counts as what the submitter saw. */
 export const EXPOSURE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export const shownMatchSchema = z.object({
@@ -52,10 +52,15 @@ export type Exposure = z.infer<typeof exposureSchema>;
 export const resolveExposure = async (
   db: SignalQueryable,
   {
-    chosenNeedId,
+    chosenNeedIds,
     now,
     previewId,
-  }: { chosenNeedId: string | undefined; now: Date; previewId: string | undefined },
+  }: {
+    /** The target the submitter picked, then the live need it resolves to after merges. */
+    chosenNeedIds: string[];
+    now: Date;
+    previewId: string | undefined;
+  },
 ): Promise<Exposure> => {
   if (!previewId) return { kind: "skipped" };
   const [row] = await db
@@ -67,12 +72,13 @@ export const resolveExposure = async (
     .limit(1);
   const shown = row ? previewShownSchema.safeParse(row.payload) : undefined;
   const age = row ? now.getTime() - row.occurredAt.getTime() : Number.POSITIVE_INFINITY;
-  if (!shown?.success || age > EXPOSURE_WINDOW_MS) return { kind: "unknown", previewId };
+  if (!shown?.success || age >= EXPOSURE_WINDOW_MS) return { kind: "unknown", previewId };
 
   const shownNeedIds = shown.data.matches
     .toSorted((a, b) => a.rank - b.rank)
     .map((match) => match.needId);
   if (shownNeedIds.length === 0) return { kind: "none_shown", previewId };
-  const index = chosenNeedId ? shownNeedIds.indexOf(chosenNeedId) : -1;
+  const index =
+    chosenNeedIds.map((id) => shownNeedIds.indexOf(id)).find((found) => found !== -1) ?? -1;
   return { chosenRank: index === -1 ? null : index + 1, kind: "shown", previewId, shownNeedIds };
 };

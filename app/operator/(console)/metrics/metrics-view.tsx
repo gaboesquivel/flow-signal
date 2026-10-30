@@ -393,7 +393,7 @@ function ExposureBreakdown({
     ],
     [
       "Filed new anyway",
-      `${filed.total} · ${filed.mergedIntoShown} later merged into a shown need, ${filed.mergedElsewhere} elsewhere`,
+      `${filed.total} · ${filed.mergedIntoShown} later merged into a shown need, ${filed.mergedElsewhere} elsewhere, ${filed.unmerged} not merged`,
     ],
     [
       "Split off a taken match",
