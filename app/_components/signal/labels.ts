@@ -37,9 +37,6 @@ export const demandLabels: Record<PublicNeed["demandBand"], string> = {
 
 export const urgencyLabels = { high: "High", low: "Low", medium: "Medium" } as const;
 
-export const supportersLabel = (count: number) =>
-  count === 1 ? "1 supporter" : `${count} supporters`;
-
 /** "1 person" / "11 people": how public pages count who asked. */
 export const peopleLabel = (count: number) => (count === 1 ? "1 person" : `${count} people`);
 

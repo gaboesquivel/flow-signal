@@ -1,11 +1,14 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { SignalErrorAlert } from "@/app/_components/signal/error-alert";
 import { ReadyNeeds } from "@/app/_components/signal/ready-needs";
 import { signalOperatorServerClient } from "@/app/_components/signal/server-client";
 import { StrategyForm } from "@/app/_components/signal/strategy-form";
 
+import { ConsoleError, ConsoleHeading } from "../_components/console-bits";
+
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: "Decide · Signal" };
 
 export default async function DecidePage() {
   const signal = await signalOperatorServerClient();
@@ -20,21 +23,16 @@ export default async function DecidePage() {
   const readyKey = ready.ok ? ready.data.needs.map((n) => n.needId).join(",") : "";
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex items-baseline justify-between border-b px-6 py-3">
-        <div>
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Operator</p>
-          <h1 className="font-semibold text-sm">Decide</h1>
-        </div>
-        <Link className="text-muted-foreground text-sm hover:underline" href="/operator">
-          Console
-        </Link>
-      </header>
-      <main className="mx-auto w-full max-w-3xl space-y-10 px-4 py-8 text-sm sm:px-6">
+    <div className="flex flex-col gap-8">
+      <ConsoleHeading title="Decide">
+        Needs past your readiness line, each with a drafted brief. Nothing is published until you
+        do.
+      </ConsoleHeading>
+      <div className="flex max-w-3xl min-w-0 flex-col gap-14">
         {ready.ok ? (
           <ReadyNeeds initial={ready.data} key={`ready-${version}-${readyKey}`} />
         ) : (
-          <SignalErrorAlert error={ready.error} />
+          <ConsoleError error={ready.error} />
         )}
         {strategy.ok ? (
           <StrategyForm
@@ -42,9 +40,9 @@ export default async function DecidePage() {
             themes={themes.ok ? themes.data.themes.map(({ id, name }) => ({ id, name })) : []}
           />
         ) : (
-          <SignalErrorAlert error={strategy.error} />
+          <ConsoleError error={strategy.error} />
         )}
-      </main>
+      </div>
     </div>
   );
 }

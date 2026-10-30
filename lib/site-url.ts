@@ -1,5 +1,17 @@
 type HeaderLike = Pick<Headers, "get">;
 
+/**
+ * Local runs: `pnpm dev` (portless) sets PORTLESS_URL to the named URL; `next dev` and
+ * `next start` set PORT to the port they actually bound, which differs from 3000 when it's taken.
+ */
+const localOrigin = () => {
+  const portless = process.env.PORTLESS_URL?.trim();
+  if (portless) return portless.replace(/\/$/u, "");
+  const port = process.env.PORT?.trim();
+  if (port && /^\d+$/u.test(port)) return `http://localhost:${port}`;
+  return "http://localhost:3000";
+};
+
 const requestFromHeaderList = (headerList: HeaderLike) => {
   const host = headerList.get("host") ?? headerList.get("x-forwarded-host");
   const normalizedHost = host?.split(",")[0]?.trim();
@@ -48,5 +60,5 @@ export const resolveSiteOrigin = (request?: Request) => {
     return `https://${host}`;
   }
 
-  return "http://localhost:3000";
+  return localOrigin();
 };
