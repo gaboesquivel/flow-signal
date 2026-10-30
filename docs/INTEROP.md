@@ -64,6 +64,8 @@ Operator web (`/operator`), `/api/operator/chat`, and `/api/mcp/operator` use a 
 | `TYPESAFE_API_KEY`            | Optional compose routing                                                                                                                                                     |
 | `GENUI_MODEL`                 | Optional compose model override                                                                                                                                              |
 
+Gateway credentials are `AI_GATEWAY_API_KEY`, or Vercel OIDC: automatic on Vercel deployments, and locally `VERCEL_OIDC_TOKEN` from `vercel env pull .env.local` (an empty `AI_GATEWAY_API_KEY` beside it is fine). The OIDC token expires after about 12 hours; pull again when live evals (`pnpm eval:*`) skip with "the AI Gateway is unavailable".
+
 Without Gateway credentials and without the explicit direct-Anthropic override, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
 
 ## Environment variables (summary)

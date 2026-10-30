@@ -79,7 +79,7 @@ delete process.env.DATABASE_URL;
 
 if (!args.fake && !gatewayAvailable()) {
   log(
-    "[eval:agents] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY, or run with VERCEL=1 and VERCEL_OIDC_TOKEN). These evals call live models; nothing was checked.",
+    "[eval:agents] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY, or run `vercel env pull .env.local` for a VERCEL_OIDC_TOKEN, which expires after about 12 hours). These evals call live models; nothing was checked.",
   );
   process.exit(0);
 }

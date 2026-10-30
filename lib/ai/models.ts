@@ -62,9 +62,15 @@ export const anthropicByokOptions = (
 export const directModelId = (gatewayId: string) =>
   gatewayId.replace(/^anthropic\//u, "").replaceAll(".", "-");
 
-/** Gateway auth is a stored key, or Vercel OIDC, which arrives with each request on Vercel deployments. */
+/**
+ * Gateway auth is a stored key, or Vercel OIDC: it arrives with each request on Vercel
+ * deployments, and locally as `VERCEL_OIDC_TOKEN` from `vercel env pull` (expires after about
+ * 12 hours; pull again). The Gateway provider reads that token itself when no key is set.
+ */
 export const gatewayAvailable = (environment: Record<string, string | undefined> = process.env) =>
-  Boolean(environment.AI_GATEWAY_API_KEY?.trim()) || environment.VERCEL === "1";
+  Boolean(environment.AI_GATEWAY_API_KEY?.trim()) ||
+  Boolean(environment.VERCEL_OIDC_TOKEN?.trim()) ||
+  environment.VERCEL === "1";
 
 export const gatewayModel = (id: string): LanguageModel => {
   const apiKey = env("AI_GATEWAY_API_KEY");

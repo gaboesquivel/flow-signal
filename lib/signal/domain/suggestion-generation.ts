@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, lte } from "drizzle-orm";
 import { z } from "zod";
 
 import { accounts, needs, signals, submitters, suggestions, themes } from "@/lib/db/schema";
@@ -26,12 +26,31 @@ import type { SuggestionKind } from "./suggestion-types";
  * commits; it runs with Next.js `after()` so the response is not delayed. Each kind is
  * independent: an unavailable model or a useless answer skips that kind, never the others,
  * and generation never throws. A kind already pending for the need is not proposed again.
+ *
+ * Spend (PRODUCT.md: under $0.01 per signal): the need-level kinds (`theme`, `public_summary`,
+ * `split`, and the `priority` rescore) look at the whole need rather than the new signal, so they
+ * run on a cadence instead of on every signal: for the need's first two signals, then every
+ * `REGENERATE_EVERY_SIGNALS`th (`onNeedCadence`). A rejected or empty answer is therefore asked
+ * again only once the need has grown. `draft_need` and `merge` already run only on the signal
+ * that created a draft.
  */
 
 /** The event actor for AI-created suggestions (matches the seed). */
 export const SUGGESTION_AI_ACTOR: Actor = { kind: "agent", ref: "signal:ai" };
 
 const MERGE_CANDIDATES = 5;
+/** Need-level kinds run on a need's signals 1, 2, then every this-many (see above). */
+export const REGENERATE_EVERY_SIGNALS = 5;
+
+/** Whether the need's `ordinal`th signal (1-based, in arrival order) runs the need-level kinds. */
+export const onNeedCadence = (ordinal: number) =>
+  ordinal <= 2 || ordinal % REGENERATE_EVERY_SIGNALS === 0;
+const NEED_LEVEL_KINDS: ReadonlySet<SuggestionKind> = new Set([
+  "priority",
+  "public_summary",
+  "split",
+  "theme",
+]);
 const MAX_SIGNALS_IN_PROMPT = 30;
 
 export interface GenerationDeps {
@@ -116,7 +135,13 @@ const loadSignal = async (db: SignalDb, signalId: string) => {
     .select({ kind: suggestions.kind })
     .from(suggestions)
     .where(and(eq(suggestions.needId, row.need.id), eq(suggestions.status, "pending")));
-  return { ...row, needSignals, pendingKinds: new Set(pending.map((p) => p.kind)) };
+  // The signal's place among the need's signals, by arrival: stable however late generation runs.
+  const [position] = await db
+    .select({ ordinal: count() })
+    .from(signals)
+    .where(and(eq(signals.needId, row.need.id), lte(signals.createdAt, row.signal.createdAt)));
+  const needLevel = onNeedCadence(position?.ordinal ?? 1);
+  return { ...row, needLevel, needSignals, pendingKinds: new Set(pending.map((p) => p.kind)) };
 };
 
 /** A proposal to store, or the reason there is none. */
@@ -333,6 +358,10 @@ export const generateSuggestionsForSignal = async (
     ["split", () => proposeSplit(ai, current)],
   ];
   const rescore = async () => {
+    if (!current.needLevel) {
+      outcome.skipped.push({ kind: "priority", reason: "not on the need's cadence" });
+      return;
+    }
     try {
       const { refreshed, suggestion } = await suggestPriorityScores(
         { ai, db, now: deps.clock.now() },
@@ -355,6 +384,10 @@ export const generateSuggestionsForSignal = async (
     ...proposers.map(async ([kind, propose]) => {
       if (current.pendingKinds.has(kind)) {
         outcome.skipped.push({ kind, reason: "already pending" });
+        return;
+      }
+      if (NEED_LEVEL_KINDS.has(kind) && !current.needLevel) {
+        outcome.skipped.push({ kind, reason: "not on the need's cadence" });
         return;
       }
       try {

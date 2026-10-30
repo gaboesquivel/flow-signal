@@ -95,5 +95,8 @@ describe("gatewayAvailable", () => {
     expect(gatewayAvailable({ AI_GATEWAY_API_KEY: " " })).toBe(false);
     expect(gatewayAvailable({ AI_GATEWAY_API_KEY: "k" })).toBe(true);
     expect(gatewayAvailable({ VERCEL: "1" })).toBe(true);
+    // Local Vercel OIDC from `vercel env pull`, with an empty key beside it.
+    expect(gatewayAvailable({ AI_GATEWAY_API_KEY: "", VERCEL_OIDC_TOKEN: "t" })).toBe(true);
+    expect(gatewayAvailable({ VERCEL_OIDC_TOKEN: " " })).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import { refuseInCi } from "@/evals/ci-guard";
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { tokens } from "@/lib/signal/ai/fakes";
@@ -33,7 +33,9 @@ refuseInCi("crewday:generate");
  *   pnpm crewday:generate dev        # one world
  *   pnpm exec oxfmt evals/crewday/worlds   # then format the JSON for pnpm lint
  *
- * Needs AI_GATEWAY_API_KEY. Model responses are cached under generate/.cache (gitignored), so a
+ * Needs AI Gateway access (AI_GATEWAY_API_KEY, or VERCEL_OIDC_TOKEN from `vercel env pull`).
+ * Refuses to overwrite a frozen world: any change is a new version. The spend cap covers the
+ * whole run (both worlds), checked as each batch starts. Model responses are cached under generate/.cache (gitignored), so a
  * crashed run resumes cheaply. This entry file is on the held-out guard's allowlist because it
  * must read the test recipe and write the test world; nothing it builds is used for tuning.
  */
@@ -45,6 +47,7 @@ const BATCH = 15;
 const CONCURRENCY = 8;
 /** Regenerate down to this share, a margin under the ceiling, in the single strict pass. */
 const LEAKAGE_TARGET = 0.55;
+/** New spend per run (both worlds together), checked as each batch starts. */
 const SPEND_CAP_USD = 5;
 
 const log = (message: string) => process.stderr.write(`${message}\n`);
@@ -85,15 +88,14 @@ const writeSlots = async (
         schema: writtenSchema,
         temperature: 1,
       });
-      const missing = batch.filter(
-        (slot) =>
-          !output.items.some(
-            (item) => item.id === String(slot.slot) && item.title.trim() && item.body.trim(),
-          ),
-      );
+      // Keep each slot's first usable text across attempts; a later attempt only fills gaps.
       for (const item of output.items) {
-        if (batch.some((slot) => String(slot.slot) === item.id)) written.set(Number(item.id), item);
+        const id = Number(item.id);
+        const usable = item.title.trim() && item.body.trim();
+        if (usable && !written.has(id) && batch.some((slot) => String(slot.slot) === item.id))
+          written.set(id, item);
       }
+      const missing = batch.filter((slot) => !written.has(slot.slot));
       if (missing.length === 0) break;
       if (attempt === 2)
         throw new Error(`writer left out slots ${missing.map((s) => s.slot).join(", ")}`);
@@ -164,6 +166,14 @@ const distinctiveWords = (need: Need, recipe: Recipe) => {
 };
 
 const generateWorld = async (name: RecipeWorldName) => {
+  const frozen = worldOutputDir(name, VERSION, { heldOut: HELD_OUT });
+  if (
+    await access(frozen).then(
+      () => true,
+      () => false,
+    )
+  )
+    throw new Error(`${name}@${VERSION} is frozen at ${frozen}; bump VERSION for a new world.`);
   const recipe = await loadRecipe(name, name === "test" ? { heldOut: HELD_OUT } : {});
   const prefix = prefixOf(name);
   const plan = buildPlan(recipe, SEED, prefix);
@@ -253,12 +263,16 @@ const generateWorld = async (name: RecipeWorldName) => {
   };
   parseWorld(world, `generated world ${name}`);
   const dir = worldOutputDir(name, VERSION, { heldOut: HELD_OUT });
-  await mkdir(dir, { recursive: true });
+  // Write beside it, then rename: an I/O error never leaves a partial world.
+  const staging = `${dir}.partial`;
+  await rm(staging, { force: true, recursive: true });
+  await mkdir(staging, { recursive: true });
   await Promise.all(
     Object.entries(world).map(([file, value]) =>
-      writeFile(path.join(dir, `${file}.json`), `${JSON.stringify(value, null, 2)}\n`),
+      writeFile(path.join(staging, `${file}.json`), `${JSON.stringify(value, null, 2)}\n`),
     ),
   );
+  await rename(staging, dir);
   log(`  wrote ${path.relative(process.cwd(), dir)}`);
 };
 
