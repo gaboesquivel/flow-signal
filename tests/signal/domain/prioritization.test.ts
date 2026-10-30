@@ -156,6 +156,7 @@ describeWithDatabase("prioritization", () => {
       expect(prompt).toContain('"monthly board deck"');
       expect(prompt).not.toContain("maya@acme.example");
       expect(prompt).not.toContain("Maya Lindqvist");
+      expect(prompt).toContain("Strategy: none written yet");
     });
 
     it("fails with ai_unavailable and writes nothing when the model is unreachable", async () => {

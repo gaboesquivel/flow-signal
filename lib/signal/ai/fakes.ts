@@ -95,7 +95,40 @@ export const fakeJudge = (
 
 type ReasonerHandler = (input: { prompt: string; system?: string }) => unknown;
 
-/** Returns each task's handler output, validated by the caller's schema; unknown tasks are unavailable. */
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * Fills a fake `decision_brief`'s spec 007 direction fields when its handler leaves them out, so
+ * handlers written before spec 007 keep working: confidence 0.7, in focus unless declined, and a
+ * capacity note. Deterministic; what a handler sets wins.
+ */
+export const withFakeDirection = (value: unknown): unknown => {
+  if (!isRecord(value) || !isRecord(value.recommendation)) return value;
+  const { recommendation } = value;
+  const declined = recommendation.status === "declined";
+  return {
+    ...value,
+    recommendation: {
+      capacityNote: declined
+        ? "Declining keeps this quarter's capacity for focus work."
+        : "Takes one slot of this quarter's capacity.",
+      confidence: 0.7,
+      strategyFit: {
+        inFocus: !declined,
+        reason: declined
+          ? "Outside the strategy's focus themes."
+          : "Serves the strategy's focus themes.",
+      },
+      ...recommendation,
+    },
+  };
+};
+
+/**
+ * Returns each task's handler output, validated by the caller's schema; unknown tasks are
+ * unavailable. `decision_brief` output gets `withFakeDirection`.
+ */
 export const fakeReasoner = (
   handlers: Partial<Record<ReasonerTask, ReasonerHandler>> = {},
 ): Reasoner => ({
@@ -107,7 +140,11 @@ export const fakeReasoner = (
       );
     return Promise.resolve({
       model: "fake/reasoner",
-      value: schema.parse(handler({ prompt, system })),
+      value: schema.parse(
+        task === "decision_brief"
+          ? withFakeDirection(handler({ prompt, system }))
+          : handler({ prompt, system }),
+      ),
     });
   },
 });
