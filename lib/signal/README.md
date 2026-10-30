@@ -29,13 +29,21 @@ Actors: REST callers are `human` unless they send `X-Signal-Agent: <client>`; MC
 
 REST limits: public operations are rate limited per IP (120/min) and bodies capped at 16 KB; override per operation with `limits: { requestsPerMinute, maxBodyBytes }`.
 
+## Matching and embeddings
+
+`domain/matching.ts` runs preview's extract → retrieve → judge workflow (`previewSubmission`); `MATCH_THRESHOLD` (0.6, tuned by task 03), `CANDIDATE_LIMIT` (8), and `MAX_MATCHES` (3) live there. Any AI step failing with `ai_unavailable` degrades to `ai: "unavailable"` with no matches. `previewId` is a deterministic hash of the text (no preview state is stored); `submit_signal` records it in the `signal.created` payload.
+
+Only needs with an embedding are candidates. `submit_signal` embeds a new draft need's statement (left null if the embedder is down). **When you change a need's statement or create a need** (resolve_suggestion edits, split_need), call `embedNeeds(db, ctx.ai.embedder, [needId])` from `domain/embeddings.ts` after the write commits (or in `after()`). `pnpm db:embed` (`--test` for `DATABASE_URL_TEST`) backfills every live need without an embedding via `embedMissingNeeds`; it is idempotent and needs Gateway access.
+
+Submissions (`domain/submissions.ts`): a merged-away `target.needId` lands on the live need; the submitter is upserted by lowercased email (a known `company` links its account; an unknown one creates an `Unknown`-plan account); a reused `idempotencyKey` with different content is `conflict`. Tracking tokens are per submission, so `get_my_signals` shows only the signal(s) filed under that token, never all signals for an email (emails are unverified).
+
 ## Events
 
 `recordEvent(tx, { type, actor, needId, signalId, suggestionId, payload, dedupeKey })` appends to `events`. Pass `dedupeKey` derived from the request's `idempotencyKey` so a retry counts once (`recordEvent` returns `false` for a duplicate). Failed or rolled-back requests write nothing because the event shares the transaction. Add new types to `SignalEventType`; the column is free text, so no migration is needed.
 
 ## AI ports
 
-`ctx.ai` holds `extractor`, `embedder`, `retriever` (pgvector), `judge`, and `reasoner`. Production uses `ai/gateway.ts`; the extractor, judge, and reasoner there are stubs that fail with `ai_unavailable` until tasks 02, 04, and 05 implement them. Model ids come from `lib/ai/models.ts`: `signalFastModelId()` (`SIGNAL_FAST_MODEL`, default `anthropic/claude-haiku-5.5`), `signalReasoningModelId()` (`SIGNAL_REASONING_MODEL`, default `anthropic/claude-sonnet-5.5`), and `signalEmbeddingModelId()` (`SIGNAL_EMBEDDING_MODEL`, default `openai/text-embedding-3-small`, 1536 dimensions).
+`ctx.ai` holds `extractor`, `embedder`, `retriever` (pgvector), `judge`, and `reasoner`. Production uses `ai/gateway.ts`: the extractor and judge are AI SDK structured output on the fast model (`gatewayExtractor({ model? })`, `gatewayJudge({ model? })`; tests inject `MockLanguageModelV4`), and the reasoner is a stub that fails with `ai_unavailable` until tasks 04 and 05 implement it. Model ids come from `lib/ai/models.ts`: `signalFastModelId()` (`SIGNAL_FAST_MODEL`, default `anthropic/claude-haiku-5.5`), `signalReasoningModelId()` (`SIGNAL_REASONING_MODEL`, default `anthropic/claude-sonnet-5.5`), and `signalEmbeddingModelId()` (`SIGNAL_EMBEDDING_MODEL`, default `openai/text-embedding-3-small`, 1536 dimensions).
 
 `pnpm test` never calls a live model. The database harness installs `createFakeAi()`. Override per test with `configureSignalRuntime({ ai: createFakeAi({ judge: fakeJudge({ [needId]: { probability: 0.9, reason: "..." } }) }) })`, or simulate an outage with `createUnavailableAi()`. `fakeReasoner({ decision_brief: ({ prompt }) => ({...}) })` answers a reasoner task; an unhandled task fails with `ai_unavailable`. Add a task name to `ReasonerTask` when an operation needs one. Live-model checks belong in `pnpm eval`.
 
