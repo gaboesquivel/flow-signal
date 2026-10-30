@@ -568,6 +568,8 @@ const readinessLeadTime = async (db: SignalQueryable, { from, to }: MetricsWindo
 };
 
 const resolutionTypes = sql`('suggestion.accepted', 'suggestion.edited', 'suggestion.rejected')`;
+/** Resolutions plus `suggestion.superseded`: what takes a suggestion out of the pending count. */
+const closingTypes = sql`('suggestion.accepted', 'suggestion.edited', 'suggestion.rejected', 'suggestion.superseded')`;
 
 /** Each suggestion's first resolution before `to`, kept when it falls in the window. */
 const resolutions = ({ from, to }: MetricsWindow) => sql`
@@ -651,7 +653,7 @@ const reviewCounts = async (db: SignalQueryable, window: MetricsWindow) => {
         (SELECT count(*) FROM resolved)::int AS resolved,
         (SELECT count(*) FROM created c WHERE NOT EXISTS (
           SELECT 1 FROM events r
-          WHERE r.type IN ${resolutionTypes} AND r.suggestion_id = c.suggestion_id
+          WHERE r.type IN ${closingTypes} AND r.suggestion_id = c.suggestion_id
             AND r.occurred_at < ${ts(to)}
         ))::int AS pending,
         (SELECT (percentile_cont(0.5) WITHIN GROUP (

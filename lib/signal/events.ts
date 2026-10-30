@@ -25,6 +25,10 @@ import type { SignalQueryable } from "./db";
  * - `report.shared` (spec 013): payload `{ reportId, action: "share" | "refresh" | "revoke" }`.
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
+ * - `suggestion.superseded`: `suggestionId`, `needId`, payload `{ kind, decisionId }`; a pending
+ *   `decision_brief` closed unreviewed because a decision was published on its need; the actor is
+ *   the publisher. Not a resolution: suggestion acceptance leaves it out; review load stops
+ *   counting it as pending.
  * - `assistant.action_proposed` (spec 014): payload `{ actionId, operation }`; the actor is the
  *   assistant agent (`client: "console:assistant"`).
  * - `assistant.action_confirmed` (spec 014): payload `{ actionId, operation, edited }`;
@@ -55,7 +59,8 @@ export type SignalEventType =
   | "suggestion.accepted"
   | "suggestion.created"
   | "suggestion.edited"
-  | "suggestion.rejected";
+  | "suggestion.rejected"
+  | "suggestion.superseded";
 
 export interface SignalEvent {
   actor: Actor;

@@ -117,7 +117,11 @@ describeWithDatabase("metrics from the event log", () => {
 
   const suggestion = async (
     kind: string,
-    resolution?: { actor?: Actor; at?: Date; status: "accepted" | "edited" | "rejected" },
+    resolution?: {
+      actor?: Actor;
+      at?: Date;
+      status: "accepted" | "edited" | "rejected" | "superseded";
+    },
     createdAt = daysAgo(3),
   ) => {
     const suggestionId = randomUUID();
@@ -532,6 +536,15 @@ describeWithDatabase("metrics from the event log", () => {
       expect(supporting.reviewLoad).toEqual({ created: 3, pendingAtEnd: 2, resolved: 2 });
       expect(supporting.unmergeRate).toEqual({ merges: 2, rate: 0.5, undone: 1 });
       expect(unsupported).toEqual([]);
+    });
+
+    it("a superseded brief is no longer pending and is not a resolution", async () => {
+      await suggestion("decision_brief", { at: daysAgo(1), status: "accepted" }, daysAgo(2));
+      // The duplicate brief closed when the decision was published.
+      await suggestion("decision_brief", { at: daysAgo(1), status: "superseded" }, daysAgo(2));
+      const { suggestionAcceptance, supporting } = await metrics();
+      expect(supporting.reviewLoad).toEqual({ created: 2, pendingAtEnd: 0, resolved: 1 });
+      expect(suggestionAcceptance.overall.all).toMatchObject({ accepted: 1, rejected: 0 });
     });
   });
 

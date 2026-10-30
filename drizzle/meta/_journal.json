@@ -36,6 +36,13 @@
       "when": 1793395937608,
       "tag": "0004_assistant_actions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793399951584,
+      "tag": "0005_suggestion_superseded",
+      "breakpoints": true
     }
   ]
 }
