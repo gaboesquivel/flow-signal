@@ -1,7 +1,7 @@
-import { eq, isNotNull, sql } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import { z } from "zod";
 
-import { accounts, needs, signals, submitters } from "@/lib/db/schema";
+import { accounts, needs, submitters } from "@/lib/db/schema";
 
 import type { SignalQueryable } from "../db";
 import { SignalError } from "../errors";
@@ -12,8 +12,8 @@ import { SignalError } from "../errors";
  * workspace that appear in the text. Deterministic (no model) so the same text always gives the
  * same findings; findings warn, they never fail `publish_decision`.
  *
- * - Candidates: with `needId`, the people (and their accounts) behind that need's signals;
- *   without, every submitter and account in the workspace.
+ * - Candidates: every submitter and account in the workspace, with or without `needId`
+ *   (published text must not name any customer).
  * - Matching is case-insensitive. Names and accounts match as whole words (no letter or digit
  *   on either side); an account also matches without a legal suffix ("Acme Corp" → "Acme").
  *   A person matches by full name only: single first names collide with ordinary words.
@@ -102,7 +102,11 @@ export const findIdentifyingText = (
   return findings;
 };
 
-/** Names, accounts, and emails to look for: the need's supporters, or the whole workspace. */
+/**
+ * Names, accounts, and emails to look for: always every submitter and account in the workspace,
+ * because published text must not name any customer, not only the need's own supporters (spec 006
+ * → `check_public_text`). A given `needId` is only checked to exist.
+ */
 const loadCandidates = async (
   db: SignalQueryable,
   needId: string | undefined,
@@ -112,21 +116,12 @@ const loadCandidates = async (
     if (!need) throw new SignalError("not_found", `No need with id ${needId}.`);
   }
   const people = await db
-    .selectDistinct({
-      accountName: accounts.name,
-      email: submitters.email,
-      name: submitters.name,
-    })
-    .from(submitters)
-    .leftJoin(accounts, eq(accounts.id, submitters.accountId))
-    .where(
-      needId
-        ? sql`exists (select 1 from ${signals} where ${signals.submitterId} = ${submitters.id} and ${signals.needId} = ${needId})`
-        : undefined,
-    );
-  const accountRows = needId
-    ? people.map((person) => ({ name: person.accountName }))
-    : await db.select({ name: accounts.name }).from(accounts).where(isNotNull(accounts.name));
+    .select({ email: submitters.email, name: submitters.name })
+    .from(submitters);
+  const accountRows = await db
+    .select({ name: accounts.name })
+    .from(accounts)
+    .where(isNotNull(accounts.name));
   const accountNames = [
     ...new Set(accountRows.map((row) => row.name).filter((name): name is string => Boolean(name))),
   ];

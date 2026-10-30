@@ -22,4 +22,5 @@ Option 3. `submit_signal` accepts an optional `trackingToken`; when it names an 
 - A person on two devices, or who loses their link, ends up with more than one link; that stays acceptable until option 2 is affordable.
 - Schema: a tracking token is no longer unique per signal. Signals reference a tracking link; the token is unique per link.
 - Shared devices are a risk: the next person on that browser would file onto the previous person's link. The submit flow shows which link it will use and makes starting a new one one click.
+- A replayed `submit_signal` (same `idempotencyKey`, email, title, and body) returns the link's URL, which now shows every signal on that link, not just one. Keys are random per submission, so this stays low risk.
 - Moving to option 2 later stays open: verified email can merge links the person proves they hold.

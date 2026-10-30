@@ -20,12 +20,12 @@ runParityTable<PrioritizationFixture>({
     {
       expect: () => ({ output: { findings: [{ kind: "person", match: "Maya Lindqvist" }] } }),
       input: (fx) => ({ needId: fx.n1.need.id, text: "Thanks, Maya Lindqvist and Globexx." }),
-      name: "flags a supporter of the given need",
+      name: "flags a person when a need is given",
     },
     {
-      expect: () => ({ output: { findings: [] } }),
+      expect: () => ({ output: { findings: [{ kind: "person", match: "Maya Lindqvist" }] } }),
       input: (fx) => ({ needId: fx.n3.need.id, text: "Thanks, Maya Lindqvist." }),
-      name: "ignores people who do not support the given need",
+      name: "flags other customers too, not only the need's supporters",
     },
     {
       expect: () => ({ error: "not_found" }),

@@ -6,11 +6,11 @@ Initialized from [`flow-next`](https://github.com/gaboesquivel/flow-next) at com
 
 ## Runtime surfaces
 
-| Surface          | Path                                                                  | Notes                                                           |
-| ---------------- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Public board     | `/`, `/needs/[id]`, `/submit`, `/my/[token]`                          | Lean Ledger UI ([spec 006](./docs/specs/006-lean-ledger-ui.md)) |
-| GenUI playground | `/genui`                                                              | OpenUI compose + preview                                        |
-| Public MCP       | `/api/mcp`, `/.well-known/mcp.json`                                   | Streamable HTTP                                                 |
+| Surface          | Path                                                                         | Notes                                                           |
+| ---------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Public board     | `/`, `/needs/[id]`, `/submit`, `/my/[token]`                                 | Lean Ledger UI ([spec 006](./docs/specs/006-lean-ledger-ui.md)) |
+| GenUI playground | `/genui`                                                                     | OpenUI compose + preview                                        |
+| Public MCP       | `/api/mcp`, `/.well-known/mcp.json`                                          | Streamable HTTP                                                 |
 | Operator         | `/operator/{triage,needs,decide,criteria,metrics,chat}`, `/api/mcp/operator` | PM console; protected; fail closed without secret               |
 
 Cross-template interoperability details live in `docs/INTEROP.md` from the template (upstream template names may appear there by design).

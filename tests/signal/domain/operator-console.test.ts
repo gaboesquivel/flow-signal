@@ -178,18 +178,19 @@ describeWithDatabase("operator console reads", () => {
       ]);
     });
 
-    it("scopes to the need's supporters when a need is given", async () => {
+    it("checks the whole workspace even when a need is given", async () => {
       const text = "Thanks Maya Lindqvist at Acme Corp and Globex.";
+      const expected = [
+        { kind: "person", match: "Maya Lindqvist" },
+        { kind: "account", match: "Acme Corp" },
+        { kind: "account", match: "Globex" },
+      ];
       expect((await checkPublicText(harness.db, { needId: fx.n1.need.id, text })).findings).toEqual(
-        [
-          { kind: "person", match: "Maya Lindqvist" },
-          { kind: "account", match: "Acme Corp" },
-          { kind: "account", match: "Globex" },
-        ],
+        expected,
       );
-      // N2 has an Acme person but neither Maya nor Globex.
+      // N2 has neither Maya nor Globex among its supporters; they are still other customers.
       expect((await checkPublicText(harness.db, { needId: fx.n2.need.id, text })).findings).toEqual(
-        [{ kind: "account", match: "Acme Corp" }],
+        expected,
       );
     });
 

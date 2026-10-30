@@ -10,7 +10,7 @@ import { defineOperation } from "./types";
 export const checkPublicText = defineOperation({
   access: "operator",
   description:
-    'Check text you are about to make public (a public summary or a decision note) for customer names, account names, and emails from the workspace. With `needId`, checks against the people and accounts behind that need; without, against the whole workspace. Deterministic, no model: case-insensitive, whole words for names, an account also without its legal suffix ("Acme Corp" → "Acme"), people by full name. Returns `findings` (`kind`: person, account, or email; `match`: the text as written), empty when nothing identifying was found. Edit the text until it has no findings before publishing.',
+    'Check text you are about to make public (a public summary or a decision note) for customer names, account names, and emails from the workspace. Always checks against every customer in the workspace; `needId` (optional) must name an existing need. Deterministic, no model: case-insensitive, whole words for names, an account also without its legal suffix ("Acme Corp" → "Acme"), people by full name. Returns `findings` (`kind`: person, account, or email; `match`: the text as written), empty when nothing identifying was found. Edit the text until it has no findings before publishing.',
   errors: ["not_found"],
   http: { method: "POST", path: "/api/operator/check-public-text" },
   input: z.object({
