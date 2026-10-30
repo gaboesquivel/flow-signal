@@ -1,11 +1,15 @@
 // `pnpm db:embed`: embeds every live need that has no embedding (seeded without Gateway access,
-// or created while the embedder was down), so `preview_signal` can retrieve it. Idempotent:
-// embedded needs are skipped, so it is safe to rerun. Needs AI Gateway access.
+// or created while the embedder was down), so `preview_signal` can retrieve it, then runs the
+// duplicate sweep (spec 009) so drafts that just got a vector get their merge check. Idempotent:
+// embedded needs are skipped and checked drafts are not due, so it is safe to rerun. Needs AI
+// Gateway access.
 //   pnpm db:embed          # DATABASE_URL
 //   pnpm db:embed --test   # DATABASE_URL_TEST
 import { gatewayAvailable } from "@/lib/ai/models";
-import { gatewayEmbedder } from "@/lib/signal/ai/gateway";
+import { createGatewayAi, gatewayEmbedder } from "@/lib/signal/ai/gateway";
+import { systemClock } from "@/lib/signal/context";
 import { closeSignalDbs, signalDbFor } from "@/lib/signal/db";
+import { sweepDuplicates } from "@/lib/signal/domain/duplicate-backstop";
 import { embedMissingNeeds } from "@/lib/signal/domain/embeddings";
 
 const test = process.argv.slice(2).includes("--test");
@@ -25,8 +29,17 @@ try {
   console.log(
     `[db:embed] Embedding needs without an embedding in ${variable} (${embedder.model}) ...`,
   );
-  const count = await embedMissingNeeds(signalDbFor(databaseUrl), embedder);
+  const db = signalDbFor(databaseUrl);
+  const count = await embedMissingNeeds(db, embedder);
   console.log(`[db:embed] Done: ${count} need(s) embedded.`);
+  const swept = await sweepDuplicates(
+    { ai: createGatewayAi(), clock: systemClock, db },
+    { checks: 20 },
+  );
+  const proposed = swept.checked.reduce((total, check) => total + check.proposed.length, 0);
+  console.log(
+    `[db:embed] Duplicate sweep: ${swept.checked.length} draft(s) checked, ${proposed} merge(s) proposed, ${swept.unavailable} unavailable.`,
+  );
 } finally {
   await closeSignalDbs();
 }

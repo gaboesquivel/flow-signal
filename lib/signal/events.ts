@@ -25,6 +25,11 @@ import type { SignalQueryable } from "./db";
  * - `report.shared` (spec 013): payload `{ reportId, action: "share" | "refresh" | "revoke" }`.
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
+ * - `follow_up.answered` (spec 009): `needId` (the submitter's draft), `suggestionId`, payload
+ *   `{ suggestionId, intoNeedId, answer: "join" | "decline" }`; `dedupeKey` per suggestion. A
+ *   join also records `need.merged` and `suggestion.accepted` with payload `via: "submitter"`.
+ * - `signal.created` also carries `possibleDuplicates: [{ needId, probability }]` (spec 009) when
+ *   `submit_signal` ran its own check (new need, no usable preview).
  * - `suggestion.superseded`: `suggestionId`, `needId`, payload `{ kind, decisionId }`; a pending
  *   `decision_brief` closed unreviewed because a decision was published on its need; the actor is
  *   the publisher. Not a resolution: suggestion acceptance leaves it out; review load stops
@@ -45,6 +50,7 @@ export type SignalEventType =
   | "assistant.action_proposed"
   | "assistant.action_rejected"
   | "decision.published"
+  | "follow_up.answered"
   | "merge.undone"
   | "need.created"
   | "need.merged"
