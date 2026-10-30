@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import { z } from "zod";
 
-import type { DraftNeed, SignalAi } from "../ai/ports";
+import type { DraftNeed, MatchJudgement, NeedCandidate, SignalAi } from "../ai/ports";
 import type { SignalQueryable } from "../db";
 import { SignalError } from "../errors";
 import { demandBandSchema, getPublicNeed, publicNeedStatusSchema } from "./public-needs";
@@ -70,6 +70,33 @@ const cleanDraft = (draft: DraftNeed, title: string): DraftNeed => {
   };
 };
 
+/**
+ * Which judged candidates are shown: probability at or above the threshold, highest first (ties
+ * by retrieval similarity), one per need, at most `MAX_MATCHES`. The matching eval
+ * (`evals/matching`) scores this same rule across a threshold sweep.
+ */
+export const chooseMatches = <J extends MatchJudgement>({
+  candidates,
+  judgements,
+  threshold = MATCH_THRESHOLD,
+}: {
+  candidates: Pick<NeedCandidate, "needId" | "similarity">[];
+  judgements: J[];
+  threshold?: number;
+}): J[] => {
+  const candidateIds = new Set(candidates.map((candidate) => candidate.needId));
+  const similarity = new Map(candidates.map((c) => [c.needId, c.similarity]));
+  return judgements
+    .filter((j) => candidateIds.has(j.needId) && j.probability >= threshold)
+    .toSorted(
+      (a, b) =>
+        b.probability - a.probability ||
+        (similarity.get(b.needId) ?? 0) - (similarity.get(a.needId) ?? 0),
+    )
+    .filter((j, index, all) => all.findIndex((other) => other.needId === j.needId) === index)
+    .slice(0, MAX_MATCHES);
+};
+
 export const previewSubmission = async (
   { ai, db }: { ai: SignalAi; db: SignalQueryable },
   submission: { body: string; title: string },
@@ -115,17 +142,7 @@ export const previewSubmission = async (
     throw error;
   }
 
-  const candidateIds = new Set(candidates.map((candidate) => candidate.needId));
-  const similarity = new Map(candidates.map((c) => [c.needId, c.similarity]));
-  const chosen = judgements
-    .filter((j) => candidateIds.has(j.needId) && j.probability >= threshold)
-    .toSorted(
-      (a, b) =>
-        b.probability - a.probability ||
-        (similarity.get(b.needId) ?? 0) - (similarity.get(a.needId) ?? 0),
-    )
-    .filter((j, index, all) => all.findIndex((other) => other.needId === j.needId) === index)
-    .slice(0, MAX_MATCHES);
+  const chosen = chooseMatches({ candidates, judgements, threshold });
 
   const views = await Promise.all(chosen.map((judgement) => getPublicNeed(db, judgement.needId)));
   const matches = chosen.flatMap((judgement, index) => {
