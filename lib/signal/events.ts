@@ -6,6 +6,17 @@ import type { SignalQueryable } from "./db";
 /**
  * Event types behind the MVP metrics (PRODUCT.md → Metrics; spec 001 → Metrics
  * instrumentation). Add a type here when an operation records a new one.
+ *
+ * Fields `lib/signal/metrics.ts` reads (record them, or the metric undercounts):
+ * - `signal.created`: `signalId`, `needId` (the need filed on at submission), payload
+ *   `{ attachedTo: "existing" | "draft", hasUseCase: boolean }`; `dedupeKey` from `idempotencyKey`.
+ * - `need.created`: `needId`, at the need's first signal (also for a need created by a split).
+ * - `need.merged`: `needId` (the need merged away), payload `{ mergeId, intoNeedId }`.
+ * - `merge.undone`: `needId` (the need restored), payload `{ mergeId }` of the merge it reverts.
+ * - `decision.published`: `needId`; the actor is the publisher (human vs. agent).
+ * - `suggestion.created`: `suggestionId`, payload `{ kind }`.
+ * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
+ *   the resolver.
  */
 export type SignalEventType =
   | "decision.published"

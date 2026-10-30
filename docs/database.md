@@ -6,7 +6,9 @@ Signal stores everything in Neon Postgres with the pgvector extension ([decision
 
 | Where                       | Env var             | Database                                                                    |
 | --------------------------- | ------------------- | --------------------------------------------------------------------------- |
-| Local dev and all of Vercel | `DATABASE_URL`      | Neon `main` branch                                                          |
+| Vercel (production)         | `DATABASE_URL`      | Neon `main` branch (integration)                                            |
+| Vercel previews             | `DATABASE_URL`      | A Neon branch per preview deployment (integration)                          |
+| Local dev                   | `DATABASE_URL`      | Neon `dev` branch                                                           |
 | Local tests                 | `DATABASE_URL_TEST` | Docker Postgres 18 + pgvector behind a local Neon HTTP proxy (`pnpm db:up`) |
 | CI, or tests without it set | (unset)             | In-process PGlite with the `vector` extension                               |
 
@@ -26,9 +28,9 @@ Since 2026-10-30 the database comes from Vercel's **Neon integration** (Vercel M
 
 - Resource `signal` (`store_a1g5Ym4xwQ9EDfP4`), Neon free plan, region `iad1`, in the Vercel-managed Neon org, connected to the Vercel project `flow-signal` for production, preview, and development.
 - The integration owns `DATABASE_URL`, `POSTGRES_URL`, `PGHOST`, `NEON_PROJECT_ID`, and related variables on Vercel. Don't set them by hand.
-- **Preview deployments get their own Neon branch** when the connection's deployments configuration has Preview set to create a branch (Vercel project → Storage → `signal` → Settings). The branch is created from `main` for each preview deployment, so previews never write to production data.
-- Locally, `.env.local` holds the development `DATABASE_URL` (gitignored). Refresh it without overwriting other local values: pull to a temporary file with `vercel env pull <tmp file> --environment development` and copy only `DATABASE_URL` across. Plain `vercel env pull` replaces `.env.local` and drops local-only values such as `OPERATOR_SECRET`.
-- **Known gaps:** `scripts/vercel-build.mjs` applies the schema on production builds only, so a preview of a pull request that changes the schema runs against its branch's old schema until the change reaches `main`. The development environment (and so local dev) uses the production `main` database unless the connection's Development setting creates a branch.
+- **Preview deployments get their own Neon branch** (enabled 2026-10-30): the connection has "Require Active Resource Before Deploy" on and "Create Database Branch For Deployment: Preview" checked (Vercel project → Storage → `signal` → Projects → Update Project Connection). Each preview deployment gets a branch from `main`, so previews never write to production data. Production uses `main` directly.
+- **Local dev uses its own Neon branch `dev`** (in the integration's project `sweet-salad-76280420`), seeded with the demo workspace. Point `.env.local` at it with `neonctl connection-string dev --project-id sweet-salad-76280420 --pooled`. Vercel's Development environment variable still points at `main`, so don't copy it into `.env.local` (and plain `vercel env pull` would also drop local-only values such as `OPERATOR_SECRET`).
+- **Known gaps:** `scripts/vercel-build.mjs` applies the schema on production builds only, so a preview of a pull request that changes the schema runs against its branch's old schema until the change reaches `main`. Seed and experiment only on `dev`.
 - An earlier hand-made project (`signal`, `wispy-paper-65345567`, in the **Gabo** Neon org) is no longer used.
 
 ## First-time setup with the Vercel integration

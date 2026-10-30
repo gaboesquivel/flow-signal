@@ -64,3 +64,7 @@ Response: Ran ship -> build on spec 001: accepted the spec and decisions 0001/00
 [2026-10-30T15:04:41Z]
 Prompt: (During the build) Use local Docker for Neon in tests; CI should be PGlite; for branch databases use the Vercel connect integration; then "you run the commands".
 Response: Recorded decision 0003 (local Docker Postgres 18 + pgvector behind a Neon HTTP proxy for local tests, PGlite in CI) amending 0001, updated docs/spec, and redirected the task 01 worker. Removed the hand-set Vercel DATABASE_URL values at the user's request, installed the Neon integration via vercel integration add (resource signal, iad1) connected to all environments, copied the development DATABASE_URL into .env.local, pushed the schema, confirmed /api/db 200, and documented the integration setup and its gaps. The integration also added the neon and neon-postgres agent skills.
+
+[2026-10-30T15:16:00Z]
+Prompt: Keep CI testing light; agent evals on demand or when agent code changes; overall goal is faster dev and maximum parallel execution. (Earlier: "you run all commands, I need to step away".)
+Response: Trimmed CI to install, security check and pnpm qa on PGlite (no evals, no Next build; Vercel previews build PRs); recorded the policy in spec 001; re-sequenced tasks so 03, 04 and 05 start now alongside 02 and 06, with UI tasks after their contracts merge. Also turned on Neon preview branching on the Vercel connection, gave local dev its own seeded Neon dev branch, and merged task 01.
