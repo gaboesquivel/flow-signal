@@ -38,6 +38,8 @@ export interface ReportRow {
   format: ValueFormat;
   key: string;
   label: string;
+  /** Signal − board with its paired interval, for a row compared without a success criterion. */
+  lift?: Cell | null;
   note?: string;
   section: Section;
   signal: Cell | null;
@@ -157,6 +159,24 @@ const ROWS: RowSpec[] = [
     lift: (c) => cellOf(c.lift.revenueCoverageRatio),
     section: "headline",
     value: (s) => cellOf(s.headline.revenueCoverage),
+  },
+  {
+    format: "pct",
+    key: "direction_accuracy",
+    label: "Direction accuracy (spec 007)",
+    lift: (c) => cellOf(c.lift.directionAccuracy),
+    note: "brief recommendation = strategy-implied decision",
+    section: "headline",
+    value: (s) => cellOf(s.headline.directionAccuracy),
+  },
+  {
+    format: "days",
+    key: "readiness_lead_time_days",
+    label: "Readiness lead time, mean (days)",
+    lift: (c) => cellOf(c.lift.readinessLeadTimeDays),
+    note: "ready → decided; median in the JSON",
+    section: "headline",
+    value: (s) => cellOf(s.headline.readinessLeadTime),
   },
   {
     format: "pct",
@@ -355,6 +375,7 @@ export const buildTable = ({
       section: spec.section,
       signal: cellFor("signal"),
       ...(spec.note ? { note: spec.note } : {}),
+      ...(!spec.criterion && spec.lift ? { lift: comparison ? spec.lift(comparison) : null } : {}),
     };
   });
   // Suggestion acceptance by type (Signal arm only), right after the overall row.
@@ -411,7 +432,7 @@ const fmtCell = (cell: Cell | null, format: ValueFormat) => {
 
 /** Lift cells: a difference of rates is points; revenue coverage's lift is a ratio. */
 const fmtLift = (row: ReportRow) => {
-  const lift = row.criterion?.lift;
+  const lift = row.criterion?.lift ?? row.lift;
   if (!lift) return "";
   const format: ValueFormat = row.key === "revenue_coverage" ? "num" : row.format;
   const sign = format === "pct" && lift.value !== null && lift.value > 0 ? "+" : "";
@@ -439,6 +460,7 @@ const headerLines = (report: CrewdayReport) => {
   return [
     `Crewday outcome eval: world ${world.name}@${world.version} (${world.signals} signals), seed ${report.seed}, git ${gitSha.sha?.slice(0, 10) ?? "unknown"}${gitSha.dirty ? " (dirty)" : ""}, ${report.mode}`,
     `Models: fast ${models.fast}, reasoning ${models.reasoning}, embedding ${models.embedding}`,
+    `PM policy: ${report.policy.pmPolicy}${report.policy.pmPolicy === "follows_signal" ? ` (override ${report.policy.pPmOverride}; Signal arm only, the board runs oracle)` : ""}`,
     ...(report.mode === "offline"
       ? ["OFFLINE: fake AI ports. These numbers are not a Signal result."]
       : []),

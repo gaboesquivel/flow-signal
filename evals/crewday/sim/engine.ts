@@ -23,6 +23,7 @@ import { recordEvent } from "@/lib/signal/events";
 import type { Metrics } from "@/lib/signal/metrics";
 import { executeOperation } from "@/lib/signal/operations/execute";
 import { findOperation } from "@/lib/signal/operations/registry";
+import { configureAutoBriefs, resetAutoBriefs } from "@/lib/signal/domain/readiness";
 import { configureSignalRuntime, resetSignalRuntime } from "@/lib/signal/runtime";
 
 import { worldStart } from "../checks";
@@ -40,6 +41,7 @@ import type { PolicyParams } from "./policy";
 import type { SimDatabaseTarget } from "./safety";
 import { identityOf } from "./state";
 import type { Arm, SimLog, SimState } from "./state";
+import { writeStrategy } from "./strategy";
 import { createSurfaceRouter } from "./surfaces";
 import type { Surface } from "./surfaces";
 import { replaySignal } from "./submitter";
@@ -51,6 +53,8 @@ import { replaySignal } from "./submitter";
  *
  * - Day 0: the world's themes and accounts are configured, and the migrated backlog is loaded as
  *   approved (`open`) needs, duplicates included, each with its `need.created` event.
+ * - Day 0, `follows_signal` only (spec 007): the world's strategy is written with `set_strategy`
+ *   (`./strategy`), so Signal marks readiness and drafts briefs against it.
  * - Each signal: the submitter policy previews and submits it on its persona's surface; any
  *   suggestion generation `submit_signal` scheduled runs right after, at the same world time
  *   (no background timers; the board arm schedules none).
@@ -353,7 +357,9 @@ const drain = async (state: SimState) => {
 /** Replays one world through one arm and returns everything the scorer needs. */
 export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   const { arm, world, seed } = options;
-  const policy = resolvePolicy(options.policy);
+  const resolved = resolvePolicy(options.policy);
+  // The board arm has no briefs or readiness in Signal: it always runs the oracle PM.
+  const policy: PolicyParams = arm === "board" ? { ...resolved, pmPolicy: "oracle" } : resolved;
   const start = worldStart(world);
   if (!start) throw new Error("The world has no signals and no startsAt.");
   const year = addUtcMonths(start, 12);
@@ -399,6 +405,8 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   };
 
   configureSignalRuntime({ ai, clock, db: state.db });
+  // The oracle PM drafts its own briefs; Signal's automatic ones would only add model calls.
+  configureAutoBriefs(policy.pmPolicy === "follows_signal");
   configureSuggestionScheduler((task) => {
     if (arm === "signal") state.pending.push(task);
   });
@@ -407,6 +415,13 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
     meter.setPhase("setup");
     await loadDayZero(state, ai, start);
     progress(`[${arm}] day 0: ${world.backlog.length} backlog needs loaded`);
+    if (arm === "signal" && policy.pmPolicy === "follows_signal") {
+      const strategy = await writeStrategy(state);
+      await drain(state);
+      progress(
+        `[${arm}] day 0: strategy written (${strategy.focusThemeIds.length} focus themes, readiness ${strategy.readinessArrCents} cents)`,
+      );
+    }
 
     const weeks = Math.ceil((end.getTime() - start.getTime()) / WEEK_MS);
     const pmTime = (week: number) =>
@@ -464,6 +479,7 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
     };
   } finally {
     resetSignalRuntime();
+    resetAutoBriefs();
     resetSuggestionScheduler();
     if (priorSecret === undefined) delete process.env.OPERATOR_SECRET;
     else process.env.OPERATOR_SECRET = priorSecret;

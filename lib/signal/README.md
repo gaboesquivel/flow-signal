@@ -57,7 +57,7 @@ Submissions (`domain/submissions.ts`): a merged-away `target.needId` lands on th
 - `domain/need-facts.ts`: Operator facts about one need (supporters, accounts and ARR, use cases, scores, trend) for model prompts; no submitter names or emails. `trendOf` holds the rising / steady / falling rule.
 - `domain/demand.ts`: `get_demand_summary` numbers (SQL) plus the `demand_summary` reasoner call; any model failure gives `summary: null, ai: "unavailable"` with the numbers intact.
 - `domain/priority.ts`: `suggestPriorityScores({ ai, db, now }, needId)` asks the reasoner (task `priority`) for a 0–5 score and reason per criterion and files a pending `priority` suggestion (payload `{ reason, scores, reasons }`, `suggestion.created` by `signal:ai`); a pending one for the same need is refreshed instead of duplicated. Suggestion generation calls it after every signal lands.
-- `domain/decisions.ts`: `draftDecisionBrief` (task `decision_brief`; demand, accounts, and value in the markdown come from the database, options and the recommendation from the model) and `publishDecision` (need status, `decisions` row with the latest accepted/edited brief, `decision.published` with the publisher as actor, one transaction). `get_my_signals` and the public need view read the `decisions` table.
+- `domain/decisions.ts`: `draftDecisionBrief` (task `decision_brief` on the decision model, spec 007 / 0006; demand, accounts, and value in the markdown come from the database, the current strategy is in the prompt and its version in the payload, options and the recommendation with confidence and strategy fit from the model) and `publishDecision` (need status, `decisions` row with the latest accepted/edited brief, `decision.published` with the publisher as actor and the brief's `recommendedStatus`, one transaction). `get_my_signals` and the public need view read the `decisions` table.
 - `ai/reasoning-model.ts`: `reasoningModelReasoner()`, the one production `Reasoner` (see AI ports).
 
 **Resolve hooks.** `resolve_suggestion` applies these two kinds by calling, inside its transaction and before marking the suggestion resolved (for `accept` and `edit`; `reject` applies nothing):
@@ -68,6 +68,14 @@ Submissions (`domain/submissions.ts`): a merged-away `target.needId` lands on th
 | `decision_brief` | `applyDecisionBriefSuggestion(tx, { suggestion, edit? })` | `decisionBriefEditSchema`: `{ markdown }`                          | Accept: nothing else. Edit: replaces `payload.markdown` (keeps `originalMarkdown`). `publish_decision` attaches the latest accepted or edited brief to the decision. |
 
 Both throw `validation_failed` for a malformed edit; `applyPrioritySuggestion` throws `conflict` (merged need) or `not_found`. They are registered as handlers in `domain/suggestion-kinds.ts` (see PM triage).
+
+## Strategy and readiness (spec 007)
+
+Operations: `get_strategy`, `set_strategy`, `list_ready_needs` (all Operator; `set_strategy` is a write).
+
+- `domain/strategy.ts`: the append-only strategy (`getStrategy`, `setStrategy`, `readinessLine`, `DEFAULT_READINESS` when none is written).
+- `domain/readiness.ts`: `checkReadiness(deps, needIds?)` marks live, undecided needs (`draft | open`, no decision, `ready_at` null) whose distinct supporting accounts' ARR or distinct supporters reach either nonzero threshold: sets `ready_at` and records `need.ready` once (`dedupeKey: need.ready:<needId>`, payload `{ arrCents, supporters, strategyVersion }`, actor `signal:ai`). It then schedules an automatic `draftDecisionBrief` for every ready, undecided need that has no pending brief and none drafted since it became ready, so a brief that failed with `ai_unavailable` is retried on the next check. Hooks: suggestion generation (the signal's need), `merge_needs` and `undo_merge` (scheduled after the response), `set_strategy` (every live need, inline, for `newlyReady`). `listReadyNeeds` backs `list_ready_needs`.
+- `domain/scheduler.ts`: the off-hot-path scheduler shared by suggestion generation, readiness, and auto briefs (`scheduleOffHotPath`; `after()` in route handlers, a recorder in tests).
 
 ## PM triage
 

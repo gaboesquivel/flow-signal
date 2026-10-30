@@ -12,6 +12,11 @@
 //   --out <path>              JSON report (default evals/crewday/results/latest.json, gitignored)
 //   --limit-weeks <n>         smoke runs only: stop the replay after n weeks (never a result)
 //   --database-url <url>      local Docker test database instead of in-process PGlite
+//   --pm-policy oracle|follows_signal
+//                             PM decision policy (default oracle, spec 004). follows_signal
+//                             (spec 007, Signal arm only) publishes Signal's recommendations
+//   --pm-override <p>         follows_signal: chance of publishing the strategy-implied status
+//                             instead of the recommendation (default 0.2)
 // oxlint-disable eslint/no-await-in-loop -- runtime overrides are process-wide, so arms run one at a time
 import { execFileSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -43,11 +48,13 @@ import type { ArmScore } from "./score";
 import {
   createOfflineSignalAi,
   createOracleEmbedder,
+  defaultPolicy,
   keywordRank,
+  pmPolicies,
   resolvePolicy,
   runArm,
 } from "./sim";
-import type { PolicyParams, SimDatabaseTarget } from "./sim";
+import type { PmPolicy, PolicyParams, SimDatabaseTarget } from "./sim";
 import { BucketedUsage, loadGatewayPrices } from "./spend";
 import { loadWorld } from "./world";
 
@@ -60,6 +67,8 @@ export interface CrewdayOptions {
   db: SimDatabaseTarget;
   limitWeeks: number | null;
   out: string;
+  pPmOverride: number;
+  pmPolicy: PmPolicy;
   seed: number;
   world: WorldName;
 }
@@ -72,6 +81,8 @@ export const parseCrewdayArgs = (argv: string[]): CrewdayOptions => {
       "database-url": { type: "string" },
       "limit-weeks": { type: "string" },
       out: { default: "evals/crewday/results/latest.json", type: "string" },
+      "pm-override": { default: String(defaultPolicy.pPmOverride), type: "string" },
+      "pm-policy": { default: defaultPolicy.pmPolicy, type: "string" },
       seed: { default: "1", type: "string" },
       world: { default: "dev", type: "string" },
     },
@@ -87,12 +98,20 @@ export const parseCrewdayArgs = (argv: string[]): CrewdayOptions => {
   const limitWeeks = limit === undefined ? null : Number(limit);
   if (limitWeeks !== null && !(Number.isInteger(limitWeeks) && limitWeeks > 0))
     throw new Error("--limit-weeks must be a positive integer");
+  const pmPolicy = values["pm-policy"] as PmPolicy;
+  if (!pmPolicies.includes(pmPolicy))
+    throw new Error(`--pm-policy must be one of ${pmPolicies.join("|")}`);
+  const pPmOverride = Number(values["pm-override"]);
+  if (!(Number.isFinite(pPmOverride) && pPmOverride >= 0 && pPmOverride <= 1))
+    throw new Error("--pm-override must be a probability between 0 and 1");
   const url = values["database-url"];
   return {
     arm,
     db: url ? { kind: "url", url } : { kind: "pglite" },
     limitWeeks,
     out: values.out ?? "evals/crewday/results/latest.json",
+    pPmOverride,
+    pmPolicy,
     seed,
     world,
   };
@@ -254,10 +273,10 @@ export const runCrewday = async (
   const world = truncate(await loadCrewdayWorld(options.world), options.limitWeeks);
   const findable = keywordFindableShare(world);
   const arms: ArmName[] = options.arm === "both" ? ["signal", "board"] : [options.arm];
-  const policy = resolvePolicy();
+  const policy = resolvePolicy({ pPmOverride: options.pPmOverride, pmPolicy: options.pmPolicy });
   const prices = deps.prices ?? {};
   log(
-    `[eval:crewday] world ${options.world}@${WORLD_VERSION}: ${world.backlog.length} backlog needs, ${world.signals.length} signals; arms ${arms.join(", ")}; seed ${options.seed}${options.limitWeeks ? `; SMOKE ${options.limitWeeks} weeks` : ""}`,
+    `[eval:crewday] world ${options.world}@${WORLD_VERSION}: ${world.backlog.length} backlog needs, ${world.signals.length} signals; arms ${arms.join(", ")}; PM ${policy.pmPolicy}; seed ${options.seed}${options.limitWeeks ? `; SMOKE ${options.limitWeeks} weeks` : ""}`,
   );
   if (options.world === "test")
     log("[eval:crewday] held-out test world: an acceptance run. Never tune on this result.");

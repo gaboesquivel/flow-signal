@@ -66,10 +66,23 @@ const buildFixture = async (db: SignalDb) => {
     type: "need.merged",
   });
   await recordEvent(db, {
+    actor: { kind: "agent", ref: "signal:readiness" },
+    dedupeKey: `need.ready:${n1}`,
+    needId: n1,
+    occurredAt: at("2026-10-27T12:00:00Z"),
+    payload: { arrCents: 30_000_000, strategyVersion: 1, supporters: 3 },
+    type: "need.ready",
+  });
+  await recordEvent(db, {
     actor: agent,
     needId: n1,
     occurredAt: at("2026-10-29T12:00:00Z"),
-    payload: { decisionId: randomUUID(), status: "planned" },
+    payload: {
+      briefSuggestionId: randomUUID(),
+      decisionId: randomUUID(),
+      recommendedStatus: "planned",
+      status: "planned",
+    },
     type: "decision.published",
   });
   for (const [kind, status] of [
@@ -142,6 +155,17 @@ runParityTable({
           withUseCase: 2,
         });
         assert.deepEqual(metrics.supporting.timeToTriage, { medianHours: 24, resolved: 3 });
+        assert.deepEqual(metrics.directionAccuracy, {
+          byActorKind: { agent: { matched: 1, total: 1 }, human: { matched: 0, total: 0 } },
+          matched: 1,
+          rate: 1,
+          total: 1,
+        });
+        assert.deepEqual(metrics.readinessLeadTime, {
+          decided: 1,
+          medianDays: 2,
+          readyUndecidedOver30Days: 0,
+        });
       },
       input: () => thisWeek,
       name: "reads this week's metrics, split human vs. agent",

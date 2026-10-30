@@ -14,6 +14,8 @@ import type { getMetrics } from "./operations/get-metrics";
 import type { getMySignals } from "./operations/get-my-signals";
 import type { getNeed } from "./operations/get-need";
 import type { getNeedDetail } from "./operations/get-need-detail";
+import type { getStrategy } from "./operations/get-strategy";
+import type { listReadyNeeds } from "./operations/list-ready-needs";
 import type { listSuggestions } from "./operations/list-suggestions";
 import type { mergeNeeds } from "./operations/merge-needs";
 import type { previewSignal } from "./operations/preview-signal";
@@ -21,6 +23,7 @@ import type { publishDecision } from "./operations/publish-decision";
 import type { resolveSuggestion } from "./operations/resolve-suggestion";
 import type { searchNeeds } from "./operations/search-needs";
 import type { setCriteria } from "./operations/set-criteria";
+import type { setStrategy } from "./operations/set-strategy";
 import type { splitNeed } from "./operations/split-need";
 import type { submitSignal } from "./operations/submit-signal";
 import type { undoMerge } from "./operations/undo-merge";
@@ -75,6 +78,18 @@ export const signalRoutes = {
     name: "get_need_detail",
     path: "/api/operator/needs/:id",
   },
+  get_strategy: {
+    access: "operator",
+    method: "GET",
+    name: "get_strategy",
+    path: "/api/operator/strategy",
+  },
+  list_ready_needs: {
+    access: "operator",
+    method: "GET",
+    name: "list_ready_needs",
+    path: "/api/operator/needs/ready",
+  },
   list_suggestions: {
     access: "operator",
     method: "GET",
@@ -112,6 +127,12 @@ export const signalRoutes = {
     name: "set_criteria",
     path: "/api/operator/criteria",
   },
+  set_strategy: {
+    access: "operator",
+    method: "PUT",
+    name: "set_strategy",
+    path: "/api/operator/strategy",
+  },
   split_need: {
     access: "operator",
     method: "POST",
@@ -143,6 +164,11 @@ export interface SignalOperations {
   get_my_signals: { input: InputOf<typeof getMySignals>; output: OutputOf<typeof getMySignals> };
   get_need: { input: InputOf<typeof getNeed>; output: OutputOf<typeof getNeed> };
   get_need_detail: { input: InputOf<typeof getNeedDetail>; output: OutputOf<typeof getNeedDetail> };
+  get_strategy: { input: InputOf<typeof getStrategy>; output: OutputOf<typeof getStrategy> };
+  list_ready_needs: {
+    input: InputOf<typeof listReadyNeeds>;
+    output: OutputOf<typeof listReadyNeeds>;
+  };
   list_suggestions: {
     input: InputOf<typeof listSuggestions>;
     output: OutputOf<typeof listSuggestions>;
@@ -159,6 +185,7 @@ export interface SignalOperations {
   };
   search_needs: { input: InputOf<typeof searchNeeds>; output: OutputOf<typeof searchNeeds> };
   set_criteria: { input: InputOf<typeof setCriteria>; output: OutputOf<typeof setCriteria> };
+  set_strategy: { input: InputOf<typeof setStrategy>; output: OutputOf<typeof setStrategy> };
   split_need: { input: InputOf<typeof splitNeed>; output: OutputOf<typeof splitNeed> };
   submit_signal: { input: InputOf<typeof submitSignal>; output: OutputOf<typeof submitSignal> };
   undo_merge: { input: InputOf<typeof undoMerge>; output: OutputOf<typeof undoMerge> };
@@ -193,6 +220,14 @@ export interface SignalClient {
     input: SignalOperations["get_need_detail"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["get_need_detail"]["output"]>>;
+  getStrategy: (
+    input: SignalOperations["get_strategy"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["get_strategy"]["output"]>>;
+  listReadyNeeds: (
+    input: SignalOperations["list_ready_needs"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["list_ready_needs"]["output"]>>;
   listSuggestions: (
     input: SignalOperations["list_suggestions"]["input"],
     call?: SignalCallOptions,
@@ -221,6 +256,10 @@ export interface SignalClient {
     input: SignalOperations["set_criteria"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["set_criteria"]["output"]>>;
+  setStrategy: (
+    input: SignalOperations["set_strategy"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["set_strategy"]["output"]>>;
   splitNeed: (
     input: SignalOperations["split_need"]["input"],
     call?: SignalCallOptions,
@@ -248,6 +287,10 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
   getNeed: (input, call) => callSignalOperation(signalRoutes.get_need, input, options, call),
   getNeedDetail: (input, call) =>
     callSignalOperation(signalRoutes.get_need_detail, input, options, call),
+  getStrategy: (input, call) =>
+    callSignalOperation(signalRoutes.get_strategy, input, options, call),
+  listReadyNeeds: (input, call) =>
+    callSignalOperation(signalRoutes.list_ready_needs, input, options, call),
   listSuggestions: (input, call) =>
     callSignalOperation(signalRoutes.list_suggestions, input, options, call),
   mergeNeeds: (input, call) => callSignalOperation(signalRoutes.merge_needs, input, options, call),
@@ -261,6 +304,8 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
     callSignalOperation(signalRoutes.search_needs, input, options, call),
   setCriteria: (input, call) =>
     callSignalOperation(signalRoutes.set_criteria, input, options, call),
+  setStrategy: (input, call) =>
+    callSignalOperation(signalRoutes.set_strategy, input, options, call),
   splitNeed: (input, call) => callSignalOperation(signalRoutes.split_need, input, options, call),
   submitSignal: (input, call) =>
     callSignalOperation(signalRoutes.submit_signal, input, options, call),

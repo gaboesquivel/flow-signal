@@ -6,11 +6,14 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CHAT_MODEL,
   DEFAULT_GENUI_MODEL,
+  DEFAULT_SIGNAL_DECISION_MODEL,
   DEFAULT_SIGNAL_EMBEDDING_MODEL,
   DEFAULT_SIGNAL_FAST_MODEL,
   DEFAULT_SIGNAL_REASONING_MODEL,
+  anthropicByokOptions,
   directModelId,
   gatewayAvailable,
+  signalDecisionModelId,
   signalEmbeddingModelId,
   signalFastModelId,
   signalReasoningModelId,
@@ -29,6 +32,7 @@ describe("model defaults", () => {
       DEFAULT_GENUI_MODEL,
       DEFAULT_SIGNAL_FAST_MODEL,
       DEFAULT_SIGNAL_REASONING_MODEL,
+      DEFAULT_SIGNAL_DECISION_MODEL,
       DEFAULT_SIGNAL_EMBEDDING_MODEL,
     ])
       expect(types, id).toContain(`'${id}'`);
@@ -46,8 +50,26 @@ describe("model defaults", () => {
     );
   });
 
+  it("uses Claude Fable 5.1 for decision tasks (0006), overridable by env", () => {
+    expect(DEFAULT_SIGNAL_DECISION_MODEL).toBe("anthropic/claude-fable-5.1");
+    expect(signalDecisionModelId({})).toBe(DEFAULT_SIGNAL_DECISION_MODEL);
+    expect(signalDecisionModelId({ SIGNAL_DECISION_MODEL: " anthropic/claude-sonnet-5.5 " })).toBe(
+      "anthropic/claude-sonnet-5.5",
+    );
+  });
+
   it("maps gateway ids to direct Anthropic ids", () => {
     expect(directModelId("anthropic/claude-sonnet-5.5")).toBe("claude-sonnet-5-5");
+  });
+});
+
+describe("anthropicByokOptions", () => {
+  it("sends the trimmed Anthropic key as Gateway BYOK only when it is set", () => {
+    expect(anthropicByokOptions({})).toEqual({});
+    expect(anthropicByokOptions({ ANTHROPIC_API_KEY: "  " })).toEqual({});
+    expect(anthropicByokOptions({ ANTHROPIC_API_KEY: " sk-ant-test " })).toEqual({
+      gateway: { byok: { anthropic: [{ apiKey: "sk-ant-test" }] } },
+    });
   });
 });
 

@@ -26,6 +26,7 @@ Theme   — PM-defined area (e.g. "Reporting")
   └─ Need   — the underlying problem; AI-drafted, PM-edited; what people support and PMs decide on
        ├─ Proposed solutions — extracted by AI from signals ("PDF export", "scheduled digest")
        └─ Signal × N — one person's submission, kept verbatim (their words, email, account, urgency, date)
+Strategy — PM-written focus themes, revenue focus, and capacity per quarter; priority scores and decision briefs read it
 ```
 
 - **Add my voice** creates a signal on an existing need. **Submit new** creates a signal and a draft need awaiting PM approval; draft needs appear publicly marked "new".
@@ -39,7 +40,7 @@ Theme   — PM-defined area (e.g. "Reporting")
 Recognizing that differently worded requests describe the same underlying need is a judgment about meaning that keyword search misses and humans do slowly. AI moves that work to where it is cheapest and most valuable:
 
 - **Today:** submit → pile up → PM reads everything later → merges by hand → context lost.
-- **With Signal:** as a request is submitted, AI states the underlying need, finds matching needs and explains why; the submitter adds their voice with their context, or files something genuinely new. Behind that, AI proposes merges and themes, scores priority against the team's criteria, and drafts decision briefs and stakeholder updates.
+- **With Signal:** as a request is submitted, AI states the underlying need, finds matching needs and explains why; the submitter adds their voice with their context, or files something genuinely new. Behind that, AI proposes merges and themes, scores priority against the team's criteria, flags needs ready for a decision with a recommended direction against the PM's strategy, and drafts decision briefs and stakeholder updates.
 
 The PM's job shifts from **organizing** feedback to **reviewing and deciding**.
 
@@ -112,7 +113,9 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 - **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
 - **AI quality (offline eval set, run in `pnpm eval`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
 - **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals.
-- **Guardrails:** unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
+- **Direction accuracy (proposed):** decision briefs whose recommended status matches the published decision ÷ published decisions that had a brief; weekly; source: the `decision_brief` payload + `decision.published`. On Crewday it is also scored against the strategy-implied decision. Baseline unknown; target ≥ 80% (hypothesis, low confidence).
+- **Readiness lead time (proposed):** median days from `need.ready` (a new event) to `decision.published`. Baseline unknown.
+- **Guardrails:** decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
 
 ## Riskiest assumptions
 
@@ -120,6 +123,7 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 2. Matching is accurate enough to trust; wrong matches feel dismissive. _Confidence: medium._
 3. PMs will trust and act on AI-proposed merges, scores, and briefs instead of redoing the work. _Confidence: low to medium._
 4. A duplicate check on every submission is fast and cheap enough (under 2 s, under $0.01). _Confidence: high._
+5. A recommended direction grounded in a written strategy is right often enough that PMs follow it instead of redoing the analysis. _Confidence: low._
 
 ## Kill criterion
 
@@ -133,8 +137,9 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 2. **Discover and support:** browse or search needs by theme and status; see how they are grouped and their demand band.
 3. **Track my signals:** follow status changes and decision notes through the private "My signals" link or MCP.
 4. **PM triage:** review AI-proposed draft needs, merges, themes, and public summaries; accept, edit, or reject; undo merges.
-5. **PM decide and communicate:** review priority scores against the team's criteria, generate a decision brief, publish a decision; supporters see the update.
+5. **PM decide and communicate:** Signal flags needs ready to decide with a recommended direction and brief; the PM reviews it against the strategy, publishes a decision; supporters see the update.
 6. **Agent:** over MCP, search, submit, and add support with context; with PM access, review suggestions and get demand summaries and decision briefs.
+7. **PM strategy:** write and update the strategy that scores and recommendations are judged against.
 
 ## Alternatives
 
