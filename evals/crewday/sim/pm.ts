@@ -7,7 +7,7 @@ import type { SuggestionView } from "@/lib/signal/domain/suggestions";
 import { shareSolution, trueScore, weightedScore } from "./oracle";
 import type { Verdict } from "./oracle";
 import { draw, identityOf } from "./state";
-import type { ActionClass, SimState } from "./state";
+import type { ActionClass, RecommendedStatus, SimState } from "./state";
 import type { CallResult, Surface } from "./surfaces";
 
 /**
@@ -27,6 +27,9 @@ import type { CallResult, Surface } from "./surfaces";
  *    need with the same true need and merges this one into it (`merge_needs`).
  *
  * Readiness is observed from the database for free (the PM's dashboard); only actions cost.
+ *
+ * Under `pmPolicy: "follows_signal"` (spec 007, Signal arm only), step 2 is
+ * `decideFollowingSignal` instead: Signal says which needs are ready and what to decide.
  */
 
 interface Week {
@@ -298,6 +301,25 @@ const NOTE = {
 
 const opposite = { declined: "planned", planned: "declined" } as const;
 
+const recommendationOf = (payload: unknown): RecommendedStatus | null => {
+  const recommendation = (payload as { recommendation?: { status?: unknown } } | undefined)
+    ?.recommendation;
+  const status = recommendation?.status;
+  return status === "planned" ||
+    status === "in_progress" ||
+    status === "shipped" ||
+    status === "declined"
+    ? status
+    : null;
+};
+
+/** The oracle only knows planned or declined: any other non-declined status is planned. */
+const asDecision = (status: RecommendedStatus) => (status === "declined" ? "declined" : "planned");
+
+/** The status Crewday's strategy memo implies for a need (declined when unknown). */
+const strategyDecision = (state: SimState, key: string | null) =>
+  (key && state.index.needs.get(key)?.strategyDecision.status) || "declined";
+
 /** Drafts and reviews a brief (Signal arm) or writes one by hand; false when it does not fit. */
 const prepareBrief = async (state: SimState, week: Week, needId: string) => {
   const { handBriefActions } = state.policy;
@@ -307,12 +329,12 @@ const prepareBrief = async (state: SimState, week: Week, needId: string) => {
       const { suggestion } = brief.data as { suggestion: SuggestionView };
       // Reviewed like any suggestion, so acceptance precision sees the verdict.
       await resolveOne(state, week, suggestion, new Set(), "deciding");
-      return "brief" as const;
+      return { recommended: recommendationOf(suggestion.payload), via: "brief" as const };
     }
   }
   if (week.budget < handBriefActions + 1) return false;
   spend(state, week, "deciding", "hand_brief", handBriefActions);
-  return "hand" as const;
+  return { recommended: null, via: "hand" as const };
 };
 
 const decide = async (state: SimState, week: Week, readyAt: Map<string, string>) => {
@@ -323,10 +345,10 @@ const decide = async (state: SimState, week: Week, readyAt: Map<string, string>)
   const briefCost = state.arm === "signal" ? 2 : state.policy.handBriefActions;
   for (const need of ready) {
     if (week.budget < briefCost + 1) return;
-    const via = await prepareBrief(state, week, need.id);
-    if (!via) return;
+    const prepared = await prepareBrief(state, week, need.id);
+    if (!prepared) return;
     const key = await identityOf(state, need.id);
-    const truth = (key && state.index.needs.get(key)?.strategyDecision.status) || "declined";
+    const truth = strategyDecision(state, key);
     const noisy = draw(state, `pm:decide:${key ?? need.id}:${week.index}`);
     const status = noisy.chance(state.policy.pPmError) ? opposite[truth] : truth;
     const published = await act(state, week, "deciding", "publish_decision", {
@@ -340,8 +362,145 @@ const decide = async (state: SimState, week: Week, readyAt: Map<string, string>)
         needId: need.id,
         needKey: key,
         readyAt: readyAt.get(need.id) ?? now,
+        recommendedStatus: prepared.recommended,
         status,
-        via,
+        via: prepared.via,
+      });
+  }
+};
+
+/** One need from `list_ready_needs` (spec 007 → Typed API contract). */
+export interface ReadyNeed {
+  arrCents: number;
+  brief: {
+    recommendation: {
+      capacityNote?: string;
+      confidence?: number;
+      note: string;
+      status: RecommendedStatus;
+      strategyFit?: { inFocus: boolean; reason: string };
+    } | null;
+    status: string;
+    suggestionId: string;
+  } | null;
+  needId: string;
+  readyAt: string;
+  statement: string;
+  supporters: number;
+}
+
+/** Every ready, undecided need (oldest ready first, Signal's order); one action per page. */
+const listReady = async (state: SimState, week: Week) => {
+  const ready: ReadyNeed[] = [];
+  let cursor: string | undefined;
+  do {
+    if (week.budget < 1) break;
+    const page = await act(state, week, "deciding", "list_ready_needs", cursor ? { cursor } : {});
+    if (!page.ok) break;
+    const data = page.data as { needs: ReadyNeed[]; nextCursor: string | null };
+    ready.push(...data.needs);
+    cursor = data.nextCursor ?? undefined;
+  } while (cursor);
+  return ready;
+};
+
+type ReadyBrief = NonNullable<ReadyNeed["brief"]>;
+
+/**
+ * Accepts a brief as Signal drafted it (the PM follows Signal), logging ground truth's verdict
+ * beside it so acceptance precision still sees whether the brief was right.
+ */
+const acceptBrief = async (state: SimState, week: Week, needId: string, brief: ReadyBrief) => {
+  const result = await act(state, week, "deciding", "resolve_suggestion", {
+    action: "accept",
+    id: brief.suggestionId,
+  });
+  const key = await identityOf(state, needId);
+  const truth = await judgeBrief(
+    state,
+    { payload: { recommendation: brief.recommendation } } as unknown as SuggestionView,
+    key,
+  );
+  state.log.verdicts.push({
+    applied: "accept",
+    kind: "decision_brief",
+    needId,
+    resolved: result.ok,
+    suggestionId: brief.suggestionId,
+    trueNeedKey: key,
+    truth: truth.verdict,
+  });
+  return result.ok;
+};
+
+/** Actions left to decide a need: publish, plus a review, plus a draft when there is no brief. */
+const costToDecide = (brief: ReadyNeed["brief"]) => {
+  if (brief?.status === "accepted" || brief?.status === "edited") return 1;
+  return brief?.status === "pending" ? 2 : 3;
+};
+
+/** A reviewed brief to publish from: drafted when missing, accepted when pending; else null. */
+const reviewedBrief = async (
+  state: SimState,
+  week: Week,
+  need: ReadyNeed,
+): Promise<ReadyBrief | null> => {
+  const cost = costToDecide(need.brief);
+  if (cost === 1) return need.brief;
+  let { brief } = need;
+  if (cost === 3) {
+    const drafted = await act(state, week, "deciding", "draft_decision_brief", {
+      id: need.needId,
+    });
+    if (!drafted.ok) return null;
+    const { suggestion } = drafted.data as { suggestion: SuggestionView };
+    brief = {
+      recommendation: (suggestion.payload.recommendation ?? null) as ReadyBrief["recommendation"],
+      status: suggestion.status,
+      suggestionId: suggestion.id,
+    };
+  }
+  if (!brief) return null;
+  return (await acceptBrief(state, week, need.needId, brief)) ? brief : null;
+};
+
+/**
+ * `follows_signal` (spec 007 → Crewday), Signal arm: the PM reads `list_ready_needs` instead of
+ * observing readiness, accepts each need's pending brief (`resolve_suggestion`), and publishes its
+ * recommendation; with `pPmOverride` (`pm:override:<need>:<week>`) it publishes the
+ * strategy-implied status instead. A need whose brief is missing (`brief: null`, or one already
+ * rejected) gets one drafted first (`draft_decision_brief`, one more action) when it fits; an
+ * already accepted or edited brief is published without another review. Same costs as `oracle`:
+ * one action per operation call; a need that does not fit the budget left waits for next week.
+ */
+const decideFollowingSignal = async (state: SimState, week: Week) => {
+  const ready = await listReady(state, week);
+  for (const need of ready) {
+    if (week.budget < costToDecide(need.brief)) continue;
+    const brief = await reviewedBrief(state, week, need);
+    if (!brief) continue;
+    const key = await identityOf(state, need.needId);
+    const truth = strategyDecision(state, key);
+    const recommended = recommendationOf(brief);
+    const override = draw(state, `pm:override:${key ?? need.needId}:${week.index}`).chance(
+      state.policy.pPmOverride,
+    );
+    const status = override || !recommended ? truth : asDecision(recommended);
+    const published = await act(state, week, "deciding", "publish_decision", {
+      id: need.needId,
+      note: NOTE[status],
+      status,
+    });
+    if (published.ok)
+      state.log.decisions.push({
+        at: state.clock.current().toISOString(),
+        needId: need.needId,
+        needKey: key,
+        overridden: recommended !== null && status !== asDecision(recommended),
+        readyAt: new Date(need.readyAt).toISOString(),
+        recommendedStatus: recommended,
+        status,
+        via: "brief",
       });
   }
 };
@@ -400,6 +559,8 @@ export const runPmWeek = async (state: SimState, memory: PmMemory, index: number
     surface: index % 2 === 0 ? "rest" : "operator_mcp",
   };
   await triage(state, week, memory.dead);
-  await decide(state, week, memory.readyAt);
+  await (state.arm === "signal" && state.policy.pmPolicy === "follows_signal"
+    ? decideFollowingSignal(state, week)
+    : decide(state, week, memory.readyAt));
   await manualDedup(state, week);
 };

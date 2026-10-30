@@ -60,12 +60,23 @@ export interface ArmScore {
   headline: {
     closeTheLoopRate: ScoredValue;
     decisionQuality: ScoredValue;
+    /**
+     * Spec 007: decisions whose brief recommended the strategy-implied status ÷ decisions that had
+     * a recommendation (in_progress and shipped count as planned). Null without any (board arm).
+     */
+    directionAccuracy: ScoredValue & { decisions: number };
     pmOrganizingShare: {
       deciding: number;
       organizing: number;
       total: number;
       value: number | null;
     };
+    /**
+     * Spec 007: simulated days from ready to decided, per policy-logged decision. `value` is the
+     * mean (a ratio, so it resamples and pairs like the others); `medianDays` is the point median.
+     * Ready is when the PM saw it (`oracle`) or Signal's `readyAt` (`follows_signal`).
+     */
+    readinessLeadTime: ScoredValue & { decisions: number; medianDays: number | null };
     revenueCoverage: ScoredValue;
     truePreventionRate: ScoredValue;
   };
@@ -275,6 +286,36 @@ const decisionOutcomes = (ctx: Ctx) => {
     if (right) correctAt.set(key, Math.min(correctAt.get(key) ?? at, at));
   }
   return { correctAt, decided, quality: scored(ctx, quality) };
+};
+
+/** Spec 007 → direction accuracy, against the strategy-implied decision of the scored need. */
+const directionAccuracy = (ctx: Ctx): ArmScore["headline"]["directionAccuracy"] => {
+  const perNeed: PerNeed = {};
+  let decisions = 0;
+  for (const decision of ctx.run.log.decisions) {
+    if (!decision.recommendedStatus) continue;
+    const key = decisionKeyOf(ctx, decision.needId);
+    if (key === undefined) continue;
+    const need = key ? ctx.needs.get(key) : undefined;
+    const right = need?.strategyDecision.status === strategyStatus(decision.recommendedStatus);
+    add(perNeed, ctx.keyOf(key), right ? 1 : 0, 1);
+    decisions += 1;
+  }
+  return { ...scored(ctx, perNeed), decisions };
+};
+
+/** Spec 007 → readiness lead time: ready → decided, in simulated days. */
+const readinessLeadTime = (ctx: Ctx): ArmScore["headline"]["readinessLeadTime"] => {
+  const perNeed: PerNeed = {};
+  const days: number[] = [];
+  for (const decision of ctx.run.log.decisions) {
+    const key = decisionKeyOf(ctx, decision.needId);
+    if (key === undefined) continue;
+    const lead = Math.max(0, (Date.parse(decision.at) - Date.parse(decision.readyAt)) / DAY_MS);
+    add(perNeed, ctx.keyOf(key), lead, 1);
+    days.push(lead);
+  }
+  return { ...scored(ctx, perNeed), decisions: days.length, medianDays: percentile(days, 0.5) };
 };
 
 /**
@@ -521,12 +562,14 @@ export const scoreRun = (world: World, run: RunResult, options: ScoreOptions = {
     headline: {
       closeTheLoopRate: closeTheLoop(ctx, decisions.decided),
       decisionQuality: decisions.quality,
+      directionAccuracy: directionAccuracy(ctx),
       pmOrganizingShare: {
         deciding: log.actions.length - organizing,
         organizing,
         total: log.actions.length,
         value: log.actions.length === 0 ? null : organizing / log.actions.length,
       },
+      readinessLeadTime: readinessLeadTime(ctx),
       revenueCoverage: revenueCoverage(ctx, decisions.correctAt),
       truePreventionRate: truePrevention(ctx),
     },
