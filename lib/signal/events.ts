@@ -25,8 +25,17 @@ import type { SignalQueryable } from "./db";
  * - `report.shared` (spec 013): payload `{ reportId, action: "share" | "refresh" | "revoke" }`.
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
+ * - `assistant.action_proposed` (spec 014): payload `{ actionId, operation }`; the actor is the
+ *   assistant agent (`client: "console:assistant"`).
+ * - `assistant.action_confirmed` (spec 014): payload `{ actionId, operation, edited }`;
+ *   `dedupeKey` from the action id; the actor is the PM. The write it ran records its own event
+ *   with `client: "console:assistant"`.
+ * - `assistant.action_rejected` (spec 014): payload `{ actionId, operation }`; the actor is the PM.
  */
 export type SignalEventType =
+  | "assistant.action_confirmed"
+  | "assistant.action_proposed"
+  | "assistant.action_rejected"
   | "decision.published"
   | "merge.undone"
   | "need.created"
