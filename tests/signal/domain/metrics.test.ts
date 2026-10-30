@@ -657,6 +657,61 @@ describeWithDatabase("metrics from the event log", () => {
       });
     });
 
+    it("follows merge chains on both sides when splitting filed-new-despite-match", async () => {
+      // Shown N1 later merged into N3; the draft merged into N3.
+      const n1 = randomUUID();
+      const n3 = randomUUID();
+      const viaShownSuccessor = await exposed(shownTo(null, [n1]));
+      await mergeInto(n1, n3, daysAgo(0.9));
+      await mergeInto(viaShownSuccessor.needId, n3);
+
+      // The draft merged into N4, then N4 merged into shown N2.
+      const n2 = randomUUID();
+      const n4 = randomUUID();
+      const viaDraftSuccessor = await exposed(shownTo(null, [n2]));
+      await mergeInto(viaDraftSuccessor.needId, n4);
+      await mergeInto(n4, n2, daysAgo(0.7));
+
+      // An undone link breaks the chain: the draft merged into N5, N5 into shown N6, undone.
+      const n5 = randomUUID();
+      const n6 = randomUUID();
+      const broken = await exposed(shownTo(null, [n6]));
+      await mergeInto(broken.needId, n5);
+      await undo(n5, await mergeInto(n5, n6, daysAgo(0.7)));
+
+      // A link after `to` doesn't count yet.
+      const n7 = randomUUID();
+      const n8 = randomUUID();
+      const later = await exposed(shownTo(null, [n7]));
+      await mergeInto(later.needId, n8);
+      await mergeInto(n8, n7, new Date(now.getTime() + DAY_MS));
+
+      expect((await metrics()).exposure.submissions.all.filedNewDespiteMatch).toEqual({
+        mergedElsewhere: 2,
+        mergedIntoShown: 2,
+        total: 4,
+        unmerged: 0,
+      });
+    });
+
+    it("counts a taken match split off the need its need was merged into", async () => {
+      const moved = await exposed(shownTo(1));
+      await exposed(shownTo(2));
+      const successor = randomUUID();
+      await mergeInto(moved.needId, successor);
+      await record({
+        actor: operator,
+        needId: successor,
+        occurredAt: daysAgo(0.5),
+        payload: { newNeedId: randomUUID(), signalIds: [moved.signalId] },
+        type: "need.split",
+      });
+      expect((await metrics()).exposure.submissions.all.movedOffTakenMatch).toEqual({
+        moved: 1,
+        rate: 0.5,
+      });
+    });
+
     it("counts previews with matches that no submission followed within 24 hours", async () => {
       await previewShown("pv_abandoned", 2);
       await previewShown("pv_empty", 0);
@@ -664,11 +719,16 @@ describeWithDatabase("metrics from the event log", () => {
       await exposed(shownTo(1), { at: daysAgo(1.5), previewId: "pv_submitted" });
       await previewShown("pv_late", 1, daysAgo(4));
       await exposed(shownTo(1), { at: daysAgo(1), previewId: "pv_late" });
+      // Its submit window closes exactly at `to`: counted.
+      await previewShown("pv_closed", 1, daysAgo(1));
+      // Still open at `to`: not counted yet.
+      await previewShown("pv_open", 1, new Date(daysAgo(1).getTime() + 1));
+      await previewShown("pv_recent", 1, daysAgo(0.2));
 
       expect((await metrics()).exposure.previewsWithoutSubmission).toEqual({
         agent: 0,
-        all: 2,
-        human: 2,
+        all: 3,
+        human: 3,
       });
     });
   });
