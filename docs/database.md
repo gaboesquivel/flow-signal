@@ -18,7 +18,7 @@ Tests never touch Neon. Each test file resets the tables it uses; parallel worke
 pnpm db:up
 ```
 
-Then set `DATABASE_URL_TEST=postgres://postgres:postgres@db.localtest.me:5432/signal_test` in `.env.local` (the default in `.env.example`). The test harness creates the database, enables pgvector, and applies the schema. Stop it with `pnpm db:down`. Without Docker, leave `DATABASE_URL_TEST` empty and tests run on PGlite.
+Then set `DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/signal_test` in `.env.local` (the default in `.env.example`). The test harness creates the database, enables pgvector, and applies the schema. Stop it with `pnpm db:down`. Without Docker, leave `DATABASE_URL_TEST` empty and tests run on PGlite.
 
 ## Current setup
 

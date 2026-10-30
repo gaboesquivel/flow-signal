@@ -42,21 +42,21 @@ REST limits: public operations are rate limited per IP (120/min) and bodies capp
 
 Tests run on one of two databases, chosen by `DATABASE_URL_TEST` (the shell wins over `.env.local`):
 
-| `DATABASE_URL_TEST`                                                           | Database                                                                                                                                           | Used by                                        |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| set, e.g. `postgres://postgres:postgres@db.localtest.me:5432/signal_test_t01` | Postgres 18 + pgvector in Docker, reached through the local Neon HTTP/WebSocket proxy with the production driver (`@neondatabase/serverless` Pool) | local runs                                     |
-| unset or empty                                                                | in-process PGlite with pgvector (`@electric-sql/pglite`, `@electric-sql/pglite-pgvector`), fresh per test file                                     | CI, and `DATABASE_URL_TEST= pnpm test` locally |
+| `DATABASE_URL_TEST`                                                     | Database                                                                                                                                           | Used by                                        |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| set, e.g. `postgres://postgres:postgres@localhost:5432/signal_test_t01` | Postgres 18 + pgvector in Docker, reached through the local Neon HTTP/WebSocket proxy with the production driver (`@neondatabase/serverless` Pool) | local runs                                     |
+| unset or empty                                                          | in-process PGlite with pgvector (`@electric-sql/pglite`, `@electric-sql/pglite-pgvector`), fresh per test file                                     | CI, and `DATABASE_URL_TEST= pnpm test` locally |
 
 Local Docker stack (compose project `signal`, fixed ports, shared by all worktrees):
 
 ```bash
 pnpm db:up          # docker compose -p signal up -d --wait: db on :5432, neon-proxy on :4444
-DATABASE_URL_TEST=postgres://postgres:postgres@db.localtest.me:5432/signal_test_<suffix> pnpm test
+DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/signal_test_<suffix> pnpm test
 pnpm db:test:setup  # optional: create the DATABASE_URL_TEST database and apply the schema now
 pnpm db:down
 ```
 
-- Give each parallel worktree its own database name (`signal_test_<suffix>`). The harness creates the database if missing and rebuilds its schema when `lib/db/schema.ts` changed (hash in `_signal_schema`), via `lib/db/prepare-database.ts`. If `db.localtest.me` does not resolve on your machine, use `localhost`; both go through the proxy (`configureNeonFor` in `lib/signal/db.ts`).
+- Give each parallel worktree its own database name (`signal_test_<suffix>`). The harness creates the database if missing and rebuilds its schema when `lib/db/schema.ts` changed (hash in `_signal_schema`), via `lib/db/prepare-database.ts`. Local hosts (`localhost`, `127.0.0.1`, `*.localtest.me`) go through the proxy (`configureNeonFor` in `lib/signal/db.ts`).
 - `tests/setup/database-env.ts` runs first in every test file. It points `DATABASE_URL` at the test database or removes it, so nothing under test can reach the dev database.
 - `tests/signal/**` is the `signal` Vitest project. Its files run one at a time in one fork because a Docker test database is shared by the files of one run.
 - In a database test, wrap the file in `describeWithDatabase(name, () => { const harness = useTestDatabase(); ... })` from `tests/signal/support/database.ts`. It opens the database, truncates every Signal table, routes every adapter to it (`configureSignalRuntime({ db, ai })`) with fake AI, and closes it afterwards. Tests never skip.

@@ -1,6 +1,6 @@
 # Local test database: Postgres 18 + pgvector behind a Neon HTTP/WebSocket proxy, so tests use
 # the same @neondatabase/serverless driver as production. `pnpm db:up` / `pnpm db:down`.
-# Connect with postgres://postgres:postgres@db.localtest.me:5432/<database> (see lib/signal/README.md).
+# Connect with postgres://postgres:postgres@localhost:5432/<database> (see lib/signal/README.md).
 name: signal
 
 services:
