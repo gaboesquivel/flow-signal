@@ -15,7 +15,7 @@
     "build:mcp-app": "vite build --config mcp-app/vite.config.ts",
     "build:agents": "for agent in agents/*/; do (cd \"$agent\" && eve build) || exit 1; done",
     "start": "pnpm build:agents && next start",
-    "db:migrate": "drizzle-kit push --force",
+    "db:migrate": "node scripts/db-extensions.mjs && drizzle-kit push --force",
     "lint": "oxlint . && oxfmt --check .",
     "lint:fix": "oxlint --fix . && oxfmt --write --no-error-on-unmatched-pattern .",
     "format": "oxfmt --write --no-error-on-unmatched-pattern .",
@@ -29,7 +29,11 @@
     "security:repo": "node tooling/security/check-repository.mjs",
     "security:check": "node --test tooling/security/block-secret-files.test.mjs && node tooling/security/check-repository.mjs && pnpm audit --prod --audit-level=high",
     "hooks:pre-commit": "node tooling/security/block-secret-files.mjs && node tooling/checks/check-staged.mjs",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "db:seed": "node --import tsx scripts/db-seed.ts",
+    "db:up": "docker compose -p signal up -d --wait",
+    "db:down": "docker compose -p signal down",
+    "db:test:setup": "node --import tsx scripts/db-test-setup.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",
@@ -67,6 +71,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.13",
+    "@electric-sql/pglite-pgvector": "0.0.14",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",
