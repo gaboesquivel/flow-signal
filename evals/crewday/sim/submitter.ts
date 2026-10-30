@@ -2,7 +2,7 @@ import { performance } from "node:perf_hooks";
 
 import type { WorldSignal } from "../format";
 import { trueKeys } from "./oracle";
-import { identityOf } from "./state";
+import { draw, identityOf } from "./state";
 import type { SimState, SubmissionRecord, SubmitChoice } from "./state";
 import type { Surface } from "./surfaces";
 
@@ -86,10 +86,11 @@ const previewAndChoose = async (
   let target: Record<string, unknown> = {
     newNeed: { statement: statementFor(data?.draftNeed.statement ?? signal.title, signal) },
   };
-  if (correct && state.rng.submitter.chance(state.policy.pAttach)) {
+  const rng = draw(state, `submitter:${signal.id}`);
+  if (correct && rng.chance(state.policy.pAttach)) {
     choice = "attach_true";
     target = { needId: correct };
-  } else if (!correct && shown[0] && state.rng.submitter.chance(state.policy.pWrong)) {
+  } else if (!correct && shown[0] && rng.chance(state.policy.pWrong)) {
     choice = "attach_wrong";
     target = { needId: shown[0] };
   }

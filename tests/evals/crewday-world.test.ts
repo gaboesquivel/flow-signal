@@ -280,17 +280,21 @@ describe("crewday held-out test world", () => {
   });
 
   /**
-   * Files under evals/crewday allowed to name the test world or the held-out token. Keep it small:
+   * Files under evals/, scripts/, and tests/ allowed to name the test world or the held-out token.
+   * Keep it small:
    * - held-out.ts defines the token.
    * - world.ts is the loader that checks it (and `checkRecipes`, which loads both recipes).
+   * - this guard test, which exercises the lock.
    * Tagged and acceptance runners (spec 004, tasks 06 and 07) are added here when they exist.
    */
-  const allowlist = new Set(["evals/crewday/held-out.ts", "evals/crewday/world.ts"]);
+  const guardTest = "tests/evals/crewday-world.test.ts";
+  const allowlist = new Set(["evals/crewday/held-out.ts", "evals/crewday/world.ts", guardTest]);
   const forbidden = [
     /worlds[\\/]test/u,
     /recipe[\\/]test/u,
     /["'`]worlds["'`]\s*,\s*["'`]test["'`]/u,
-    /(?:loadWorld|loadRecipe)\(\s*["'`]test["'`]/u,
+    /(?:loadWorld|loadRecipe|worldDir)\(\s*["'`]test["'`]/u,
+    /parseWorld\([^)]*test/u,
     /HELD_OUT/u,
     /held-out/u,
   ];
@@ -301,16 +305,26 @@ describe("crewday held-out test world", () => {
       'readFile("evals/crewday/worlds/test/v1/signals.json")',
       'path.join(root, "worlds", "test", "v1")',
       'await loadWorld("test", "v1")',
+      'worldDir("test", "v1")',
+      'parseWorld(await readJson("worlds/test/v1"))',
       'import { HELD_OUT } from "./held-out";',
     ]) {
       expect(forbidden.some((pattern) => pattern.test(sample))).toBe(true);
     }
   });
 
-  test("no tuning code under evals/crewday references the test world or the token", async () => {
-    const files = (await readdir(crewdayRoot, { recursive: true }))
-      .filter((file) => /\.(?:[cm]?[jt]s|tsx)$/u.test(file))
-      .map((file) => path.posix.join("evals/crewday", file.split(path.sep).join("/")));
+  test("no tuning code under evals/, scripts/, or tests/ references the test world or the token", async () => {
+    const files = (
+      await Promise.all(
+        ["evals", "scripts", "tests"].map(async (dir) =>
+          (await readdir(path.join(repoRoot, dir), { recursive: true })).map((file) =>
+            path.posix.join(dir, file.split(path.sep).join("/")),
+          ),
+        ),
+      )
+    )
+      .flat()
+      .filter((file) => /\.(?:[cm]?[jt]s|tsx)$/u.test(file));
     for (const file of allowlist) expect(files).toContain(file);
     const offenders: string[] = [];
     for (const file of files.filter((f) => !allowlist.has(f))) {

@@ -99,7 +99,7 @@ export const parseWorld = (
   return world;
 };
 
-export const worldDir = (name: WorldName, version: string) =>
+const worldDir = (name: WorldName, version: string) =>
   path.join(crewdayRoot, "worlds", name, version);
 
 /** Loads and validates `evals/crewday/worlds/<name>/<version>/`. */

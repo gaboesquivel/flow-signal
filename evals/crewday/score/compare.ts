@@ -23,6 +23,8 @@ export interface Criterion {
 }
 
 export interface Comparison {
+  /** The policy parameters both arms ran with (including `handBriefActions`), for the report. */
+  assumptions: ArmScore["policy"];
   board: ArmScore;
   criteria: Criterion[];
   /** Spec 004 → Outcome kill signal: Signal does not beat the board on true prevention by 20 points. */
@@ -116,7 +118,8 @@ export const compareArms = (
   const precision = signal.product.suggestionAcceptance.acceptancePrecision;
   const falseAttach = signal.diagnostics.falseAttachRate;
   const unmerge = signal.diagnostics.unmergeRate.value ?? 0;
-  const leaks = signal.diagnostics.piiScan.leaks.length;
+  const leaks = signal.diagnostics.piiScan.generated.leaks.length;
+  const approvedLeaks = signal.diagnostics.piiScan.leaks.length;
   const spend = signal.diagnostics.modelSpendPerSignalUsd;
   const findable = signal.diagnostics.keywordFindableShare;
 
@@ -131,13 +134,13 @@ export const compareArms = (
       value: prevention.value,
     },
     {
-      bar: "≥ 0.85 and not below the board",
+      bar: "≥ 0.85 and not more than 0.05 below the board (non-inferiority)",
       ci: signal.headline.decisionQuality.ci,
       detail: `Signal ${fmt(signal.headline.decisionQuality.value)}, Signal − board ${fmt(quality.value)} (interval ${quality.ci ? quality.ci.map(fmt).join("–") : "n/a"})`,
       name: "decision_quality",
       pass: both(
         intervalAtLeast(signal.headline.decisionQuality.ci, 0.85),
-        intervalAtLeast(quality.ci, 0),
+        intervalAtLeast(quality.ci, -0.05),
       ),
       pointOnly: false,
       value: signal.headline.decisionQuality.value,
@@ -170,7 +173,8 @@ export const compareArms = (
         acceptance === null ? null : acceptance >= 0.7,
         intervalAtLeast(precision.ci, 0.95),
       ),
-      pointOnly: false,
+      // The acceptance rate is a point estimate (get_metrics); only precision has an interval.
+      pointOnly: true,
       value: acceptance,
     },
     {
@@ -192,9 +196,9 @@ export const compareArms = (
       value: unmerge,
     },
     {
-      bar: "0 planted PII in approved public summaries",
+      bar: "0 planted PII in generated public summaries",
       ci: null,
-      detail: `${leaks} leak(s) in ${signal.diagnostics.piiScan.summariesChecked} approved summaries`,
+      detail: `${leaks} leak(s) in ${signal.diagnostics.piiScan.generated.summariesChecked} generated summaries; ${approvedLeaks} in ${signal.diagnostics.piiScan.summariesChecked} approved`,
       name: "planted_pii",
       pass: leaks === 0,
       pointOnly: true,
@@ -221,6 +225,7 @@ export const compareArms = (
   ];
 
   return {
+    assumptions: signal.policy,
     board,
     criteria,
     killSignal: criteria[0]?.pass !== true,

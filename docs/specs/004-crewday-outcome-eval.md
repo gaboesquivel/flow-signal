@@ -63,13 +63,13 @@ evals/crewday/
 
 Crewday is one Signal workspace, matching PRODUCT.md's single organization. Both worlds follow the same recipe and have the same shape. They share no needs, accounts, or personas, so neither world's labels can leak into the other. Target sizes per world:
 
-| Element          | v1 size | Notes                                                                                                                                                                                                      |
-| ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Accounts         | ~40     | Starter, Growth, and Enterprise, with ARR and open deals in a realistic long tail (a few accounts hold most revenue); some churn-risk and some in-flight deals                                             |
-| Personas         | ~200    | Ops admins, shift managers, frontline staff, HR and payroll, IT and security, and CSMs and sales reps filing for an account; some file through a support copilot over public MCP                           |
-| Themes           | 6       | For example Scheduling, Time and attendance, Payroll and exports, Compliance, Integrations, Mobile                                                                                                         |
-| Migrated backlog | ~40     | Needs that exist at day 0, imported as Crewday's old spreadsheet would have them: inconsistent wording, solution-named titles, and about 8 duplicate pairs                                                 |
-| Needs            | ~120    | Includes the backlog's true needs; hand-written in "who needs to do what so that outcome" form, each with an arrival curve (steady, bursty after an incident, seasonal, late-emerging) and a true priority |
+| Element          | v1 size                 | Notes                                                                                                                                                                                                      |
+| ---------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accounts         | ~40                     | Starter, Growth, and Enterprise, with ARR and open deals in a realistic long tail (a few accounts hold most revenue); some churn-risk and some in-flight deals                                             |
+| Personas         | ~200                    | Ops admins, shift managers, frontline staff, HR and payroll, IT and security, and CSMs and sales reps filing for an account; some file through a support copilot over public MCP                           |
+| Themes           | 6                       | For example Scheduling, Time and attendance, Payroll and exports, Compliance, Integrations, Mobile                                                                                                         |
+| Migrated backlog | ~40                     | Needs that exist at day 0, imported as Crewday's old spreadsheet would have them: inconsistent wording, solution-named titles, and about 8 duplicate pairs                                                 |
+| Needs            | ~120                    | Includes the backlog's true needs; hand-written in "who needs to do what so that outcome" form, each with an arrival curve (steady, bursty after an incident, seasonal, late-emerging) and a true priority |
 | Signals          | ~600 (v1; ~1,500 later) | 12 months after adoption; each carries its hidden labels                                                                                                                                                   |
 
 **Starting state.** The run begins by loading the migrated backlog through operations as approved needs, duplicates included, then turns on Signal. This reflects how a real customer adopts the product and gives both arms the same messy start. Merging the backlog's duplicates is part of the PM's work.
@@ -115,6 +115,9 @@ A discrete-event engine replays a world in timestamp order, in simulated time, t
   | Merge          | both needs share a true need                                               | (never edited)                                              |
   | Theme          | it equals the true theme                                                   | (never edited)                                              |
   | Priority score | it is within one point of the true priority                                | it is two points off                                        |
+  | Public summary | it names no persona, email, account, or planted PII                        | (never edited)                                              |
+  | Split          | the moved signals share one main true need that is not the need's own      | (never edited)                                              |
+  | Decision brief | its recommended status matches the strategy-implied decision               | the recommendation cannot be read                           |
 
   Everything else is rejected. Noise: `p_pm_error` (default 0.05) flips the verdict. "Nearest need in the recipe" is an embedding lookup against hand-written statements, not a judgment by a grading model. The need-statement rubric stays a separately reported metric.
 
@@ -182,11 +185,11 @@ Per arm and per world, with 95% bootstrap confidence intervals (resampling needs
 On `crewday-test`, default policy, Signal arm vs. vote board. A criterion passes only when its whole 95% interval clears the bar:
 
 - True prevention rate at least **20 points above** the board.
-- Decision quality ≥ 85% and not below the board.
+- Decision quality ≥ 85% and not more than 5 points below the board (non-inferiority: the paired interval's lower bound of Signal − board is at least −5 points).
 - Revenue coverage at least **1.5×** the board's.
 - PM organizing share at most **half** the board's.
 - Suggestion acceptance ≥ 70% with acceptance precision ≥ 95%. High acceptance with low precision is rubber-stamping and fails.
-- Guardrails: false attach rate ≤ 5%, unmerge rate < 5%, zero planted PII in public summaries, ≤ $0.01 model spend per signal.
+- Guardrails: false attach rate ≤ 5%, unmerge rate < 5%, zero planted PII in generated public summaries (every `public_summary` suggestion, whatever the PM did with it; approved summaries are reported as a second line), ≤ $0.01 model spend per signal.
 - The world itself is valid: keyword-findable share ≤ 60%.
 
 **Outcome kill signal (simulated):** if the Signal arm does not beat the vote board on true prevention rate by 20 points at the default policy after tuning on `crewday-dev`, the bet is flagged before any real-user pilot. This adds to PRODUCT.md's MVP kill criterion and does not replace it.
@@ -369,6 +372,8 @@ This task answers the bet on the dev world.
 ## Further Notes
 
 **What the simulation can and cannot prove.** It proves that Signal, given demand like Crewday's and people who behave within the swept ranges, produces better consolidation and better decisions on the revenue that matters than a vote board. It can falsify the product mechanism cheaply. It cannot prove that people behave as the policies assume. Latency and organizing-share results are relative to the policy's budget and readiness line, not absolute predictions.
+
+**Decision quality mostly measures noise here.** Both arms publish the strategy-implied verdict flipped with the same `p_pm_error`, so decision quality mostly reflects PM noise and which needs get decided, not better judgment; that is why its comparison with the board is non-inferiority, not superiority.
 
 **Known risk: a weak opponent.** PRODUCT.md says competitors already ship AI duplicate detection, so beating a plain vote board is necessary but not sufficient. Embedding-only dedupe is the next comparison.
 

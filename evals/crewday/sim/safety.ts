@@ -5,8 +5,10 @@ import { parseEnv } from "node:util";
 /**
  * Runner safety (spec 004 → Commands, Exposure): the simulation writes only to a test database,
  * in-process PGlite or local Docker Postgres (decision 0003). Every runner calls
- * `assertSimDatabase` before opening anything; it refuses any other URL, any Neon host, and the
- * `DATABASE_URL` from `.env.local` (the developer's own database) even when that is local.
+ * `assertSimDatabase` before opening anything; it refuses any other URL, any Neon host, the
+ * developer's own `DATABASE_URL` (from the environment, `.env`, `.env.development.local`, or
+ * `.env.local`) even when that is local, and any database whose name does not contain "test"
+ * (or equal `DATABASE_URL_TEST`'s).
  */
 
 export type SimDatabaseTarget = { kind: "pglite" } | { kind: "url"; url: string };
@@ -18,14 +20,24 @@ export class UnsafeDatabaseError extends Error {
   }
 }
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+/** All loopback spellings compare as one host. */
+const hostKey = (host: string) => (LOCAL_HOSTS.has(host.toLowerCase()) ? "loopback" : host);
 
 const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 
-/** `DATABASE_URL` as written in `.env.local`, if the file names one. */
-const envLocalDatabaseUrl = (envFile: string) => {
+/** A variable as written in an env file, if the file names one. */
+const envFileValue = (envFile: string, name: string) => {
   if (!existsSync(envFile)) return;
-  return parseEnv(readFileSync(envFile, "utf-8")).DATABASE_URL?.trim() || undefined;
+  return parseEnv(readFileSync(envFile, "utf-8"))[name]?.trim() || undefined;
+};
+
+const ENV_FILES = [".env", ".env.development.local", ".env.local"];
+
+/** The database name of a connection string, if it parses. */
+const databaseName = (value: string | undefined) => {
+  if (!value || !URL.canParse(value)) return;
+  return decodeURIComponent(new URL(value).pathname.slice(1));
 };
 
 /** Compares two connection strings by host, port, database, and user (ignores the password). */
@@ -33,7 +45,7 @@ const sameDatabase = (left: URL, right: string) => {
   try {
     const other = new URL(right);
     return (
-      left.hostname === other.hostname &&
+      hostKey(left.hostname) === hostKey(other.hostname) &&
       (left.port || "5432") === (other.port || "5432") &&
       left.pathname === other.pathname &&
       left.username === other.username
@@ -46,7 +58,10 @@ const sameDatabase = (left: URL, right: string) => {
 /** Throws `UnsafeDatabaseError` unless the target is PGlite or a local Docker test database. */
 export const assertSimDatabase = (
   target: SimDatabaseTarget,
-  { envFile = path.join(repoRoot, ".env.local") }: { envFile?: string } = {},
+  {
+    env = process.env,
+    envFiles = ENV_FILES.map((file) => path.join(repoRoot, file)),
+  }: { env?: Record<string, string | undefined>; envFiles?: string[] } = {},
 ) => {
   if (target.kind === "pglite") return target;
   let url: URL;
@@ -64,10 +79,15 @@ export const assertSimDatabase = (
     throw new UnsafeDatabaseError(
       `${host} is not local Docker (localhost or 127.0.0.1); use PGlite or local Docker.`,
     );
-  const devUrl = envLocalDatabaseUrl(envFile);
-  if (devUrl && sameDatabase(url, devUrl))
+  const devUrls = [env.DATABASE_URL, ...envFiles.map((file) => envFileValue(file, "DATABASE_URL"))];
+  if (devUrls.some((devUrl) => devUrl && sameDatabase(url, devUrl)))
     throw new UnsafeDatabaseError(
-      "the URL is DATABASE_URL from .env.local; use a separate test database.",
+      "the URL is the developer's DATABASE_URL; use a separate test database.",
+    );
+  const name = databaseName(target.url) ?? "";
+  if (!name.toLowerCase().includes("test") && name !== databaseName(env.DATABASE_URL_TEST))
+    throw new UnsafeDatabaseError(
+      `database "${name}" is not a test database (its name must contain "test").`,
     );
   return target;
 };

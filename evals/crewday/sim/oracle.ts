@@ -1,3 +1,7 @@
+import { embedMany } from "ai";
+
+import { gatewayEmbeddingModel } from "@/lib/ai/models";
+import { fakeEmbedder } from "@/lib/signal/ai/fakes";
 import { defaultCriteria } from "@/lib/signal/domain/criteria";
 import type { Embedder } from "@/lib/signal/ai/ports";
 
@@ -98,6 +102,38 @@ export const createNearestNeed = (world: World, embedder: Embedder): NearestNeed
       }
       return best?.key ?? null;
     },
+  };
+};
+
+/** The oracle's embedding model when live: deliberately not Signal's (`SIGNAL_EMBEDDING_MODEL`). */
+export const ORACLE_EMBEDDING_MODEL = "openai/text-embedding-3-large";
+/** List price of `ORACLE_EMBEDDING_MODEL`, USD per token ($0.13 per million). */
+const ORACLE_USD_PER_TOKEN = 0.13 / 1_000_000;
+
+/** An embedder that also reports its own spend, so the runner can keep it out of Signal's. */
+export interface OracleEmbedder extends Embedder {
+  spendUsd: () => number;
+}
+
+/**
+ * The oracle's embedder, independent of Signal's: `ORACLE_EMBEDDING_MODEL` through the AI
+ * Gateway when live, the offline fake otherwise. Its spend is tracked separately.
+ */
+export const createOracleEmbedder = ({ live }: { live: boolean }): OracleEmbedder => {
+  if (!live) return { ...fakeEmbedder(), spendUsd: () => 0 };
+  let tokens = 0;
+  return {
+    async embed(texts) {
+      if (texts.length === 0) return [];
+      const { embeddings, usage } = await embedMany({
+        model: gatewayEmbeddingModel(ORACLE_EMBEDDING_MODEL),
+        values: texts,
+      });
+      tokens += usage.tokens;
+      return embeddings;
+    },
+    model: ORACLE_EMBEDDING_MODEL,
+    spendUsd: () => tokens * ORACLE_USD_PER_TOKEN,
   };
 };
 

@@ -5,6 +5,7 @@ import path from "node:path";
 import { beforeAll, describe, expect, test } from "vitest";
 
 import { compareArms, scoreRun } from "@/evals/crewday/score";
+import { percentileInterval } from "@/evals/crewday/score/bootstrap";
 import type { ArmScore } from "@/evals/crewday/score";
 import { assertSimDatabase, createBoardAi, runArm, UnsafeDatabaseError } from "@/evals/crewday/sim";
 import type { RunResult } from "@/evals/crewday/sim";
@@ -298,9 +299,36 @@ describe("crewday simulation [pglite]", () => {
     ]);
     expect(comparison.lift.truePreventionRate.ci).not.toBeNull();
     expect(typeof comparison.killSignal).toBe("boolean");
-    expect(comparison.criteria.find((c) => c.name === "planted_pii")?.pass).toBe(true);
+    // The offline fake quotes the need statement in its public summary, and the PII signal's
+    // drafted statement carries its planted details: the generated-summary scan must catch that,
+    // whatever the PM did with the suggestion (it rejected it, so no approved summary leaks).
+    expect(signal.diagnostics.piiScan.generated.leaks.map((leak) => leak.pii)).toContain("88412");
+    expect(signal.diagnostics.piiScan.leaks).toEqual([]);
+    expect(comparison.criteria.find((c) => c.name === "planted_pii")?.pass).toBe(false);
+    expect(comparison.assumptions.handBriefActions).toBe(5);
     expect(comparison.criteria.find((c) => c.name === "model_spend_per_signal")?.pass).toBeNull();
     expect(compareArms(signal, board)).toEqual(comparison);
+  });
+});
+
+describe("crewday review fixes", () => {
+  test("drafted decision briefs are judged and logged like any suggestion", () => {
+    const { log } = run("signal");
+    const briefs = log.decisions.filter((decision) => decision.via === "brief").length;
+    const judged = log.verdicts.filter((verdict) => verdict.kind === "decision_brief");
+    expect(briefs).toBeGreaterThan(0);
+    expect(judged.length).toBe(briefs);
+    for (const verdict of judged) expect(["accept", "edit", "reject"]).toContain(verdict.truth);
+  });
+
+  test("a +∞ ratio (board at 0) stays in the bootstrap interval and clears any bar", () => {
+    expect(percentileInterval([Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, null])).toEqual([
+      Number.POSITIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+    ]);
+    const ci = percentileInterval([1, 2, Number.POSITIVE_INFINITY]);
+    expect(ci?.[0]).toBeCloseTo(1.05);
+    expect(ci?.[1]).toBe(Number.POSITIVE_INFINITY);
   });
 });
 
@@ -309,7 +337,9 @@ describe("crewday runner safety", () => {
     const envDir = await mkdtemp(path.join(tmpdir(), "crewday-env-"));
     const envFile = path.join(envDir, ".env.local");
     await writeFile(envFile, "DATABASE_URL=postgres://dev:secret@localhost:5432/signal_dev\n");
-    const check = (url: string) => () => assertSimDatabase({ kind: "url", url }, { envFile });
+    const env = { DATABASE_URL: "postgres://app:pw@localhost:5432/app_test_shared" };
+    const check = (url: string) => () =>
+      assertSimDatabase({ kind: "url", url }, { env, envFiles: [envFile] });
 
     expect(assertSimDatabase({ kind: "pglite" })).toEqual({ kind: "pglite" });
     expect(check("postgres://postgres:postgres@localhost:5432/signal_test_sim")).not.toThrow();
@@ -318,6 +348,11 @@ describe("crewday runner safety", () => {
       "postgres://user:pw@ep-cool-name-123456.us-east-2.aws.neon.tech/neondb",
       "postgres://user:pw@db.example.com:5432/signal",
       "postgres://dev:other@localhost:5432/signal_dev",
+      // process.env's DATABASE_URL (even named "test"), through any loopback spelling.
+      "postgres://app:pw@127.0.0.1:5432/app_test_shared",
+      "postgres://app:pw@[::1]:5432/app_test_shared",
+      // Local, but not named as a test database.
+      "postgres://postgres:postgres@localhost:5432/signal_sim",
       "mysql://root@localhost/signal",
       "not a url",
     ])

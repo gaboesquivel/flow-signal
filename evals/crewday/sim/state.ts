@@ -8,7 +8,7 @@ import type { SimClock } from "./clock";
 import type { AiMeter } from "./meter";
 import type { NearestNeed, WorldIndex } from "./oracle";
 import type { PolicyParams } from "./policy";
-import type { Rng } from "./rng";
+import { rngStream } from "./rng";
 import type { Surface, SurfaceRouter } from "./surfaces";
 
 /** What the run records beside the database: the policies' own log (spec 004 → Metrics). */
@@ -92,7 +92,8 @@ export interface SimState {
   policy: PolicyParams;
   /** Draft or backlog needs the PM has not read yet, oldest first. */
   readQueue: string[];
-  rng: { pm: Rng; submitter: Rng };
+  /** Run seed; policies draw from `draw(state, name)` streams keyed on it. */
+  seed: number;
   router: SurfaceRouter;
   /** `submit_signal` requests sent, by world signal id, so a planted retry resends one exactly. */
   sent: Map<string, Record<string, unknown>>;
@@ -100,6 +101,13 @@ export interface SimState {
   signalOrigin: Map<string, string>;
   world: World;
 }
+
+/**
+ * A one-off random stream for one named choice (common random numbers): keyed on the run seed and
+ * a world id (signal, true need, week), never on database ids or call order, so both arms see
+ * the same draw for the same signal or need.
+ */
+export const draw = (state: SimState, name: string) => rngStream(state.seed, name);
 
 /** The plurality main need of a need's current signals; ties by key. */
 const pluralityKey = async (state: SimState, needId: string) => {

@@ -46,13 +46,18 @@ const quantile = (sorted: number[], q: number) => {
   const high = Math.ceil(position);
   const a = sorted[low] ?? 0;
   const b = sorted[high] ?? a;
+  // Infinite values (a ratio over a zero board) stay infinite instead of becoming NaN.
+  if (a === b || position === low) return a;
   return a + (b - a) * (position - low);
 };
 
-/** The 2.5th and 97.5th percentiles of the finite statistics, or null when there are none. */
+/**
+ * The 2.5th and 97.5th percentiles of the defined statistics (±∞ kept: a resample where the board
+ * scores 0 and Signal does not is a ratio of +∞, which clears any bar), or null when none are.
+ */
 export const percentileInterval = (values: (number | null)[]): Interval | null => {
   const finite = values
-    .filter((value): value is number => value !== null && Number.isFinite(value))
+    .filter((value): value is number => value !== null && !Number.isNaN(value))
     .toSorted((a, b) => a - b);
   if (finite.length === 0) return null;
   return [quantile(finite, 0.025), quantile(finite, 0.975)];
