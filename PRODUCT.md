@@ -110,11 +110,11 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 
 ### Guardrails
 
-Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check. Last live measurements (2026-10-30): p95 4.7 s and $0.014 per signal, both over.
+Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check. Live, taken matches that a PM later splits off their need stand in for the false-match rate ([spec 012](./docs/specs/012-match-exposure.md)). Last live measurements (2026-10-30): p95 4.7 s and $0.014 per signal, both over.
 
 ### Diagnostics
 
-- **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
+- **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate, and match take-up: submissions shown a match that joined a shown need, the direct read on riskiest assumption 1 ([spec 012](./docs/specs/012-match-exposure.md)).
 - **AI quality (offline eval set, `pnpm eval:matching`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
 - **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals (`pnpm eval:crewday`, on demand). Decision quality is a non-inferiority check: both arms publish through the same noisy PM, so it mostly measures that noise. The simulation takes submitter behaviour as an input, so it cannot test riskiest assumption 1.
 - **Direction accuracy (proposed):** decision briefs whose recommended status matches the published decision ÷ published decisions that had a brief; weekly; source: the `decision_brief` payload + `decision.published`. On Crewday it is also scored against the strategy-implied decision. Baseline unknown; target ≥ 80% (hypothesis, low confidence).
@@ -132,7 +132,7 @@ Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero
 
 - **MVP (build exercise):** the offline eval set misses its thresholds (precision@3 < 90% or false-match rate > 5%) after tuning; then submission-time matching is not trustworthy and the bet is rethought.
 - **Simulated (before a pilot):** on the held-out Crewday world at default behaviour, Signal does not beat a plain vote board on true prevention rate by 20 points after tuning ([spec 004](./docs/specs/004-crewday-outcome-eval.md)).
-- **With real users:** over at least 200 submissions where Signal showed a match, prevention rate stays under 30% or unmerge rate exceeds 10%.
+- **With real users:** over at least 200 submissions where Signal showed a match, prevention rate stays under 30% or unmerge rate exceeds 10%. "Showed a match" comes from the exposure recorded on each signal, and `get_metrics` reports the count and verdict ([spec 012](./docs/specs/012-match-exposure.md)).
 
 ## Core journeys
 
