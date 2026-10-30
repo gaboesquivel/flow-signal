@@ -248,9 +248,9 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 - [x] 02: Generate the Crewday worlds
 - [x] 03: Simulation engine, policies, arms, and scorer (offline)
 - [ ] 04: Signal vs. vote board on Crewday (the lift run) _(runner built and merged; live dev and test results pending: the first live runs were stopped on 2026-10-30 before finishing, and evals are on hold until the team reruns them)_
-- [ ] 05: Behaviour sweep with cached AI responses _(deferred 2026-10-30: shipped without it for speed)_
-- [ ] 06: Tagged runs, history, and the regression rule _(deferred 2026-10-30: shipped without it for speed)_
-- [ ] 07: Harder matching set from the test world _(deferred 2026-10-30: shipped without it for speed)_
+- [x] 05: Behaviour sweep with cached AI responses
+- [x] 06: Tagged runs, history, and the regression rule _(built; the first tagged baseline comes from the task 04 live run)_
+- [x] 07: Harder matching set from the test world _(built; its first live result is pending)_
 
 ### 01: World format and fixture world
 
@@ -329,9 +329,9 @@ This task answers the bet on the dev world.
 
 **Blocked by:** 04
 
-- [ ] The sweep reports every success criterion for each grid cell and summarizes how robust each one is.
-- [ ] A second `--cached` dev run with unchanged code makes no model calls and gives an identical report (acceptance scenario step 6).
-- [ ] Tagged runs refuse `--cached`.
+- [x] The sweep reports every success criterion for each grid cell and summarizes how robust each one is. The grid (`evals/crewday/sweep.ts`) is one-at-a-time: the defaults, then `pAttach`, `pWrong`, `pm_actions`, `p_pm_error`, and `p_manual_find` each moved low and high (11 cells). Labels: holds across the grid, holds only at the defaults, fails at the defaults, not measured.
+- [x] A second `--cached` dev run with unchanged code makes no model calls and gives an identical report except wall-clock preview latency (acceptance scenario step 6; `tests/evals/crewday-cache.test.ts`). The cache (`evals/crewday/cache.ts`, gitignored `.cache/`) wraps the AI ports; judge verdicts are stored by candidate position because database ids differ per run. A cached run reports hits and new calls and does not judge the spend guardrail.
+- [x] Tagged runs refuse `--cached`.
 
 ### 06: Tagged runs, history, and the regression rule
 
@@ -341,10 +341,10 @@ This task answers the bet on the dev world.
 
 **Blocked by:** 04
 
-- [ ] A tagged run appends exactly one history entry and never rewrites earlier ones.
-- [ ] The comparison flags a metric as improved or regressed only when the intervals do not overlap. A test with synthetic history entries proves both directions and the no-change case.
-- [ ] `--tag` is rejected on the dev world.
-- [ ] The first tagged baseline (`v1-baseline`) is recorded.
+- [x] A tagged run appends exactly one history entry to `evals/crewday/history/tagged-runs.jsonl` and never rewrites earlier ones. Per metric and series (Signal, board, lift) an entry keeps the mean of the 3 repeats' estimates and the envelope of their intervals.
+- [x] The comparison flags a metric as improved or regressed only when the intervals do not overlap (touching overlaps), against the previous tagged run on the same world version. A test with synthetic history entries proves both directions and the no-change case.
+- [x] `--tag` is rejected on the dev world (and on the fixture, with `--cached`, `--sweep`, `--limit-weeks`, or one arm).
+- [ ] The first tagged baseline (`v1-baseline`) is recorded _(pending: `pnpm eval:crewday --world test --tag v1-baseline`, live)_.
 
 ### 07: Harder matching set from the test world
 
@@ -354,9 +354,9 @@ This task answers the bet on the dev world.
 
 **Blocked by:** 02
 
-- [ ] The run reports every listed metric overall, per trap kind, and for keyword-findable vs. not.
-- [ ] It reuses `evals/matching`'s pipeline, grader, and cost meter rather than copying them.
-- [ ] Its first result is recorded beside the `evals/matching` result, so the gap between the easy set and the hard set is visible.
+- [x] The run reports every listed metric overall, per trap kind, and for keyword-findable vs. not (`evals/crewday/matching.ts`). Each signal is matched against the needs that existed when it arrived (the backlog plus needs earlier signals raised, the leakage check's rule); none existing means a new need.
+- [x] It reuses `evals/matching`'s pipeline, grader, and cost meter rather than copying them.
+- [ ] Its first result is recorded beside the `evals/matching` result, so the gap between the easy set and the hard set is visible _(pending a live run: `pnpm eval:crewday --component matching`; the report prints the easy set's numbers beside its own)_.
 
 ## Out of Scope
 
