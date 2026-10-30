@@ -1,6 +1,6 @@
 # 009 — Post-submission duplicate backstop
 
-Status: accepted (2026-10-30)
+Status: implemented (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Metrics (prevention rate), Riskiest assumption 1, Diagnostics. Builds on [spec 001](./001-signal-mvp.md) (off-hot-path `merge` suggestions), [spec 004](./004-crewday-outcome-eval.md) (true prevention rate), and [spec 012](./012-match-exposure.md) (`preview.shown`, `signal.created.exposure`).
 
@@ -107,11 +107,11 @@ In scope:
 
 ## Tasks
 
-- [ ] 01: Merge checks with memory and multi-candidate proposals
-- [ ] 02: Duplicate sweep on submission, after `db:embed`, and `sweep_duplicates`
-- [ ] 03: Server check and `possibleDuplicates` on `submit_signal`; skip rate in metrics
-- [ ] 04: Submitter follow-up: `suggestedMatches` and `answer_suggested_match`
-- [ ] 05: Follow-up on `/my/<token>` and docs
+- [x] 01: Merge checks with memory and multi-candidate proposals
+- [x] 02: Duplicate sweep on submission, after `db:embed`, and `sweep_duplicates`
+- [x] 03: Server check and `possibleDuplicates` on `submit_signal`; skip rate in metrics
+- [x] 04: Submitter follow-up: `suggestedMatches` and `answer_suggested_match`
+- [x] 05: Follow-up on `/my/<token>` and docs
 
 ### 01: Merge checks with memory and multi-candidate proposals
 
