@@ -155,8 +155,8 @@ const sortRows = (rows: Row[], sort?: { column: string; direction: "asc" | "desc
   const sign = sort.direction === "asc" ? 1 : -1;
   return [...rows].toSorted((a, b) => {
     const order = compareCells(a[sort.column], b[sort.column]);
-    // Nulls stay last in either direction.
-    if (a[sort.column] === null || b[sort.column] === null) return order;
+    // Nulls and missing cells stay last in either direction.
+    if ((a[sort.column] ?? null) === null || (b[sort.column] ?? null) === null) return order;
     return sign * order;
   });
 };

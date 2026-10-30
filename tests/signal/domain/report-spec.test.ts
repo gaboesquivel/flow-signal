@@ -141,7 +141,7 @@ describe("report spec validation", () => {
   it("keeps table-only columns only on the rows the table shows", () => {
     const shown = spec([
       {
-        items: [{ aggregate: "sum", column: "arrCents", dataset: "d1", label: "ARR" }],
+        items: [{ aggregate: "count", column: "needId", dataset: "d1", label: "Needs" }],
         kind: "kpi",
       },
       {
@@ -157,13 +157,20 @@ describe("report spec validation", () => {
       d1: {
         columns: datasetColumns.needs,
         rows: [
-          { arrCents: 5, statement: "small" },
-          { arrCents: 9, statement: "big" },
+          { arrCents: 5, needId: "n1", statement: "small" },
+          { arrCents: 9, needId: "n2", statement: "big" },
+          { arrCents: 7, needId: "n3", statement: "middle" },
         ],
         truncated: false,
       },
     });
-    expect(pruned.d1?.rows).toEqual([{ arrCents: 5 }, { arrCents: 9, statement: "big" }]);
+    expect(pruned.d1?.rows).toEqual([
+      { needId: "n1" },
+      { arrCents: 9, needId: "n2", statement: "big" },
+      { needId: "n3" },
+    ]);
+    // Pruning again (as a shared link read does) keeps the same rows: missing cells sort last.
+    expect(pruneReportData(shown, structuredClone(pruned))).toEqual(pruned);
   });
 
   it("prunes data to the columns and datasets a spec shows", () => {
