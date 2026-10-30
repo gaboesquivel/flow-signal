@@ -27,6 +27,7 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
     exposure,
     killCriterion,
     preventionRate,
+    reportReuse,
     suggestionAcceptance,
     supporting,
   } = metrics;
@@ -38,6 +39,8 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
   const latency = decisionLatency.decided;
   const acceptance = suggestionAcceptance.overall;
   const kinds = acceptanceRows(suggestionAcceptance.byKind);
+  const reportsSaved = reportReuse.human.saved + reportReuse.agent.saved;
+  const reportsReused = reportReuse.human.reused + reportReuse.agent.reused;
 
   return (
     <div className="flex flex-col gap-8" data-window={days}>
@@ -211,6 +214,45 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
             split={{
               agents: `${kill.agent.shownSubmissions} · ${verdictLabels[kill.agent.verdict]}`,
               people: `${kill.human.shownSubmissions} · ${verdictLabels[kill.human.verdict]}`,
+            }}
+          />
+        </ol>
+      </section>
+
+      <section aria-labelledby="reports-heading" className="flex flex-col gap-3">
+        <h2 className={label} id="reports-heading">
+          Reports
+        </h2>
+        <ol className="border-rule-strong m-0 list-none border-t p-0">
+          <Metric
+            baseline={
+              <>
+                Diagnostic · baseline <b className="font-medium">unknown</b> · target{" "}
+                <b className="font-medium">≥ 40%</b> (hypothesis)
+              </>
+            }
+            definition="Reports first saved in the window that were opened, shared, or saved again within 14 days."
+            name="Report reuse"
+            value={
+              <BigNumber
+                detail={`${reportsReused} of ${plural(reportsSaved, "report")} reused`}
+                testId="report-reuse"
+                value={formatRate(reportsSaved === 0 ? null : reportsReused / reportsSaved)}
+              />
+            }
+            split={{
+              agents: rateLine(
+                reportReuse.agent.rate,
+                reportReuse.agent.reused,
+                reportReuse.agent.saved,
+                "none saved",
+              ),
+              people: rateLine(
+                reportReuse.human.rate,
+                reportReuse.human.reused,
+                reportReuse.human.saved,
+                "none saved",
+              ),
             }}
           />
         </ol>
