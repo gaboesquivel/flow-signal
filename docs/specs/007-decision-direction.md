@@ -84,7 +84,7 @@ Signal consolidates demand, but the decision step is still manual and reactive:
 
 ### Exposure
 
-All new operations are Operator-only and fail closed without `OPERATOR_SECRET`, like the rest of the Operator surface. No public route, board view, or public MCP tool changes; supporters see decisions exactly as today. `ANTHROPIC_API_KEY` is read only on the server and only sent to the AI Gateway inside a request's provider options; it is never logged or returned. Readiness checks and auto briefs run after the response (`after()`), never on the submit hot path.
+All new operations are Operator-only and fail closed without `OPERATOR_SECRET`, like the rest of the Operator surface. No public route, board view, or public MCP tool changes; supporters see decisions exactly as today. Decision calls run on AI Gateway credentials only; no Anthropic key is read ([0007](../decisions/0007-decision-model-on-gateway-credentials.md), [spec 010](./010-retro-remediation.md)). Readiness checks and auto briefs run after the response (`after()`), never on the submit hot path.
 
 ### UI
 
@@ -115,7 +115,7 @@ Actor: a PM in the Operator console, then an agent over Operator MCP. Starting s
 
 - [Spec 001](./001-signal-mvp.md) → Architecture and AI choices: decision briefs ran on `anthropic/claude-sonnet-5.5` (`SIGNAL_REASONING_MODEL`); they now run on `SIGNAL_DECISION_MODEL` (Claude Fable 5.1) per [0006](../decisions/0006-decision-model-fable-gateway-byok.md). Other reasoning tasks are unchanged.
 - [Spec 004](./004-crewday-outcome-eval.md) → Simulation → Decisions: the oracle PM stays the default; this spec adds a `follows_signal` policy beside it. No spec 004 behaviour changes.
-- `docs/INTEROP.md`: `ANTHROPIC_API_KEY` was "only used when `FLOW_ALLOW_DIRECT_ANTHROPIC=1`"; it is also sent to the AI Gateway as BYOK for decision tasks.
+- `docs/INTEROP.md`: `ANTHROPIC_API_KEY` was "only used when `FLOW_ALLOW_DIRECT_ANTHROPIC=1`"; it was also sent to the AI Gateway as BYOK for decision tasks. _Superseded by [0007](../decisions/0007-decision-model-on-gateway-credentials.md) and [spec 010](./010-retro-remediation.md): no BYOK and no direct provider path._
 - [PRODUCT.md](../../PRODUCT.md): Strategy, readiness, direction accuracy, readiness lead time, the per-brief guardrail, assumption 5, and journeys 5 and 7 were added on this branch (commit 065ee02).
 
 ## Out of Scope

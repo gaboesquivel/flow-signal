@@ -41,7 +41,7 @@ One branch with eight tasks. All of them are configuration, code-path removal, o
 
 1. **Gateway-only models.** All model and embedding calls, runtime and evals, go through `lib/ai/models.ts` on AI Gateway credentials (`AI_GATEWAY_API_KEY`, or Vercel OIDC). The direct Anthropic fallback, its flag, its status field, its dependency, and its docs are removed.
 2. **Worktrees arrive linked.** A root `.worktreeinclude` copies `.env.local`, `.env.production.local`, and `.vercel/` into every Claude Code worktree (sessions, subagents, `--worktree`).
-3. **Routine commands don't prompt.** A committed `.claude/settings.json` holds narrow allow rules for the commands agents run all day. Two classes still prompt through `ask` rules: deleting cloud resources and production database writes.
+3. **Routine commands don't prompt.** A committed `.claude/settings.json` holds narrow allow rules for the commands agents run all day. Two classes still prompt through `ask` rules: deleting cloud resources and production database writes (`pnpm db:migrate` asks, since it runs against whatever `DATABASE_URL` is set).
 4. **The classifier knows the environment.** AGENTS.md gets a short Environment section: these GitHub, Vercel, and Neon resources are the user's own; secrets are piped into CLIs, never printed; PRs merge only after `gh pr checks --watch` passes. The user adds the user-level `autoMode` block themselves (see User-only steps).
 5. **Each check runs once.**
    - A `test:changed` script for workers.
@@ -118,7 +118,6 @@ Committed `.claude/settings.json`, using the space form the docs use:
       "Bash(pnpm test:changed *)",
       "Bash(pnpm eval:matching *)",
       "Bash(pnpm eval:agents *)",
-      "Bash(pnpm db:migrate)",
       "Bash(docker compose -p signal *)"
     ],
     "ask": [
@@ -127,7 +126,8 @@ Committed `.claude/settings.json`, using the space form the docs use:
       "Bash(neonctl branches delete *)",
       "Bash(neonctl projects delete *)",
       "Bash(gh repo delete *)",
-      "Bash(pnpm db:seed *)"
+      "Bash(pnpm db:seed *)",
+      "Bash(pnpm db:migrate)"
     ]
   },
   "hooks": {}
@@ -238,7 +238,7 @@ Then, from a terminal, run `claude auto-mode critique`. After that, remove `ANTH
 
 **Acceptance scenario** (run later by the team; `review` gives each step a verdict):
 
-1. **Gateway-only code.** `git grep -nE "@ai-sdk/anthropic|createAnthropic|FLOW_ALLOW_DIRECT_ANTHROPIC|anthropicChat"` on `main` returns nothing outside `docs/decisions/`. `git grep -n "createGateway" -- evals` returns nothing.
+1. **Gateway-only code.** `git grep -nE "@ai-sdk/anthropic|createAnthropic|FLOW_ALLOW_DIRECT_ANTHROPIC|anthropicChat" -- ':!docs' ':!prompts.txt' ':!oxlint.config.ts'` on `main` returns nothing. `git grep -n "createGateway" -- evals` returns nothing.
 2. **Lint guard.** Adding `import { anthropic } from "@ai-sdk/anthropic"` to any file makes `pnpm lint` fail with the "Use gatewayModel…" message.
 3. **Worktree environment.** A new Claude Code session in its own worktree runs `vercel env ls` and gets the project's variables, with no "not linked" error and no prompt.
 4. **Permission rules.** In auto mode, `gh pr checks <n> --watch` followed by `gh pr merge <n> --squash` runs without a prompt or a classifier block. `vercel env rm X preview` prompts.

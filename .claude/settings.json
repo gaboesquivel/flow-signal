@@ -6,7 +6,6 @@
       "Bash(gh pr create *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr edit *)",
-      "Bash(gh pr comment *)",
       "Bash(gh run view *)",
       "Bash(gh run watch *)",
       "Bash(vercel env ls *)",
@@ -24,8 +23,11 @@
       "Bash(pnpm test:changed *)",
       "Bash(pnpm eval:matching *)",
       "Bash(pnpm eval:agents *)",
-      "Bash(pnpm db:migrate)",
-      "Bash(docker compose -p signal *)"
+      "Bash(docker compose -p signal *)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm test:changed)",
+      "Bash(pnpm eval:matching)",
+      "Bash(pnpm eval:agents)"
     ],
     "ask": [
       "Bash(vercel env rm *)",
@@ -33,7 +35,8 @@
       "Bash(neonctl branches delete *)",
       "Bash(neonctl projects delete *)",
       "Bash(gh repo delete *)",
-      "Bash(pnpm db:seed *)"
+      "Bash(pnpm db:seed *)",
+      "Bash(pnpm db:migrate)"
     ]
   },
   "hooks": {

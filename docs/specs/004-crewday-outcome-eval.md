@@ -90,7 +90,7 @@ Among the signals: two-ask submissions, vague complaints, typos and non-native E
 1. People hand-write the recipe: needs, traps, backlog, accounts, personas, and the strategy memo.
 2. A model from a different family than Signal's runtime models writes each signal from a **persona and a scenario**: who they are, what went wrong at work that week, and optionally a solution they have in mind. It never sees the need statement. The label is attached by construction before the text exists.
 3. **Leakage check:** for every signal, rank the world's needs by keyword search (the vote-board arm's retriever) on the signal's title and body. The **keyword-findable share** is the share whose true need ranks first. The world is rejected and regenerated if more than 60% of signals that should match an existing need are keyword-findable (at least 40% must need meaning, not words). Every report prints this share.
-4. A stratified sample is reviewed (weighted toward traps), and any signal that drifted from its scenario's need is fixed or dropped. _Open: who reviews and how much; see Further Notes._
+4. A stratified sample is reviewed (weighted toward traps), and any signal that drifted from its scenario's need is fixed or dropped. _Deferred to v1.1: v1 shipped without review; see Further Notes._
 5. Each world is frozen. Any change is a new version (`v2`), never an edit in place. Generation scripts record model ids, prompts, and RNG seeds.
 
 ### Simulation
@@ -266,7 +266,7 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 
 ### 02: Generate the Crewday worlds
 
-**What to build:** the written Crewday recipe and the scripts that generate `crewday-dev@v1` and `crewday-test@v1` from it. Signals are written by a non-Signal model family from persona and scenario, never from need statements. Each world is checked for keyword leakage, a stratified sample is reviewed, and both worlds are frozen and committed.
+**What to build:** the written Crewday recipe and the scripts that generate `crewday-dev@v1` and `crewday-test@v1` from it. Signals are written by a non-Signal model family from persona and scenario, never from need statements. Each world is checked for keyword leakage, a stratified sample is reviewed (deferred to v1.1, see Further Notes), and both worlds are frozen and committed.
 
 **Area:** evals/crewday, package.json
 

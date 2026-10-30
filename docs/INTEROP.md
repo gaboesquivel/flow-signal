@@ -63,7 +63,7 @@ Operator web (`/operator`), `/api/operator/chat`, and `/api/mcp/operator` use a 
 
 Gateway credentials are `AI_GATEWAY_API_KEY`, or Vercel OIDC: automatic on Vercel deployments, and locally `VERCEL_OIDC_TOKEN` from `vercel env pull .env.local` (an empty `AI_GATEWAY_API_KEY` beside it is fine). The OIDC token expires after about 12 hours; pull again when live evals (`pnpm eval:*`) skip with "the AI Gateway is unavailable".
 
-Every model call (chat, GenUI, Signal operations, Eve agents, and evals) goes through the AI Gateway via `lib/ai/models.ts`; there is no direct provider path, and lint rejects direct provider SDK imports ([spec 010](./specs/010-retro-remediation.md)). Without Gateway credentials, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
+Every model call (chat, GenUI, Signal operations, Eve agents, and evals) goes through the AI Gateway (app and eval code via `lib/ai/models.ts`; Eve agents by Gateway model id); there is no direct provider path, and lint rejects direct provider SDK imports ([spec 010](./specs/010-retro-remediation.md)). Without Gateway credentials, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
 
 ## Environment variables (summary)
 
