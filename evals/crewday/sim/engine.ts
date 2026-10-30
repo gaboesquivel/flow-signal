@@ -79,6 +79,11 @@ export interface RunArmOptions {
    */
   limitWeeks?: number;
   /**
+   * Signals whose suggestion generation may run at once in the background (default 8). 1 waits
+   * for each signal's generation before the next submission.
+   */
+  generationConcurrency?: number;
+  /**
    * The embedder for the oracle's "nearest need in the world" lookup, independent of Signal's
    * (`createOracleEmbedder({ live })`). Default: the offline fake. Unmetered, so it never counts
    * as a PM model call; its `spendUsd` is subtracted from the arm's model spend.
@@ -354,6 +359,32 @@ const drain = async (state: SimState) => {
   while (state.pending.length > 0) await state.pending.shift()?.();
 };
 
+/**
+ * Suggestion generation in the background, as production's `after()` runs it: each signal's
+ * tasks start right after its submission and overlap later submissions, at most `limit` signals
+ * at a time. Everything settles before a PM week and before scoring, so the PM always sees the
+ * suggestions of every signal submitted before it.
+ */
+const createBackground = (state: SimState, limit: number) => {
+  const inFlight = new Set<Promise<void>>();
+  return {
+    settle: async () => {
+      while (inFlight.size > 0) await Promise.all(inFlight);
+    },
+    async start() {
+      const tasks = state.pending.splice(0);
+      if (tasks.length === 0) return;
+      const job = state.meter
+        .withPhase("generation", async () => {
+          for (const task of tasks) await task();
+        })
+        .finally(() => inFlight.delete(job));
+      inFlight.add(job);
+      while (inFlight.size >= limit) await Promise.race(inFlight);
+    },
+  };
+};
+
 /** Replays one world through one arm and returns everything the scorer needs. */
 export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   const { arm, world, seed } = options;
@@ -428,8 +459,10 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
       new Date(Math.min(start.getTime() + (week + 1) * WEEK_MS, end.getTime()) - 60_000);
     const memory = createPmMemory();
     let week = 0;
+    const background = createBackground(state, Math.max(1, options.generationConcurrency ?? 8));
     const runWeeksUntil = async (limit: number) => {
       while (week < weeks && pmTime(week).getTime() <= limit) {
+        await background.settle();
         clock.set(pmTime(week));
         meter.setPhase("pm");
         await runPmWeek(state, memory, week);
@@ -449,8 +482,9 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
       clock.set(at);
       meter.setPhase("submitter");
       await replaySignal(state, signal);
-      await drain(state);
+      await background.start();
     }
+    await background.settle();
     await runWeeksUntil(end.getTime());
 
     clock.set(end);

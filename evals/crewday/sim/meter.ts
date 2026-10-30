@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import type { SignalAi } from "@/lib/signal/ai/ports";
 
 /**
@@ -29,12 +30,16 @@ export interface AiMeter {
   setPhase: (phase: MeterPhase) => void;
   /** Runs `body` with calls attributed to `op:<name>`. */
   withOperation: <T>(name: string, body: () => Promise<T>) => Promise<T>;
+  /** Runs `body` in `phase` whatever the current phase is (background generation). */
+  withPhase: <T>(phase: MeterPhase, body: () => Promise<T>) => Promise<T>;
 }
 
 export const createAiMeter = (): AiMeter => {
   const calls: AiCall[] = [];
   let phase: MeterPhase = "setup";
-  let operation: string | undefined;
+  // Background generation overlaps the replay, so attribution follows the async context.
+  const context = new AsyncLocalStorage<{ operation?: string; phase: MeterPhase }>();
+  const current = () => context.getStore() ?? { phase };
   const isModel = (call: AiCall) => call.port !== "retriever";
   return {
     calls,
@@ -50,20 +55,14 @@ export const createAiMeter = (): AiMeter => {
         (call) => isModel(call) && call.phase === target && !call.cause.startsWith("op:"),
       ).length,
     record: (port) => {
-      calls.push({ cause: operation ? `op:${operation}` : phase, phase, port });
+      const { operation, phase: at } = current();
+      calls.push({ cause: operation ? `op:${operation}` : at, phase: at, port });
     },
     setPhase: (next) => {
       phase = next;
     },
-    async withOperation(name, body) {
-      const previous = operation;
-      operation = name;
-      try {
-        return await body();
-      } finally {
-        operation = previous;
-      }
-    },
+    withOperation: (name, body) => context.run({ ...current(), operation: name }, body),
+    withPhase: (next, body) => context.run({ phase: next }, body),
   };
 };
 
