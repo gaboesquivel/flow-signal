@@ -5,7 +5,7 @@ MCP-first and API-first web shell with GenUI composition, Eve agent tools, and a
 ## Capabilities
 
 - **Web:** prompt-driven UI generation with OpenUI Lang and shadcn components (\`POST /api/genui/compose\`).
-- **Chat:** sidebar assistant at \`/api/chat\` (optional Anthropic key).
+- **Chat:** sidebar assistant at \`/api/chat\` (Vercel AI Gateway: \`AI_GATEWAY_API_KEY\` or OIDC).
 - **MCP:** Streamable HTTP at \`/api/mcp\` with \`compose_ui\` and catalog tools.
 - **Discovery:** \`llms.txt\`, \`.well-known/mcp/*\`, OpenAPI at \`/openapi.json\`.
 
