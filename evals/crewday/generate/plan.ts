@@ -696,11 +696,14 @@ export const buildPlan = (recipe: Recipe, seed: number, prefix: string): Plan =>
   }
 
   // Planted invalid submissions: an extra slot each, blank where submit_signal needs text.
+  // Clamped inside the year (same RNG draws as before, so earlier plans are unchanged).
+  const end = monthStart(MONTHS);
   for (let n = 0; n < INVALID; n += 1) {
     const base = pick(rng, plainSlots());
+    const at = Math.min(Date.parse(base.at) + (1 + rng.int(240)) * 60_000, end - 60_000);
     slots.push({
       ...base,
-      at: new Date(Date.parse(base.at) + (1 + rng.int(240)) * 60_000).toISOString(),
+      at: new Date(at).toISOString(),
       invalidMode: n % 3 === 2 ? "blank-title" : "blank-body",
       needKeys: [...base.needKeys],
       planted: "invalid",
@@ -710,7 +713,6 @@ export const buildPlan = (recipe: Recipe, seed: number, prefix: string): Plan =>
   }
 
   // Planted retries: the same web persona sends the same submission again minutes later.
-  const end = monthStart(MONTHS);
   const retryCandidates = shuffle(
     rng,
     slots.filter(
@@ -754,9 +756,11 @@ export const labelSlots = (slots: Slot[], needs: Need[]): Map<number, WorldSigna
     needs.flatMap((need) => (need.splitInto ?? []).map((child) => [child, need.key] as const)),
   );
   const mentioned = new Set<string>();
+  /** Main needs of earlier counted signals: only these created a need (as `checkOrderLabels`). */
+  const created = new Set<string>();
   const known = (key: string | undefined): boolean =>
     key !== undefined &&
-    (Boolean(needsByKey.get(key)?.inBacklog) || mentioned.has(key) || known(parentOf.get(key)));
+    (Boolean(needsByKey.get(key)?.inBacklog) || created.has(key) || known(parentOf.get(key)));
   const labels = new Map<number, WorldSignal["labels"]>();
   for (const slot of slots) {
     if (slot.planted === "retry") {
@@ -774,7 +778,10 @@ export const labelSlots = (slots: Slot[], needs: Need[]): Map<number, WorldSigna
       kind,
       needKeys: [...slot.needKeys],
     });
-    if (counted) for (const key of slot.needKeys) mentioned.add(key);
+    if (counted) {
+      for (const key of slot.needKeys) mentioned.add(key);
+      if (main !== undefined) created.add(main);
+    }
   }
   return labels;
 };

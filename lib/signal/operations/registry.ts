@@ -9,6 +9,7 @@ import { getNeedDetail } from "./get-need-detail";
 import { listOperatorNeeds } from "./list-operator-needs";
 import { getStrategy } from "./get-strategy";
 import { listReadyNeeds } from "./list-ready-needs";
+import { listThemes } from "./list-themes";
 import { listSuggestions } from "./list-suggestions";
 import { mergeNeeds } from "./merge-needs";
 import { previewSignal } from "./preview-signal";
@@ -54,6 +55,8 @@ export const allOperations: readonly (AnyOperation | PlannedOperation)[] = [
   getStrategy,
   setStrategy,
   listReadyNeeds,
+  // Spec 007 follow-up: theme choices for the strategy form.
+  listThemes,
 ];
 
 export const operations: readonly AnyOperation[] = allOperations.filter(

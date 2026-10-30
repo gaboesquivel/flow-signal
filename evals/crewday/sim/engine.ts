@@ -56,8 +56,9 @@ import { replaySignal } from "./submitter";
  * - Day 0, `follows_signal` only (spec 007): the world's strategy is written with `set_strategy`
  *   (`./strategy`), so Signal marks readiness and drafts briefs against it.
  * - Each signal: the submitter policy previews and submits it on its persona's surface; any
- *   suggestion generation `submit_signal` scheduled runs right after, at the same world time
- *   (no background timers; the board arm schedules none).
+ *   suggestion generation `submit_signal` scheduled starts right after, in the background at
+ *   that signal's world time (`createBackground`), and settles before the next PM week and
+ *   before scoring (the board arm schedules none).
  * - Each simulated week: the PM policy, at the end of the week, after that week's signals.
  * - Year end: a snapshot of the database, the event log, `get_metrics`, and every submitter's
  *   `get_my_signals` view, which `scoreRun` reads.
@@ -362,25 +363,55 @@ const drain = async (state: SimState) => {
 /**
  * Suggestion generation in the background, as production's `after()` runs it: each signal's
  * tasks start right after its submission and overlap later submissions, at most `limit` signals
- * at a time. Everything settles before a PM week and before scoring, so the PM always sees the
- * suggestions of every signal submitted before it.
+ * at a time. Each job runs at the world time of the submission that scheduled it
+ * (`clock.fork()`), so overlapping the next submission never re-stamps it.
+ *
+ * `settle` runs until nothing is in flight and nothing is queued, including work a job queued
+ * itself (readiness schedules automatic briefs), so the PM always sees everything caused by
+ * every signal submitted before it, and so does the scorer. A failed job fails the run at the
+ * next `start` or `settle`, as the synchronous path would, rather than as an unhandled rejection.
  */
-const createBackground = (state: SimState, limit: number) => {
+export const createBackground = (state: SimState, limit: number) => {
   const inFlight = new Set<Promise<void>>();
+  let failure: { error: unknown } | undefined;
+  const rethrow = () => {
+    if (failure) throw failure.error;
+  };
+  const launch = () => {
+    const tasks = state.pending.splice(0);
+    if (tasks.length === 0) return;
+    const atScheduledTime = state.clock.fork();
+    const run = async () => {
+      try {
+        await state.meter.withPhase("generation", () =>
+          atScheduledTime(async () => {
+            for (const task of tasks) await task();
+          }),
+        );
+      } catch (error) {
+        failure ??= { error };
+      } finally {
+        // Runs after the first await, so `job` is assigned by then.
+        inFlight.delete(job);
+      }
+    };
+    const job = run();
+    inFlight.add(job);
+  };
   return {
     settle: async () => {
-      while (inFlight.size > 0) await Promise.all(inFlight);
+      for (;;) {
+        launch();
+        if (inFlight.size === 0) break;
+        await Promise.all(inFlight);
+      }
+      rethrow();
     },
     async start() {
-      const tasks = state.pending.splice(0);
-      if (tasks.length === 0) return;
-      const job = state.meter
-        .withPhase("generation", async () => {
-          for (const task of tasks) await task();
-        })
-        .finally(() => inFlight.delete(job));
-      inFlight.add(job);
+      rethrow();
+      launch();
       while (inFlight.size >= limit) await Promise.race(inFlight);
+      rethrow();
     },
   };
 };

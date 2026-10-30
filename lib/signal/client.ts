@@ -19,6 +19,7 @@ import type { getStrategy } from "./operations/get-strategy";
 import type { listOperatorNeeds } from "./operations/list-operator-needs";
 import type { listReadyNeeds } from "./operations/list-ready-needs";
 import type { listSuggestions } from "./operations/list-suggestions";
+import type { listThemes } from "./operations/list-themes";
 import type { mergeNeeds } from "./operations/merge-needs";
 import type { previewSignal } from "./operations/preview-signal";
 import type { publishDecision } from "./operations/publish-decision";
@@ -110,6 +111,12 @@ export const signalRoutes = {
     name: "list_suggestions",
     path: "/api/operator/suggestions",
   },
+  list_themes: {
+    access: "operator",
+    method: "GET",
+    name: "list_themes",
+    path: "/api/operator/themes",
+  },
   merge_needs: {
     access: "operator",
     method: "POST",
@@ -195,6 +202,7 @@ export interface SignalOperations {
     input: InputOf<typeof listSuggestions>;
     output: OutputOf<typeof listSuggestions>;
   };
+  list_themes: { input: InputOf<typeof listThemes>; output: OutputOf<typeof listThemes> };
   merge_needs: { input: InputOf<typeof mergeNeeds>; output: OutputOf<typeof mergeNeeds> };
   preview_signal: { input: InputOf<typeof previewSignal>; output: OutputOf<typeof previewSignal> };
   publish_decision: {
@@ -262,6 +270,10 @@ export interface SignalClient {
     input: SignalOperations["list_suggestions"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["list_suggestions"]["output"]>>;
+  listThemes: (
+    input: SignalOperations["list_themes"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["list_themes"]["output"]>>;
   mergeNeeds: (
     input: SignalOperations["merge_needs"]["input"],
     call?: SignalCallOptions,
@@ -327,6 +339,7 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
     callSignalOperation(signalRoutes.list_ready_needs, input, options, call),
   listSuggestions: (input, call) =>
     callSignalOperation(signalRoutes.list_suggestions, input, options, call),
+  listThemes: (input, call) => callSignalOperation(signalRoutes.list_themes, input, options, call),
   mergeNeeds: (input, call) => callSignalOperation(signalRoutes.merge_needs, input, options, call),
   previewSignal: (input, call) =>
     callSignalOperation(signalRoutes.preview_signal, input, options, call),

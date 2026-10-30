@@ -42,6 +42,7 @@ import type { PriceTable } from "../matching/cost";
 import { isCounted } from "./checks";
 import type { World, WorldName } from "./format";
 import { HELD_OUT } from "./held-out";
+import type { HeldOut } from "./held-out";
 import { buildTable, renderReport } from "./report";
 import type { ArmName, ArmRunInfo, CrewdayReport } from "./report";
 import { compareArms, NOT_MEASURED, scoreRun } from "./score";
@@ -118,10 +119,14 @@ export const parseCrewdayArgs = (argv: string[]): CrewdayOptions => {
   };
 };
 
-/** Loads a world. The test world needs the held-out capability; only this entry point has it. */
-export const loadCrewdayWorld = (name: WorldName) =>
+/**
+ * Loads a world. The test world needs the held-out capability, passed through from the caller:
+ * only this file's `main` has it, so importing `runCrewday` or this function from elsewhere
+ * cannot open the test world without naming the token (which the guard test catches).
+ */
+export const loadCrewdayWorld = (name: WorldName, heldOut?: HeldOut) =>
   name === "test"
-    ? loadWorld("test", WORLD_VERSION, { heldOut: HELD_OUT })
+    ? loadWorld("test", WORLD_VERSION, heldOut ? { heldOut } : {})
     : loadWorld(name, WORLD_VERSION);
 
 /**
@@ -173,6 +178,8 @@ export interface CrewdayDeps {
   oracleEmbedder: () => Embedder;
   log?: (line: string) => void;
   mode: "live" | "offline";
+  /** The held-out capability; required for `--world test` (acceptance runs from `main` only). */
+  heldOut?: HeldOut;
   /** Live spend meter (registered as AI SDK telemetry) and price table; omitted offline. */
   usage?: BucketedUsage;
   prices?: PriceTable;
@@ -271,7 +278,7 @@ export const runCrewday = async (
 ): Promise<CrewdayReport> => {
   const log = deps.log ?? console.log;
   const started = performance.now();
-  const world = truncate(await loadCrewdayWorld(options.world), options.limitWeeks);
+  const world = truncate(await loadCrewdayWorld(options.world, deps.heldOut), options.limitWeeks);
   const findable = keywordFindableShare(world);
   const arms: ArmName[] = options.arm === "both" ? ["signal", "board"] : [options.arm];
   const policy = resolvePolicy({ pPmOverride: options.pPmOverride, pmPolicy: options.pmPolicy });
@@ -350,7 +357,7 @@ const main = async () => {
   const options = parseCrewdayArgs(process.argv.slice(2));
   if (!gatewayAvailable()) {
     console.log(
-      "[eval:crewday] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY in .env.local, or run on Vercel). This eval calls live models; nothing was scored.",
+      "[eval:crewday] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY in .env.local, or run `vercel env pull .env.local` for a VERCEL_OIDC_TOKEN, which expires after about 12 hours). This eval calls live models; nothing was scored.",
     );
     return;
   }
@@ -370,6 +377,7 @@ const main = async () => {
   }
   usage.drain("runtime");
   await runCrewday(options, {
+    heldOut: HELD_OUT,
     mode: "live",
     oracleEmbedder: () => createOracleEmbedder({ live: true }),
     prices: await loadGatewayPrices(),

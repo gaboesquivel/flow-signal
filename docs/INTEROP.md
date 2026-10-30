@@ -58,10 +58,13 @@ Operator web (`/operator`), `/api/operator/chat`, and `/api/mcp/operator` use a 
 | `AI_GATEWAY_API_KEY`          | Preferred live inference via Vercel AI Gateway (Assistant, Operator HTTP chat, GenUI compose when configured)                                                                |
 | `FLOW_ALLOW_DIRECT_ANTHROPIC` | Set to `1` to allow direct Anthropic when Gateway is unset (local override only)                                                                                             |
 | `ANTHROPIC_API_KEY`           | Direct chat with `FLOW_ALLOW_DIRECT_ANTHROPIC=1`; also sent to the Gateway as BYOK for Signal decision tasks ([0006](./decisions/0006-decision-model-fable-gateway-byok.md)) |
+| `ANTHROPIC_WORKSPACE_ID`      | Anthropic workspace for BYOK when `ANTHROPIC_API_KEY` is not workspace-scoped; sent as `anthropic-workspace-id` on the BYOK credential only                                  |
 | `CHAT_MODEL`                  | Optional model override (Gateway model id)                                                                                                                                   |
 | `EVE_AGENT_MODEL`             | Eve default model override                                                                                                                                                   |
 | `TYPESAFE_API_KEY`            | Optional compose routing                                                                                                                                                     |
 | `GENUI_MODEL`                 | Optional compose model override                                                                                                                                              |
+
+Gateway credentials are `AI_GATEWAY_API_KEY`, or Vercel OIDC: automatic on Vercel deployments, and locally `VERCEL_OIDC_TOKEN` from `vercel env pull .env.local` (an empty `AI_GATEWAY_API_KEY` beside it is fine). The OIDC token expires after about 12 hours; pull again when live evals (`pnpm eval:*`) skip with "the AI Gateway is unavailable".
 
 Without Gateway credentials and without the explicit direct-Anthropic override, HTTP chat returns a clear unavailable resolution. GenUI offline demos and fixtures work without credentials.
 

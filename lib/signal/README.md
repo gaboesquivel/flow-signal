@@ -73,7 +73,7 @@ Both throw `validation_failed` for a malformed edit; `applyPrioritySuggestion` t
 
 ## Strategy and readiness (spec 007)
 
-Operations: `get_strategy`, `set_strategy`, `list_ready_needs` (all Operator; `set_strategy` is a write).
+Operations: `get_strategy`, `set_strategy`, `list_ready_needs`, `list_themes` (all Operator; `set_strategy` is a write; `list_themes` gives the theme ids `set_strategy` takes).
 
 - `domain/strategy.ts`: the append-only strategy (`getStrategy`, `setStrategy`, `readinessLine`, `DEFAULT_READINESS` when none is written).
 - `domain/readiness.ts`: `checkReadiness(deps, needIds?)` marks live, undecided needs (`draft | open`, no decision, `ready_at` null) whose distinct supporting accounts' ARR or distinct supporters reach either nonzero threshold: sets `ready_at` and records `need.ready` once (`dedupeKey: need.ready:<needId>`, payload `{ arrCents, supporters, strategyVersion }`, actor `signal:ai`). It then schedules an automatic `draftDecisionBrief` for every ready, undecided need that has no pending brief and none drafted since it became ready, so a brief that failed with `ai_unavailable` is retried on the next check. Hooks: suggestion generation (the signal's need), `merge_needs` and `undo_merge` (scheduled after the response), `set_strategy` (every live need, inline, for `newlyReady`). `listReadyNeeds` backs `list_ready_needs`.

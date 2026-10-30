@@ -70,7 +70,7 @@ const { values: args } = parseArgs({
 
 if (!args.fake && !gatewayAvailable()) {
   log(
-    "[eval:matching] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY in .env.local, or run on Vercel). This eval calls live models; nothing was scored.",
+    "[eval:matching] SKIPPED: no AI Gateway access (set AI_GATEWAY_API_KEY in .env.local, or run `vercel env pull .env.local` for a VERCEL_OIDC_TOKEN, which expires after about 12 hours). This eval calls live models; nothing was scored.",
   );
   process.exit(0);
 }
