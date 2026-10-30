@@ -241,7 +241,7 @@ The same steps through the REST API and the Eve agent tools are covered by the p
 - [ ] 03: Matching eval set and threshold
 - [ ] 04: PM triage of AI suggestions
 - [ ] 05: Prioritization, demand, and decisions
-- [ ] 06: Metrics from the event log
+- [x] 06: Metrics from the event log
 - [ ] 07: Public board, submit, and My signals UI
 - [ ] 08: Operator console UI
 - [ ] 09: Agent behaviour evals and acceptance run
