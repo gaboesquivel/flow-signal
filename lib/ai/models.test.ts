@@ -49,8 +49,8 @@ describe("model defaults", () => {
     );
   });
 
-  it("uses Claude Fable 5.1 for decision tasks (0006), overridable by env", () => {
-    expect(DEFAULT_SIGNAL_DECISION_MODEL).toBe("anthropic/claude-fable-5.1");
+  it("uses Claude Sonnet 5.5 for decision tasks (0008), overridable by env", () => {
+    expect(DEFAULT_SIGNAL_DECISION_MODEL).toBe("anthropic/claude-sonnet-5.5");
     expect(signalDecisionModelId({})).toBe(DEFAULT_SIGNAL_DECISION_MODEL);
     expect(signalDecisionModelId({ SIGNAL_DECISION_MODEL: " anthropic/claude-sonnet-5.5 " })).toBe(
       "anthropic/claude-sonnet-5.5",

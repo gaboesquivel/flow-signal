@@ -158,3 +158,7 @@ Response: Background generation now settles chained work (auto briefs) before PM
 [2026-10-30T18:36:38Z]
 Prompt: Set ANTHROPIC_API_KEY on Vercel and GitHub; merge PR 6; investigate why BYOK needs a workspace id; remove the key; /to-spec "create a new decision record for this and ship it".
 Response: Set then removed ANTHROPIC_API_KEY on Vercel (Production, Preview) and GitHub; merged PR 6 (5d65b62). Confirmed Anthropic rejects the key directly (not workspace-scoped) and that gaboesquivel.com never sends it (Gateway credentials only). Wrote decision 0007 (decision calls bill to the Gateway, no BYOK; supersedes 0006 in part), back-pointers on 0006 and spec 007, removed BYOK code, ANTHROPIC_WORKSPACE_ID, and the BYOK warning; shipped.
+
+[2026-10-30T18:48:45Z]
+Prompt: Use a cheaper decision model (Sonnet); merge everything to main for review in another session.
+Response: Probed Sonnet 5.5 with the decision options live (2 s, no warnings, under $0.001). Wrote decision 0008 (default decision model Sonnet 5.5, Fable 5.1 the Crewday challenger; with 0007, 0006 is fully superseded), switched DEFAULT_SIGNAL_DECISION_MODEL, updated tests, comments, .env.example, back-pointers; merged to main.

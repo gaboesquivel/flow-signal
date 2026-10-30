@@ -8,8 +8,8 @@ export const DEFAULT_GENUI_MODEL = "anthropic/claude-sonnet-4.6";
 export const DEFAULT_SIGNAL_FAST_MODEL = "anthropic/claude-haiku-5.5";
 /** Signal off the hot path (scores, themes, summaries, briefs, demand summaries). */
 export const DEFAULT_SIGNAL_REASONING_MODEL = "anthropic/claude-sonnet-5.5";
-/** Decision tasks (decision briefs): spec 007, decision 0006. */
-export const DEFAULT_SIGNAL_DECISION_MODEL = "anthropic/claude-fable-5.1";
+/** Decision tasks (decision briefs): spec 007, decision 0008. */
+export const DEFAULT_SIGNAL_DECISION_MODEL = "anthropic/claude-sonnet-5.5";
 /** Need embeddings; 1536 dimensions to match `needs.embedding`. */
 export const DEFAULT_SIGNAL_EMBEDDING_MODEL = "openai/text-embedding-3-small";
 

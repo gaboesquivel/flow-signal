@@ -1,6 +1,6 @@
 # 0006 — Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key
 
-Status: Accepted (2026-10-30). Superseded in part by [0007](./0007-decision-model-on-gateway-credentials.md) (billing: no BYOK; decision calls run on the Gateway's credentials).
+Status: Accepted (2026-10-30). Superseded in part by [0007](./0007-decision-model-on-gateway-credentials.md) (billing: no BYOK; decision calls run on the Gateway's credentials) and by [0008](./0008-decision-model-sonnet.md) (default decision model: Sonnet 5.5).
 
 ## Context
 
