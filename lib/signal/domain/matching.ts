@@ -13,7 +13,7 @@ import { demandBandSchema, getPublicNeed, publicNeedStatusSchema } from "./publi
  * `ai: "unavailable"` with no matches; database errors still propagate.
  */
 
-/** Judge probability a candidate needs to be shown as a match. Task 03 tunes it on the eval set. */
+/** Judge probability a candidate needs to be shown as a match; confirmed by the task 03 live eval (spec 001). */
 export const MATCH_THRESHOLD = 0.6;
 /** Nearest needs passed to the judge. */
 export const CANDIDATE_LIMIT = 8;

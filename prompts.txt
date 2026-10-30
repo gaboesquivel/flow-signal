@@ -68,3 +68,7 @@ Response: Recorded decision 0003 (local Docker Postgres 18 + pgvector behind a N
 [2026-10-30T15:16:00Z]
 Prompt: Keep CI testing light; agent evals on demand or when agent code changes; overall goal is faster dev and maximum parallel execution. (Earlier: "you run all commands, I need to step away".)
 Response: Trimmed CI to install, security check and pnpm qa on PGlite (no evals, no Next build; Vercel previews build PRs); recorded the policy in spec 001; re-sequenced tasks so 03, 04 and 05 start now alongside 02 and 06, with UI tasks after their contracts merge. Also turned on Neon preview branching on the Vercel connection, gave local dev its own seeded Neon dev branch, and merged task 01.
+
+[2026-10-30T15:44:24Z]
+Prompt: Don't build UI yet; focus on the API, MCP and agents first.
+Response: Stopped the Operator UI worker (task 08) and saved its partial work on build/t08 (not merged); task 07's public UI was already merged and stays. Marked 08 deferred and 09 limited to agent and API journeys in spec 001. Recorded task 03's live eval (threshold 0.6 kept; quality targets met; latency 6.2 s p95 and rubric 3.69 still open) after making preview run extraction concurrently with judging. Task 09's agent behaviour evals continue.

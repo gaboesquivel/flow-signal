@@ -238,13 +238,13 @@ The same steps through the REST API and the Eve agent tools are covered by the p
 
 - [x] 01: Operation registry, schema, and public read of needs
 - [x] 02: Submit with a duplicate check
-- [ ] 03: Matching eval set and threshold
+- [x] 03: Matching eval set and threshold
 - [x] 04: PM triage of AI suggestions
 - [x] 05: Prioritization, demand, and decisions
 - [x] 06: Metrics from the event log
 - [x] 07: Public board, submit, and My signals UI
-- [ ] 08: Operator console UI
-- [ ] 09: Agent behaviour evals and acceptance run
+- [ ] 08: Operator console UI (deferred: API, MCP, and agents first; paused work on `build/t08`)
+- [ ] 09: Agent behaviour evals and acceptance run (agent and API journeys now; browser steps wait for 08)
 
 Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once, each defining its own operations' contracts first; they merge in order 02 → 06 → 03 → 04 → 05. The UI tasks start once the contracts they call are merged: 07 after 02, 08 after 04, 05, and 06. Each operation follows the build order in [Agent- and API-first](#agent--and-api-first-one-operation-registry): contract → failing parity and domain tests → implementation → adapters; the UI tasks come last.
 
@@ -288,6 +288,8 @@ Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once,
 - [ ] At least 120 labeled submissions against a fixture need catalog, covering paraphrases, same solution for different needs, multi-ask, and unrelated cases.
 - [ ] The runner reports precision@3, false-match rate, new-need recall, need-statement rubric score, p95 latency, and cost per signal, and joins `pnpm eval`; it skips with a message without Gateway access.
 - [ ] The judge threshold is tuned on the set and recorded in the spec; the run meets PRODUCT.md's thresholds (precision@3 ≥ 90%, false-match ≤ 5%) or the shortfall is reported as a kill-criterion result.
+
+**Result (live run, 2026-10-30, 131 cases, `anthropic/claude-haiku-5.5`):** at `MATCH_THRESHOLD` 0.6 (kept; also the best threshold in the sweep) precision@3 99.0%, false-match 0.8%, new-need recall 100%, match recall@3 100%, cost $0.00053 per signal: the kill criterion passes. Two guardrails miss: p95 latency 6.2 s (target 2 s; was 7.8 s before extraction ran concurrently with judging) and the need-statement rubric 3.69/5 (target 4). Both are open follow-ups.
 
 ### 04: PM triage of AI suggestions
 
