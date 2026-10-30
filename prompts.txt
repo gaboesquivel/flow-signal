@@ -72,3 +72,10 @@ Response: Trimmed CI to install, security check and pnpm qa on PGlite (no evals,
 [2026-10-30T15:44:24Z]
 Prompt: Don't build UI yet; focus on the API, MCP and agents first.
 Response: Stopped the Operator UI worker (task 08) and saved its partial work on build/t08 (not merged); task 07's public UI was already merged and stays. Marked 08 deferred and 09 limited to agent and API journeys in spec 001. Recorded task 03's live eval (threshold 0.6 kept; quality targets met; latency 6.2 s p95 and rubric 3.69 still open) after making preview run extraction concurrently with judging. Task 09's agent behaviour evals continue.
+
+[2026-10-30T16:10:00Z]
+Prompt: Explore a long-term testing strategy for Signal using Crewday as a realistic B2B SaaS customer (reproducible seed data, independent evals across MCP, APIs and agents, baselines, measuring improvement over time; no UI). Interview first.
+Response: Ran the interview skill: read PRODUCT.md, spec 001, the matching eval (131 cases, 30-need catalog, precision@3 0.99, rubric 3.69, p95 6.2 s) and the seed (analytics-product demo, 8 accounts). Opened with a hypothesis and challenges (saturated, self-authored eval; no baseline; only matching is measured; Crewday not yet in the repo) and asked the first question about who Crewday is.
+
+[2026-10-30T15:53:57Z]
+(Follow-up within the API/MCP/agents focus.) Fixed the failing Vercel preview build (Next.js import reached the Eve agent bundles; moved after() into lib/signal/next.ts with a guard test). Ran the full agent acceptance journey over MCP with live AI on the Neon dev branch (all steps pass) and committed it as pnpm acceptance:mcp (on demand). Cut fast-model latency by disabling extended thinking; live eval: precision@3 100%, false-match 0%, p95 4.7 s (target 2 s, open).

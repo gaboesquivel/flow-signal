@@ -86,6 +86,9 @@ const generateFast = async <T>(
       model: model ?? gatewayModel(signalFastModelId()),
       output: Output.object({ schema }),
       prompt,
+      // Adaptive thinking roughly triples hot-path latency with no gain on these narrow tasks
+      // (measured 2026-10-30: ~6 s → ~2 s per call). Spec 001 targets 2 s p95 for preview.
+      providerOptions: { anthropic: { thinking: { type: "disabled" } } },
     });
     return schema.parse(result.output);
   } catch (error) {

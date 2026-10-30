@@ -105,3 +105,20 @@ describe("gatewayJudge", () => {
     ).rejects.toMatchObject({ code: "ai_unavailable" });
   });
 });
+
+describe("hot-path latency settings", () => {
+  it("turns off extended thinking for the fast model (it doubles preview latency)", async () => {
+    const extractModel = reply({ additionalAsks: [], proposedSolution: null, statement: "x" });
+    await gatewayExtractor({ model: extractModel }).extract(submission);
+    const judgeModel = reply({ verdicts: [] });
+    await gatewayJudge({ model: judgeModel }).judge({
+      candidates: [{ needId: "n1", statement: "Executives need dashboards" }],
+      submission,
+    });
+    for (const model of [extractModel, judgeModel]) {
+      expect(model.doGenerateCalls[0]?.providerOptions).toMatchObject({
+        anthropic: { thinking: { type: "disabled" } },
+      });
+    }
+  });
+});

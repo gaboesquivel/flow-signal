@@ -289,7 +289,7 @@ Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once,
 - [ ] The runner reports precision@3, false-match rate, new-need recall, need-statement rubric score, p95 latency, and cost per signal, and joins `pnpm eval`; it skips with a message without Gateway access.
 - [ ] The judge threshold is tuned on the set and recorded in the spec; the run meets PRODUCT.md's thresholds (precision@3 ≥ 90%, false-match ≤ 5%) or the shortfall is reported as a kill-criterion result.
 
-**Result (live run, 2026-10-30, 131 cases, `anthropic/claude-haiku-5.5`):** at `MATCH_THRESHOLD` 0.6 (kept; also the best threshold in the sweep) precision@3 99.0%, false-match 0.8%, new-need recall 100%, match recall@3 100%, cost $0.00053 per signal: the kill criterion passes. Two guardrails miss: p95 latency 6.2 s (target 2 s; was 7.8 s before extraction ran concurrently with judging) and the need-statement rubric 3.69/5 (target 4). Both are open follow-ups.
+**Result (live run, 2026-10-30, 131 cases, `anthropic/claude-haiku-5.5`, extended thinking off, extraction concurrent with judging):** at `MATCH_THRESHOLD` 0.6 (kept; best in the sweep) precision@3 100%, false-match 0%, new-need recall 100%, match recall@3 100%, cost $0.00044 per signal: the kill criterion passes. Two guardrails still miss: p95 latency 4.7 s at 4 concurrent requests (target 2 s; 7.8 s before these two changes) and the need-statement rubric 3.77/5 (target 4). Both are open follow-ups; the slowest step is now the judge writing a verdict and reason for all 8 candidates.
 
 ### 04: PM triage of AI suggestions
 
