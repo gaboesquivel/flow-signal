@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal — Instrument</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — shadcn names + semantic extras, scoped per theme
+   ============================================================ */
+.theme-light{
+  --radius:.375rem;
+  --background:#f4f5f7; --foreground:#14171a;
+  --card:#ffffff; --card-foreground:#14171a;
+  --popover:#ffffff; --popover-foreground:#14171a;
+  --primary:#c2410c; --primary-foreground:#ffffff;
+  --secondary:#eceff2; --secondary-foreground:#1b1f24;
+  --muted:#eef0f3; --muted-foreground:#59616b;
+  --accent:#fff1e7; --accent-foreground:#9a3412;
+  --destructive:#b91c1c; --destructive-foreground:#ffffff;
+  --border:#dce0e5; --input:#c4cad1; --ring:#c2410c;
+  --chart-1:#c2410c; --chart-2:#0e7490; --chart-3:#475569; --chart-4:#15803d; --chart-5:#a16207;
+  --sidebar:#eceef1; --sidebar-foreground:#14171a; --sidebar-primary:#c2410c; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#dfe3e8; --sidebar-accent-foreground:#14171a; --sidebar-border:#d6dbe1; --sidebar-ring:#c2410c;
+  /* AI suggestion */
+  --ai:#0e7490; --ai-foreground:#ffffff; --ai-muted:#eef8fa; --ai-border:#0e7490;
+  /* human-confirmed / edited / rejected */
+  --confirmed:#14171a; --edited:#9a5b00; --edited-muted:#fdf4e3; --rejected:#59616b;
+  /* status (fg / bg) */
+  --status-new:#4b5563; --status-new-bg:#f0f2f4;
+  --status-open:#3730a3; --status-open-bg:#eef0ff;
+  --status-planned:#8a4b00; --status-planned-bg:#fdf3e1;
+  --status-progress:#1d4ed8; --status-progress-bg:#eaf1ff;
+  --status-shipped:#166534; --status-shipped-bg:#e9f6ee;
+  --status-declined:#991b1b; --status-declined-bg:#fcecec;
+  /* demand */
+  --demand-high:#c2410c; --demand-medium:#a16207; --demand-low:#6b7280; --demand-track:#e3e6ea;
+  /* mark */
+  --mark-fill:#14171a; --mark-dot:#e5620b;
+  --shadow:0 1px 0 rgba(20,23,26,.04),0 1px 2px rgba(20,23,26,.06);
+  color-scheme:light;
+}
+.theme-dark{
+  --radius:.375rem;
+  --background:#0d0f12; --foreground:#e6e8eb;
+  --card:#15181c; --card-foreground:#e6e8eb;
+  --popover:#15181c; --popover-foreground:#e6e8eb;
+  --primary:#f97316; --primary-foreground:#1a0b02;
+  --secondary:#22272d; --secondary-foreground:#e6e8eb;
+  --muted:#1c2025; --muted-foreground:#9aa3ad;
+  --accent:#2a1a0f; --accent-foreground:#fdba74;
+  --destructive:#f87171; --destructive-foreground:#1a0505;
+  --border:#2a2f36; --input:#3a4048; --ring:#f97316;
+  --chart-1:#f97316; --chart-2:#22d3ee; --chart-3:#94a3b8; --chart-4:#4ade80; --chart-5:#facc15;
+  --sidebar:#101215; --sidebar-foreground:#e6e8eb; --sidebar-primary:#f97316; --sidebar-primary-foreground:#1a0b02;
+  --sidebar-accent:#1f2329; --sidebar-accent-foreground:#e6e8eb; --sidebar-border:#22262c; --sidebar-ring:#f97316;
+  --ai:#22d3ee; --ai-foreground:#04191d; --ai-muted:#0c1f24; --ai-border:#1fb5cc;
+  --confirmed:#e6e8eb; --edited:#fbbf24; --edited-muted:#2a2110; --rejected:#8f99a4;
+  --status-new:#b4bcc6; --status-new-bg:#1f2328;
+  --status-open:#a5b4fc; --status-open-bg:#1c1e3a;
+  --status-planned:#fcd34d; --status-planned-bg:#2b2110;
+  --status-progress:#93c5fd; --status-progress-bg:#13223d;
+  --status-shipped:#86efac; --status-shipped-bg:#10261a;
+  --status-declined:#fca5a5; --status-declined-bg:#2d1414;
+  --demand-high:#fb923c; --demand-medium:#eab308; --demand-low:#8b95a1; --demand-track:#2a2f36;
+  --mark-fill:#e6e8eb; --mark-dot:#f97316;
+  --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+.theme-light,.theme-dark{background:var(--background);color:var(--foreground)}
+
+/* ============================================================
+   PAGE CHROME (the presentation sheet itself)
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:#d9dde2;color:#14171a;-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.doc{max-width:1360px;margin:0 auto;padding:40px 16px 80px}
+.doc-h{background:#14171a;color:#e6e8eb;border-radius:8px;padding:28px;display:grid;gap:18px;grid-template-columns:1fr;margin-bottom:40px}
+.doc-h .kick{font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#f9a66b}
+.doc-h h1{font-size:30px;font-weight:600;letter-spacing:-.015em}
+.doc-h .idea{font-size:17px;color:#c8cdd3;max-width:70ch}
+.doc-h dl{display:grid;grid-template-columns:1fr;gap:14px;border-top:1px solid #2a2f36;padding-top:18px}
+@media (min-width:860px){.doc-h dl{grid-template-columns:1fr 1fr}}
+.doc-h dt{font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#9aa3ad;margin-bottom:6px}
+.doc-h dd{font-size:14px;color:#d5d9de}
+.doc-h dd li{margin-left:16px;margin-bottom:3px}
+.sec{margin:56px 0 18px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-top:2px solid #14171a;padding-top:12px}
+.sec h2{font-size:20px;font-weight:600}
+.sec .mono{font-size:12px;color:#4a525c}
+.rack{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.slot{max-width:100%;min-width:0}
+.slot-l{font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#3d444c;margin-bottom:8px;text-transform:uppercase}
+.scroller{max-width:100%;overflow-x:auto;border-radius:10px;box-shadow:0 0 0 1px rgba(20,23,26,.18),0 12px 32px -12px rgba(20,23,26,.35)}
+.frame{container-type:inline-size;overflow:hidden}
+.frame.desk{width:1280px}
+.frame.phone{width:390px;border-radius:10px}
+
+/* ============================================================
+   PRIMITIVES
+   ============================================================ */
+.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.i.s12{width:12px;height:12px}.i.s14{width:14px;height:14px}
+.mk{display:inline-block;flex:none}
+.brand{display:inline-flex;align-items:center;gap:8px;color:var(--foreground);text-decoration:none}
+.wm{font-weight:600;font-size:17px;letter-spacing:-.02em}
+.wm b{font-weight:600;color:var(--muted-foreground)}
+.k{font:500 10.5px/1.2 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px;border-radius:var(--radius);font:500 13.5px/1 'IBM Plex Sans',sans-serif;border:1px solid transparent;cursor:pointer;white-space:nowrap;background:none;color:var(--foreground)}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{border-color:var(--input);background:var(--card)}
+.btn-ghost{color:var(--muted-foreground)}
+.btn.sm{height:28px;padding:0 9px;font-size:12.5px;gap:6px}
+kbd{font:500 10px/1 'IBM Plex Mono',monospace;min-width:16px;height:16px;display:inline-grid;place-items:center;padding:0 3px;border-radius:3px;border:1px solid var(--input);border-bottom-width:2px;color:var(--muted-foreground);background:var(--background)}
+.btn-primary kbd{background:transparent;border-color:color-mix(in srgb,var(--primary-foreground) 45%,transparent);color:var(--primary-foreground)}
+
+/* status pill: icon shape + label, never colour alone */
+.st{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px 0 6px;border-radius:4px;font-size:12px;font-weight:500;white-space:nowrap;border:1px solid color-mix(in srgb,currentColor 22%,transparent)}
+.st .i{width:13px;height:13px}
+.st-new{color:var(--status-new);background:var(--status-new-bg)}
+.st-open{color:var(--status-open);background:var(--status-open-bg)}
+.st-planned{color:var(--status-planned);background:var(--status-planned-bg)}
+.st-progress{color:var(--status-progress);background:var(--status-progress-bg)}
+.st-shipped{color:var(--status-shipped);background:var(--status-shipped-bg)}
+.st-declined{color:var(--status-declined);background:var(--status-declined-bg)}
+
+/* demand meter: segmented bar + band word */
+.dm{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.meter{position:relative;width:72px;height:6px;background:var(--demand-track);border-radius:1px;overflow:hidden;flex:none}
+.meter>i{position:absolute;inset:0 auto 0 0;width:calc(var(--v) * 100%)}
+.meter::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 5px,var(--card) 5px 6px)}
+.dm-high .meter>i{background:var(--demand-high)}.dm-medium .meter>i{background:var(--demand-medium)}.dm-low .meter>i{background:var(--demand-low)}
+.band{font:600 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em}
+.dm-high .band{color:var(--demand-high)}.dm-medium .band{color:var(--demand-medium)}.dm-low .band{color:var(--demand-low)}
+.theme-light .dm-high .band{color:#b23a0a}
+
+/* AI state tags */
+.tag{display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 6px;border-radius:3px;font:600 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.tag .i{width:11px;height:11px;stroke-width:2.5}
+.tag-proposed{color:var(--ai);border:1px dashed var(--ai-border);background:var(--ai-muted)}
+.tag-accepted{color:var(--card);background:var(--confirmed);border:1px solid var(--confirmed)}
+.tag-edited{color:var(--edited);border:1px solid currentColor;background:var(--edited-muted)}
+.tag-rejected{color:var(--rejected);border:1px solid var(--border);text-decoration:line-through}
+.ai-box{border:1px dashed var(--ai-border);background:var(--ai-muted);border-radius:var(--radius);padding:10px 12px}
+.ai-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.conf{display:inline-flex;align-items:center;gap:6px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:var(--muted-foreground);white-space:nowrap}
+.conf b{font-weight:600;color:var(--ai)}
+.segs{display:inline-flex;gap:2px}
+.segs i{width:9px;height:6px;border-radius:1px;background:var(--demand-track)}
+.segs.n3 i,.segs.n2 i:nth-child(-n+2),.segs.n1 i:nth-child(1){background:var(--ai)}
+
+/* score meter 1–5 */
+.s5{display:inline-flex;gap:2px}
+.s5 i{width:12px;height:8px;border-radius:1px;background:var(--demand-track)}
+.s5.v1 i:nth-child(-n+1),.s5.v2 i:nth-child(-n+2),.s5.v3 i:nth-child(-n+3),.s5.v4 i:nth-child(-n+4),.s5.v5 i{background:var(--foreground)}
+.s5.ai.v3 i:nth-child(-n+3){background:var(--ai)}
+
+/* chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);font-size:13px;color:var(--foreground);white-space:nowrap}
+.chip .n{font:500 11px/1 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.chip.on{background:var(--foreground);color:var(--background);border-color:var(--foreground)}
+.chip.on .n{color:var(--background);opacity:.75}
+.chip .i{width:13px;height:13px}
+
+/* verbatim quote */
+.vq{border-left:3px solid var(--foreground);padding:4px 0 4px 14px;margin:0}
+.vq p{font-size:15.5px;line-height:1.45;font-weight:400;color:var(--foreground)}
+.vq p::before{content:"\201C"}.vq p::after{content:"\201D"}
+.vq footer{margin-top:6px;font:500 11px/1.4 'IBM Plex Mono',monospace;color:var(--muted-foreground);letter-spacing:.02em}
+.vq footer b{color:var(--foreground);font-weight:600}
+
+/* ============================================================
+   PUBLIC (board + submit) — 14px body
+   ============================================================ */
+.pub{font-size:14px;min-height:100%}
+.pub-h{display:flex;align-items:center;gap:24px;height:56px;padding:0 32px;border-bottom:1px solid var(--border);background:var(--card)}
+.pub-nav{display:flex;gap:4px;flex:1}
+.pub-nav a{font-size:14px;font-weight:500;color:var(--muted-foreground);text-decoration:none;padding:6px 10px;border-radius:var(--radius)}
+.pub-nav a.on{color:var(--foreground);background:var(--muted)}
+.pub-main{padding:28px 32px 40px}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.ph h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.ph .meta{font-size:12px;color:var(--muted-foreground)}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.search{display:flex;align-items:center;gap:8px;height:34px;width:280px;padding:0 10px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--muted-foreground);font-size:14px}
+.search .ph-t{flex:1}
+.themes{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.themes .chip{height:26px;font-size:12.5px}
+.tbl{border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:hidden}
+.tr{display:grid;grid-template-columns:40px minmax(0,1fr) 112px 118px 86px 150px;gap:18px;padding:14px 18px;border-top:1px solid var(--border);align-items:start}
+.tr.th{border-top:0;padding-top:10px;padding-bottom:10px;background:var(--muted)}
+.tr.th>div{font:500 10.5px/1.2 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.c-num{font:500 12px/22px 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.c-theme{font-size:13px;line-height:22px;color:var(--foreground)}
+.c-sup{text-align:right;line-height:22px}
+.c-sup b{font:600 15px/22px 'IBM Plex Mono',monospace}
+.c-sup span{font-size:12px;color:var(--muted-foreground);margin-left:4px}
+.th .c-sup{text-align:right}
+.c-dem{line-height:22px;padding-top:0}
+.c-dem .dm{height:22px}
+.stmt{font-size:14.5px;font-weight:500;line-height:1.4;color:var(--foreground)}
+.sols{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sol{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:3px;background:var(--secondary);color:var(--secondary-foreground);font-size:12.5px}
+.summ{margin-top:8px;font-size:13px;color:var(--muted-foreground);line-height:1.45}
+.summ .k{margin-right:6px}
+.dec{margin-top:10px;padding:8px 10px;border-left:2px solid var(--foreground);background:var(--muted);border-radius:0 4px 4px 0;font-size:13px;line-height:1.45}
+.dec .k{display:block;margin-bottom:3px;color:var(--foreground)}
+
+/* submit */
+.crumb{font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:var(--muted-foreground);margin-bottom:10px}
+.lede{color:var(--muted-foreground);margin-top:4px;font-size:14px}
+.sg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"need panel" "details panel" "actions panel" ". panel";gap:20px 32px;margin-top:22px;align-items:start}
+.f-need{grid-area:need}.f-panel{grid-area:panel}.f-details{grid-area:details}.f-actions{grid-area:actions}
+.fl{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.fl .opt{font-weight:400;color:var(--muted-foreground)}
+.ta{min-height:120px;border:1px solid var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent);border-radius:var(--radius);background:var(--card);padding:10px 12px;font-size:15px;line-height:1.5}
+.caret{display:inline-block;width:1.5px;height:17px;background:var(--foreground);vertical-align:-3px;margin-left:1px}
+.hint{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted-foreground)}
+.inp{height:36px;display:flex;align-items:center;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);padding:0 12px;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.seg{display:inline-grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.seg span{height:34px;padding:0 18px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13.5px;border-left:1px solid var(--input)}
+.seg span:first-child{border-left:0}
+.seg span.on{background:var(--foreground);color:var(--background);font-weight:500}
+.f-actions{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-top:4px}
+.note{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted-foreground)}
+.f-panel{border:1px solid var(--border);border-radius:8px;background:var(--card);padding:16px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.panel-h h2{font-size:15px;font-weight:600}
+.live{display:inline-flex;align-items:center;gap:6px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:var(--muted-foreground)}
+.live i{width:6px;height:6px;background:var(--ai);border-radius:1px}
+.restate p{font-size:14px;line-height:1.45}
+.restate p .k{display:none}
+.matches{display:grid;gap:8px;margin-top:12px}
+.match{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.match.sel{border:1.5px solid var(--primary);padding:11.5px;background:color-mix(in srgb,var(--primary) 4%,var(--card))}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--input);margin-top:2px;display:grid;place-items:center}
+.match.sel .radio{border-color:var(--primary)}
+.match.sel .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.match .stmt{font-size:14px}
+.mm{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted-foreground)}
+.mm .mono b{color:var(--foreground);font-weight:600}
+.why{margin-top:10px;padding:8px 10px}
+.why p{font-size:13px;line-height:1.45}
+.match.none p{font-size:13.5px;line-height:1.45}
+.match.none p b{font-weight:600}
+.sel-k{margin-left:auto;color:var(--primary)!important}
+
+/* ============================================================
+   OPERATOR — 13px body
+   ============================================================ */
+.op{display:grid;grid-template-columns:216px minmax(0,1fr);font-size:13px;min-height:100%}
+.side{background:var(--sidebar);color:var(--sidebar-foreground);border-right:1px solid var(--sidebar-border);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.side .brand{padding:4px 8px 16px}
+.side .wm{font-size:16px}
+.nv{display:flex;align-items:center;gap:9px;height:32px;padding:0 8px;border-radius:var(--radius);color:var(--sidebar-foreground);font-weight:500;font-size:13px}
+.nv .i{color:var(--muted-foreground)}
+.nv.on{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground)}
+.nv.on .i{color:var(--sidebar-primary)}
+.nv .badge{margin-left:auto;font:600 11px/1 'IBM Plex Mono',monospace;min-width:20px;height:18px;padding:0 5px;border-radius:3px;display:grid;place-items:center;background:var(--sidebar-primary);color:var(--sidebar-primary-foreground)}
+.nv kbd{margin-left:auto}
+.nv.on kbd{display:none}
+.side-f{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:12px 8px 2px;font:500 11px/1.5 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.op-top{display:none}
+.opm{padding:20px 28px 40px;min-width:0}
+.oh{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.oh h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.oh .meta{font-size:11.5px;color:var(--muted-foreground);margin-top:3px}
+.keys{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted-foreground);flex-wrap:wrap}
+.keys span{display:inline-flex;align-items:center;gap:5px}
+.qf{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 14px}
+.qf .chip{height:26px;font-size:12.5px}
+.queue{list-style:none;display:grid;gap:10px}
+.sug{display:grid;grid-template-columns:28px minmax(0,1fr) auto;grid-template-areas:"idx head act" "idx body body";gap:0 12px;border:1px dashed var(--ai-border);background:var(--card);border-radius:8px;padding:12px 14px 14px 10px;position:relative}
+.sug.focus{box-shadow:inset 3px 0 0 var(--primary);outline:2px solid color-mix(in srgb,var(--primary) 50%,transparent);outline-offset:3px}
+.idx{grid-area:idx;font:500 11px/26px 'IBM Plex Mono',monospace;color:var(--muted-foreground);text-align:right}
+.sug.focus .idx{color:var(--primary);font-weight:600}
+.sh{grid-area:head;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:28px}
+.typ{display:inline-flex;align-items:center;gap:6px;font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--foreground)}
+.typ .i{width:14px;height:14px;color:var(--ai)}
+.sa{grid-area:act;display:flex;gap:6px;align-items:center}
+.sb{grid-area:body;margin-top:10px;min-width:0}
+.merge{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);align-items:stretch;gap:8px}
+.mbox{border:1px solid var(--border);border-radius:var(--radius);padding:9px 11px;background:var(--background)}
+.mbox p{font-size:13.5px;font-weight:500;line-height:1.4;margin:5px 0 6px}
+.mbox .n{font:500 11.5px/1 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.mbox .n b{color:var(--foreground);font-weight:600}
+.marrow{display:grid;place-items:center;color:var(--ai)}
+.reason{margin-top:10px;display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.45}
+.reason .k{flex:none;width:64px}
+.src{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:500 11px/1.4 'IBM Plex Mono',monospace;color:var(--muted-foreground);margin-bottom:10px}
+.src b{color:var(--foreground);font-weight:600}
+.src .sep{opacity:.5}
+.draft{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.ai-stmt p{font-size:14px;font-weight:500;line-height:1.45}
+.ai-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pchip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:4px;border:1px dashed var(--ai-border);background:var(--ai-muted);color:var(--foreground);font-size:12.5px;font-weight:500}
+.need-ref{font-size:12.5px;color:var(--muted-foreground);margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.need-ref b{color:var(--foreground);font-weight:500}
+.score{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:16px;align-items:stretch}
+.st-tbl{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.str{display:grid;grid-template-columns:150px 76px 70px minmax(0,1fr);gap:12px;align-items:center;padding:7px 12px;border-top:1px solid var(--border);font-size:13px}
+.str:first-child{border-top:0}
+.str.hd{background:var(--muted);padding:6px 12px}
+.str .crit{font-weight:500}
+.str .crit small{display:block;font-size:11px;color:var(--muted-foreground);font-weight:400}
+.str .val{font:600 13px/1 'IBM Plex Mono',monospace}
+.str .val span{color:var(--muted-foreground);font-weight:400}
+.str .ev{color:var(--muted-foreground)}
+.str.ovr{background:var(--edited-muted);box-shadow:inset 3px 0 0 var(--edited)}
+.diff{display:inline-flex;align-items:center;gap:5px;font:600 12.5px/1 'IBM Plex Mono',monospace;white-space:nowrap}
+.diff s{color:var(--muted-foreground);font-weight:400}
+.diff em{font-style:normal;color:var(--edited)}
+.ovr .ev{color:var(--foreground)}
+.ovr .ev .k{color:var(--edited);margin-right:4px}
+.overall{border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:12px 14px;gap:4px;background:var(--background)}
+.overall .big{white-space:nowrap;font:600 34px/1 'IBM Plex Mono',monospace;letter-spacing:-.02em}
+.overall .big span{font-size:14px;color:var(--muted-foreground);font-weight:400;letter-spacing:0}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--status-shipped)}
+.chk .k{color:var(--muted-foreground)}
+.chk span:last-child{color:var(--foreground)}
+.sug.resolved{border:1px solid var(--border);background:var(--muted);grid-template-areas:"idx head act";padding:8px 14px 8px 10px}
+.sug.resolved .sh{font-size:13px;color:var(--foreground)}
+.ok{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--confirmed);color:var(--card)}
+.ok .i{width:11px;height:11px;stroke-width:3}
+.when{font:500 11px/1 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.lnk{font-size:12.5px;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:2px}
+
+/* ============================================================
+   PHONE — container query on the frame
+   ============================================================ */
+@container (max-width:640px){
+  .pub-h{padding:0 16px;gap:10px;height:52px}
+  .pub-nav{display:none}
+  .pub-h .brand{flex:1}
+  .pub-h .btn{height:32px;padding:0 10px;font-size:13px}
+  .pub-main{padding:18px 16px 32px}
+  .ph h1{font-size:21px}
+  .ph{flex-direction:column;align-items:flex-start;gap:2px;margin-bottom:14px}
+  .search{width:100%}
+  .toolbar .chips,.themes{flex-wrap:nowrap;overflow:hidden;width:100%;mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  .themes{margin-bottom:14px}
+  .tbl{border:0;background:none;overflow:visible;display:grid;gap:10px}
+  .tr.th{display:none}
+  .tr{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"status theme num" "need need need" "sup dem dem";gap:10px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);padding:14px}
+  .c-num{grid-area:num;line-height:22px}.c-need{grid-area:need}.c-theme{grid-area:theme;font-size:12.5px;color:var(--muted-foreground)}.c-status{grid-area:status}
+  .c-need{border-bottom:1px solid var(--border);padding-bottom:12px}
+  .c-sup{grid-area:sup;text-align:left}
+  .c-dem{grid-area:dem;justify-self:stretch;text-align:right}
+  .stmt{font-size:15px}
+  .sg{grid-template-columns:minmax(0,1fr);grid-template-areas:"need" "panel" "details" "actions";gap:18px}
+  .f-panel{padding:14px}
+  .row2{grid-template-columns:1fr}
+  .seg{display:grid;width:100%}
+  .f-actions .btn{width:100%;height:42px;font-size:15px}
+  /* operator */
+  .op{grid-template-columns:minmax(0,1fr);display:block}
+  .side{display:none}
+  .op-top{display:block;background:var(--card);border-bottom:1px solid var(--border)}
+  .op-top .bar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 16px}
+  .op-tabs{display:flex;gap:2px;padding:0 10px;overflow:hidden}
+  .op-tabs .nv{height:36px;border-radius:0;padding:0 8px;border-bottom:2px solid transparent;font-size:13px}
+  .op-tabs .nv.on{background:none;border-bottom-color:var(--primary)}
+  .op-tabs .nv .badge{margin-left:2px}
+  .opm{padding:14px 12px 28px}
+  .oh{padding-bottom:10px}
+  .keys{display:none}
+  .qf{flex-wrap:nowrap;overflow:hidden;mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  .sug{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "body" "act";padding:12px}
+  .idx{display:none}
+  .sa{margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .sa .btn{height:38px;font-size:13.5px}
+  .sa kbd{display:none}
+  .merge{grid-template-columns:minmax(0,1fr)}
+  .marrow{transform:rotate(90deg);height:18px}
+  .reason{flex-direction:column;gap:4px}
+  .draft{grid-template-columns:minmax(0,1fr)}
+  .score{grid-template-columns:minmax(0,1fr)}
+  .str{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"crit val" "meter meter" "ev ev";gap:4px 10px;padding:9px 12px}
+  .str.hd{display:none}
+  .str .crit{grid-area:crit}.str .s5,.str .diffm{grid-area:meter}.str .val{grid-area:val;text-align:right}.str .ev{grid-area:ev;font-size:12.5px}
+  .overall{flex-direction:row;align-items:baseline;justify-content:space-between;order:-1}
+  .overall .big{font-size:26px}
+  .sug.resolved{grid-template-areas:"head";padding:10px 12px}
+  .sug.resolved .sa{display:none}
+}
+
+/* ============================================================
+   IDENTITY SHEET + TOKEN TABLE
+   ============================================================ */
+.idsheet{width:640px;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(20,23,26,.18)}
+.idsheet .pub-h{padding:0 20px}
+.idb{padding:20px;display:grid;gap:22px}
+.marks{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.marks figure{display:grid;gap:8px;justify-items:start}
+.marks figcaption{font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--muted-foreground);letter-spacing:.06em}
+.favtab{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;background:var(--muted);border:1px solid var(--border);border-bottom:0;border-radius:6px 6px 0 0;font-size:12px}
+.spec{display:grid;gap:10px}
+.spec .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.states{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.state{border-radius:var(--radius);padding:9px 10px;font-size:12.5px;line-height:1.4;display:grid;gap:6px;align-content:start}
+.state.p{border:1px dashed var(--ai-border);background:var(--ai-muted)}
+.state.a{border:1px solid var(--border);background:var(--card)}
+.state.e{border:1px solid var(--border);background:var(--card);box-shadow:inset 3px 0 0 var(--edited)}
+.state.r{border:1px solid var(--border);background:var(--muted);color:var(--rejected)}
+.state.r .txt{text-decoration:line-through}
+.state .txt{font-weight:500}
+.typo{display:grid;gap:4px}
+.typo .t1{font-size:22px;font-weight:600;letter-spacing:-.015em}
+.typo .t3{font:500 13px/1.4 'IBM Plex Mono',monospace;color:var(--muted-foreground)}
+.tokwrap{background:#fff;border-radius:10px;box-shadow:0 0 0 1px rgba(20,23,26,.18);overflow-x:auto}
+table.tok{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.tok th,.tok td{padding:7px 12px;border-top:1px solid #e3e6ea;text-align:left;vertical-align:middle}
+.tok th{font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#59616b;background:#f4f5f7;border-top:0}
+.tok td.grp{font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;background:#f9fafb;color:#14171a}
+.tok code{font:500 12.5px 'IBM Plex Mono',monospace}
+.sw{display:inline-flex;align-items:center;gap:8px;font:500 12px 'IBM Plex Mono',monospace}
+.sw i{width:22px;height:16px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.fonts{margin-top:16px;display:grid;gap:8px;font-size:14px}
+.fonts b{font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ============ ICON SPRITE (Lucide, inline) + MARK ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 32 32"><path style="fill:var(--mark-fill)" d="M3 3h15v11h11v15H3z"/><circle style="fill:var(--mark-dot)" cx="24" cy="8" r="3.6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-circle-dashed" viewBox="0 0 24 24"><path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/></symbol>
+    <symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+    <symbol id="i-progress" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6a6 6 0 0 1 0 12z" style="fill:currentColor"/></symbol>
+    <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+    <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-diff" viewBox="0 0 24 24"><path d="M12 3v14"/><path d="M5 10h14"/><path d="M5 21h14"/></symbol>
+    <symbol id="i-proposed" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/></symbol>
+  </defs>
+</svg>
+
+<div class="doc">
+
+<header class="doc-h">
+  <div class="kick">SIGNAL · DESIGN ROUND 1 · DIRECTION B</div>
+  <h1>Instrument</h1>
+  <p class="idea">Signal as an instrument panel for demand: separate signal from noise with dense, aligned, numeric reading. Graphite surfaces, one sharp orange, numbers set in mono.</p>
+  <dl>
+    <div><dt>HOW IT SERVES THE BRIEF</dt><dd><ul>
+      <li><b>AI proposes, people decide:</b> every AI output is a dashed cyan frame with a <span class="mono">PROPOSED</span> tag and a 3-step confidence readout. Accepted turns solid with a check, edited carries a ± diff (AI value struck, PM value shown), rejected collapses grey and struck through. Same tags on the public submit page.</li>
+      <li><b>Customers' words kept:</b> verbatim quotes sit in a ruled quote block in the body face, with account and plan in mono metadata.</li>
+      <li><b>Demand at a glance:</b> right-aligned tabular counts, a segmented meter and a HIGH / MED / LOW band word. Each status pill has its own icon shape.</li>
+      <li><b>Dark is an equal:</b> both themes are tuned separately, not inverted.</li>
+    </ul></dd></div>
+    <div><dt>RISKS</dt><dd><ul>
+      <li>The density suits PMs but can feel cold or technical to a customer on the public board.</li>
+      <li>Too many mono labels turn into noise. They need to stay limited to metadata and counts.</li>
+      <li>Orange can read as "warning". It is kept off error states, which use red only.</li>
+      <li>The AI cyan sits near "In progress" blue. The dashed outline and icon shapes carry the difference, not hue.</li>
+    </ul></dd></div>
+  </dl>
+</header>
+
+<!-- ============ IDENTITY ============ -->
+<div class="sec"><h2>Identity sheet</h2><span class="mono">MARK · WORDMARK · AI STATES · STATUS · DEMAND · TYPE</span></div>
+<p style="font-size:14px;color:#3d444c;max-width:76ch;margin-bottom:16px">Mark: a solid block of noise with one notch cut out, and a single orange dot lifted into that notch. It means "one signal isolated from the field". It is built from a square and a circle, with no arcs, bars or waves.</p>
+<div class="rack">
+  <div class="slot"><div class="slot-l">Light</div><div class="idsheet theme-light" data-tpl="t-id"></div></div>
+  <div class="slot"><div class="slot-l">Dark</div><div class="idsheet theme-dark" data-tpl="t-id"></div></div>
+</div>
+
+<!-- ============ 1a BOARD ============ -->
+<div class="sec"><h2>Screen 1a — Public board</h2><span class="mono">/ · DESKTOP 1280 · PHONE 390 · LIGHT + DARK</span></div>
+<div class="rack">
+  <div class="slot"><div class="slot-l">Desktop 1280 · Light</div><div class="scroller"><div class="frame desk theme-light" data-tpl="t-board"></div></div></div>
+  <div class="slot"><div class="slot-l">Desktop 1280 · Dark</div><div class="scroller"><div class="frame desk theme-dark" data-tpl="t-board"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Light</div><div class="scroller"><div class="frame phone theme-light" data-tpl="t-board"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Dark</div><div class="scroller"><div class="frame phone theme-dark" data-tpl="t-board"></div></div></div>
+</div>
+
+<!-- ============ 1b SUBMIT ============ -->
+<div class="sec"><h2>Screen 1b — Submit with live duplicate check</h2><span class="mono">/submit · DESKTOP 1280 · PHONE 390 · LIGHT + DARK</span></div>
+<div class="rack">
+  <div class="slot"><div class="slot-l">Desktop 1280 · Light</div><div class="scroller"><div class="frame desk theme-light" data-tpl="t-submit"></div></div></div>
+  <div class="slot"><div class="slot-l">Desktop 1280 · Dark</div><div class="scroller"><div class="frame desk theme-dark" data-tpl="t-submit"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Light</div><div class="scroller"><div class="frame phone theme-light" data-tpl="t-submit"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Dark</div><div class="scroller"><div class="frame phone theme-dark" data-tpl="t-submit"></div></div></div>
+</div>
+
+<!-- ============ 2 TRIAGE ============ -->
+<div class="sec"><h2>Screen 2 — Operator triage</h2><span class="mono">/operator/triage · DESKTOP 1280 · PHONE 390 · LIGHT + DARK</span></div>
+<div class="rack">
+  <div class="slot"><div class="slot-l">Desktop 1280 · Light</div><div class="scroller"><div class="frame desk theme-light" data-tpl="t-triage"></div></div></div>
+  <div class="slot"><div class="slot-l">Desktop 1280 · Dark</div><div class="scroller"><div class="frame desk theme-dark" data-tpl="t-triage"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Light</div><div class="scroller"><div class="frame phone theme-light" data-tpl="t-triage"></div></div></div>
+  <div class="slot"><div class="slot-l">Phone 390 · Dark</div><div class="scroller"><div class="frame phone theme-dark" data-tpl="t-triage"></div></div></div>
+</div>
+
+<!-- ============ TOKENS ============ -->
+<div class="sec"><h2>Tokens</h2><span class="mono">SHADCN NAMES + SEMANTIC EXTRAS · SCOPED .theme-light / .theme-dark</span></div>
+<div class="tokwrap"><table class="tok" id="tok"><thead><tr><th>Token</th><th>Light</th><th>Dark</th></tr></thead><tbody></tbody></table></div>
+<div class="fonts">
+  <div><b>UI / body:</b> IBM Plex Sans 400 / 500 / 600 (Google Fonts). Body text is 14 px on the public pages and 13 px in the operator console.</div>
+  <div><b>Numbers, metadata, tags, kbd:</b> IBM Plex Mono 400 / 500 / 600 with tabular numerals (<span class="mono">font-variant-numeric: tabular-nums</span>).</div>
+  <div><b>Radius:</b> 0.375rem. <b>Icons:</b> Lucide, 2 px stroke.</div>
+</div>
+</div>
+
+<!-- hidden probes for token readout -->
+<div class="theme-light" id="probe-l" hidden></div><div class="theme-dark" id="probe-d" hidden></div>
+
+<!-- =================================================================
+     TEMPLATES (each instantiated into light/dark × desktop/phone)
+     ================================================================= -->
+
+<template id="t-id">
+  <header class="pub-h"><span class="brand"><svg class="mk" width="22" height="22"><use href="#mark"/></svg><span class="wm">signal</span></span><nav class="pub-nav"><a class="on">Board</a></nav><span class="btn btn-primary sm"><svg class="i s14"><use href="#i-plus"/></svg>Submit a request</span></header>
+  <div class="idb">
+    <div class="marks">
+      <figure><svg class="mk" width="16" height="16"><use href="#mark"/></svg><figcaption>16</figcaption></figure>
+      <figure><svg class="mk" width="32" height="32"><use href="#mark"/></svg><figcaption>32</figcaption></figure>
+      <figure><svg class="mk" width="64" height="64"><use href="#mark"/></svg><figcaption>64</figcaption></figure>
+      <figure><span class="favtab"><svg class="mk" width="16" height="16"><use href="#mark"/></svg>Signal — Board</span><figcaption>FAVICON IN TAB</figcaption></figure>
+    </div>
+    <div class="spec"><span class="k">AI suggestion states</span>
+      <div class="states">
+        <div class="state p"><div><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span></div><span class="txt">Theme: Reporting</span><span class="conf">CONF <span class="segs n2"><i></i><i></i><i></i></span><b>MED</b></span></div>
+        <div class="state a"><div><span class="tag tag-accepted"><svg class="i"><use href="#i-check"/></svg>Accepted</span></div><span class="txt">Theme: Reporting</span><span class="when">BY YOU · 2H AGO</span></div>
+        <div class="state e"><div><span class="tag tag-edited"><svg class="i"><use href="#i-diff"/></svg>Edited</span></div><span class="txt"><span class="diff"><s>AI 3</s><svg class="i s12"><use href="#i-arrow"/></svg><em>PM 4</em></span> Strategic fit</span><span class="when">“OPS IS A Q1 FOCUS”</span></div>
+        <div class="state r"><div><span class="tag tag-rejected"><svg class="i"><use href="#i-x"/></svg>Rejected</span></div><span class="txt">Theme: Collaboration</span><span class="when">BY YOU · 3H AGO</span></div>
+      </div>
+    </div>
+    <div class="spec"><span class="k">Status: icon shape + label</span>
+      <div class="row">
+        <span class="st st-new"><svg class="i"><use href="#i-circle-dashed"/></svg>New</span>
+        <span class="st st-open"><svg class="i"><use href="#i-circle"/></svg>Open</span>
+        <span class="st st-planned"><svg class="i"><use href="#i-calendar"/></svg>Planned</span>
+        <span class="st st-progress"><svg class="i"><use href="#i-progress"/></svg>In progress</span>
+        <span class="st st-shipped"><svg class="i"><use href="#i-circle-check"/></svg>Shipped</span>
+        <span class="st st-declined"><svg class="i"><use href="#i-circle-x"/></svg>Declined</span>
+      </div>
+    </div>
+    <div class="spec"><span class="k">Demand: meter + band</span>
+      <div class="row" style="gap:20px">
+        <span class="dm dm-high"><span class="meter" style="--v:1"><i></i></span><span class="band">HIGH</span></span>
+        <span class="dm dm-medium"><span class="meter" style="--v:.75"><i></i></span><span class="band">MED</span></span>
+        <span class="dm dm-low"><span class="meter" style="--v:.09"><i></i></span><span class="band">LOW</span></span>
+        <span class="conf">KEYS <kbd>A</kbd><kbd>E</kbd><kbd>R</kbd></span>
+      </div>
+    </div>
+    <div class="spec typo"><span class="k">Type</span>
+      <span class="t1">Managers need key dashboards on a schedule</span>
+      <span style="font-size:14px">IBM Plex Sans for statements, UI and customers' words.</span>
+      <span class="t3">IBM Plex Mono · 12 PEOPLE · 3.1 / 5 · OCT 18 · $480k ARR</span>
+    </div>
+  </div>
+</template>
+
+<template id="t-board">
+<div class="pub">
+  <header class="pub-h">
+    <span class="brand"><svg class="mk" width="22" height="22"><use href="#mark"/></svg><span class="wm">signal</span></span>
+    <nav class="pub-nav"><a class="on">Board</a></nav>
+    <span class="btn btn-primary"><svg class="i s14"><use href="#i-plus"/></svg>Submit a request</span>
+  </header>
+  <main class="pub-main">
+    <div class="ph"><h1>Board</h1><span class="meta mono">6 NEEDS · 55 SUPPORTERS</span></div>
+    <div class="toolbar">
+      <label class="search"><svg class="i"><use href="#i-search"/></svg><span class="ph-t">Search needs</span><kbd>/</kbd></label>
+      <div class="chips" role="group" aria-label="Status">
+        <span class="chip on">All <span class="n">6</span></span>
+        <span class="chip"><svg class="i"><use href="#i-circle-dashed"/></svg>New <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-circle"/></svg>Open <span class="n">2</span></span>
+        <span class="chip"><svg class="i"><use href="#i-calendar"/></svg>Planned <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-progress"/></svg>In progress <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-circle-check"/></svg>Shipped <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-circle-x"/></svg>Declined <span class="n">0</span></span>
+      </div>
+    </div>
+    <div class="themes"><span class="k">Theme</span>
+      <span class="chip">Reporting <span class="n">4</span></span>
+      <span class="chip">Integrations <span class="n">2</span></span>
+      <span class="chip">Administration and security <span class="n">0</span></span>
+      <span class="chip">Collaboration <span class="n">0</span></span>
+    </div>
+    <div class="tbl">
+      <div class="tr th"><div>#</div><div>Need</div><div>Theme</div><div>Status</div><div class="c-sup">Supporters</div><div>Demand</div></div>
+
+      <div class="tr">
+        <div class="c-num">01</div>
+        <div class="c-need"><p class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+          <div class="sols"><span class="k">Solutions</span><span class="sol">PDF export</span><span class="sol">Scheduled email digest</span></div>
+          <p class="summ"><span class="k">Summary</span>Leaders want current dashboard numbers in board and leadership meetings without rebuilding slides by hand.</p></div>
+        <div class="c-theme">Reporting</div>
+        <div class="c-status"><span class="st st-open"><svg class="i"><use href="#i-circle"/></svg>Open</span></div>
+        <div class="c-sup"><b>11</b><span>people</span></div>
+        <div class="c-dem"><span class="dm dm-high"><span class="meter" style="--v:.917"><i></i></span><span class="band">HIGH</span></span></div>
+      </div>
+
+      <div class="tr">
+        <div class="c-num">02</div>
+        <div class="c-need"><p class="stmt">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</p>
+          <div class="sols"><span class="k">Solutions</span><span class="sol">Scheduled email digest</span></div>
+          <div class="dec"><span class="k">Decision · Planned · Sep 30</span>Scheduled delivery is planned for the next quarter, starting with weekly email.</div></div>
+        <div class="c-theme">Reporting</div>
+        <div class="c-status"><span class="st st-planned"><svg class="i"><use href="#i-calendar"/></svg>Planned</span></div>
+        <div class="c-sup"><b>12</b><span>people</span></div>
+        <div class="c-dem"><span class="dm dm-high"><span class="meter" style="--v:1"><i></i></span><span class="band">HIGH</span></span></div>
+      </div>
+
+      <div class="tr">
+        <div class="c-num">03</div>
+        <div class="c-need"><p class="stmt">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</p>
+          <div class="sols"><span class="k">Solutions</span><span class="sol">Salesforce connector</span><span class="sol">HubSpot connector</span></div>
+          <div class="dec"><span class="k">Decision · In progress · Oct 10</span>A two-way CRM sync is in progress; beta opens next month.</div></div>
+        <div class="c-theme">Integrations</div>
+        <div class="c-status"><span class="st st-progress"><svg class="i"><use href="#i-progress"/></svg>In progress</span></div>
+        <div class="c-sup"><b>12</b><span>people</span></div>
+        <div class="c-dem"><span class="dm dm-high"><span class="meter" style="--v:1"><i></i></span><span class="band">HIGH</span></span></div>
+      </div>
+
+      <div class="tr">
+        <div class="c-num">04</div>
+        <div class="c-need"><p class="stmt">Operations teams need threshold alerts in their team chat so that they react before customers notice</p>
+          <div class="sols"><span class="k">Solutions</span><span class="sol">Slack integration</span><span class="sol">Microsoft Teams integration</span></div></div>
+        <div class="c-theme">Integrations</div>
+        <div class="c-status"><span class="st st-open"><svg class="i"><use href="#i-circle"/></svg>Open</span></div>
+        <div class="c-sup"><b>9</b><span>people</span></div>
+        <div class="c-dem"><span class="dm dm-medium"><span class="meter" style="--v:.75"><i></i></span><span class="band">MED</span></span></div>
+      </div>
+
+      <div class="tr">
+        <div class="c-num">05</div>
+        <div class="c-need"><p class="stmt">Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change</p>
+          <div class="dec"><span class="k">Decision · Shipped · Oct 18</span>Two-level grouping shipped in the 4.2 release.</div></div>
+        <div class="c-theme">Reporting</div>
+        <div class="c-status"><span class="st st-shipped"><svg class="i"><use href="#i-circle-check"/></svg>Shipped</span></div>
+        <div class="c-sup"><b>10</b><span>people</span></div>
+        <div class="c-dem"><span class="dm dm-medium"><span class="meter" style="--v:.833"><i></i></span><span class="band">MED</span></span></div>
+      </div>
+
+      <div class="tr">
+        <div class="c-num">06</div>
+        <div class="c-need"><p class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</p>
+          <div class="sols"><span class="k">Solutions</span><span class="sol">PDF export</span></div></div>
+        <div class="c-theme">Reporting</div>
+        <div class="c-status"><span class="st st-new"><svg class="i"><use href="#i-circle-dashed"/></svg>New</span></div>
+        <div class="c-sup"><b>1</b><span>person</span></div>
+        <div class="c-dem"><span class="dm dm-low"><span class="meter" style="--v:.083"><i></i></span><span class="band">LOW</span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+</template>
+
+<template id="t-submit">
+<div class="pub">
+  <header class="pub-h">
+    <span class="brand"><svg class="mk" width="22" height="22"><use href="#mark"/></svg><span class="wm">signal</span></span>
+    <nav class="pub-nav"><a>Board</a></nav>
+    <span class="btn btn-primary"><svg class="i s14"><use href="#i-plus"/></svg>Submit a request</span>
+  </header>
+  <main class="pub-main">
+    <div class="crumb">BOARD / SUBMIT A REQUEST</div>
+    <h1 style="font-size:24px;font-weight:600;letter-spacing:-.015em">Submit a request</h1>
+    <p class="lede">Describe the problem in your own words. We check for similar needs while you type.</p>
+    <div class="sg">
+      <section class="f-need">
+        <label class="fl">What do you need?</label>
+        <div class="ta">Our CFO wants a PDF of the revenue dashboard every month for the board pack.<span class="caret"></span></div>
+        <div class="hint mono"><span>KEPT WORD FOR WORD</span><span>77 / 2000</span></div>
+      </section>
+
+      <aside class="f-panel">
+        <div class="panel-h"><h2>Looks like these needs</h2><span class="live"><i></i>UPDATES AS YOU TYPE</span></div>
+        <div class="ai-box restate">
+          <div class="ai-h"><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span><span class="k">AI restatement</span></div>
+          <p>The underlying need: Finance leaders need to share current dashboard numbers in the board pack.</p>
+        </div>
+        <div class="matches">
+          <div class="match sel">
+            <span class="radio"></span>
+            <div>
+              <p class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+              <div class="mm"><span class="st st-open"><svg class="i"><use href="#i-circle"/></svg>Open</span><span class="mono"><b>11</b> people</span><span class="dm dm-high"><span class="meter" style="--v:.917"><i></i></span><span class="band">HIGH</span></span><span class="k sel-k">Selected</span></div>
+              <div class="ai-box why"><div class="ai-h"><span class="tag tag-proposed">Proposed</span><span class="k">Why it matches</span><span class="conf" style="margin-left:auto">MATCH <span class="segs n3"><i></i><i></i><i></i></span><b>HIGH</b></span></div>
+                <p>Same problem: getting current dashboard numbers into board meetings. You asked for a PDF; others asked for PDF or email.</p></div>
+            </div>
+          </div>
+          <div class="match">
+            <span class="radio"></span>
+            <div>
+              <p class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</p>
+              <div class="mm"><span class="st st-new"><svg class="i"><use href="#i-circle-dashed"/></svg>New</span><span class="mono"><b>1</b> person</span><span class="dm dm-low"><span class="meter" style="--v:.083"><i></i></span><span class="band">LOW</span></span></div>
+              <div class="ai-box why"><div class="ai-h"><span class="tag tag-proposed">Proposed</span><span class="k">Why it matches</span><span class="conf" style="margin-left:auto">MATCH <span class="segs n1"><i></i><i></i><i></i></span><b>LOW</b></span></div>
+                <p>Also asks for PDF export, but to keep a fixed audit record, not to share current numbers.</p></div>
+            </div>
+          </div>
+          <div class="match none">
+            <span class="radio"></span>
+            <p><b>None of these</b> — submit it as a new need. It shows as New on the board.</p>
+          </div>
+        </div>
+      </aside>
+
+      <section class="f-details">
+        <div class="row2">
+          <div><label class="fl">Email</label><div class="inp">dana@acme.example</div></div>
+          <div><label class="fl">Company</label><div class="inp">Acme</div></div>
+        </div>
+        <label class="fl">Urgency</label>
+        <div class="seg" role="radiogroup"><span>Low</span><span class="on"><svg class="i s14"><use href="#i-check"/></svg>Medium</span><span>High</span></div>
+      </section>
+
+      <div class="f-actions">
+        <span class="btn btn-primary" style="height:40px;padding:0 18px;font-size:14.5px">Add my voice<svg class="i s14"><use href="#i-arrow"/></svg></span>
+        <p class="note"><svg class="i s14"><use href="#i-lock"/></svg>Your words are kept and shown to the product team.</p>
+        <p class="k" style="text-transform:none;letter-spacing:.02em">If you pick “None of these”, the button reads “Submit new need”.</p>
+      </div>
+    </div>
+  </main>
+</div>
+</template>
+
+<template id="t-triage">
+<div class="op">
+  <aside class="side">
+    <span class="brand"><svg class="mk" width="20" height="20"><use href="#mark"/></svg><span class="wm">signal <b>/ ops</b></span></span>
+    <span class="nv on"><svg class="i"><use href="#i-inbox"/></svg>Triage<span class="badge">5</span></span>
+    <span class="nv"><svg class="i"><use href="#i-list"/></svg>Needs<kbd>2</kbd></span>
+    <span class="nv"><svg class="i"><use href="#i-sliders"/></svg>Criteria<kbd>3</kbd></span>
+    <span class="nv"><svg class="i"><use href="#i-chart"/></svg>Metrics<kbd>4</kbd></span>
+    <span class="nv"><svg class="i"><use href="#i-msg"/></svg>Chat<kbd>5</kbd></span>
+    <div class="side-f">GABO · PM<br>ACME ANALYTICS</div>
+  </aside>
+  <div>
+    <div class="op-top">
+      <div class="bar"><span class="brand"><svg class="mk" width="20" height="20"><use href="#mark"/></svg><span class="wm">signal <b>/ ops</b></span></span><svg class="i" style="width:20px;height:20px"><use href="#i-menu"/></svg></div>
+      <nav class="op-tabs"><span class="nv on">Triage<span class="badge">5</span></span><span class="nv">Needs</span><span class="nv">Criteria</span><span class="nv">Metrics</span><span class="nv">Chat</span></nav>
+    </div>
+    <main class="opm">
+      <header class="oh">
+        <div><h1>Triage</h1><p class="meta mono">5 SUGGESTIONS · 4 TO REVIEW · 1 RESOLVED TODAY</p></div>
+        <div class="keys"><span><kbd>J</kbd><kbd>K</kbd> move</span><span><kbd>A</kbd> accept</span><span><kbd>E</kbd> edit</span><span><kbd>R</kbd> reject</span></div>
+      </header>
+      <div class="qf">
+        <span class="chip on">To review <span class="n">4</span></span>
+        <span class="chip"><svg class="i"><use href="#i-merge"/></svg>Merges <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-file"/></svg>Drafts <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-gauge"/></svg>Scores <span class="n">1</span></span>
+        <span class="chip"><svg class="i"><use href="#i-globe"/></svg>Summaries <span class="n">1</span></span>
+      </div>
+      <ol class="queue">
+
+        <!-- 1 MERGE -->
+        <li class="sug focus">
+          <span class="idx">01</span>
+          <div class="sh"><span class="typ"><svg class="i"><use href="#i-merge"/></svg>Merge</span><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span><span class="conf">CONF <span class="segs n3"><i></i><i></i><i></i></span><b>HIGH</b></span></div>
+          <div class="sa"><span class="btn btn-primary sm"><svg class="i s14"><use href="#i-check"/></svg>Accept<kbd>A</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-pencil"/></svg>Edit<kbd>E</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-x"/></svg>Reject<kbd>R</kbd></span></div>
+          <div class="sb">
+            <div class="merge">
+              <div class="mbox"><span class="k">From</span><p>Board members need to see dashboards without an account</p><span class="n"><b>2</b> signals</span></div>
+              <span class="marrow"><svg class="i" style="width:18px;height:18px"><use href="#i-arrow"/></svg></span>
+              <div class="mbox"><span class="k">Into · need 01</span><p>Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p><span class="n"><b>11</b> signals → <b>13</b> after merge</span></div>
+            </div>
+            <p class="reason"><span class="k">Reason</span><span>Both describe sharing current dashboard numbers with people outside the product.</span></p>
+          </div>
+        </li>
+
+        <!-- 2 DRAFT NEED -->
+        <li class="sug">
+          <span class="idx">02</span>
+          <div class="sh"><span class="typ"><svg class="i"><use href="#i-file"/></svg>Draft need</span><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span><span class="conf">CONF <span class="segs n2"><i></i><i></i><i></i></span><b>MED</b></span></div>
+          <div class="sa"><span class="btn btn-primary sm"><svg class="i s14"><use href="#i-check"/></svg>Accept<kbd>A</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-pencil"/></svg>Edit<kbd>E</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-x"/></svg>Reject<kbd>R</kbd></span></div>
+          <div class="sb">
+            <div class="src"><span>NEW SIGNAL</span><span class="sep">·</span><b>Dana</b><span class="sep">·</span><span>ACME</span><span class="sep">·</span><span>ENTERPRISE</span><span class="sep">·</span><b>$480k ARR</b></div>
+            <div class="draft">
+              <blockquote class="vq"><p>Our CFO wants a PDF of the revenue dashboard every month for the board pack.</p><footer><b>Dana</b> · Acme · Enterprise · $480k ARR · verbatim</footer></blockquote>
+              <div class="ai-box ai-stmt"><div class="ai-h"><span class="k">AI statement</span></div><p>Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p>
+                <div class="ai-row"><span class="k">Theme</span><span class="pchip">Reporting</span></div></div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 3 PRIORITY SCORE -->
+        <li class="sug">
+          <span class="idx">03</span>
+          <div class="sh"><span class="typ"><svg class="i"><use href="#i-gauge"/></svg>Priority score</span><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span><span class="tag tag-edited"><svg class="i"><use href="#i-diff"/></svg>1 edit</span><span class="conf">CONF <span class="segs n2"><i></i><i></i><i></i></span><b>MED</b></span></div>
+          <div class="sa"><span class="btn btn-primary sm"><svg class="i s14"><use href="#i-check"/></svg>Accept<kbd>A</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-pencil"/></svg>Edit<kbd>E</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-x"/></svg>Reject<kbd>R</kbd></span></div>
+          <div class="sb">
+            <p class="need-ref"><span class="k">Need 04</span><b>Operations teams need threshold alerts in their team chat so that they react before customers notice</b></p>
+            <div class="score">
+              <div class="st-tbl">
+                <div class="str hd"><span class="k">Criterion</span><span class="k">Score</span><span class="k">Value</span><span class="k">Evidence</span></div>
+                <div class="str"><span class="crit">Demand</span><span class="s5 v4"><i></i><i></i><i></i><i></i><i></i></span><span class="val">4<span>/5</span></span><span class="ev">9 people across 5 accounts</span></div>
+                <div class="str"><span class="crit">Business value</span><span class="s5 v3"><i></i><i></i><i></i><i></i><i></i></span><span class="val">3<span>/5</span></span><span class="ev">$132k ARR, no open deals</span></div>
+                <div class="str ovr"><span class="crit">Strategic fit<small>PM override</small></span><span class="s5 v4"><i></i><i></i><i></i><i></i><i></i></span><span class="val diff"><s>3</s>→<em>4</em></span><span class="ev"><span class="k">AI 3 → PM 4</span>“Ops is a Q1 focus” · Integrations, weight 0.7</span></div>
+                <div class="str"><span class="crit">Effort<small>lower = harder</small></span><span class="s5 v2"><i></i><i></i><i></i><i></i><i></i></span><span class="val">2<span>/5</span></span><span class="ev">Two chat platforms</span></div>
+              </div>
+              <div class="overall"><span class="k">Overall</span><span class="big">3.1<span> / 5</span></span></div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 4 PUBLIC SUMMARY -->
+        <li class="sug">
+          <span class="idx">04</span>
+          <div class="sh"><span class="typ"><svg class="i"><use href="#i-globe"/></svg>Public summary</span><span class="tag tag-proposed"><svg class="i"><use href="#i-proposed"/></svg>Proposed</span><span class="conf">CONF <span class="segs n3"><i></i><i></i><i></i></span><b>HIGH</b></span></div>
+          <div class="sa"><span class="btn btn-primary sm"><svg class="i s14"><use href="#i-check"/></svg>Accept<kbd>A</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-pencil"/></svg>Edit<kbd>E</kbd></span><span class="btn btn-outline sm"><svg class="i s14"><use href="#i-x"/></svg>Reject<kbd>R</kbd></span></div>
+          <div class="sb">
+            <p class="need-ref"><span class="k">Need · compliance</span><b>Compliance teams need to archive monthly reports so that audits have a fixed record</b></p>
+            <div class="ai-box"><p style="font-size:14px">Compliance teams keep immutable monthly copies of reports for auditors.</p></div>
+            <p class="chk"><svg class="i s14"><use href="#i-circle-check"/></svg><span class="k">Privacy check</span><span>No names, emails, or companies found.</span></p>
+          </div>
+        </li>
+
+        <!-- 5 RESOLVED -->
+        <li class="sug resolved">
+          <span class="idx">05</span>
+          <div class="sh"><span class="ok"><svg class="i"><use href="#i-check"/></svg></span><span>Theme ‘Reporting’ accepted · edited by you</span><span class="tag tag-accepted">Accepted</span><span class="tag tag-edited"><svg class="i"><use href="#i-diff"/></svg>Edited</span><span class="when">2H AGO</span></div>
+          <div class="sa"><span class="lnk">Undo</span><svg class="i s14" style="color:var(--muted-foreground)"><use href="#i-chev"/></svg></div>
+        </li>
+      </ol>
+    </main>
+  </div>
+</div>
+</template>
+
+<script>
+// Instantiate templates into every frame (light/dark × desktop/phone).
+document.querySelectorAll('[data-tpl]').forEach(el => {
+  el.appendChild(document.getElementById(el.dataset.tpl).content.cloneNode(true));
+});
+// Token table read from the live CSS variables so it always matches.
+const groups = {
+  'shadcn core': ['--background','--foreground','--card','--card-foreground','--popover','--popover-foreground','--primary','--primary-foreground','--secondary','--secondary-foreground','--muted','--muted-foreground','--accent','--accent-foreground','--destructive','--destructive-foreground','--border','--input','--ring','--radius'],
+  'chart': ['--chart-1','--chart-2','--chart-3','--chart-4','--chart-5'],
+  'sidebar': ['--sidebar','--sidebar-foreground','--sidebar-primary','--sidebar-primary-foreground','--sidebar-accent','--sidebar-accent-foreground','--sidebar-border','--sidebar-ring'],
+  'AI + decision states': ['--ai','--ai-foreground','--ai-muted','--ai-border','--confirmed','--edited','--edited-muted','--rejected'],
+  'status (fg / bg)': ['--status-new','--status-new-bg','--status-open','--status-open-bg','--status-planned','--status-planned-bg','--status-progress','--status-progress-bg','--status-shipped','--status-shipped-bg','--status-declined','--status-declined-bg'],
+  'demand': ['--demand-high','--demand-medium','--demand-low','--demand-track'],
+  'mark': ['--mark-fill','--mark-dot']
+};
+const pl = getComputedStyle(document.getElementById('probe-l')), pd = getComputedStyle(document.getElementById('probe-d'));
+const tb = document.querySelector('#tok tbody');
+const cell = v => v.startsWith('#') ? `<span class="sw"><i style="background:${v}"></i>${v}</span>` : `<code>${v}</code>`;
+let html = '';
+for (const [g, names] of Object.entries(groups)) {
+  html += `<tr><td class="grp" colspan="3">${g}</td></tr>`;
+  for (const n of names) html += `<tr><td><code>${n}</code></td><td>${cell(pl.getPropertyValue(n).trim())}</td><td>${cell(pd.getPropertyValue(n).trim())}</td></tr>`;
+}
+tb.innerHTML = html;
+</script>
+</body>
+</html>

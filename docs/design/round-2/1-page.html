@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal · Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Page (documentation chrome, not product) ===================== */
+:root{
+  --page-bg:#e6e5dd; --page-fg:#1e2320; --page-muted:#565d58; --page-rule:#c9c7bb; --page-card:#f4f3ed;
+  --font-serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+}
+:root[data-theme="dark"]{--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page-bg);color:var(--page-fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:40px 16px 96px}
+.doc-head{max-width:860px;margin-bottom:48px}
+.doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-muted)}
+.doc-head h1{font-family:var(--font-serif);font-weight:500;font-size:44px;line-height:1.1;margin:8px 0 12px;letter-spacing:-.01em}
+.doc-head .idea{font-family:var(--font-serif);font-size:21px;line-height:1.45;margin:0 0 20px}
+.doc-head dl{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;margin:0;border-top:1px solid var(--page-rule);padding-top:16px}
+.doc-head dt{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--page-muted);padding-top:3px}
+.doc-head dd{margin:0}
+.doc-head ul{margin:0;padding-left:18px}
+@media (max-width:600px){.doc-head h1{font-size:34px}.doc-head dl{grid-template-columns:1fr;gap:2px}.doc-head dd{margin-bottom:10px}}
+.section{margin-top:64px}
+.section > h2{font-family:var(--font-serif);font-weight:500;font-size:28px;margin:0 0 4px;letter-spacing:-.005em}
+.section > p.sub{color:var(--page-muted);margin:0 0 20px;max-width:760px}
+.flabel{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 8px;letter-spacing:.02em}
+.row-desk{display:flex;flex-direction:column;gap:28px}
+.scroller{overflow-x:auto;max-width:100%;padding-bottom:6px}
+.row-phone{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px;align-items:flex-start}
+.row-phone .scroller{flex:0 1 auto}
+
+/* ===================== Theme tokens (copied from round-1 Ledger) ===================== */
+.theme-light{
+  --radius:0.375rem;
+  --background:#f7f7f2; --foreground:#1e2320;
+  --card:#fbfbf7; --card-foreground:#1e2320;
+  --popover:#ffffff; --popover-foreground:#1e2320;
+  --primary:#4a42a0; --primary-foreground:#ffffff;
+  --secondary:#ebeae2; --secondary-foreground:#1e2320;
+  --muted:#eeede6; --muted-foreground:#5b635d;
+  --accent:#ebe9f5; --accent-foreground:#3d3689;
+  --destructive:#a3261b;
+  --border:#dad8cc; --input:#8b928c; --ring:#4a42a0;
+  --chart-1:#4a42a0; --chart-2:#2f7391; --chart-3:#5d8466; --chart-4:#b08a3e; --chart-5:#8d5f91;
+  --sidebar:#f1f0e9; --sidebar-foreground:#1e2320; --sidebar-primary:#4a42a0; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#e6e4f2; --sidebar-accent-foreground:#3d3689; --sidebar-border:#dad8cc; --sidebar-ring:#4a42a0;
+  --rule-strong:#1e2320;
+  --ai:#8f89bb; --ai-foreground:#534e78; --ai-surface:#f1f0f6;
+  --quote-rule:#1e2320;
+  --status-new:#5b635d; --status-open:#23698a; --status-planned:#4a42a0; --status-progress:#8a5700; --status-shipped:#2c6a37; --status-declined:#a3261b;
+  --demand-high:#1e2320; --demand-medium:#5b635d; --demand-low:#a7aca5;
+  --positive:#2c6a37;
+}
+.theme-dark{
+  --radius:0.375rem;
+  --background:#141614; --foreground:#e8e7de;
+  --card:#1a1c1a; --card-foreground:#e8e7de;
+  --popover:#1f211e; --popover-foreground:#e8e7de;
+  --primary:#aaa4f2; --primary-foreground:#15122b;
+  --secondary:#252823; --secondary-foreground:#e8e7de;
+  --muted:#222520; --muted-foreground:#a2a9a3;
+  --accent:#29273f; --accent-foreground:#d2ceff;
+  --destructive:#f0897c;
+  --border:#33362f; --input:#6f766f; --ring:#aaa4f2;
+  --chart-1:#aaa4f2; --chart-2:#6fb4d2; --chart-3:#8fbf98; --chart-4:#dcb766; --chart-5:#c99acb;
+  --sidebar:#181a17; --sidebar-foreground:#e8e7de; --sidebar-primary:#aaa4f2; --sidebar-primary-foreground:#15122b;
+  --sidebar-accent:#26243a; --sidebar-accent-foreground:#d2ceff; --sidebar-border:#2e312b; --sidebar-ring:#aaa4f2;
+  --rule-strong:#e8e7de;
+  --ai:#7a75a6; --ai-foreground:#c0bbe0; --ai-surface:#1d1c26;
+  --quote-rule:#e8e7de;
+  --status-new:#a2a9a3; --status-open:#7cc0de; --status-planned:#b3adf6; --status-progress:#e2b35a; --status-shipped:#8ccf96; --status-declined:#f0897c;
+  --demand-high:#e8e7de; --demand-medium:#a2a9a3; --demand-low:#4e534d;
+  --positive:#8ccf96;
+}
+
+/* ===================== Frames ===================== */
+.frame{container-type:inline-size;container-name:frame;background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;border:1px solid var(--page-rule);border-radius:12px;overflow:hidden;flex:none}
+.frame.desk{width:1280px}
+.frame.phone{width:390px}
+
+/* ===================== Primitives (from Ledger) ===================== */
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.mark{color:var(--foreground);flex:none}
+.mono{font-family:var(--font-mono);font-feature-settings:"zero" 0}
+.k{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border-radius:var(--radius);font:500 14px/1 var(--font-ui);border:1px solid transparent;cursor:default;white-space:nowrap}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:transparent;color:var(--foreground);border-color:var(--input)}
+.btn.sm{height:34px;padding:0 13px;font-size:13px}
+.tlink{color:var(--muted-foreground);font-weight:500;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:4px;white-space:nowrap}
+.tlink.fg{color:var(--foreground)}
+
+.status{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.status svg{width:10px;height:10px;flex:none}
+.s-new svg{color:var(--status-new)} .s-open svg{color:var(--status-open)} .s-planned svg{color:var(--status-planned)}
+.s-progress svg{color:var(--status-progress)} .s-shipped svg{color:var(--status-shipped)} .s-declined svg{color:var(--status-declined)}
+
+/* ---------- AI: pencil vs ink (Ledger rule) ---------- */
+.plabel{font-family:var(--font-serif);font-style:italic;font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--ai-foreground);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.plabel svg.i{width:12px;height:12px;stroke-width:1.75}
+.ilabel{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--foreground);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ilabel svg.i{width:12px;height:12px;stroke-width:2.25}
+.pencil{border-left:1.5px dashed var(--ai);padding:1px 0 1px 14px;color:var(--ai-foreground)}
+.pencil p{margin:3px 0 0}
+.ink{border-left:1.5px solid var(--rule-strong);padding:1px 0 1px 14px;color:var(--foreground)}
+.ink p{margin:3px 0 0}
+.edited{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--muted-foreground)}
+.quote{margin:0;border-left:3px solid var(--quote-rule);padding:2px 0 2px 16px;font-family:var(--font-serif);font-style:italic;font-size:18px;line-height:1.45;color:var(--foreground)}
+.quote b{font-style:normal;font-weight:500;display:block;margin-bottom:2px}
+.quote cite{display:block;font-style:normal;font-family:var(--font-ui);font-size:12px;color:var(--muted-foreground);margin-top:6px}
+
+/* ===================== App chrome: quiet, no rules ===================== */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;height:64px;padding:0 40px}
+.brand{display:inline-flex;align-items:center;gap:9px;color:var(--foreground);text-decoration:none}
+.wordmark{font-family:var(--font-serif);font-weight:600;font-size:22px;letter-spacing:-.01em;line-height:1}
+.topnav{display:flex;align-items:center;gap:22px;min-width:0}
+.topnav a{color:var(--muted-foreground);font-weight:500;text-decoration:none;white-space:nowrap}
+.topnav a.on{color:var(--foreground);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:6px}
+.topnav .n{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-left:4px}
+.role{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground);margin-left:10px}
+
+/* ===================== The column ===================== */
+.col{max-width:560px;margin:0 auto;padding:56px 0 72px}
+.step{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);letter-spacing:.02em;margin:0 0 14px}
+.q{font-family:var(--font-serif);font-weight:500;font-size:32px;line-height:1.2;letter-spacing:-.01em;margin:0 0 10px;text-wrap:balance}
+.lede{font-family:var(--font-serif);font-size:18px;line-height:1.45;color:var(--muted-foreground);margin:0 0 32px}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:26px}
+.field > label{font-weight:500;font-size:14px}
+.field .opt{font-weight:400;color:var(--muted-foreground)}
+.input,.textarea{border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground)}
+.input{min-height:44px;display:flex;align-items:center;padding:0 14px;font-size:15px}
+.input.ph{color:var(--muted-foreground)}
+.input.serif{font-family:var(--font-serif);font-size:18px}
+.textarea{min-height:150px;padding:12px 14px;font-family:var(--font-serif);font-size:18px;line-height:1.5}
+.textarea.short{min-height:76px}
+.textarea.ph{color:var(--muted-foreground);font-style:italic}
+.focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.caret{display:inline-block;width:1.5px;height:19px;background:var(--foreground);vertical-align:-3px;margin-left:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.radios{display:flex;gap:24px;flex-wrap:wrap;padding-top:2px}
+.radios label{display:inline-flex;align-items:center;gap:8px;font-size:15px}
+.rd{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--input);display:inline-grid;place-items:center;flex:none}
+.rd.on{border-color:var(--primary)}
+.rd.on::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--primary)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:40px}
+.foot .tlink{font-size:14px}
+.privacy{font-size:13px;color:var(--muted-foreground);margin:8px 0 0;display:flex;gap:8px;align-items:flex-start}
+.privacy svg.i{width:14px;height:14px;margin-top:3px}
+
+/* loading */
+.loading{padding:28px 0 0}
+.loading p{font-family:var(--font-serif);font-size:20px;margin:0 0 18px;color:var(--foreground)}
+.bar{height:1.5px;background:var(--border);position:relative;overflow:hidden}
+.bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--rule-strong)}
+.loading .sub{font-size:13px;color:var(--muted-foreground);margin-top:14px}
+
+/* step 2 matches */
+.restate{margin:0 0 36px}
+.restate p{font-family:var(--font-serif);font-size:18px;line-height:1.45}
+.entries{list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
+.entry{position:relative;display:grid;grid-template-columns:20px 1fr;gap:16px;padding:22px 0 24px;border-bottom:1px solid var(--border);cursor:pointer}
+.entry.sel::before{content:"";position:absolute;left:-18px;top:-1px;bottom:-1px;width:2px;background:var(--rule-strong)}
+.entry .rd{margin-top:5px}
+.entry .stmt{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:0 0 10px;text-wrap:pretty}
+.entry .note{font-family:var(--font-serif);font-size:16px;line-height:1.5;margin:0 0 10px}
+.entry .meta{font-size:13px;color:var(--muted-foreground);margin:0 0 12px;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
+.entry .meta .mono{color:var(--foreground)}
+.entry .why{font-size:14px;line-height:1.5}
+.entry.none .stmt{font-family:var(--font-ui);font-size:15px;font-weight:500;margin:0 0 4px}
+.entry.none p{margin:0;font-size:13px;color:var(--muted-foreground)}
+
+/* step 3 destination */
+.dest{font-size:13px;color:var(--muted-foreground);margin:0 0 28px}
+.dest .stmt{display:block;font-family:var(--font-serif);font-size:17px;line-height:1.4;color:var(--foreground);margin:4px 0 4px}
+
+/* step 4 */
+.link-row{display:flex;gap:10px;align-items:stretch;margin:6px 0 10px}
+.link-row .input{flex:1;min-width:0;font-family:var(--font-mono);font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:42px}
+.done-stmt{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:0 0 36px}
+
+/* ===================== Board ===================== */
+.searchline{display:flex;align-items:center;gap:10px;height:44px;border-bottom:1.5px solid var(--input);color:var(--muted-foreground);font-size:15px}
+.board-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0 8px;font-size:13px;color:var(--muted-foreground)}
+.select{display:inline-flex;align-items:center;gap:4px;color:var(--foreground);font-weight:500}
+.select svg.i{width:14px;height:14px;color:var(--muted-foreground)}
+.list{list-style:none;margin:0;padding:0}
+.list li{padding:20px 0 21px;border-bottom:1px solid var(--border)}
+.list li:last-child{border-bottom:0}
+.list .stmt{font-family:var(--font-serif);font-size:19px;line-height:1.4;margin:0 0 6px;text-wrap:pretty}
+.list .meta{font-size:13px;color:var(--muted-foreground);display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
+.list .meta .mono{color:var(--foreground)}
+
+/* ===================== Triage focus ===================== */
+.focus-wrap{display:grid;grid-template-columns:200px minmax(0,600px);gap:72px;justify-content:center;padding:48px 40px 72px}
+.queue{font-size:13px;padding-top:4px}
+.queue ol{list-style:none;margin:10px 0 0;padding:0}
+.queue li{display:grid;grid-template-columns:22px 1fr;gap:4px;padding:7px 0 7px 12px;border-left:2px solid transparent;color:var(--muted-foreground);line-height:1.4}
+.queue li .mono{font-size:12px;padding-top:1px}
+.queue li.cur{border-left-color:var(--rule-strong);color:var(--foreground);font-weight:500}
+.queue li.res{color:var(--muted-foreground)}
+.queue li.res svg.i{width:13px;height:13px;color:var(--positive);margin-top:2px}
+.pos{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:0 0 16px}
+.pos .step{margin:0}
+.kind{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 6px;font-size:13px;color:var(--muted-foreground)}
+.kind b{font-weight:600;color:var(--foreground)}
+.fq{font-family:var(--font-serif);font-weight:500;font-size:26px;line-height:1.25;margin:0 0 28px;letter-spacing:-.005em;text-wrap:balance}
+.blk{margin:0 0 26px}
+.blk > .k{display:block;margin-bottom:8px}
+.from{font-size:13px;color:var(--muted-foreground);margin:0 0 10px}
+.from b{color:var(--foreground);font-weight:600}
+.from .mono{color:var(--foreground)}
+.big{font-family:var(--font-serif);font-size:20px;line-height:1.45}
+.ref{font-family:var(--font-serif);font-size:17px;line-height:1.4;margin:0}
+.ref .mono{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-right:8px}
+.ref-meta{font-size:13px;color:var(--muted-foreground);margin:4px 0 0}
+.decide{display:flex;align-items:center;gap:10px;margin-top:34px;padding-top:22px;border-top:1px solid var(--border)}
+.decide .btn-ghost{background:transparent;color:var(--muted-foreground)}
+.hints{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);letter-spacing:.02em;white-space:nowrap}
+.hints b{font-weight:500;color:var(--foreground)}
+.score{display:grid;grid-template-columns:140px 54px 1fr;column-gap:0;font-size:14px}
+.score > div{padding:10px 0;border-top:1px solid var(--border)}
+.score > div:nth-child(3n){padding-left:20px}
+.score > div:nth-child(-n+3){border-top:0}
+.score .crit small{display:block;font-size:12px;color:var(--muted-foreground)}
+.sval{font-family:var(--font-mono);color:var(--ai-foreground);text-align:right}
+.sval.ink{border-left:0;padding:10px 0;color:var(--foreground);font-weight:500}
+.sval s{color:var(--muted-foreground);margin-right:6px;font-weight:400}
+.sreason{color:var(--ai-foreground)}
+.override{display:block;color:var(--foreground);margin-top:3px}
+.overall{display:flex;align-items:baseline;gap:12px;margin-top:6px;padding-top:12px;border-top:1.5px solid var(--rule-strong)}
+.overall .mono{font-size:26px;font-weight:500;color:var(--ai-foreground);letter-spacing:-.02em}
+.overall .sub{font-size:13px;color:var(--muted-foreground)}
+.upnext{display:none}
+
+/* ===================== Needs table ===================== */
+.needs{max-width:1120px;margin:0 auto;padding:48px 40px 72px}
+.needs-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:22px}
+.needs-head h1{font-family:var(--font-serif);font-weight:500;font-size:30px;margin:0;letter-spacing:-.01em}
+.needs-head span{font-size:13px;color:var(--muted-foreground)}
+table.nt{width:100%;border-collapse:collapse;font-size:13px}
+.nt th{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 0 10px 16px;border-bottom:1.5px solid var(--rule-strong);white-space:nowrap}
+.nt td{padding:15px 0 15px 16px;border-bottom:1px solid var(--border);vertical-align:baseline;color:var(--muted-foreground)}
+.nt th:first-child,.nt td:first-child{padding-left:0}
+.nt .r{text-align:right}
+.nt td.r{font-family:var(--font-mono);color:var(--foreground);white-space:nowrap}
+.nt td.prio{font-weight:500;font-size:14px}
+.nt td.stmt{font-family:var(--font-serif);font-size:16px;line-height:1.4;color:var(--foreground);max-width:430px}
+.nt td.st{color:var(--foreground);white-space:nowrap}
+.nt td.idx{font-family:var(--font-mono);font-size:12px;width:28px}
+.pend{color:var(--ai-foreground);white-space:nowrap;display:inline-flex;gap:5px;align-items:center}
+.pend svg.i{width:12px;height:12px;stroke-width:1.75}
+.nt .sorted{color:var(--foreground)}
+
+/* ===================== Phone (container ≤ 640) ===================== */
+@container frame (max-width:640px){
+  .topbar{padding:0 16px;height:56px}
+  .wordmark{font-size:20px}
+  .topbar .btn{height:34px;padding:0 12px;font-size:13px}
+  .col{padding:32px 16px 48px}
+  .q{font-size:27px}
+  .lede{font-size:17px;margin-bottom:26px}
+  .two{grid-template-columns:1fr;gap:0}
+  .entry{gap:12px}
+  .entry.sel::before{left:-10px}
+  .entry .stmt{font-size:18px}
+  .foot{margin-top:32px}
+  .opbar .topnav{display:none}
+  .opbar .role{display:none}
+  .focus-wrap{grid-template-columns:minmax(0,1fr);padding:28px 16px 48px;gap:0}
+  .queue{display:none}
+  .fq{font-size:23px}
+  .decide{flex-wrap:wrap}
+  .decide .btn-primary{flex:1}
+  .hints{display:none}
+  .upnext{display:block;margin-top:40px;font-size:13px}
+  .upnext ol{list-style:none;margin:8px 0 0;padding:0;border-top:1px solid var(--border)}
+  .upnext li{display:grid;grid-template-columns:24px 1fr;padding:11px 0;border-bottom:1px solid var(--border);color:var(--muted-foreground)}
+  .upnext li .mono{font-size:12px}
+  .opnav-m{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted-foreground)}
+}
+.opnav-m{display:none}
+@container frame (max-width:640px){ .opnav-m{display:inline-flex} }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Mark (round-1 Ledger): three short ledger rules; the outer two converge into the middle, which continues as one line. -->
+    <symbol id="mark" viewBox="0 0 32 32">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M2 6.5h7.5L18 16"/>
+        <path d="M2 25.5h7.5L18 16"/>
+        <path d="M2 16h28"/>
+      </g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="st-new" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="st-open" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.2" fill="currentColor"/></symbol>
+    <symbol id="st-planned" viewBox="0 0 12 12"><path d="M6 .8 11.2 6 6 11.2.8 6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="st-progress" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="st-shipped" viewBox="0 0 12 12"><rect x=".6" y=".6" width="10.8" height="10.8" rx="2" fill="currentColor"/><path d="m3.2 6.1 1.9 1.9 3.8-4" fill="none" stroke="var(--background)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="doc-head">
+  <div class="eyebrow">Signal · Design round 2 · Variant 1</div>
+  <h1>Page</h1>
+  <p class="idea">One thing at a time. Every screen is a single quiet page in one centered column: one serif question, what you need to answer it, and one primary button.</p>
+  <dl>
+    <dt>Idea</dt>
+    <dd>Submit is four pages, not a form with a side panel. Step 2 gives each match the full width of the column so it can be read, not scanned. The board is the same column as a ruled list. The PM console uses a focus mode: one suggestion at a time with everything needed to decide it, and the rest of the queue as a slim list in the margin.</dd>
+    <dt>Principles</dt>
+    <dd><ul>
+      <li><b>Minimal:</b> no cards, no pills, no stepper graphic. Progress is plain text ("Step 2 of 3"). Rules are hairlines; the only heavy rule marks what is selected or current.</li>
+      <li><b>One primary action</b> per screen, always bottom-right; Back is a text link.</li>
+      <li><b>Writing welcome:</b> step 1 is only the person's words, in serif, with room to write. Their words are kept verbatim and shown to PMs as a pulled quote.</li>
+      <li><b>Pencil / ink</b> unchanged from Ledger: AI text sits behind a dashed rule in graphite-indigo; anything a person approved is ink with a solid rule.</li>
+      <li><b>Same taste for PMs:</b> triage is one decision at a time with J/K/A/E/R; Needs is a plain ruled table, figures right-aligned in mono.</li>
+    </ul></dd>
+    <dt>Risks</dt>
+    <dd>Focus mode hides the shape of the queue, so a PM can't compare two suggestions side by side (the margin list helps only a little). Four pages feel slow to someone who already knows the board has their need. The narrow column wastes width on large screens, and the Needs table is the one place where density beats calm. With so little chrome, the single indigo button carries all of the hierarchy. The "second ask" line in step 2 is not shown: the example has none.</dd>
+  </dl>
+</header>
+
+<!-- ===================== Submit ===================== -->
+<section class="section">
+  <h2>Submit · step 1 · Describe</h2>
+  <p class="sub">Only the person's words. No matches while typing.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s1"></div></div></div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s1"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Submit · step 2 · Check</h2>
+  <p class="sub">A calm wait while <code>preview_signal</code> runs, then each match gets the full column. Selecting is a quiet radio; the whole entry is the target, and the chosen one carries a solid left rule.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light · loading (~1–2 s)</p><div class="frame desk theme-light" data-tpl="s2load"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s2"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · dark</p><div class="frame desk theme-dark" data-tpl="s2"></div></div>
+  </div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s2"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Submit · step 3 · Details</h2>
+  <p class="sub">Where it lands, stated once at the top, with a way to change it. Everything else is optional except email.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s3"></div></div></div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s3"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Submit · Done</h2>
+  <p class="sub">Not a step. The private link is the one thing to do here.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s4"></div></div></div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s4"></div></div></div>
+</section>
+
+<!-- ===================== Board ===================== -->
+<section class="section">
+  <h2>Public board</h2>
+  <p class="sub">The same column as a ruled list. Search is a single underlined line; the status filter is one quiet text select.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="board"></div></div></div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="board"></div></div></div>
+</section>
+
+<!-- ===================== Triage ===================== -->
+<section class="section">
+  <h2>PM console · Triage (focus mode)</h2>
+  <p class="sub">One suggestion at a time, with the context needed to decide it. The queue is a slim margin list; on phone it moves below as "Up next" and the key hints are dropped.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light · item 2 of 5, draft need</p><div class="frame desk theme-light" data-tpl="tri-draft"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · dark · item 3 of 5, priority score</p><div class="frame desk theme-dark" data-tpl="tri-prio"></div></div>
+  </div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="tri-draft"></div></div></div>
+</section>
+
+<!-- ===================== Needs ===================== -->
+<section class="section">
+  <h2>PM console · Needs</h2>
+  <p class="sub">A plain ruled table sorted by priority. Statements in serif, figures right-aligned in mono, pending AI suggestions in pencil.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="needs"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · dark</p><div class="frame desk theme-dark" data-tpl="needs"></div></div>
+  </div>
+</section>
+
+</div>
+
+<!-- ===================== Templates ===================== -->
+<template id="tpl-pubbar">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <nav class="topnav"><a>Board</a></nav>
+  </header>
+</template>
+
+<template id="tpl-s1">
+  <div data-tpl="pubbar"></div>
+  <main class="col">
+    <p class="step">Step 1 of 3</p>
+    <h1 class="q">What do you need?</h1>
+    <p class="lede">Write it the way you'd tell a colleague. The product team reads every word.</p>
+    <div class="field"><label>In a few words, what do you need?</label><div class="input serif">Monthly PDF of the revenue dashboard</div></div>
+    <div class="field"><label>What's getting in the way? What were you trying to do?</label><div class="textarea focus">Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.<span class="caret"></span></div></div>
+    <div class="foot"><a class="tlink">Back to board</a><span class="btn btn-primary">Continue</span></div>
+  </main>
+</template>
+
+<template id="tpl-s2load">
+  <div data-tpl="pubbar"></div>
+  <main class="col">
+    <p class="step">Step 2 of 3</p>
+    <div class="loading">
+      <p>Looking for needs like yours…</p>
+      <div class="bar" role="progressbar" aria-label="Looking for similar needs"></div>
+      <p class="sub">Usually a second or two.</p>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-s2">
+  <div data-tpl="pubbar"></div>
+  <main class="col">
+    <p class="step">Step 2 of 3</p>
+    <h1 class="q">Others may have asked for this already.</h1>
+    <p class="lede">If one of these is your need, add your voice to it. Your own words still go to the product team.</p>
+    <div class="pencil restate"><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Your need, as we understand it</span><p>Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p></div>
+    <ol class="entries" role="radiogroup" aria-label="Matching needs">
+      <li class="entry sel" role="radio" aria-checked="true">
+        <span class="rd on"></span>
+        <div>
+          <p class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+          <div class="ink note"><span class="ilabel">Summary</span><p>Leaders want current dashboard numbers in board and leadership meetings without rebuilding slides by hand.</p></div>
+          <p class="meta"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span><span><span class="mono">11</span> people</span></p>
+          <div class="pencil why"><span class="plabel">Why it matches</span><p>Same problem: getting current dashboard numbers into board meetings. You asked for a PDF; others asked for PDF or email.</p></div>
+        </div>
+      </li>
+      <li class="entry" role="radio" aria-checked="false">
+        <span class="rd"></span>
+        <div>
+          <p class="stmt">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</p>
+          <div class="ink note"><span class="ilabel">Decision · Planned</span><p>Scheduled delivery is planned for the next quarter, starting with weekly email.</p></div>
+          <p class="meta"><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span><span><span class="mono">12</span> people</span></p>
+          <div class="pencil why"><span class="plabel">Why it matches</span><p>Related: a monthly PDF could arrive on a schedule, but this need is about managers acting on numbers, not board packs.</p></div>
+        </div>
+      </li>
+      <li class="entry" role="radio" aria-checked="false">
+        <span class="rd"></span>
+        <div>
+          <p class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</p>
+          <p class="meta"><span class="status s-new"><svg><use href="#st-new"/></svg>New</span><span><span class="mono">1</span> person</span><span>No summary yet</span></p>
+          <div class="pencil why"><span class="plabel">Why it matches</span><p>Also asks for a monthly PDF, but to keep a fixed audit record.</p></div>
+        </div>
+      </li>
+      <li class="entry none" role="radio" aria-checked="false">
+        <span class="rd"></span>
+        <div>
+          <p class="stmt">None of these — it's a new need</p>
+          <p>It goes to the product team and shows as New on the board.</p>
+        </div>
+      </li>
+    </ol>
+    <div class="foot"><a class="tlink">Back</a><span class="btn btn-primary">Continue</span></div>
+  </main>
+</template>
+
+<template id="tpl-s3">
+  <div data-tpl="pubbar"></div>
+  <main class="col">
+    <p class="step">Step 3 of 3</p>
+    <p class="dest">Adding your voice to <span class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</span><a class="tlink">Change</a></p>
+    <h1 class="q">How does this affect you?</h1>
+    <p class="lede">Optional, but it helps the team weigh it.</p>
+    <div class="field"><label class="sr" style="position:absolute;left:-9999px">How does this affect you?</label><div class="textarea short ph">e.g. board pack every month, ~2 hours of manual work</div></div>
+    <div class="field"><label>Urgency <span class="opt">· optional</span></label>
+      <div class="radios"><label><span class="rd"></span>Low</label><label><span class="rd on"></span>Medium</label><label><span class="rd"></span>High</label></div>
+    </div>
+    <div class="field"><label>Email</label><div class="input">dana@acme.example</div></div>
+    <div class="two">
+      <div class="field"><label>Name <span class="opt">· optional</span></label><div class="input">Dana</div></div>
+      <div class="field"><label>Company <span class="opt">· optional</span></label><div class="input">Acme</div></div>
+    </div>
+    <p class="privacy"><svg class="i"><use href="#i-lock"/></svg><span>Your words are kept as you wrote them and shown only to the product team. Your email is never public.</span></p>
+    <div class="foot"><a class="tlink">Back</a><span class="btn btn-primary">Add my voice</span></div>
+  </main>
+</template>
+
+<template id="tpl-s4">
+  <div data-tpl="pubbar"></div>
+  <main class="col">
+    <h1 class="q">Thanks, Dana.</h1>
+    <p class="lede" style="margin-bottom:8px">Your voice was added to</p>
+    <p class="done-stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+    <div class="field" style="margin-bottom:0"><label>Your private My signals link</label>
+      <div class="link-row"><div class="input">signal.example/me/7Kq2-vX9d-Lm4R</div><span class="btn btn-primary"><svg class="i"><use href="#i-copy"/></svg>Copy</span></div>
+      <p class="privacy" style="margin:0">No email is sent; keep this link.</p>
+    </div>
+    <div class="foot"><a class="tlink">Back to the board</a><span></span></div>
+  </main>
+</template>
+
+<template id="tpl-board">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <span class="btn btn-primary">Submit a request</span>
+  </header>
+  <main class="col" style="padding-top:40px">
+    <h1 class="q">What customers need</h1>
+    <p class="lede" style="margin-bottom:24px">And what we decided.</p>
+    <div class="searchline"><svg class="i"><use href="#i-search"/></svg><span>Search needs</span></div>
+    <div class="board-tools"><span><span class="mono" style="color:var(--foreground)">6</span> needs</span><span>Status <span class="select">All<svg class="i"><use href="#i-chev-d"/></svg></span></span></div>
+    <ol class="list">
+      <li><p class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p><p class="meta"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span><span><span class="mono">11</span> people</span></p></li>
+      <li><p class="stmt">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</p><p class="meta"><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span><span><span class="mono">12</span> people</span></p></li>
+      <li><p class="stmt">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</p><p class="meta"><span class="status s-progress"><svg><use href="#st-progress"/></svg>In progress</span><span><span class="mono">12</span> people</span></p></li>
+      <li><p class="stmt">Operations teams need threshold alerts in their team chat so that they react before customers notice</p><p class="meta"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span><span><span class="mono">9</span> people</span></p></li>
+      <li><p class="stmt">Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change</p><p class="meta"><span class="status s-shipped"><svg><use href="#st-shipped"/></svg>Shipped</span><span><span class="mono">10</span> people</span></p></li>
+      <li><p class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</p><p class="meta"><span class="status s-new"><svg><use href="#st-new"/></svg>New</span><span><span class="mono">1</span> person</span></p></li>
+    </ol>
+  </main>
+</template>
+
+<template id="tpl-opbar">
+  <header class="topbar opbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span><span class="role">Console</span></span>
+    <nav class="topnav"><a data-nav="triage">Triage<span class="n">4</span></a><a data-nav="needs">Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a></nav>
+    <span class="opnav-m">Triage <span class="mono">4</span><svg class="i" style="margin-left:6px"><use href="#i-menu"/></svg></span>
+  </header>
+</template>
+
+<template id="tpl-tri-draft">
+  <div data-tpl="opbar" data-on="triage"></div>
+  <main class="focus-wrap">
+    <aside class="queue" aria-label="Queue">
+      <span class="k">Queue</span>
+      <ol>
+        <li><span class="mono">1</span><span>Merge into need 01</span></li>
+        <li class="cur" aria-current="true"><span class="mono">2</span><span>Draft need · Dana, Acme</span></li>
+        <li><span class="mono">3</span><span>Priority · need 04</span></li>
+        <li><span class="mono">4</span><span>Public summary · need 06</span></li>
+        <li class="res"><svg class="i"><use href="#i-check"/></svg><span>Theme ‘Reporting’ · accepted, edited · 2h</span></li>
+      </ol>
+    </aside>
+    <article>
+      <div class="pos"><p class="step">2 of 5</p><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Suggested</span></div>
+      <p class="kind"><b>Draft need</b><span>from a new signal</span></p>
+      <h1 class="fq">Should this become a new need?</h1>
+      <div class="blk">
+        <p class="from"><b>Dana</b> · Acme · Enterprise · <span class="mono">$480k</span> ARR · Medium urgency</p>
+        <blockquote class="quote"><b>Monthly PDF of the revenue dashboard</b>“Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.”</blockquote>
+      </div>
+      <div class="blk pencil"><span class="plabel">Need statement</span><p class="big">Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p></div>
+      <div class="blk pencil"><span class="plabel">Theme</span><p>Reporting</p></div>
+      <div class="blk"><span class="k">Closest existing need</span><p class="ref"><span class="mono">01</span>Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p><p class="ref-meta">Open · <span class="mono">11</span> people · Dana chose “None of these”</p></div>
+      <div class="decide"><span class="btn btn-primary sm"><svg class="i"><use href="#i-check"/></svg>Accept</span><span class="btn btn-outline sm">Edit</span><span class="btn btn-ghost sm">Reject</span><span class="hints"><b>J</b>/<b>K</b> move · <b>A</b> accept · <b>E</b> edit · <b>R</b> reject</span></div>
+      <div class="upnext"><span class="k">Up next</span><ol><li><span class="mono">3</span><span>Priority · need 04</span></li><li><span class="mono">4</span><span>Public summary · need 06</span></li><li><span class="mono">1</span><span>Merge into need 01</span></li></ol></div>
+    </article>
+  </main>
+</template>
+
+<template id="tpl-tri-prio">
+  <div data-tpl="opbar" data-on="triage"></div>
+  <main class="focus-wrap">
+    <aside class="queue" aria-label="Queue">
+      <span class="k">Queue</span>
+      <ol>
+        <li><span class="mono">1</span><span>Merge into need 01</span></li>
+        <li><span class="mono">2</span><span>Draft need · Dana, Acme</span></li>
+        <li class="cur" aria-current="true"><span class="mono">3</span><span>Priority · need 04</span></li>
+        <li><span class="mono">4</span><span>Public summary · need 06</span></li>
+        <li class="res"><svg class="i"><use href="#i-check"/></svg><span>Theme ‘Reporting’ · accepted, edited · 2h</span></li>
+      </ol>
+    </aside>
+    <article>
+      <div class="pos"><p class="step">3 of 5</p><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Suggested <span class="edited" style="font-variant-caps:normal;letter-spacing:0">· 1 criterion edited by you</span></span></div>
+      <p class="kind"><b>Priority score</b></p>
+      <h1 class="fq">Is 3.1 the right priority?</h1>
+      <div class="blk"><span class="k">Need 04 · Integrations · Open</span><p class="ref">Operations teams need threshold alerts in their team chat so that they react before customers notice</p></div>
+      <div class="blk">
+        <div class="score">
+          <div class="k">Criterion</div><div class="k" style="text-align:right">Score</div><div class="k">Basis</div>
+          <div class="crit">Demand</div><div class="sval">4/5</div><div class="sreason">9 people across 5 accounts</div>
+          <div class="crit">Business value</div><div class="sval">3/5</div><div class="sreason"><span class="mono">$132k</span> ARR, no open deals</div>
+          <div class="crit">Strategic fit</div><div class="sval ink"><s title="AI suggested 3">3</s>4/5</div><div class="sreason">Integrations, weight 0.7<span class="override">PM: Ops is a Q1 focus <span class="edited">· edited</span></span></div>
+          <div class="crit">Effort<small>lower = harder</small></div><div class="sval">2/5</div><div class="sreason">Two chat platforms</div>
+        </div>
+        <div class="overall"><span class="k">Overall</span><span class="mono">3.1</span><span class="sub">AI 3 → PM 4 on Strategic fit</span></div>
+      </div>
+      <div class="decide"><span class="btn btn-primary sm"><svg class="i"><use href="#i-check"/></svg>Accept</span><span class="btn btn-outline sm">Edit</span><span class="btn btn-ghost sm">Reject</span><span class="hints"><b>J</b>/<b>K</b> move · <b>A</b> accept · <b>E</b> edit · <b>R</b> reject</span></div>
+    </article>
+  </main>
+</template>
+
+<template id="tpl-needs">
+  <div data-tpl="opbar" data-on="needs"></div>
+  <main class="needs">
+    <div class="needs-head"><h1>Needs</h1><span><span class="mono" style="color:var(--foreground)">6</span> needs · sorted by priority</span></div>
+    <table class="nt">
+      <thead><tr><th>#</th><th>Need</th><th>Theme</th><th>Status</th><th class="r">People</th><th class="r">Accounts</th><th class="r">ARR</th><th class="r sorted">Priority ↓</th><th><span style="position:absolute;left:-9999px">Pending</span></th></tr></thead>
+      <tbody>
+        <tr><td class="idx">01</td><td class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</td><td>Reporting</td><td class="st"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></td><td class="r">11</td><td class="r">4</td><td class="r">$1.07M</td><td class="r prio">4.1</td><td></td></tr>
+        <tr><td class="idx">02</td><td class="stmt">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</td><td>Reporting</td><td class="st"><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span></td><td class="r">12</td><td class="r">5</td><td class="r">$1.18M</td><td class="r prio">4.0</td><td></td></tr>
+        <tr><td class="idx">03</td><td class="stmt">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</td><td>Integrations</td><td class="st"><span class="status s-progress"><svg><use href="#st-progress"/></svg>In progress</span></td><td class="r">12</td><td class="r">6</td><td class="r">$1.30M</td><td class="r prio">3.9</td><td></td></tr>
+        <tr><td class="idx">05</td><td class="stmt">Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change</td><td>Reporting</td><td class="st"><span class="status s-shipped"><svg><use href="#st-shipped"/></svg>Shipped</span></td><td class="r">10</td><td class="r">4</td><td class="r">$852k</td><td class="r prio">3.4</td><td></td></tr>
+        <tr><td class="idx">04</td><td class="stmt">Operations teams need threshold alerts in their team chat so that they react before customers notice</td><td>Integrations</td><td class="st"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></td><td class="r">9</td><td class="r">5</td><td class="r">$132k</td><td class="r prio">3.1</td><td><span class="pend"><svg class="i"><use href="#i-pencil"/></svg>1 pending</span></td></tr>
+        <tr><td class="idx">06</td><td class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</td><td>Reporting</td><td class="st"><span class="status s-new"><svg><use href="#st-new"/></svg>New</span></td><td class="r">1</td><td class="r">1</td><td class="r">$480k</td><td class="r prio" style="color:var(--muted-foreground)">—</td><td><span class="pend"><svg class="i"><use href="#i-pencil"/></svg>2 pending</span></td></tr>
+      </tbody>
+    </table>
+  </main>
+</template>
+
+<script>
+// Expand templates (nested: frames contain pubbar/opbar placeholders).
+function expand(root){
+  root.querySelectorAll('[data-tpl]').forEach(function(el){
+    if(el.dataset.done) return;
+    var t=document.getElementById('tpl-'+el.dataset.tpl);
+    if(!t) return;
+    el.dataset.done='1';
+    var frag=t.content.cloneNode(true);
+    if(el.classList.contains('frame')){ el.appendChild(frag); expand(el); }
+    else {
+      var on=el.dataset.on, nodes=Array.from(frag.childNodes);
+      el.replaceWith(frag);
+      nodes.forEach(function(n){ if(n.querySelectorAll && on){ n.querySelectorAll('[data-nav="'+on+'"]').forEach(function(a){a.classList.add('on')}); } });
+    }
+  });
+}
+expand(document);
+</script>
+</body>
+</html>

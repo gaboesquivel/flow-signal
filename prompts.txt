@@ -182,3 +182,118 @@ Response: Worktree ../flow-signal-wt/010 on spec/010-retro-remediation from orig
 [2026-10-30T19:11:51Z]
 Prompt: Build it (spec 010).
 Response: Accepted spec 010 and built tasks 01-07 on spec/010-retro-remediation without running tests or evals: Gateway-only models (one gatewayProvider in lib/ai/models.ts, direct Anthropic path and @ai-sdk/anthropic removed, oxlint bans direct provider SDKs), .worktreeinclude, project .claude/settings.json allow/ask rules plus a UserPromptSubmit prompt-log hook, AGENTS.md Environment section, test:changed and Crewday out of pnpm eval, docs synced (PRODUCT tiers and assumption 4, specs 004/007, ARCHITECTURE, README, INTEROP). Opened the PR; task 08 (repo hygiene) runs after merge.
+
+[2026-10-30T17:45:00Z]
+Prompt: (Source code review merged PR 1) — continue: ship spec 004 with max parallel execution.
+Response: Cut spec/004-crewday-outcome-eval from main, committed specs 004/005 and decision 0004, accepted spec 004 and 0004 (v1 signal review uses a third-family model check, recorded in the spec), added simulated outcome metrics and kill signal to PRODUCT.md, pushed the branch. Wave 1 running in parallel worktrees: task 01 (world format, loader, held-out guard, fixture world) and the hand-written Crewday recipe.
+[2026-10-30T16:36:32Z]
+Prompt: Minimalist direction; submit as a multi-step wizard (no live matches while typing; step 2 shows matches with room to read AI excerpt and supporters; then submit); likes Ledger, Instrument/Chorus too busy; build three more, same taste for the management console.
+Response: Checked submit_signal rules (no comments/attachments: adding your voice creates a verbatim signal with optional use case and urgency). Wrote docs/design/round-2/brief.md (Describe, Check, Details, Done wizard; public board; operator triage and needs) and rendered three minimal Ledger variants in parallel: Page, Margin, Compare.
+[2026-10-30T16:38:19Z]
+Prompt: Yes, set it (generate an OPERATOR_SECRET and set it in Vercel production).
+Response: Generated a random 64-hex secret, saved it to the gitignored .env.production.local (mode 600, not printed), added it to Vercel production as a sensitive variable, redeployed production, and verified the Operator MCP returns 401 without it and 200 (23 tools) with it.
+[2026-10-30T16:43:04Z] Round 2 rendered and checked (1-page, 2-margin, 3-compare); recommended Page for submit + Margin master-detail for triage; awaiting choice.
+[2026-10-30T16:49:08Z]
+Prompt: Make sure no destructive migrations or seeds run as part of Vercel deployments.
+Response: Replaced drizzle-kit push --force in deploys with versioned migrations (drizzle/, baseline adopted on existing databases) and a runner that refuses destructive SQL; seeds refuse on Vercel/CI and on databases with data unless --replace; CI guard test; docs. Verified on local Docker and a Neon dev dry run (production read was not permitted). Opened PR #2 (fix/safe-deploy-migrations); not merged.
+[2026-10-30T16:50:48Z]
+Prompt: My signals link should group signals by email; use 3-compare; generate prototypes for the PM board main flows.
+Response: Found lib/signal/domain/my-signals.ts deliberately scopes the link to a per-submission token because emails are unverified (grouping by email would leak verbatim words); raised it as a decision. Wrote docs/design/round-3/brief.md and started three clickable PM prototypes in parallel on the Compare direction: 4a triage, 4b need-decide-publish, 4c board/criteria/metrics/chat.
+[2026-10-30T16:54:34Z]
+Prompt: Yes, ship it (PR #2, safe deploy migrations).
+Response: Squash-merged PR #2 as 3acf930 pinned to the checked head; the production build logged "adopted the existing schema as 0000_baseline / up to date"; production pages, DB and API return 200. Deleted the branch and its worktree.
+[2026-10-30T19:10:00Z]
+Prompt: (ship spec 004, continued)
+Response: Merged task 01, task 03 (engine, policies, arms, scorer; full pnpm test green) and the hand-written recipe (validated by checkRecipes). Started task 02 world generation (cross-family generator, keyword-leakage check, third-family review) and task 04's live runner in parallel against the fixture world.
+
+[2026-10-30T19:30:00Z]
+Prompt: Is our system correctly designed to proactively propose ticket merging with AI after submission? Users/agents may skip the 3-step wizard and post duplicates anyway.
+Response: Reviewed suggestion-generation.ts, submissions.ts, the pgvector retriever and merges. Answered: yes in shape (after() merge proposal for every draft, PM-gated, undoable), with gaps: one-shot trigger with no retry or sweep, skipped when embedding fails, draft-vs-draft race, only one candidate per proposal, no submitter-facing follow-up, preview skip not recorded or checked server-side. No code changed.
+
+[2026-10-30T19:20:00Z]
+Prompt: this is taking too long, hurry up, simplify.
+Response: Cut scope: worlds ~600 signals each, no signal review in v1, one leakage regeneration pass, $5 cap; runner without rubric or sweep/cache/tag stubs; deferred tasks 05-07 in spec 004 (ship partial: the lift run answers the bet).
+
+[2026-10-30T19:45:00Z]
+Prompt: How are we using zed (Jev/TypeSafe) for classification and decisions? The system should proactively suggest direction for decisions (fictitious data); optimize everything for Crewday (spec 004, "Signal testing strategy with Crewday" session) and Signal's key metrics.
+Response: Found Jev only in lib/genui/orchestration/classify.ts (GenUI intent routing), not in Signal; 0002 keeps it as an unbuilt MatchJudge alternative. Decision briefs are on-demand only, carry no strategy/capacity input, and the Crewday PM policy ignores the brief (verdict = ground truth ± pPmError), so spec 004 cannot measure decision-direction quality. Proposed a proactive decision-direction design and where Jev fits; no code changed, Crewday session left untouched.
+[2026-10-30T17:03:50Z] Round 3 PM prototypes done and checked (4a-triage, 4b-decide, 4c-overview); noted cross-file inconsistencies (triage count 7/6/5) and API gaps; My signals grouping decision still open.
+
+[2026-10-30T20:00:00Z]
+Prompt: We should use Jev for automated classification too; how are we handling the similarity check (pgvector + embeddings)?
+Response: Explained the extract → retrieve (text-embedding-3-small, HNSW cosine, top 8 non-merged needs) → Haiku judge (threshold 0.6) pipeline and its gaps (query embeds raw submission while needs embed statements; draft not passed to the judge; one vector per need; uncalibrated LLM probabilities). Proposed keeping pgvector for recall and putting Jev on every closed-set classification (judge, merge, theme, multi-ask, readiness/direction), each behind a port and compared in pnpm eval and Crewday. No code changed.
+
+[2026-10-30T20:15:00Z]
+Prompt: We should use a newer model, not Haiku, Sonnet or Opus; what do you suggest?
+Response: Checked lib/ai/models.ts: Signal already runs the newest Haiku 5.5 (hot path) and Sonnet 5.5 (reasoning); GenUI still on Sonnet 4.6. Recommended Claude Fable 5.1 only for low-volume, high-stakes reasoning (decision direction briefs, strategy fit, sweep adjudication) behind SIGNAL_DECISION_MODEL, not the hot path (price $10/$50, always-on thinking, long turns break the 2 s p95 and $0.01/signal guardrails); Jev for closed-set classification; compare on Crewday. No code changed.
+
+[2026-10-30T17:12:23Z]
+Prompt: Link carries forward. / I really like this design direction, keep ux/ui clean an lean focused on user goals, spec this out
+Response: Recorded the design (DESIGN.md, Ledger tokens in globals.css, Newsreader/Inter/JetBrains Mono, app/icon.svg + public/brand/mark.svg, removed template favicon; verified in dev server; commit 9e35e17). Wrote draft spec docs/specs/006-lean-ledger-ui.md and Proposed decision docs/decisions/0005-my-signals-link-carries-forward.md, committed on signal-mvp.
+
+Prompt: Yes, add it (Fable 5.1 decision model) → then: use Anthropic API key and models → then: use Vercel AI Gateway with the Anthropic API key from the boilerplate → then: we are planning, don't do anything yet, /explore.
+Response: Started wiring SIGNAL_DECISION_MODEL (Fable 5.1 via Gateway BYOK); briefly installed and removed @anthropic-ai/sdk; reverted all code edits and the lockfile on the planning instruction. Ran explore: read PRODUCT.md, GLOSSARY.md, spec and decision statuses, spec 004 decision rules; named conflicts with 0002, spec 001, spec 004, and INTEROP's ANTHROPIC_API_KEY rule; proposed a feature brief (PRODUCT.md diff) for decision direction + Jev classification + duplicate backstop, awaiting confirmation. No code changed.
+[2026-10-30T20:40:00Z]
+Prompt: Yes, write it (the PRODUCT.md diff from explore).
+Response: Cut spec/007-decision-direction from origin/main in worktree /Users/gabo/Code/flow-signal-wt/007 (left this checkout and the Crewday session alone), applied the confirmed diff (Strategy in the product model, readiness + recommended direction, direction accuracy and readiness lead time metrics, $0.25/brief guardrail, riskiest assumption 5, journeys 5 and 7) and committed it. Next: to-spec as 007.
+
+[2026-10-30T21:00:00Z]
+Prompt: Spec it → (mid-turn) ship it.
+Response: Wrote and committed on spec/007-decision-direction (worktree /Users/gabo/Code/flow-signal-wt/007): spec 007 decision direction (draft), decision 0006 Fable 5.1 via Gateway BYOK (Proposed), candidate stubs 008 Jev classification and 009 duplicate backstop (commit b0f3566). Ship preflight: spec 004 is not on origin/main (no open PR), so 007's Crewday policy cannot be built; stopped to ask whether to ship 007 partial (product, model, metrics, UI) or wait for 004. Nothing built, pushed, or merged.
+
+[2026-10-30T17:19:09Z]
+Prompt: ship it once @[product] updates are on main
+Response: Found the shared checkout had been switched to spec/004-crewday-outcome-eval before my commits, so the design (9e35e17) and spec 006 (ec7b103) commits sit on that branch. Cherry-picked both onto a new branch spec/006-lean-ledger-ui from origin/main in worktree ../flow-signal-wt/006 (5c179d2, 0d693e1). Product session is shipping spec 007 from its worktree; started a background wait for docs/specs/007 on origin/main, then will reconcile, accept, build and ship spec 006.
+
+[2026-10-30T17:24:23Z]
+Prompt: /to-tasks
+Response: Broke spec 006 into 8 tasks on spec/006-lean-ledger-ui (a774a24): 01 Ledger primitives, 02 carry-forward links, 03 operator contracts (ready now); 04 public UI, 05 console shell/triage/needs, 06 decide, 07 criteria/metrics/chat, 08 acceptance. Adjusted spec: tracking-link migration additive only (migration-safety forbids UPDATE/DROP; legacy tokens adopted at runtime), reject reason kept in event payload.
+
+[2026-10-30T17:26:05Z]
+Prompt: actually dont wait, just beware of those incoming changes in @[product] session. create the task and /ship everything
+Response: Stopped the main watcher. Ship: spec 004 had landed on main (#3) without my commits; merged origin/main into spec/006-lean-ledger-ui, accepted spec 006 and decision 0005 (001 amended by 006; PRODUCT.md notes carry-forward links). Opened PR gaboesquivel/flow-signal#4. Build started: tasks 01 (primitives), 02 (carry-forward links), 03 (operator contracts) running in parallel worktrees ../006-t01..t03.
+
+[2026-10-30T21:20:00Z]
+Prompt: Ship everything but hurry up, max parallelism through agents and lightweight test runs; primary goal is that the system supports Crewday; be aware of the design session.
+Response: Read the design session (it waits for 007 on main, then ships spec 006 Ledger console). Merged origin/spec/004 into spec/007 (not rebase, to avoid replaying main's #2), fixed the PRODUCT.md merge, accepted spec 007 + decision 0006 with back-pointers on specs 001/004 and INTEROP (5fec92b), wrote the shared contract myself (strategies table, needs.ready_at, migration 0001, need.ready event, domain/strategy.ts; e675ad4, check-types green). Launched 5 parallel build agents in worktrees flow-signal-wt/007-{a-ops,b-model,c-metrics,d-crewday,e-ui} with disjoint file ownership.
+
+[2026-10-30T17:54:17Z]
+Prompt: in parallel /retro on this testing strategy I see 597 tests green, that is a lot of tests, show me why
+Response: Ran retro on the spec 006 branch: 637 tests / 75 files, 61s wall (~20s in tests). Breakdown: signal domain 153, genui template query matrix 133 (103 table rows), parity 129, eval-harness tests 76. Parity cases run 3 surfaces inside one test (no 3x inflation). Found recurring overlap: the same behaviour cases written at domain and parity level in tasks 02 and 03 (driven by spec 001 build order and my worker briefs), and per-operation unauthorized tests repeating the registry-wide isolation test. Proposed candidates; no files changed.
+
+[2026-10-30T17:58:42Z]
+Prompt: finish, ship it and handoff
+Response: Continuing spec 006 ship: integrate task 05, run 06/07, 08, review + CI, merge PR 4, then write a handoff.
+
+[2026-10-30T18:05:00Z]
+Prompt: /ship everything (going for lunch) → continue now, ship this → don't rerun tests, document the previous pass, merge, and hand off fixes if required.
+Response: Merged parts B, C, A, E and D into spec/007; removed E's temporary client types; fixed a nullable recommendation type in the UI; merged origin/main (004 squash); added configureAutoBriefs so Crewday oracle runs keep spec 004 behaviour. Full suite 603/603 locally, type checks and lint clean, migration additive. Opened PR 5. The first verify run passed (603/603) but GitHub left the check pending; the merge was first refused by the permission classifier, then, at the user's direction, the pass was documented on the PR and PR 5 squash-merged as 89a2ae4 (the re-run also passed). Removed the 6 worktrees and branches. Production live: / and /api/db 200, /api/operator/strategy 401. Proposed a follow-up session for the live Fable/Gateway check, a Crewday Fable-vs-Sonnet run, list_themes, and an acceptance pass.
+
+[2026-10-30T18:16:20Z]
+Prompt: oh my bad... we only want api, mcp, agent tests, lightweight on ci and complete evals on demand, for ui no tests. update contract if unclear. steer to remove e2e testing, speed delivery with subagents
+Response: Steered task 06/07 workers to write no UI/e2e tests. On spec/006 removed Playwright (dep, config, webserver script, e2e/), e2e script, UI unit tests (ledger-ui, operator console, submit model); wrote the policy in ARCHITECTURE.md -> Testing and spec 006 Testing Decisions (577b5ba; lint/types/610 tests green). CI already light (pnpm qa), evals on demand. Did task 08 docs early (glossary, architecture; 4f9c7f5).
+
+[2026-10-30T18:51:46Z]
+Prompt: wait deployments taking so long?
+Response: Not slow: Vercel built merge commit 47ac6dc in ~1m; my GitHub deployments lookup used the wrong filter. Production flow-signal-eta.vercel.app returns 200 on / and /submit. Spec 006 shipped (PR 4 squash-merged 47ac6dc), worker worktrees removed, handoff written to $TMPDIR/signal-spec-006-handoff.md.
+
+[2026-10-30T18:54:07Z]
+Prompt: handoff to fix on another session, no tests, just quick hot fixes, we will test later
+Response: Started session spec006-hotfixes (own worktree, branch fix/spec-006-hotfixes) with a brief from the handoff: restyle 007 Decide page to Ledger, drop unused supportersLabel, site-url dev port fallback, time-boxed preview_signal latency look; no tests; open a PR, do not merge. Sent it a note to reset onto origin/main (47ac6dc) because local main was stale.
+
+[2026-10-30T19:00:32Z]
+Prompt: /retro on Signal architecture, features and process: read specs, decisions, git log and prompts.txt; find bottlenecks (tests run twice, full eval suite, CI weight); check alignment with PRODUCT.md metrics; give feedback, gaps, contradictions and a remediation plan.
+Response: Read-only retro against origin/main (this checkout is a stale spec/004 branch). Main finding: the Crewday lift run (spec 004 task 04) never finished, so the simulated kill criterion and 0008 model choice are unmeasured while 006/007 shipped on top; latency/spend/rubric guardrails missed; spec 004 docs drift (600 vs 1,500 signals, no review); pnpm eval chains every live eval incl. Crewday; tests run per worker + integrator + CI; shared-checkout branch switching; prompts.txt timestamps hand-written and out of order. Proposed a severity-ordered remediation plan. No files changed besides this log; no tests or evals run.
+[2026-10-30T19:02:24Z] Hotfix session reported: PR gaboesquivel/flow-signal#9 open (Decide restyle, drop supportersLabel, site-url fallback; preview latency findings only). Checks pending; Vercel preview hit 24h build rate limit. Its worktree was already on 47ac6dc, so no reset was needed.
+
+[2026-10-30T19:04:09Z]
+Prompt: Agents must favor CLI and MCP; too many permission and acceptance prompts that should be automatic; is it a session or workspace configuration issue?
+Response: Read-only diagnosis from transcripts of the 4 flow-signal session folders: CLI use is already dominant (3.5k Bash calls, 0 raw API curls; browser only for UI checks). Causes are config: no permission rules at any level with every session in auto mode (classifier blocked merges with pending CI, secret reads, vercel env writes, prod reads); 2 of 4 worktrees lack .vercel/ and .env.local so vercel CLI fails and the agent hands commands to the user; no MCP servers configured. Proposed .worktreeinclude, narrow project allow rules, user-level autoMode environment/allow and defaultMode, and a CLAUDE.md environment line; nothing applied.
+
+[2026-10-30T19:15:50Z]
+Prompt: Generate concise visual docs for main workflows from product and tech perspective, mostly flow diagrams, documenting the entire agent harness as of today, in docs/harness.
+Response: Wrote docs/harness/ (README overview map, product-workflows, runtime, agents, ai-pipelines, evals, dev-loop) with 34 Mermaid diagrams sourced from PRODUCT.md, specs 001/004/006, lib/signal, agents/, lib/mcp, lib/ai, evals/; all diagrams pass mermaid.parse and oxfmt. Noted that HTTP chat routes are plain streamText without tools and marked unbuilt parts (PM console, Crewday lift run, spec 005) as planned. Nothing committed.
+
+[2026-10-30T19:16:45Z]
+Prompt: merge uncommitted work in worktrees and orphan prs; see local branches and remove unused remote branches; ignore checks, just merge them
+Response: Squash-merged PR 10 (spec 010) ignoring pending checks; committed docs/harness, docs/design rounds 1-3 and unlogged prompt entries from the main checkout; left build/t08 unmerged (task 08 replaced by spec 006); pruned remote branches of merged PRs and stale local branches/worktrees.
