@@ -112,7 +112,7 @@ Agent journey: an Assistant agent calls `preview_signal`, then `submit_signal` w
 - [x] 02: My signals links that carry forward
 - [x] 03: Operator contract additions
 - [x] 04: Public board, submit wizard, and My signals UI
-- [ ] 05: Console shell, Triage, and Needs
+- [x] 05: Console shell, Triage, and Needs
 - [ ] 06: Need detail, decide, and publish
 - [ ] 07: Criteria, Metrics, and Chat
 - [ ] 08: Acceptance run and docs
