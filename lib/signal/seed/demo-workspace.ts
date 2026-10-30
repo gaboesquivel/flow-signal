@@ -328,7 +328,7 @@ const buildNeed = (
       dedupeKey: `seed:signal.created:${signal.id}`,
       needId,
       occurredAt: signal.createdAt,
-      payload: { attachedTo: signal.attachedTo },
+      payload: { attachedTo: signal.attachedTo, hasUseCase: signal.useCase !== null },
       signalId: signal.id,
       type: "signal.created",
     });
@@ -393,6 +393,27 @@ export const seedDemoWorkspace = async (
     },
     themeId: directory.themeIds.get("integrations"),
   });
+
+  // Each published decision followed an accepted decision brief (decision latency and
+  // suggestion acceptance both have recent history). Added last so earlier ids stay stable.
+  for (const need of demoNeeds) {
+    if (!need.decision) continue;
+    const publishedAt = context.daysAgo(need.decision.daysAgo);
+    suggest(
+      context,
+      {
+        createdAt: new Date(publishedAt.getTime() - DAY),
+        kind: "decision_brief",
+        model: context.model,
+        needId: needIds.get(need.key),
+        payload: {
+          reason: "Requested before publishing a decision.",
+          status: need.decision.status,
+        },
+      },
+      { at: new Date(publishedAt.getTime() - DAY / 4), status: "accepted" },
+    );
+  }
 
   if (embedder) {
     const vectors = await embedder.embed(rows.needs.map((row) => row.statement));
