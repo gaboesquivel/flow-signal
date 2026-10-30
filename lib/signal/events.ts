@@ -15,6 +15,7 @@ import type { SignalQueryable } from "./db";
  * - `merge.undone`: `needId` (the need restored), payload `{ mergeId }` of the merge it reverts.
  * - `decision.published`: `needId`; the actor is the publisher (human vs. agent).
  * - `suggestion.created`: `suggestionId`, payload `{ kind }`.
+ * - `need.ready`: `needId`, payload `{ arrCents, supporters, strategyVersion }`; once per need (spec 007).
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
  */
@@ -23,6 +24,7 @@ export type SignalEventType =
   | "merge.undone"
   | "need.created"
   | "need.merged"
+  | "need.ready"
   | "need.split"
   | "signal.created"
   | "suggestion.accepted"

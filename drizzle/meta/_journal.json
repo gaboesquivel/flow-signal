@@ -8,6 +8,13 @@
       "when": 1793378650701,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793381072702,
+      "tag": "0001_regular_fabian_cortez",
+      "breakpoints": true
     }
   ]
 }
