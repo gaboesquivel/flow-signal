@@ -119,6 +119,10 @@ pnpm db:down
 - Code takes `SignalDb` (Drizzle's generic Postgres database type), so it runs unchanged on Neon, Docker, and PGlite. Writes use `db.transaction`, which all three support; the Neon `neon-http` driver is not used for the app because it has no interactive transactions.
 - New tables go in `lib/db/schema.ts` and in `signalTableNames` there, so the harness and the seed truncate them. Test databases get the schema automatically; Neon branches get it from `pnpm db:migrate` (Drizzle push, preceded by `CREATE EXTENSION vector`).
 
+## Agent behaviour evals
+
+`pnpm eval:agents` (part of `pnpm eval`; never `pnpm test` or CI) sends ~15 scripted requests to the real Assistant and Operator agents and checks the tool calls, their key arguments, and the database state (`evals/agents/scenarios.ts`). The harness (`evals/agents/harness.ts`) loads each agent the way eve compiles it (`instructions.md` as the system prompt, every file in `tools/` including the dynamic Signal tools, the model from `agent.ts`) and runs it in process with the AI SDK over a freshly seeded `DATABASE_URL_TEST` (local only) or PGlite; it does not run eve's server runtime or its built-in `eve__*` tools. Run it whenever agent instructions, agent tools, or operation descriptions change. Live runs need Gateway access (`AI_GATEWAY_API_KEY`, or `VERCEL=1` with `VERCEL_OIDC_TOKEN`) and skip without it; `--only assistant/` runs a subset; `--fake` replays scripted model replies offline to prove the wiring. The report (per-scenario checks, tool-call traces, latency, spend) prints and lands in `evals/agents/results/latest.json`. Harness logic is unit-tested in `tests/evals/agents.test.ts`. Add a scenario with its `check` and a `script` for `--fake`.
+
 ## Parity
 
 `runParityTable({ operation, fixture, cases, mutates })` from `tests/signal/parity/harness.ts`:

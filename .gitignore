@@ -30,3 +30,5 @@ playwright-report
 
 # matching eval reports (pnpm eval:matching)
 evals/matching/results/
+# agent behaviour eval reports (pnpm eval:agents)
+evals/agents/results/
