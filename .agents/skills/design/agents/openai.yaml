@@ -1,0 +1,5 @@
+interface:
+  display_name: "Design"
+  short_description: "Compare visual directions and record the chosen one"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Ship"
+  short_description: "Merge verified work and check it is live"
+policy:
+  allow_implicit_invocation: true

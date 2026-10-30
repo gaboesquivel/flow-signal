@@ -1,0 +1,5 @@
+interface:
+  display_name: "Measure"
+  short_description: "Check metrics against evidence and name the gaps"
+policy:
+  allow_implicit_invocation: true

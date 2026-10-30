@@ -1,0 +1,4 @@
+{
+  "buildCommand": "node scripts/vercel-build.mjs",
+  "installCommand": "pnpm install --frozen-lockfile"
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Push"
+  short_description: "Push a branch and check it deployed"
+policy:
+  allow_implicit_invocation: true

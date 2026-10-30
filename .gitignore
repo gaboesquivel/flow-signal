@@ -1,0 +1,29 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next
+.next
+out
+
+# env
+.env
+.env.local
+.env.*.local
+
+# build artifacts
+mcp-app/dist
+*.tsbuildinfo
+
+# eve
+.eve
+
+# misc
+.DS_Store
+*.pem
+.vercel
+test-results
+playwright-report
+
+# eve build output (pnpm build:agents)
+.output/

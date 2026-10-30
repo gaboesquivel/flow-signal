@@ -1,0 +1,5 @@
+interface:
+  display_name: "Build"
+  short_description: "Build, review, and check a branch without merging"
+policy:
+  allow_implicit_invocation: true
