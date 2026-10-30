@@ -1,6 +1,6 @@
 # 0002 — Retrieve-then-judge matching as a bounded workflow on the hot path
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 

@@ -1,9 +1,9 @@
 # 001 — Signal MVP: prevent duplicates at submission and close the decision loop
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md). Glossary: [GLOSSARY.md](../../GLOSSARY.md).
-Decisions: [0001 Neon Postgres with pgvector](../decisions/0001-neon-postgres-pgvector.md) (Proposed), [0002 Retrieve-then-judge matching, workflow on the hot path](../decisions/0002-retrieve-then-judge-matching.md) (Proposed).
+Decisions: [0001 Neon Postgres with pgvector](../decisions/0001-neon-postgres-pgvector.md) (Accepted), [0002 Retrieve-then-judge matching, workflow on the hot path](../decisions/0002-retrieve-then-judge-matching.md) (Accepted).
 
 **Bet.** Submitters will add their voice to an existing need instead of filing their own version when the match is accurate and their own words are kept (riskiest assumption 1), and matching is accurate enough to trust (assumption 2). The MVP proves the second with a labeled eval set and makes the first and the PM loop measurable with an event log behind the three MVP metrics.
 
