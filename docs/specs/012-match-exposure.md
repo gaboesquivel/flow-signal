@@ -1,6 +1,6 @@
 # 012 — Match exposure: record which matches a submitter saw, so the main bet can be measured
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Riskiest assumptions 1 and 2, Kill criterion (with real users), Metrics → Guardrails. Builds on [spec 001](./001-signal-mvp.md) (`preview_signal`, `submit_signal`, `get_metrics`, the event log) and [spec 006](./006-lean-ledger-ui.md) (the submit wizard and the metrics page).
 
