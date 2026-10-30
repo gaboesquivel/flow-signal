@@ -1,19 +1,25 @@
 import { jsonError } from "@/lib/api/json-error";
 import { buildRateLimitHeaders, mcpRateLimitPolicy } from "@/lib/api/rate-limit-headers";
+import { clientIp } from "@/lib/signal/adapters/rate-limit";
 
 const windowMs = mcpRateLimitPolicy.windowSeconds * 1000;
 const maxPerWindow = mcpRateLimitPolicy.limit;
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
-const clientKey = (request: Request) =>
-  request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-  request.headers.get("x-real-ip") ??
-  "local";
+let lastSweep = Number.NEGATIVE_INFINITY;
+
+/** Drops expired buckets at most once per window so the map cannot grow without bound. */
+const sweep = (now: number) => {
+  if (now - lastSweep < windowMs) return;
+  lastSweep = now;
+  for (const [key, bucket] of buckets) if (now >= bucket.resetAt) buckets.delete(key);
+};
 
 export const consumeMcpRateLimit = (request: Request) => {
-  const key = clientKey(request);
+  const key = clientIp(request);
   const now = Date.now();
+  sweep(now);
   const current = buckets.get(key);
   if (!current || now >= current.resetAt) {
     const resetAt = now + windowMs;

@@ -6,6 +6,7 @@ import type { ErrorCode } from "../errors";
 import { executeOperation } from "../operations/execute";
 import { operations } from "../operations/registry";
 import type { AnyOperation } from "../operations/types";
+import { consumeOperationRateLimit, RATE_LIMITED_MESSAGE } from "./rate-limit";
 
 /**
  * REST adapter: matches `operation.http`, enforces Operator access, rate and body limits,
@@ -14,7 +15,6 @@ import type { AnyOperation } from "../operations/types";
  */
 
 const DEFAULT_MAX_BODY_BYTES = 16 * 1024;
-const DEFAULT_REQUESTS_PER_MINUTE = 120;
 
 const compilePath = (path: string) => {
   const names: string[] = [];
@@ -50,26 +50,8 @@ export const matchOperationPath = (
   return pathMatched ? ("method_not_allowed" as const) : undefined;
 };
 
-const buckets = new Map<string, { count: number; resetAt: number }>();
-
-const clientIp = (request: Request) =>
-  request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-  request.headers.get("x-real-ip") ??
-  "local";
-
-const consumeRateLimit = (key: string, limit: number) => {
-  const now = Date.now();
-  const bucket = buckets.get(key);
-  if (!bucket || now >= bucket.resetAt) {
-    buckets.set(key, { count: 1, resetAt: now + 60_000 });
-    return;
-  }
-  bucket.count += 1;
-  if (bucket.count <= limit) return;
-  return Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
-};
-
-export const resetHttpRateLimits = () => buckets.clear();
+/** Clears the shared REST + MCP per-operation limiter (tests). */
+export { resetRateLimits as resetHttpRateLimits } from "./rate-limit";
 
 const errorResponse = (
   code: ErrorCode,
@@ -145,10 +127,9 @@ export const createSignalHttpHandler =
             : "Send Authorization: Bearer <OPERATOR_SECRET>.",
         );
     } else {
-      const limit = operation.limits?.requestsPerMinute ?? DEFAULT_REQUESTS_PER_MINUTE;
-      const retryAfter = consumeRateLimit(`${operation.name}:${clientIp(request)}`, limit);
+      const retryAfter = consumeOperationRateLimit(operation, request);
       if (retryAfter !== undefined)
-        return errorResponse("rate_limited", "Too many requests from this client.", {
+        return errorResponse("rate_limited", RATE_LIMITED_MESSAGE, {
           headers: { "Retry-After": String(retryAfter) },
         });
     }
