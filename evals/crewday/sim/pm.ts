@@ -6,7 +6,7 @@ import type { SuggestionView } from "@/lib/signal/domain/suggestions";
 
 import { shareSolution, trueScore, weightedScore } from "./oracle";
 import type { Verdict } from "./oracle";
-import { identityOf } from "./state";
+import { draw, identityOf } from "./state";
 import type { ActionClass, SimState } from "./state";
 import type { CallResult, Surface } from "./surfaces";
 
@@ -57,8 +57,8 @@ const act = (
   return state.router.call(week.surface, operation, input);
 };
 
-const flip = (state: SimState, verdict: Verdict): Verdict => {
-  if (!state.rng.pm.chance(state.policy.pPmError)) return verdict;
+const flip = (state: SimState, name: string, verdict: Verdict): Verdict => {
+  if (!draw(state, `pm:flip:${name}`).chance(state.policy.pPmError)) return verdict;
   return verdict === "reject" ? "accept" : "reject";
 };
 
@@ -123,7 +123,7 @@ const judgePriority: Judge = (state, suggestion, key) => {
   });
 };
 
-/** Not in the spec's table: accept an anonymized summary, reject one naming anyone. */
+/** Spec triage table, Public summary: accept an anonymized summary, reject one naming anyone. */
 const judgePublicSummary: Judge = (state, suggestion, key) => {
   const summary = text(suggestion.payload.summary).toLowerCase();
   const { world } = state;
@@ -136,7 +136,7 @@ const judgePublicSummary: Judge = (state, suggestion, key) => {
   return Promise.resolve({ key, verdict: clean ? "accept" : "reject" });
 };
 
-/** Not in the spec's table: accept when the moved signals share a true need the need lacks. */
+/** Spec triage table, Split: accept when the moved signals share a true need the need lacks. */
 const judgeSplit: Judge = (state, suggestion, key) => {
   const moved = ((suggestion.payload.signalIds ?? []) as string[]).map(
     (id) => state.index.signals.get(state.signalOrigin.get(id) ?? "")?.labels.needKeys[0],
@@ -146,7 +146,27 @@ const judgeSplit: Judge = (state, suggestion, key) => {
   return Promise.resolve({ key, verdict: good ? "accept" : "reject" });
 };
 
+/**
+ * Accept when the brief recommends the strategy-implied status; edit (the PM rewrites the
+ * recommendation) when it cannot be read; reject a wrong recommendation.
+ */
+const judgeBrief: Judge = (state, suggestion, key) => {
+  const recommendation = suggestion.payload.recommendation as { status?: unknown } | undefined;
+  const recommended = text(recommendation?.status);
+  const truth = key ? state.index.needs.get(key)?.strategyDecision.status : undefined;
+  if (!truth || !recommended)
+    return Promise.resolve({
+      edit: {
+        markdown: `${text(suggestion.payload.markdown) || "Decision brief."}\n\nRecommended: ${truth ?? "declined"}.`,
+      },
+      key,
+      verdict: "edit",
+    });
+  return Promise.resolve({ key, verdict: recommended === truth ? "accept" : "reject" });
+};
+
 const judges: Partial<Record<SuggestionView["kind"], Judge>> = {
+  decision_brief: judgeBrief,
   draft_need: judgeDraftNeed,
   merge: judgeMerge,
   priority: judgePriority,
@@ -189,11 +209,16 @@ const resolveOne = async (
   week: Week,
   suggestion: SuggestionView,
   dead: Set<string>,
+  cls: ActionClass = "organizing",
 ) => {
   const truth = await judge(state, suggestion);
-  const applied = flip(state, truth.verdict === "edit" ? "accept" : truth.verdict);
+  const applied = flip(
+    state,
+    `${suggestion.kind}:${truth.key ?? "?"}:${suggestion.createdAt}`,
+    truth.verdict === "edit" ? "accept" : truth.verdict,
+  );
   const action = applied === "accept" && truth.verdict === "edit" ? "edit" : applied;
-  const result = await act(state, week, "organizing", "resolve_suggestion", {
+  const result = await act(state, week, cls, "resolve_suggestion", {
     action,
     edit: action === "edit" ? truth.edit : undefined,
     id: suggestion.id,
@@ -279,11 +304,9 @@ const prepareBrief = async (state: SimState, week: Week, needId: string) => {
   if (state.arm === "signal") {
     const brief = await act(state, week, "deciding", "draft_decision_brief", { id: needId });
     if (brief.ok) {
-      const { suggestion } = brief.data as { suggestion: { id: string } };
-      await act(state, week, "deciding", "resolve_suggestion", {
-        action: "accept",
-        id: suggestion.id,
-      });
+      const { suggestion } = brief.data as { suggestion: SuggestionView };
+      // Reviewed like any suggestion, so acceptance precision sees the verdict.
+      await resolveOne(state, week, suggestion, new Set(), "deciding");
       return "brief" as const;
     }
   }
@@ -304,7 +327,8 @@ const decide = async (state: SimState, week: Week, readyAt: Map<string, string>)
     if (!via) return;
     const key = await identityOf(state, need.id);
     const truth = (key && state.index.needs.get(key)?.strategyDecision.status) || "declined";
-    const status = state.rng.pm.chance(state.policy.pPmError) ? opposite[truth] : truth;
+    const noisy = draw(state, `pm:decide:${key ?? need.id}:${week.index}`);
+    const status = noisy.chance(state.policy.pPmError) ? opposite[truth] : truth;
     const published = await act(state, week, "deciding", "publish_decision", {
       id: need.id,
       note: NOTE[status],
@@ -347,8 +371,12 @@ const manualDedup = async (state: SimState, week: Week) => {
     // Already merged away (triage or an earlier read): nothing left to read there.
     if (!row || row.status === "merged") continue;
     const detail = await act(state, week, "organizing", "get_need_detail", { id: needId });
-    if (!detail.ok || !state.rng.pm.chance(state.policy.pManualFind)) continue;
     const key = await identityOf(state, needId);
+    if (
+      !detail.ok ||
+      !draw(state, `pm:find:${key ?? needId}:${week.index}`).chance(state.policy.pManualFind)
+    )
+      continue;
     const target = key ? await twinOf(state, needId, key) : undefined;
     if (target && week.budget >= 1)
       await act(state, week, "organizing", "merge_needs", { id: needId, intoNeedId: target });

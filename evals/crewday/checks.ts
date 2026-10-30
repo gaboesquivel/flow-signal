@@ -326,8 +326,8 @@ const checkRetry = (signal: WorldSignal, earlier: WorldSignal[]): string[] => {
  * The order-dependent labels, replayed in time order:
  * - `firstOccurrence` is true only on the first counted signal whose main need (`needKeys[0]`)
  *   no earlier counted signal mentioned; never on a planted signal.
- * - `existedAtTime` is true when the main need is in the backlog, was mentioned by an earlier
- *   counted signal, or is a split child whose parent was. `new` needs it false, `paraphrase` true.
+ * - `existedAtTime` is true when the main need is in the backlog, was the main need of an earlier
+ *   counted signal (a second ask does not create a need), or is a split child whose parent was. `new` needs it false, `paraphrase` true.
  */
 const checkOrderLabels = (world: World): string[] => {
   const problems: string[] = [];
@@ -336,12 +336,14 @@ const checkOrderLabels = (world: World): string[] => {
     world.needs.flatMap((need) => (need.splitInto ?? []).map((child) => [child, need.key])),
   );
   const mentioned = new Set<string>();
+  /** Main needs of earlier counted signals: only these created a need in the database. */
+  const created = new Set<string>();
   // `depth` stops a malformed splitInto cycle from recursing forever.
   const known = (needKey: string | undefined, depth = 0): boolean =>
     needKey !== undefined &&
     depth <= world.needs.length &&
     (Boolean(needsByKey.get(needKey)?.inBacklog) ||
-      mentioned.has(needKey) ||
+      created.has(needKey) ||
       known(parentOf.get(needKey), depth + 1));
 
   for (const signal of world.signals) {
@@ -362,7 +364,10 @@ const checkOrderLabels = (world: World): string[] => {
     if (kind === "paraphrase" && !existedAtTime) {
       problems.push(`${at}: a "paraphrase" signal's need does not exist yet`);
     }
-    if (isCounted(signal)) for (const needKey of needKeys) mentioned.add(needKey);
+    if (isCounted(signal)) {
+      for (const needKey of needKeys) mentioned.add(needKey);
+      if (main !== undefined) created.add(main);
+    }
   }
   return problems;
 };

@@ -11,7 +11,6 @@ import {
   suggestions,
   themes,
 } from "@/lib/db/schema";
-import { fakeEmbedder } from "@/lib/signal/ai/fakes";
 import type { Embedder, SignalAi } from "@/lib/signal/ai/ports";
 import type { Actor } from "@/lib/signal/context";
 import type { SignalDb } from "@/lib/signal/db";
@@ -34,11 +33,10 @@ import { openSimDatabase } from "./database";
 import { createAiMeter, meterAi } from "./meter";
 import type { AiCall } from "./meter";
 import { createOfflineSignalAi } from "./offline-ai";
-import { createNearestNeed, indexWorld, weightedScore } from "./oracle";
+import { createNearestNeed, createOracleEmbedder, indexWorld, weightedScore } from "./oracle";
 import { createPmMemory, runPmWeek } from "./pm";
 import { resolvePolicy } from "./policy";
 import type { PolicyParams } from "./policy";
-import { rngStream } from "./rng";
 import type { SimDatabaseTarget } from "./safety";
 import { identityOf } from "./state";
 import type { Arm, SimLog, SimState } from "./state";
@@ -77,10 +75,11 @@ export interface RunArmOptions {
    */
   limitWeeks?: number;
   /**
-   * The embedder for the oracle's "nearest need in the world" lookup. Default: the Signal arm's
-   * own embedder (unmetered, so it never counts as a PM model call), or the offline fake.
+   * The embedder for the oracle's "nearest need in the world" lookup, independent of Signal's
+   * (`createOracleEmbedder({ live })`). Default: the offline fake. Unmetered, so it never counts
+   * as a PM model call; its `spendUsd` is subtracted from the arm's model spend.
    */
-  oracleEmbedder?: Embedder;
+  oracleEmbedder?: Embedder & { spendUsd?: () => number };
   onProgress?: (message: string) => void;
   policy?: Partial<PolicyParams>;
   seed: number;
@@ -140,6 +139,8 @@ export interface RunSnapshot {
     needId: string | null;
     relatedNeedId: string | null;
     status: string;
+    /** A `public_summary` suggestion's generated text, whatever the PM did with it. */
+    summary?: string;
   }[];
 }
 
@@ -326,6 +327,9 @@ const takeSnapshot = async (
         needId: s.needId,
         relatedNeedId: s.relatedNeedId,
         status: s.status,
+        ...(s.kind === "public_summary" && typeof s.payload.summary === "string"
+          ? { summary: s.payload.summary }
+          : {}),
       }),
     ),
   };
@@ -367,6 +371,7 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   const priorSecret = process.env.OPERATOR_SECRET;
   process.env.OPERATOR_SECRET = SIM_OPERATOR_SECRET;
 
+  const oracle = options.oracleEmbedder ?? createOracleEmbedder({ live: false });
   const state: SimState = {
     arm,
     clock,
@@ -382,15 +387,12 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
       verdicts: [],
     },
     meter,
-    nearest: createNearestNeed(
-      world,
-      options.oracleEmbedder ?? (arm === "signal" ? signalAi.embedder : fakeEmbedder()),
-    ),
+    nearest: createNearestNeed(world, oracle),
     pending: [],
     policy,
     readQueue: [],
-    rng: { pm: rngStream(seed, "pm"), submitter: rngStream(seed, "submitter") },
     router: createSurfaceRouter({ meter, operatorSecret: SIM_OPERATOR_SECRET }),
+    seed,
     sent: new Map(),
     signalOrigin: new Map(),
     world,
@@ -449,7 +451,9 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
       arm,
       end: end.toISOString(),
       log: state.log,
-      modelSpendUsd: options.spendUsd ? options.spendUsd() : null,
+      modelSpendUsd: options.spendUsd
+        ? Math.max(0, options.spendUsd() - (oracle.spendUsd?.() ?? 0))
+        : null,
       policy,
       seed,
       snapshot,

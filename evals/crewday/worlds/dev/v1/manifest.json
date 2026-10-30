@@ -9,12 +9,12 @@
       "plan": 20270101
     }
   },
-  "keywordFindableShare": 0.4731,
+  "keywordFindableShare": 0.472,
   "review": {
     "dropped": 0,
     "fixed": 0,
     "method": "none (deferred)",
-    "notes": "Review deferred for speed. Leakage: keyword-findable share 0.4731 before and 0.4731 after one strict regeneration pass over 0 signals.",
+    "notes": "Review deferred for speed. Leakage: keyword-findable share 0.4731 before and 0.4731 after one strict regeneration pass over 0 signals. Labels: existedAtTime recomputed from main asks only (spec 004 review fix); keyword-findable share updated to 0.472.",
     "reviewer": "none",
     "sampleSize": 0
   },

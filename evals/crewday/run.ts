@@ -27,7 +27,7 @@ import {
   signalFastModelId,
   signalReasoningModelId,
 } from "@/lib/ai/models";
-import { createGatewayAi, gatewayEmbedder } from "@/lib/signal/ai/gateway";
+import { createGatewayAi } from "@/lib/signal/ai/gateway";
 import type { Embedder, SignalAi } from "@/lib/signal/ai/ports";
 
 import { summarizeCost } from "../matching/cost";
@@ -40,7 +40,13 @@ import { buildTable, renderReport } from "./report";
 import type { ArmName, ArmRunInfo, CrewdayReport } from "./report";
 import { compareArms, NOT_MEASURED, scoreRun } from "./score";
 import type { ArmScore } from "./score";
-import { createOfflineSignalAi, keywordRank, resolvePolicy, runArm } from "./sim";
+import {
+  createOfflineSignalAi,
+  createOracleEmbedder,
+  keywordRank,
+  resolvePolicy,
+  runArm,
+} from "./sim";
 import type { PolicyParams, SimDatabaseTarget } from "./sim";
 import { BucketedUsage, loadGatewayPrices } from "./spend";
 import { loadWorld } from "./world";
@@ -143,7 +149,7 @@ const gitSha = () => {
 export interface CrewdayDeps {
   /** Signal arm AI ports (live: `createGatewayAi()`). */
   signalAi: () => SignalAi;
-  /** The PM oracle's embedder (live: the Gateway embedder, counted as eval overhead). */
+  /** The PM oracle's embedder, independent of Signal's (live: `createOracleEmbedder`; eval overhead). */
   oracleEmbedder: () => Embedder;
   log?: (line: string) => void;
   mode: "live" | "offline";
@@ -269,7 +275,12 @@ export const runCrewday = async (
   const report: CrewdayReport = {
     arms,
     comparison: comparison
-      ? { criteria: comparison.criteria, killSignal: comparison.killSignal, lift: comparison.lift }
+      ? {
+          assumptions: comparison.assumptions,
+          criteria: comparison.criteria,
+          killSignal: comparison.killSignal,
+          lift: comparison.lift,
+        }
       : null,
     gitSha: gitSha(),
     limitWeeks: options.limitWeeks,
@@ -339,7 +350,7 @@ const main = async () => {
   usage.drain("runtime");
   await runCrewday(options, {
     mode: "live",
-    oracleEmbedder: gatewayEmbedder,
+    oracleEmbedder: () => createOracleEmbedder({ live: true }),
     prices: await loadGatewayPrices(),
     signalAi: createGatewayAi,
     usage,

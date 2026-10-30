@@ -7,7 +7,7 @@ import { passesSubmitValidation } from "../checks";
 import type { Manifest, Need, Recipe, RecipeWorldName, World, WorldSignal } from "../format";
 import { recipeWorldNames } from "../format";
 import { HELD_OUT } from "../held-out";
-import { loadRecipe, parseWorld, worldDir } from "../world";
+import { loadRecipe, parseWorld, worldOutputDir } from "../world";
 import { KEYWORD_FINDABLE_CEILING, keywordFindability, needText } from "./leakage";
 import { callStructured, mapLimit, spendByModel } from "./llm";
 import { buildPlan, labelSlots, WORLD_STARTS_AT } from "./plan";
@@ -249,7 +249,7 @@ const generateWorld = async (name: RecipeWorldName) => {
     themes: recipe.themes,
   };
   parseWorld(world, `generated world ${name}`);
-  const dir = worldDir(name, VERSION);
+  const dir = worldOutputDir(name, VERSION, { heldOut: HELD_OUT });
   await mkdir(dir, { recursive: true });
   await Promise.all(
     Object.entries(world).map(([file, value]) =>

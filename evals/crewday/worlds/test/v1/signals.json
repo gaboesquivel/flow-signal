@@ -965,9 +965,9 @@
     "channel": "mcp",
     "id": "t-s0054",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["gl-cost-centre-export"]
     },
     "personaKey": "t-p-059",
@@ -2697,9 +2697,9 @@
     "channel": "web",
     "id": "t-s0150",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["kiosk-break-tracking"]
     },
     "personaKey": "t-p-135",
@@ -4211,9 +4211,9 @@
     "channel": "web",
     "id": "t-s0234",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["sick-leave-accrual-by-jurisdiction"]
     },
     "personaKey": "t-p-079",
@@ -5275,9 +5275,9 @@
     "channel": "web",
     "id": "t-s0293",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["cold-room-warm-up-breaks"]
     },
     "personaKey": "t-p-038",
@@ -6157,9 +6157,9 @@
     "channel": "mcp",
     "id": "t-s0342",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["earned-wage-access"]
     },
     "personaKey": "t-p-157",
@@ -6859,9 +6859,9 @@
     "channel": "web",
     "id": "t-s0381",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["legacy-system-migration"]
     },
     "personaKey": "t-p-055",
@@ -8395,9 +8395,9 @@
     "channel": "mcp",
     "id": "t-s0466",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["telematics-hours-match"]
     },
     "personaKey": "t-p-059",

@@ -99,8 +99,14 @@ export const parseWorld = (
   return world;
 };
 
-export const worldDir = (name: WorldName, version: string) =>
+const worldDir = (name: WorldName, version: string) =>
   path.join(crewdayRoot, "worlds", name, version);
+
+/** Where the generator writes a world; the test world needs the held-out token, as for reads. */
+export const worldOutputDir = (name: WorldName, version: string, options: HeldOutOptions = {}) => {
+  assertReadable(name, options);
+  return worldDir(name, version);
+};
 
 /** Loads and validates `evals/crewday/worlds/<name>/<version>/`. */
 export const loadWorld = async (

@@ -1233,9 +1233,9 @@
     "channel": "web",
     "id": "d-s0069",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["heat-advisory-breaks"]
     },
     "personaKey": "d-p-024",
@@ -1503,7 +1503,7 @@
     "channel": "web",
     "id": "d-s0084",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
       "kind": "same_solution",
       "needKeys": ["room-assignment-board"]
@@ -2586,9 +2586,9 @@
     "channel": "web",
     "id": "d-s0144",
     "labels": {
-      "existedAtTime": true,
+      "existedAtTime": false,
       "firstOccurrence": false,
-      "kind": "paraphrase",
+      "kind": "new",
       "needKeys": ["shift-handover-notes"]
     },
     "personaKey": "d-p-088",

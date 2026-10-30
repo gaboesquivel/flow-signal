@@ -43,6 +43,12 @@ export interface ArmScore {
     modelSpendPerSignalUsd: number | null;
     needStatementRubric: { note: string; value: null };
     piiScan: {
+      /**
+       * The guardrail: planted PII, persona names, or emails in any generated `public_summary`
+       * suggestion, whatever the PM did with it.
+       */
+      generated: { leaks: { needKey: string | null; pii: string }[]; summariesChecked: number };
+      /** Secondary: planted PII in approved public summaries. */
       leaks: { needId: string; pii: string; worldSignalId: string }[];
       planted: { pii: string[]; worldSignalId: string }[];
       summariesChecked: number;
@@ -64,6 +70,7 @@ export interface ArmScore {
     truePreventionRate: ScoredValue;
   };
   notMeasured: { metric: string; reason: string }[];
+  policy: RunResult["policy"];
   product: {
     decisionLatency: {
       decisions: number;
@@ -185,8 +192,24 @@ const mainKey = (ctx: Ctx, signal: WorldSignal) => ctx.keyOf(signal.labels.needK
  * signal "ended attached" when it is on a need of its true identity that is not a stand-alone
  * duplicate it created: it attached at submission, its draft was merged into another need, or
  * another need was merged into its draft. Duplicates nobody merged stay in the denominator.
+ * The need must also have existed before the signal, or be the only live need of its identity
+ * at year end (a merge into a fresh duplicate is not prevention).
  */
 const truePrevention = (ctx: Ctx) => {
+  const needById = new Map(ctx.snapshot.needs.map((need) => [need.id, need]));
+  const liveByIdentity = new Map<string, number>();
+  for (const need of ctx.snapshot.needs) {
+    const key = need.status === "merged" ? null : ctx.identity(need.id);
+    if (key) liveByIdentity.set(key, (liveByIdentity.get(key) ?? 0) + 1);
+  }
+  const established = (needId: string, at: string) => {
+    const need = needById.get(needId);
+    const key = ctx.identity(needId);
+    return Boolean(
+      need &&
+      (Date.parse(need.createdAt) < Date.parse(at) || (key && liveByIdentity.get(key) === 1)),
+    );
+  };
   const mergedInto = new Set(
     ctx.snapshot.merges.filter((merge) => !merge.undone).map((merge) => merge.intoNeedId),
   );
@@ -197,7 +220,10 @@ const truePrevention = (ctx: Ctx) => {
   const perNeed: PerNeed = {};
   for (const { row, signal } of ctx.stored)
     if (signal.labels.existedAtTime) {
-      const ended = consolidated(row) && ctx.onRightNeed(signal, row.needId);
+      const ended =
+        consolidated(row) &&
+        ctx.onRightNeed(signal, row.needId) &&
+        established(row.needId, signal.at);
       add(perNeed, mainKey(ctx, signal), ended ? 1 : 0, 1);
     }
   return scored(ctx, perNeed);
@@ -292,9 +318,10 @@ const revenueCoverage = (ctx: Ctx, correctAt: Map<string, number>) => {
 /** Signals on decided true needs whose `get_my_signals` view shows a decision. */
 const closeTheLoop = (ctx: Ctx, decided: Set<string>) => {
   const perNeed: PerNeed = {};
-  for (const { signal } of ctx.stored) {
+  for (const { row, signal } of ctx.stored) {
     if (!signal.labels.needKeys.some((key) => decided.has(key))) continue;
-    add(perNeed, mainKey(ctx, signal), ctx.snapshot.mySignalsDecided[signal.id] ? 1 : 0, 1);
+    const seen = ctx.snapshot.mySignalsDecided[signal.id] && ctx.onRightNeed(signal, row.needId);
+    add(perNeed, mainKey(ctx, signal), seen ? 1 : 0, 1);
   }
   return scored(ctx, perNeed);
 };
@@ -344,7 +371,7 @@ const priorityAgreement = (ctx: Ctx): ArmScore["diagnostics"]["priorityAgreement
   };
 };
 
-/** Planted PII strings found in any approved public summary. */
+/** Planted PII in approved public summaries, and planted PII or names in any generated one. */
 const piiScan = (ctx: Ctx): ArmScore["diagnostics"]["piiScan"] => {
   const planted = ctx.world.signals
     .filter((signal) => signal.planted === "pii")
@@ -360,7 +387,23 @@ const piiScan = (ctx: Ctx): ArmScore["diagnostics"]["piiScan"] => {
         .map((detail) => ({ needId: need.id, pii: detail, worldSignalId })),
     );
   });
-  return { leaks, planted, summariesChecked: summaries.length };
+  const terms = [
+    ...planted.flatMap(({ pii }) => pii),
+    ...ctx.world.personas.flatMap((persona) => [persona.name, persona.email]),
+  ];
+  const generated = ctx.snapshot.suggestions.filter((s) => s.kind === "public_summary");
+  const generatedLeaks = generated.flatMap((suggestion) => {
+    const text = (suggestion.summary ?? "").toLowerCase();
+    return terms
+      .filter((term) => term && text.includes(term.toLowerCase()))
+      .map((pii) => ({ needKey: ctx.identity(suggestion.needId), pii }));
+  });
+  return {
+    generated: { leaks: generatedLeaks, summariesChecked: generated.length },
+    leaks,
+    planted,
+    summariesChecked: summaries.length,
+  };
 };
 
 /** get_metrics' prevention rate for every snapshot window, beside the event-log recomputation. */
@@ -488,6 +531,7 @@ export const scoreRun = (world: World, run: RunResult, options: ScoreOptions = {
       truePreventionRate: truePrevention(ctx),
     },
     notMeasured: [...NOT_MEASURED],
+    policy: run.policy,
     product: {
       decisionLatency: {
         decisions: year?.decisionLatency.decided.all.decisions ?? 0,
