@@ -23,6 +23,7 @@ const metricNames: Record<string, string> = { close_the_loop_rate: "Close-the-lo
 /** The MVP metrics as large mono numbers with one-line definitions (DESIGN.md → Metrics). */
 export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metrics }) {
   const {
+    assistantActions,
     decisionLatency,
     exposure,
     killCriterion,
@@ -258,6 +259,45 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
         </ol>
       </section>
 
+      <section aria-labelledby="assistant-heading" className="flex flex-col gap-3">
+        <h2 className={label} id="assistant-heading">
+          Assistant
+        </h2>
+        <ol className="border-rule-strong m-0 list-none border-t p-0">
+          <Metric
+            baseline={
+              <>
+                Diagnostic · baseline <b className="font-medium">unknown</b> · no target yet
+                (experimental)
+              </>
+            }
+            definition="People’s writes in the window confirmed through the Operator assistant, of all their writes. Agent writes are left out."
+            name="Assistant action share"
+            unsplit={
+              <p
+                className={cn(quiet, "font-mono text-[13px] tabular-nums")}
+                data-testid="assistant-outcomes"
+              >
+                {assistantActions.proposed === 0
+                  ? "none proposed"
+                  : `${plural(assistantActions.proposed, "proposal")} · ${assistantActions.confirmedUnchanged} confirmed as is, ${assistantActions.confirmedEdited} edited, ${assistantActions.rejected} dismissed, ${assistantActions.expired} expired`}
+              </p>
+            }
+            value={
+              <BigNumber
+                detail={
+                  assistantActions.writes.human === 0
+                    ? "no writes in window"
+                    : `${assistantActions.writes.assistant} of ${plural(assistantActions.writes.human, "write")} via the assistant`
+                }
+                testId="assistant-share"
+                value={formatRate(assistantActions.share)}
+              />
+            }
+          />
+        </ol>
+      </section>
+
       <section aria-labelledby="guardrails-heading" className="flex flex-col gap-3">
         <h2 className={label} id="guardrails-heading">
           Guardrails
@@ -382,6 +422,7 @@ function Metric({
   extra,
   name,
   split,
+  unsplit,
   value,
 }: {
   baseline: ReactNode;
@@ -389,6 +430,8 @@ function Metric({
   extra?: ReactNode;
   name: string;
   split?: { agents: ReactNode; people: ReactNode };
+  /** Shown instead of the people/agents split when there is none. */
+  unsplit?: ReactNode;
   value: ReactNode;
 }) {
   return (
@@ -412,7 +455,9 @@ function Metric({
             </dd>
           </dl>
         ) : (
-          <p className={cn(quiet, "text-[13px]")}>Merges are not split by who made them.</p>
+          (unsplit ?? (
+            <p className={cn(quiet, "text-[13px]")}>Merges are not split by who made them.</p>
+          ))
         )}
         {extra}
       </div>

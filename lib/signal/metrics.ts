@@ -3,6 +3,7 @@ import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
 import type { SignalQueryable } from "./db";
+import { ACTION_TTL_MS, ASSISTANT_CLIENT, writeEventTypes } from "./domain/assistant-actions";
 
 /**
  * The MVP metrics (PRODUCT.md → Metrics; spec 001 → Metrics instrumentation), computed with SQL
@@ -83,6 +84,16 @@ import type { SignalQueryable } from "./db";
  *   One is reused when another `report.viewed`, `report.shared`, or `report.saved` event for the
  *   same `reportId` (any event but that first save) occurs within 14 days after it and before
  *   `to`. Split by the first save's `actor_kind`.
+ *
+ * - **Assistant action share** (spec 014; PRODUCT.md → Diagnostics) reads
+ *   `assistant.action_proposed | confirmed | rejected` (`payload.actionId`; confirmed also
+ *   `payload.edited`) and the `assistant_actions` row's `expires_at` and `status`. Proposals in
+ *   the window count, each `actionId` once, by its first outcome: confirmed unchanged or edited,
+ *   rejected, or expired (no confirm or reject, and `expires_at`, or proposal time + the action
+ *   TTL with no row, before now; the clock decides, not a sweep). A failed confirm records no
+ *   event and leaves its row `failed`, so it counts as neither confirmed nor expired. The share is
+ *   human events of `writeEventTypes` in the window whose `payload.client` is
+ *   `console:assistant` ÷ all human events of those types; agent writes are excluded.
  *
  * Counting rules: events are written in the same transaction as the change, so failed or
  * rejected requests write none; `dedupe_key` makes retries write once, and these queries also
@@ -213,7 +224,30 @@ const reportReuseSchema = z.object({
   saved: count,
 });
 
+const assistantActionsSchema = z.object({
+  /** Of the proposals, confirmed after the PM edited a field on the card. */
+  confirmedEdited: count,
+  /** Of the proposals, confirmed as proposed. */
+  confirmedUnchanged: count,
+  /** Of the proposals, never confirmed or rejected and past `expires_at` now. */
+  expired: count,
+  /** Actions the assistant proposed in the window. */
+  proposed: count,
+  /** Of the proposals, dismissed by the PM. */
+  rejected: count,
+  /** writes.assistant ÷ writes.human; null with no human writes in the window. */
+  share: rateSchema,
+  writes: z.object({
+    /** Human write events in the window confirmed through the assistant. */
+    assistant: count,
+    /** All human write events in the window. */
+    human: count,
+  }),
+});
+
 export const metricsSchema = z.object({
+  /** PM writes confirmed through the Operator assistant, and proposal outcomes (spec 014). */
+  assistantActions: assistantActionsSchema,
   decisionLatency: z.object({
     /** First decisions published in the window, by who published them. */
     decided: split(latencySchema),
@@ -909,10 +943,78 @@ const reportReuse = async (db: SignalQueryable, { from, to }: MetricsWindow) => 
   return { agent: of("agent"), human: of("human") };
 };
 
-/** All MVP metrics and supporting counts for `[from, to)`. */
+const assistantActionCounts = async (
+  db: SignalQueryable,
+  { from, to }: MetricsWindow,
+  now: Date,
+) => {
+  const writeTypes = sql.join(
+    writeEventTypes.map((type) => sql`${type}`),
+    sql`, `,
+  );
+  const [outcomes] = await query<Record<string, unknown>>(
+    db,
+    sql`
+      WITH proposed AS (
+        SELECT DISTINCT ON (payload->>'actionId')
+          payload->>'actionId' AS action_id, occurred_at
+        FROM events
+        WHERE type = 'assistant.action_proposed' AND jsonb_typeof(payload->'actionId') = 'string'
+          AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
+        ORDER BY payload->>'actionId', occurred_at, id
+      ),
+      outcome AS (
+        SELECT p.action_id, p.occurred_at, a.status, a.expires_at,
+          (SELECT CASE WHEN e.type = 'assistant.action_rejected' THEN 'rejected'
+              WHEN e.payload->>'edited' = 'true' THEN 'edited' ELSE 'unchanged' END
+            FROM events e
+            WHERE e.type IN ('assistant.action_confirmed', 'assistant.action_rejected')
+              AND e.payload->>'actionId' = p.action_id
+            ORDER BY e.occurred_at, e.id LIMIT 1) AS result
+        FROM proposed p
+        LEFT JOIN assistant_actions a ON a.id::text = p.action_id
+      )
+      SELECT count(*)::int AS proposed,
+        count(*) FILTER (WHERE result = 'unchanged')::int AS confirmed_unchanged,
+        count(*) FILTER (WHERE result = 'edited')::int AS confirmed_edited,
+        count(*) FILTER (WHERE result = 'rejected')::int AS rejected,
+        count(*) FILTER (WHERE result IS NULL AND status IS DISTINCT FROM 'failed'
+          AND coalesce(expires_at, occurred_at + make_interval(secs => ${ACTION_TTL_MS / 1000}))
+            < ${ts(now)})::int AS expired
+      FROM outcome
+    `,
+  );
+  const [writes] = await query<{ assistant: unknown; human: unknown }>(
+    db,
+    sql`
+      SELECT count(*)::int AS human,
+        count(*) FILTER (WHERE payload->>'client' = ${ASSISTANT_CLIENT})::int AS assistant
+      FROM events
+      WHERE type IN (${writeTypes}) AND actor_kind = 'human'
+        AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
+    `,
+  );
+  const assistant = num(writes?.assistant);
+  const human = num(writes?.human);
+  return {
+    confirmedEdited: num(outcomes?.confirmed_edited),
+    confirmedUnchanged: num(outcomes?.confirmed_unchanged),
+    expired: num(outcomes?.expired),
+    proposed: num(outcomes?.proposed),
+    rejected: num(outcomes?.rejected),
+    share: ratio(assistant, human),
+    writes: { assistant, human },
+  };
+};
+
+/**
+ * All MVP metrics and supporting counts for `[from, to)`. `now` (default `to`) decides which
+ * unanswered assistant proposals have expired.
+ */
 export const computeMetrics = async (
   db: SignalQueryable,
   window: MetricsWindow,
+  now: Date = window.to,
 ): Promise<Metrics> => {
   const signalRows = await signalCounts(db, window);
   const latency = await decisionLatency(db, window);
@@ -925,8 +1027,10 @@ export const computeMetrics = async (
   const abandoned = await abandonedPreviews(db, window);
   const kill = await killCriterion(db, window);
   const reuse = await reportReuse(db, window);
+  const assistant = await assistantActionCounts(db, window, now);
 
   return {
+    assistantActions: assistant,
     decisionLatency: latency,
     directionAccuracy: direction,
     exposure: {
