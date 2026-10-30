@@ -21,7 +21,7 @@ Signal consolidates demand, but the decision step is still manual and reactive:
 - **Strategy.** A PM writes a short, versioned strategy: focus themes, a revenue focus, quarterly capacity, and the readiness line. Priority scoring and decision briefs read the current version.
 - **Readiness.** After every signal (and when the strategy changes), Signal checks each live need against the readiness line. A need that crosses it is marked ready once (`need.ready`) and gets a decision brief drafted automatically, off the hot path.
 - **Recommended direction.** The brief recommends a status with a confidence, says whether the need fits the strategy and why, and notes capacity. It stays a pending `decision_brief` suggestion; the PM accepts, edits, or rejects it and publishes the decision as today.
-- **Decision model.** Decision tasks run on Claude Fable 5.1 through the AI Gateway, on our own Anthropic key ([0006](../decisions/0006-decision-model-fable-gateway-byok.md)).
+- **Decision model.** Decision tasks run on `SIGNAL_DECISION_MODEL` (default Claude Sonnet 5.5) through the AI Gateway on the Gateway's credentials ([0007](../decisions/0007-decision-model-on-gateway-credentials.md), [0008](../decisions/0008-decision-model-sonnet.md)); Fable 5.1 is the Crewday challenger.
 - **Measurement.** `get_metrics` reports direction accuracy and readiness lead time. Crewday adds a PM policy that follows Signal's recommendation, next to spec 004's oracle PM, and scores direction accuracy against the strategy-implied decision.
 
 ## User Stories
@@ -51,11 +51,11 @@ Signal consolidates demand, but the decision step is still manual and reactive:
 - Priority: the `strategic_fit` criterion prompt includes the strategy's focus themes and revenue focus.
 - `publish_decision` writes `recommendedStatus` and `briefSuggestionId` (the need's latest accepted or edited brief, or null) into the `decision.published` payload, so metrics stay event-log only.
 
-### Decision model ([0006](../decisions/0006-decision-model-fable-gateway-byok.md))
+### Decision model ([0006](../decisions/0006-decision-model-fable-gateway-byok.md), as amended by [0007](../decisions/0007-decision-model-on-gateway-credentials.md) and [0008](../decisions/0008-decision-model-sonnet.md))
 
-- `lib/ai/models.ts`: `DEFAULT_SIGNAL_DECISION_MODEL = "anthropic/claude-fable-5.1"`, `signalDecisionModelId()` (`SIGNAL_DECISION_MODEL`), and `anthropicByokOptions()` returning `{ gateway: { byok: { anthropic: [{ apiKey }] } } }` when `ANTHROPIC_API_KEY` is set, else `{}`. `models.test.ts` checks the id against the installed Gateway list.
-- `lib/signal/ai/reasoning-model.ts`: tasks in `DECISION_TASKS` (`decision_brief`) use the decision model with `providerOptions` = BYOK plus `anthropic: { effort: "medium", fallbacks: "default" }` and a 180 s timeout; every other task is unchanged. The stored suggestion `model` is the response's model id, so a refusal fallback is visible. Thinking is never set to `disabled` for decision tasks (Fable 5.1 rejects it).
-- Gateway access is still required (`AI_GATEWAY_API_KEY` or Vercel OIDC); the Anthropic key only changes whose account the Gateway bills.
+- `lib/ai/models.ts`: `DEFAULT_SIGNAL_DECISION_MODEL = "anthropic/claude-sonnet-5.5"` and `signalDecisionModelId()` (`SIGNAL_DECISION_MODEL`; set `anthropic/claude-fable-5.1` to compare). `models.test.ts` checks the id against the installed Gateway list. No BYOK: calls bill to the Gateway.
+- `lib/signal/ai/reasoning-model.ts`: tasks in `DECISION_TASKS` (`decision_brief`) use the decision model with `providerOptions` = `anthropic: { effort: "medium", fallbacks: "default" }` and a 180 s timeout; every other task is unchanged. The stored suggestion `model` is the response's model id, so a refusal fallback is visible. Thinking is never set to `disabled` for decision tasks (Fable 5.1 rejects it).
+- Gateway access is required (`AI_GATEWAY_API_KEY` or Vercel OIDC); there is no direct provider path ([spec 010](./010-retro-remediation.md)).
 
 ### Typed API contract (before any UI)
 

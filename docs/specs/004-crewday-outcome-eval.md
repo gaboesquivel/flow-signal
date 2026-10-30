@@ -206,7 +206,7 @@ On `crewday-test`, default policy, Signal arm vs. vote board. A criterion passes
 
 - `pnpm eval:crewday`: `crewday-dev`, both arms, default policy; report to `evals/crewday/results/latest.json` and a terminal table.
 - Flags: `--world dev|test`, `--arm signal|board|both`, `--sweep`, `--cached`, `--seed`, `--tag <name>` (test world only; appends to `history/`), `--component matching`.
-- Joins `pnpm eval` with the dev world and `--cached`. It skips with a clear message without AI Gateway access, as `eval:matching` does.
+- Runs on demand only, outside `pnpm eval` ([spec 010](./010-retro-remediation.md)). It skips with a clear message without AI Gateway access, as `eval:matching` does.
 
 **Exposure:** none. This adds eval code and fixtures only, with no route, operation, or deployable behaviour. The runner writes only to a test database: local Docker or PGlite per [0003](../decisions/0003-local-test-databases.md). It refuses to start when its database URL is the `DATABASE_URL` from `.env.local` or any Neon `main` or dev branch.
 
@@ -273,10 +273,10 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 **Blocked by:** 01
 
 - [ ] The recipe holds the company, strategy memo, account and persona mix, six themes, about 120 needs with arrival curves and true priorities, about 20 traps, and a migrated backlog of about 40 needs with about 8 duplicate pairs.
-- [ ] Each world has about 40 accounts, about 200 personas, and about 1,500 signals over 12 months, and loads through task 01's loader. The two worlds share no needs, accounts, or personas.
+- [ ] Each world has about 40 accounts, about 200 personas, and about 600 signals over 12 months (v1 shipped 604 per world), and loads through task 01's loader. The two worlds share no needs, accounts, or personas.
 - [ ] The generator never passes a need statement to the model. It records model ids, prompts, and RNG seeds.
 - [ ] The keyword-findable share is ≤ 60% in each world and is recorded with the world.
-- [ ] The stratified review is done and recorded: who reviewed, how many signals, and what was fixed or dropped. v1 uses the third-family model check described in Further Notes.
+- [x] The review method is recorded in each world's manifest. v1 shipped with the review deferred (`"review": "none (deferred)"`); the stratified third-family check moves to v1.1 (Further Notes).
 
 ### 03: Simulation engine, policies, arms, and scorer (offline)
 
@@ -316,7 +316,7 @@ This task answers the bet on the dev world.
 - [ ] The report confirms no planted PII reached an approved public summary.
 - [ ] The first live run's model spend per world is measured and recorded in the spec's open assumptions.
 - [ ] Acceptance scenario steps 1–5 pass on `crewday-test`.
-- [ ] `pnpm eval` includes the dev-world run.
+- [ ] `pnpm eval:crewday` runs the dev world on demand (not part of `pnpm eval`, [spec 010](./010-retro-remediation.md)).
 
 ### 05: Behaviour sweep with cached AI responses
 

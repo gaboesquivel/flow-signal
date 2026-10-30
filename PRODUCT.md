@@ -81,7 +81,7 @@ Language models make meaning-based matching, summarization, and reasoning cheap 
 
 ## Metrics
 
-The MVP documents three metrics. All are collected by Signal's own event log, which the MVP adds; baselines are unknown, and targets are hypotheses.
+Metrics come in three tiers: the three MVP metrics below (prevention rate is the one that matters), guardrails, and diagnostics. All are collected by Signal's own event log, which the MVP adds; baselines are unknown, and targets are hypotheses.
 
 ### 1. Prevention rate (one metric that matters)
 
@@ -108,21 +108,24 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 - **Source:** `suggestion.accepted | edited | rejected`.
 - **Target:** ≥ 70% accepted as-is (hypothesis). High acceptance with a rising unmerge rate means rubber-stamping.
 
-### Supporting metrics and guardrails
+### Guardrails
+
+Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check. Last live measurements (2026-10-30): p95 4.7 s and $0.014 per signal, both over.
+
+### Diagnostics
 
 - **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
-- **AI quality (offline eval set, run in `pnpm eval`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
-- **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals.
+- **AI quality (offline eval set, `pnpm eval:matching`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
+- **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals (`pnpm eval:crewday`, on demand). Decision quality is a non-inferiority check: both arms publish through the same noisy PM, so it mostly measures that noise. The simulation takes submitter behaviour as an input, so it cannot test riskiest assumption 1.
 - **Direction accuracy (proposed):** decision briefs whose recommended status matches the published decision ÷ published decisions that had a brief; weekly; source: the `decision_brief` payload + `decision.published`. On Crewday it is also scored against the strategy-implied decision. Baseline unknown; target ≥ 80% (hypothesis, low confidence).
 - **Readiness lead time (proposed):** median days from `need.ready` (a new event) to `decision.published`. Baseline unknown.
-- **Guardrails:** decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
 
 ## Riskiest assumptions
 
 1. Submitters will add their voice to an existing need rather than file their own version, as long as their context is kept and visible. _Confidence: medium._ The main bet.
 2. Matching is accurate enough to trust; wrong matches feel dismissive. _Confidence: medium._
 3. PMs will trust and act on AI-proposed merges, scores, and briefs instead of redoing the work. _Confidence: low to medium._
-4. A duplicate check on every submission is fast and cheap enough (under 2 s, under $0.01). _Confidence: high._
+4. A duplicate check on every submission is fast and cheap enough (under 2 s, under $0.01). _Confidence: medium:_ the last live runs measured p95 4.7 s and $0.014 per signal ([spec 010](./docs/specs/010-retro-remediation.md)).
 5. A recommended direction grounded in a written strategy is right often enough that PMs follow it instead of redoing the analysis. _Confidence: low._
 
 ## Kill criterion
