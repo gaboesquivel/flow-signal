@@ -18,9 +18,9 @@ export const MATCH_THRESHOLD = 0.6;
 /** Nearest needs passed to the judge. */
 export const CANDIDATE_LIMIT = 8;
 /** Matches returned to the submitter. */
-export const MAX_MATCHES = 3;
+const MAX_MATCHES = 3;
 
-export const draftNeedSchema = z.object({
+const draftNeedSchema = z.object({
   /** Further, separate asks found in the submission: offer to split them. */
   additionalAsks: z.array(z.string()),
   proposedSolution: z.string().optional(),
@@ -28,7 +28,7 @@ export const draftNeedSchema = z.object({
   statement: z.string(),
 });
 
-export const matchSchema = z.object({
+const matchSchema = z.object({
   demandBand: demandBandSchema,
   needId: z.uuid(),
   probability: z.number().min(0).max(1),
@@ -45,7 +45,7 @@ export const previewOutputSchema = z.object({
   /** Pass to `submit_signal` so the submission is linked to what was shown. */
   previewId: z.string(),
 });
-export type PreviewOutput = z.infer<typeof previewOutputSchema>;
+type PreviewOutput = z.infer<typeof previewOutputSchema>;
 
 /** Deterministic id for a preview of this text (no state is stored for a preview). */
 export const previewIdFor = ({ body, title }: { body: string; title: string }) =>

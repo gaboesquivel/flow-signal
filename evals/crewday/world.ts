@@ -3,7 +3,7 @@ import path from "node:path";
 
 import type { z } from "zod";
 
-import { checkRecipe, checkRecipePair, checkWorld } from "./checks";
+import { checkRecipe, checkWorld } from "./checks";
 import { recipeFileSchemas, themeSchema, worldFileSchemas } from "./format";
 import type { Recipe, RecipeWorldName, World, WorldName } from "./format";
 import { HELD_OUT } from "./held-out";
@@ -30,7 +30,7 @@ export class WorldFormatError extends Error {
   }
 }
 
-export interface HeldOutOptions {
+interface HeldOutOptions {
   /** Required to read the test world; only tagged and acceptance runs pass it. */
   heldOut?: HeldOut;
 }
@@ -178,12 +178,4 @@ export const loadRecipe = async (
     { ...files, company: company as string, strategy: strategy as string, themes },
     world,
   );
-};
-
-/** Loads both recipes and checks that nothing (trap groups, needs, accounts) crosses worlds. */
-export const checkRecipes = async (options: HeldOutOptions) => {
-  const [dev, test] = await Promise.all([loadRecipe("dev"), loadRecipe("test", options)]);
-  const problems = checkRecipePair(dev, test);
-  if (problems.length) throw new WorldFormatError("recipes dev + test", problems);
-  return { dev, test };
 };

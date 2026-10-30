@@ -23,7 +23,7 @@ const decisionSchema = z.object({
   status: z.enum(["planned", "in_progress", "shipped", "declined"]),
 });
 
-export const mySignalSchema = z.object({
+const mySignalSchema = z.object({
   attachedTo: z.enum(["existing", "draft"]),
   /** The holder's own words, verbatim. */
   body: z.string(),
@@ -39,7 +39,7 @@ export const mySignalSchema = z.object({
 });
 
 export const mySignalsOutputSchema = z.object({ signals: z.array(mySignalSchema) });
-export type MySignalsOutput = z.infer<typeof mySignalsOutputSchema>;
+type MySignalsOutput = z.infer<typeof mySignalsOutputSchema>;
 
 export const getMySignals = async (db: SignalQueryable, token: string) => {
   const link = await resolveTrackingLink(db, token);

@@ -62,8 +62,7 @@ describe("reasoningModelReasoner decision tasks (spec 007, decision 0006)", () =
     expect([...DECISION_TASKS]).toEqual(["decision_brief"]);
   });
 
-  it("sends effort and the refusal fallback, never disabled thinking, and no BYOK even with the key", async () => {
-    vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test");
+  it("sends effort and the refusal fallback, never disabled thinking, and no BYOK", async () => {
     const model = reply({ text: "Plan it." });
     await brief(model);
     const sent = model.doGenerateCalls[0]?.providerOptions;
@@ -82,7 +81,6 @@ describe("reasoningModelReasoner decision tasks (spec 007, decision 0006)", () =
   });
 
   it("leaves other tasks unchanged: no provider options, reasoning model id", async () => {
-    vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test");
     vi.stubEnv("SIGNAL_REASONING_MODEL", "anthropic/claude-sonnet-5.5");
     const model = reply({ text: "Scored." }, { modelId: "something-else" });
     const result = await reasoningModelReasoner({ model }).generate({

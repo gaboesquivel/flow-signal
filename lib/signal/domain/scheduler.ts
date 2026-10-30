@@ -11,7 +11,7 @@ export type SuggestionScheduler = (task: () => Promise<unknown>) => void;
  * install `after()` through `lib/signal/next.ts`, so this module stays framework-free and the Eve
  * agent bundles can load it.
  */
-export const startNow: SuggestionScheduler = (task) => {
+const startNow: SuggestionScheduler = (task) => {
   void task().catch(() => null);
 };
 

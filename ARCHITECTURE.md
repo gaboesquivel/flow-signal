@@ -18,6 +18,7 @@ Cross-template interoperability details live in `docs/INTEROP.md` from the templ
 ## Local development
 
 - `pnpm setup` — dependencies and template technical skills
+- `pnpm db:dev` — local Docker Postgres `signal_dev` behind the Neon proxy, migrated and seeded ([decision 0009](docs/decisions/0009-local-dev-on-docker-postgres.md))
 - `pnpm dev` — Portless at `signal.localhost`
 
 ## Data

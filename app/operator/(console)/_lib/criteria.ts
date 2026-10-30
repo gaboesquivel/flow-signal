@@ -8,7 +8,7 @@ import { criterionKeys } from "./console";
  * score counts as 0), rounded to 0.01, exactly as the server computes it.
  */
 
-export type Weights = Record<CriterionKey, number>;
+type Weights = Record<CriterionKey, number>;
 export type Hundredths = Record<CriterionKey, number>;
 export type CriterionScores = Record<CriterionKey, number | null>;
 
@@ -21,10 +21,10 @@ export const toHundredths = (weights: Weights): Hundredths =>
 export const fromHundredths = (hundredths: Hundredths): Weights =>
   mapKeys((key) => hundredths[key] / 100);
 
-export const sumHundredths = (hundredths: Hundredths) =>
+const sumHundredths = (hundredths: Hundredths) =>
   criterionKeys.reduce((sum, key) => sum + hundredths[key], 0);
 
-export const sameWeights = (left: Hundredths, right: Hundredths) =>
+const sameWeights = (left: Hundredths, right: Hundredths) =>
   criterionKeys.every((key) => left[key] === right[key]);
 
 /** Save needs a change and a total of exactly 1.00 (the set_criteria rule). */
@@ -56,7 +56,7 @@ export const balanceOthers = (draft: Hundredths, kept: CriterionKey): Hundredths
 };
 
 /** The priority score under `weights`; null for an unscored need. */
-export const scoreWith = (scores: CriterionScores | null, weights: Hundredths): number | null => {
+const scoreWith = (scores: CriterionScores | null, weights: Hundredths): number | null => {
   if (!scores) return null;
   const total = criterionKeys.reduce((sum, key) => sum + (scores[key] ?? 0) * weights[key], 0);
   return Math.round(total) / 100;
@@ -69,7 +69,7 @@ export interface PreviewNeed {
   statement: string;
 }
 
-export interface PreviewRow {
+interface PreviewRow {
   after: number;
   before: number;
   id: string;

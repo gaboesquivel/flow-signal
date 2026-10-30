@@ -11,7 +11,7 @@ export const isOperatorAccessConfigured = () => getOperatorAccessToken().length 
 export const signOperatorSession = ({ token }: { token: string }) =>
   createHmac("sha256", token).update("flow-template-operator-v1").digest("hex");
 
-export const readOperatorSessionCookie = (request: Request) => {
+const readOperatorSessionCookie = (request: Request) => {
   const cookieHeader = request.headers.get("cookie") ?? "";
   const match = cookieHeader.match(
     new RegExp(`(?:^|;\\s*)${OPERATOR_SESSION_COOKIE}=([^;]+)`, "u"),

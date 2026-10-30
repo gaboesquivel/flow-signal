@@ -25,7 +25,7 @@ const decodeCursor = (cursor: string) => {
   return typeof offset === "number" && Number.isInteger(offset) && offset >= 0 ? offset : undefined;
 };
 
-export const searchNeedsInput = z.object({
+const searchNeedsInput = z.object({
   /** Opaque cursor from a previous page's `nextCursor`. */
   cursor: z
     .string()
@@ -40,7 +40,7 @@ export const searchNeedsInput = z.object({
   theme: z.string().trim().max(120).optional(),
 });
 
-export const searchNeedsOutput = z.object({
+const searchNeedsOutput = z.object({
   needs: z.array(publicNeedSchema),
   nextCursor: z.string().nullable(),
 });

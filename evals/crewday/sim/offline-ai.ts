@@ -58,7 +58,7 @@ const BRIEF_OPTIONS = [
   { rationale: "Demand is narrow.", status: "declined", tradeoffs: "Some disappointment." },
 ];
 
-export const offlineReasoner = (overrides: Partial<Record<ReasonerTask, Handler>> = {}) =>
+const offlineReasoner = (overrides: Partial<Record<ReasonerTask, Handler>> = {}) =>
   fakeReasoner({
     decision_brief: ({ prompt }) => ({
       options: BRIEF_OPTIONS,
@@ -153,7 +153,7 @@ export const strategyBriefHandler = (world: World, mode: "strategy" | "opposite"
   };
 };
 
-export interface OfflineAiOptions {
+interface OfflineAiOptions {
   /** Replaces the offline `decision_brief` fake (e.g. `strategyBriefHandler`). */
   decisionBrief?: Handler;
 }

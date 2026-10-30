@@ -370,7 +370,7 @@ const decide = async (state: SimState, week: Week, readyAt: Map<string, string>)
 };
 
 /** One need from `list_ready_needs` (spec 007 → Typed API contract). */
-export interface ReadyNeed {
+interface ReadyNeed {
   arrCents: number;
   brief: {
     recommendation: {
@@ -542,7 +542,7 @@ const manualDedup = async (state: SimState, week: Week) => {
   }
 };
 
-export interface PmMemory {
+interface PmMemory {
   /** Suggestions whose resolution conflicted; skipped from then on. */
   dead: Set<string>;
   /** When the PM first saw each need ready. */

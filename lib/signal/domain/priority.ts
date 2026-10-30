@@ -30,25 +30,24 @@ const criterionScoreSchema = z.object({
 });
 
 /** What the reasoning model returns for task `priority`. */
-export const priorityAssessmentSchema = z.object({
+const priorityAssessmentSchema = z.object({
   business_value: criterionScoreSchema,
   demand: criterionScoreSchema,
   effort: criterionScoreSchema.describe("5 = small effort, 0 = very large"),
   strategic_fit: criterionScoreSchema,
   summary: z.string().min(1).describe("One sentence: what changed or drives the scores"),
 });
-export type PriorityAssessment = z.infer<typeof priorityAssessmentSchema>;
 
 /**
  * `priority` suggestion payload. `scores` holds numbers (as in the seed); `reasons` holds the
  * reason per criterion; `reason` is the overall reason shown in triage.
  */
-export const prioritySuggestionPayloadSchema = z.object({
+const prioritySuggestionPayloadSchema = z.object({
   reason: z.string(),
   reasons: z.partialRecord(criterionKeySchema, z.string()).optional(),
   scores: z.partialRecord(criterionKeySchema, scoreSchema),
 });
-export type PrioritySuggestionPayload = z.infer<typeof prioritySuggestionPayloadSchema>;
+type PrioritySuggestionPayload = z.infer<typeof prioritySuggestionPayloadSchema>;
 
 /**
  * `resolve_suggestion` edit for a `priority` suggestion: the PM's own scores (and optional
@@ -58,7 +57,7 @@ export const priorityEditSchema = z.strictObject({
   reasons: z.partialRecord(criterionKeySchema, z.string().min(1)).optional(),
   scores: z.partialRecord(criterionKeySchema, scoreSchema),
 });
-export type PriorityEdit = z.infer<typeof priorityEditSchema>;
+type PriorityEdit = z.infer<typeof priorityEditSchema>;
 
 const PRIORITY_SYSTEM = `You score product needs for a PM against fixed criteria, each 0 to 5:
 - demand: how many people and accounts ask, and whether demand is growing.
@@ -132,7 +131,7 @@ export const suggestPriorityScores = async (
   });
 };
 
-export interface AppliedScore {
+interface AppliedScore {
   criterion: CriterionKey;
   reason: string;
   score: number;

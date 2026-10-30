@@ -8,11 +8,19 @@ Signal stores everything in Neon Postgres with the pgvector extension ([decision
 | --------------------------- | ------------------- | --------------------------------------------------------------------------- |
 | Vercel (production)         | `DATABASE_URL`      | Neon `main` branch (integration)                                            |
 | Vercel previews             | `DATABASE_URL`      | A Neon branch per preview deployment (integration)                          |
-| Local dev                   | `DATABASE_URL`      | Neon `dev` branch                                                           |
+| Local dev                   | `DATABASE_URL`      | Docker Postgres `signal_dev` (`pnpm db:dev`); a Neon branch URL also works  |
 | Local tests                 | `DATABASE_URL_TEST` | Docker Postgres 18 + pgvector behind a local Neon HTTP proxy (`pnpm db:up`) |
 | CI, or tests without it set | (unset)             | In-process PGlite with the `vector` extension                               |
 
 Tests never touch Neon. Each test file resets the tables it uses; parallel workers use separate database names on the Docker server. See [decision 0003](./decisions/0003-local-test-databases.md).
+
+## Local development database
+
+```bash
+pnpm db:dev
+```
+
+Starts the Docker stack, creates `signal_dev` if missing, applies the migrations, and seeds the demo workspace when the tables are empty ([decision 0009](./decisions/0009-local-dev-on-docker-postgres.md)). It reads `DATABASE_URL` (default in `.env.example`: `postgres://postgres:postgres@localhost:5432/signal_dev`) and refuses any non-local host. Then `pnpm dev` serves `signal.localhost` against it. To develop against shared data instead, set `DATABASE_URL` to a Neon branch.
 
 ## Local test database
 

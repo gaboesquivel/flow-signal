@@ -65,12 +65,12 @@ import type { SignalQueryable } from "./db";
 
 export const DAY_MS = 86_400_000;
 /** Default window length when `from` is omitted: four weekly buckets. */
-export const DEFAULT_WINDOW_DAYS = 28;
+const DEFAULT_WINDOW_DAYS = 28;
 export const MAX_WINDOW_DAYS = 366;
 /** A need with no decision this long after its first signal is reported as open. */
-export const OPEN_NEED_DAYS = 30;
+const OPEN_NEED_DAYS = 30;
 
-export const unsupportedMetrics = [
+const unsupportedMetrics = [
   {
     metric: "close_the_loop_rate",
     reason:
@@ -189,7 +189,7 @@ export const metricsSchema = z.object({
 });
 export type Metrics = z.infer<typeof metricsSchema>;
 
-export interface MetricsWindow {
+interface MetricsWindow {
   /** Inclusive. */
   from: Date;
   /** Exclusive. */
@@ -210,7 +210,7 @@ const numOrNull = (value: unknown) =>
 const ts = (date: Date) => sql`${date.toISOString()}::timestamptz`;
 
 /** Monday 00:00 UTC of the week containing `date`. */
-export const weekStartOf = (date: Date) => {
+const weekStartOf = (date: Date) => {
   const day = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const offset = (day.getUTCDay() + 6) % 7;
   return new Date(day.getTime() - offset * DAY_MS);

@@ -48,7 +48,7 @@ export interface ThresholdScore {
   threshold: number;
 }
 
-export interface Targets {
+interface Targets {
   maxFalseMatchRate: number;
   minNewNeedRecall: number;
   minPrecisionAt3: number;
@@ -116,7 +116,7 @@ export const meetsTargets = (score: ThresholdScore, targets: Targets = PRODUCT_T
  * Worst shortfall against the targets, as a fraction of each target's allowed range (0 when
  * all are met, more negative is worse). Ranks thresholds when none meets every target.
  */
-export const targetSlack = (score: ThresholdScore, targets: Targets = PRODUCT_TARGETS) =>
+const targetSlack = (score: ThresholdScore, targets: Targets = PRODUCT_TARGETS) =>
   Math.min(
     0,
     ((score.precisionAt3 ?? 0) - targets.minPrecisionAt3) / targets.minPrecisionAt3,
@@ -139,7 +139,7 @@ export const thresholdRange = (from: number, to: number, step: number) => {
 export const sweep = (runs: CaseRun[], thresholds: number[]) =>
   thresholds.map((threshold) => scoreAt(runs, threshold));
 
-export interface BestThreshold {
+interface BestThreshold {
   meetsTargets: boolean;
   score: ThresholdScore;
 }

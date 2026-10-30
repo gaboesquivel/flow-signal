@@ -30,9 +30,8 @@ export const accountSchema = z.object({
 });
 export type Account = z.infer<typeof accountSchema>;
 
-export const arrivalCurves = ["steady", "burst", "seasonal", "late"] as const;
+const arrivalCurves = ["steady", "burst", "seasonal", "late"] as const;
 export const trapKinds = ["shared_solution", "near_neighbour", "split", "symptom_only"] as const;
-export type TrapKind = (typeof trapKinds)[number];
 
 export const needSchema = z.object({
   /** When signals for the need arrive over the year (month 0 is the world's first month). */
@@ -73,10 +72,9 @@ export const backlogRowSchema = z.object({
 });
 export type BacklogRow = z.infer<typeof backlogRowSchema>;
 
-export const channels = ["web", "mcp"] as const;
-export type Channel = (typeof channels)[number];
+const channels = ["web", "mcp"] as const;
 
-export const personaMixSchema = z.object({
+const personaMixSchema = z.object({
   count: z.number().int().positive(),
   roles: z
     .array(
@@ -122,7 +120,7 @@ export type SignalKind = (typeof signalKinds)[number];
  * reach a public summary), `retry` (the same submission sent again with the same idempotency key;
  * `retryOf` is the original), `invalid` (fails `submit_signal` validation and must not count).
  */
-export const plantedKinds = ["pii", "retry", "invalid"] as const;
+const plantedKinds = ["pii", "retry", "invalid"] as const;
 
 export const signalSchema = z.object({
   accountKey: key,

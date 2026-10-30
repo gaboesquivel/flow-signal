@@ -37,9 +37,9 @@ export const DEFAULT_DEMAND_LIMIT = 10;
 export const MAX_DEMAND_LIMIT = 50;
 /** Account plans (`accounts.plan`) that `plan` filters on. */
 export const accountPlans = ["Enterprise", "Growth", "Starter"] as const;
-export type AccountPlan = (typeof accountPlans)[number];
+type AccountPlan = (typeof accountPlans)[number];
 
-export const demandNeedSchema = z.object({
+const demandNeedSchema = z.object({
   accounts: z.array(z.object({ accountId: z.uuid(), name: z.string(), plan: z.string() })),
   businessValueCents: z.number().int().nonnegative(),
   needId: z.uuid(),
@@ -51,7 +51,7 @@ export const demandNeedSchema = z.object({
   themeId: z.uuid().nullable(),
   trend: z.enum(["rising", "steady", "falling"]),
 });
-export type DemandNeed = z.infer<typeof demandNeedSchema>;
+type DemandNeed = z.infer<typeof demandNeedSchema>;
 
 export const demandSummaryOutputSchema = z.object({
   ai: z.enum(["ok", "unavailable"]),
@@ -64,7 +64,7 @@ export const demandSummaryOutputSchema = z.object({
 });
 export type DemandSummary = z.infer<typeof demandSummaryOutputSchema>;
 
-export interface DemandFilter {
+interface DemandFilter {
   accountId?: string;
   limit: number;
   plan?: AccountPlan;
@@ -90,7 +90,7 @@ interface DemandRow {
 const firstSupportBetween = (from: Date, to: Date): SQL =>
   sql`count(*) filter (where f.first_at >= ${ts(from)} and f.first_at < ${ts(to)})::int`;
 
-export const loadDemandNeeds = async (db: SignalQueryable, filter: DemandFilter) => {
+const loadDemandNeeds = async (db: SignalQueryable, filter: DemandFilter) => {
   const recentFrom = new Date(filter.until.getTime() - TREND_DAYS * DAY_MS);
   const previousFrom = new Date(filter.until.getTime() - 2 * TREND_DAYS * DAY_MS);
   const conditions: SQL[] = [sql`n.status in ('draft', 'open', 'planned', 'in_progress')`];
@@ -157,7 +157,7 @@ export const loadDemandNeeds = async (db: SignalQueryable, filter: DemandFilter)
 };
 
 /** What the reasoning model returns for task `demand_summary`. */
-export const demandSummaryDraftSchema = z.object({
+const demandSummaryDraftSchema = z.object({
   text: z
     .string()
     .min(1)

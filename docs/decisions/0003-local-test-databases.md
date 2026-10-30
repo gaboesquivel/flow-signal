@@ -1,6 +1,6 @@
 # 0003 — Local Docker Postgres for development tests, PGlite in CI
 
-Status: Accepted (2026-10-30). Amends [0001](./0001-neon-postgres-pgvector.md) (test databases only).
+Status: Accepted (2026-10-30). Amends [0001](./0001-neon-postgres-pgvector.md) (test databases only). Amended by [0009](./0009-local-dev-on-docker-postgres.md) (development database: Docker by default).
 
 ## Context
 

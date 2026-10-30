@@ -14,7 +14,7 @@ const START = Date.parse(WORLD_STARTS_AT);
 const MONTHS = 12;
 
 /** Target sizes per world. */
-export const TARGET_SIGNALS = 600;
+const TARGET_SIGNALS = 600;
 const RETRIES = 4;
 const INVALID = 4;
 const PII = 7;
@@ -53,7 +53,7 @@ export interface Slot {
   useCase: boolean;
 }
 
-export interface Plan {
+interface Plan {
   personas: Persona[];
   slots: Slot[];
 }
@@ -278,7 +278,7 @@ type RoleClass =
   | "manager"
   | "admin";
 
-export const roleClass = (role: string): RoleClass => {
+const roleClass = (role: string): RoleClass => {
   const lower = role.toLowerCase();
   if (lower.includes("copilot")) return "copilot";
   if (lower.includes("sales")) return "sales";
@@ -325,7 +325,7 @@ const homeAccounts = (cls: RoleClass, accounts: Account[]): [Account, number][] 
   }
 };
 
-export const buildPersonas = (recipe: Recipe, seed: number, prefix: string): Persona[] => {
+const buildPersonas = (recipe: Recipe, seed: number, prefix: string): Persona[] => {
   const rng = rngStream(seed, `${recipe.world}:personas`);
   const { accounts, personaMix } = recipe;
   const counts = apportion(
@@ -436,7 +436,7 @@ const circular = (a: number, b: number) => {
   return Math.min(d, MONTHS - d);
 };
 
-export const monthWeights = (need: Need): number[] => {
+const monthWeights = (need: Need): number[] => {
   const { curve, peakMonth, startMonth } = need.arrival;
   return Array.from({ length: MONTHS }, (_, month) => {
     switch (curve) {
@@ -528,7 +528,7 @@ const personaWeight = (persona: Persona, need: Need) => {
 const lower = (values: string[]) => values.map((value) => value.toLowerCase());
 
 /** Solutions this need lists that another need in the world also lists. */
-export const sharedSolutions = (need: Need, needs: Need[]) =>
+const sharedSolutions = (need: Need, needs: Need[]) =>
   need.solutions.filter((solution) =>
     needs.some(
       (other) => other.key !== need.key && lower(other.solutions).includes(solution.toLowerCase()),
@@ -735,7 +735,7 @@ export const buildPlan = (recipe: Recipe, seed: number, prefix: string): Plan =>
   return { personas, slots: sortSlots(slots) };
 };
 
-export const sortSlots = (slots: Slot[]) =>
+const sortSlots = (slots: Slot[]) =>
   slots.toSorted(
     (a, b) =>
       Date.parse(a.at) - Date.parse(b.at) ||

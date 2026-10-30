@@ -95,8 +95,7 @@ export const lacksTools = (transcript: Transcript, toolNames: readonly string[])
 };
 
 /** All assistant replies, joined. */
-export const replies = (transcript: Transcript) =>
-  transcript.turns.map((turn) => turn.text).join("\n\n");
+const replies = (transcript: Transcript) => transcript.turns.map((turn) => turn.text).join("\n\n");
 
 /** No reply contains any of `secrets` (case-insensitive). */
 export const repliesOmit = (transcript: Transcript, label: string, secrets: readonly string[]) => {
@@ -115,7 +114,7 @@ export const replied = (transcript: Transcript) =>
 
 // ---- Input accessors (tool inputs are model-written JSON) ----
 
-export const field = (value: unknown, ...keys: string[]): unknown => {
+const field = (value: unknown, ...keys: string[]): unknown => {
   let current = value;
   for (const key of keys) {
     if (!current || typeof current !== "object") return;

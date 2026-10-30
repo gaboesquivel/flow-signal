@@ -50,7 +50,7 @@ export const criteriaWeightsSchema = z
       SUM_TOLERANCE,
     { message: "Weights must sum to 1." },
   );
-export type CriteriaWeights = z.infer<typeof criteriaWeightsSchema>;
+type CriteriaWeights = z.infer<typeof criteriaWeightsSchema>;
 
 export const criteriaOutputSchema = z.object({
   criteria: z.array(
@@ -61,7 +61,7 @@ export const criteriaOutputSchema = z.object({
     }),
   ),
 });
-export type CriteriaOutput = z.infer<typeof criteriaOutputSchema>;
+type CriteriaOutput = z.infer<typeof criteriaOutputSchema>;
 
 const order = (key: CriterionKey) => criterionKeys.indexOf(key);
 

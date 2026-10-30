@@ -9,14 +9,14 @@ import type { ReactNode } from "react";
 import { browserSignal, pendingCountKey } from "./operator-browser";
 
 /** The live triage count: pending suggestions, re-read every minute and after each resolve. */
-export interface PendingCount {
+interface PendingCount {
   count: number;
   more: boolean;
 }
 
 const PENDING_LIMIT = 100;
 
-export const fetchPendingCount = async (): Promise<PendingCount> => {
+const fetchPendingCount = async (): Promise<PendingCount> => {
   const result = await browserSignal.listSuggestions({ limit: PENDING_LIMIT });
   if (!result.ok) throw new Error(result.error.code);
   return { count: result.data.suggestions.length, more: result.data.nextCursor !== null };

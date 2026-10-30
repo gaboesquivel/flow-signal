@@ -79,9 +79,6 @@ export const describeUnexpectedError = (error: unknown): string => {
   return code ? `${kind} (SQLSTATE ${code})` : kind;
 };
 
-export const isErrorEnvelope = (value: unknown): value is ErrorEnvelope =>
-  errorEnvelopeSchema.safeParse(value).success;
-
 const unavailableCode = /^(?:ECONN|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|08|53|57)/u;
 const unavailableMessage =
   /fetch failed|websocket|connection (?:refused|terminated|timeout)|timed out/iu;

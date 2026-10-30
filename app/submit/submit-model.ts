@@ -4,7 +4,7 @@ import type { SignalOperations } from "@/lib/signal/client";
 
 export type PreviewOutput = SignalOperations["preview_signal"]["output"];
 export type PreviewMatch = PreviewOutput["matches"][number];
-export type SubmitInput = SignalOperations["submit_signal"]["input"];
+type SubmitInput = SignalOperations["submit_signal"]["input"];
 export type SubmitOutput = SignalOperations["submit_signal"]["output"];
 
 /** A need the submitter can add their voice to: a preview match or the need they came from. */
@@ -15,9 +15,9 @@ export type ChosenNeed = Pick<
 
 export type Choice = { kind: "need"; needId: string } | { kind: "new" };
 
-export const MIN_PREVIEW_TITLE = 3;
+const MIN_PREVIEW_TITLE = 3;
 export const MIN_NEW_NEED_STATEMENT = 10;
-export const MAX_MATCHES = 3;
+const MAX_MATCHES = 3;
 
 /** Describe → Check → Details → Done; the step lives in the URL (`?step=`). */
 export const wizardSteps = ["describe", "check", "details", "done"] as const;
@@ -135,7 +135,7 @@ export const splitTitle = (ask: string) => {
 };
 
 /** The localStorage key holding the token of the My signals link this device files under. */
-export const MY_LINK_KEY = "signal.myLink";
+const MY_LINK_KEY = "signal.myLink";
 
 const TOKEN_PATTERN = /^[\w-]{16,128}$/u;
 

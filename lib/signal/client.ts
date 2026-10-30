@@ -31,12 +31,7 @@ import type { splitNeed } from "./operations/split-need";
 import type { submitSignal } from "./operations/submit-signal";
 import type { undoMerge } from "./operations/undo-merge";
 
-export type {
-  SignalCallOptions,
-  SignalClientError,
-  SignalClientOptions,
-  SignalResult,
-} from "./client-runtime";
+export type { SignalCallOptions, SignalClientError, SignalResult } from "./client-runtime";
 
 /** Input as callers send it (before defaults); `never` until the operation is built. */
 type InputOf<T> = T extends { input: infer I extends z.ZodType } ? z.input<I> : never;
@@ -168,8 +163,6 @@ export const signalRoutes = {
     path: "/api/operator/merges/:id/undo",
   },
 } as const;
-
-export type SignalOperationName = keyof typeof signalRoutes;
 
 export interface SignalOperations {
   check_public_text: {

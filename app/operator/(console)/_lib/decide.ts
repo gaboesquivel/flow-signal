@@ -125,7 +125,7 @@ export const currentBrief = <T extends SuggestionLike>(detail: {
 };
 
 /** "strategyFit" or "strategy_fit" → "Strategy fit". */
-export const humanizeKey = (key: string) => {
+const humanizeKey = (key: string) => {
   const words = key
     .replaceAll(/(?<lower>[a-z0-9])(?<upper>[A-Z])/gu, "$<lower> $<upper>")
     .replaceAll("_", " ")
@@ -158,7 +158,7 @@ const formatExtra = (value: unknown): string | null => {
   return String(value);
 };
 
-export interface BriefOption {
+interface BriefOption {
   rationale: string;
   status: DecisionStatus | null;
   tradeoffs: string;
@@ -242,7 +242,7 @@ export const publishBlock = ({
 
 // Brief markdown ------------------------------------------------------------------------------
 
-export type BriefBlock =
+type BriefBlock =
   | { level: number; text: string; type: "heading" }
   | { items: string[]; type: "list" }
   | { text: string; type: "paragraph" };

@@ -18,7 +18,7 @@ import { operations } from "@/lib/signal/operations/registry";
  */
 
 /** Read-only Signal operations the console chat may call. */
-export const operatorChatTools = [
+const operatorChatTools = [
   "get_demand_summary",
   "list_operator_needs",
   "search_needs",

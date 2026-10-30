@@ -18,7 +18,7 @@ import type { ModelCall, PriceTable } from "../matching/cost";
  * in `runtime`. AI SDK telemetry fires inside the call's own async chain.
  */
 
-export type SpendBucket = "runtime" | "oracle";
+type SpendBucket = "runtime" | "oracle";
 
 export class BucketedUsage extends UsageMeter {
   #bucket = new AsyncLocalStorage<SpendBucket>();

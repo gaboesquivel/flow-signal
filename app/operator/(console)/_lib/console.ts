@@ -7,7 +7,6 @@ import type { SignalClientError, SignalOperations } from "@/lib/signal/client";
 
 export type SuggestionView = SignalOperations["list_suggestions"]["output"]["suggestions"][number];
 export type SuggestionKind = SuggestionView["kind"];
-export type Resolution = SignalOperations["resolve_suggestion"]["output"];
 export type NeedDetail = SignalOperations["get_need_detail"]["output"];
 export type NeedSignal = NeedDetail["signals"][number];
 export type OperatorNeed = SignalOperations["list_operator_needs"]["output"]["needs"][number];
@@ -41,15 +40,6 @@ export const criterionLabels: Record<CriterionKey, string> = {
   effort: "Effort",
   strategic_fit: "Strategic fit",
 };
-
-export const operatorStatuses = [
-  "draft",
-  "open",
-  "planned",
-  "in_progress",
-  "shipped",
-  "declined",
-] as const satisfies readonly OperatorNeedStatus[];
 
 export const operatorStatusLabels: Record<OperatorNeedStatus | "merged", string> = {
   declined: "Declined",

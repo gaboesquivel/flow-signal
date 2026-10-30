@@ -15,11 +15,11 @@ import type { CostSummary } from "../matching/cost";
  */
 
 export type ArmName = "signal" | "board";
-export type Verdict = "PASS" | "FAIL" | "n.a.";
-export type Section = "world" | "headline" | "product" | "diagnostics" | "guardrails";
-export type ValueFormat = "pct" | "num" | "usd" | "days" | "ms" | "count" | "grade";
+type Verdict = "PASS" | "FAIL" | "n.a.";
+type Section = "world" | "headline" | "product" | "diagnostics" | "guardrails";
+type ValueFormat = "pct" | "num" | "usd" | "days" | "ms" | "count" | "grade";
 
-export interface Cell {
+interface Cell {
   ci: Interval | null;
   value: number | null;
 }
@@ -337,7 +337,7 @@ export const REPORT_METRIC_KEYS = ROWS.map((row) => row.key);
 /** Every success criterion the table judges (each `compareArms` criterion appears once). */
 export const REPORT_CRITERIA = ROWS.flatMap((row) => (row.criterion ? [row.criterion] : []));
 
-export interface TableInput {
+interface TableInput {
   comparison: Comparison | null;
   keywordFindableShare: number | null;
   scores: Partial<Record<ArmName, ArmScore>>;

@@ -21,8 +21,8 @@ import type { AiMeter } from "./meter";
 
 export type Surface = "rest" | "public_mcp" | "operator_mcp";
 
-export const COPILOT_CLIENT = "crewday-copilot";
-export const PM_CLIENT = "crewday-pm";
+const COPILOT_CLIENT = "crewday-copilot";
+const PM_CLIENT = "crewday-pm";
 
 export type CallResult =
   | { data: unknown; ok: true }

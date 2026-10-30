@@ -22,10 +22,6 @@ export const compositeNames = [
 
 export type CompositeName = (typeof compositeNames)[number];
 
-const compositeSet = new Set<string>(compositeNames);
-
-export const isCompositeName = (value: string): value is CompositeName => compositeSet.has(value);
-
 export const chooseCollectionComposite = ({
   entityIds,
 }: {

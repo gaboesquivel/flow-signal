@@ -17,7 +17,7 @@ import { passthroughSchema } from "./schema";
  * a write never runs because tool output (signals, briefs, customer text) asked for it.
  */
 
-export type SignalAgent = "assistant" | "operator";
+type SignalAgent = "assistant" | "operator";
 
 const known = new Map<string, AnyOperation>(
   operations.map((operation) => [operation.name, operation]),

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { previewOutputSchema, previewSubmission } from "../domain/matching";
 import { defineOperation } from "./types";
 
-export const previewSignalInput = z.object({
+const previewSignalInput = z.object({
   body: z.string().trim().max(5000).default(""),
   title: z.string().trim().min(3).max(200),
 });

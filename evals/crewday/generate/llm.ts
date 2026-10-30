@@ -14,7 +14,7 @@ import { gatewayModel, gatewayProvider } from "@/lib/ai/models";
  * made, so the total spend of a world is the sum over the entries it used.
  */
 
-export const cacheDir = path.join(import.meta.dirname, ".cache");
+const cacheDir = path.join(import.meta.dirname, ".cache");
 
 export const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
@@ -26,7 +26,7 @@ interface CacheEntry {
   outputTokens: number;
 }
 
-export interface Spend {
+interface Spend {
   calls: number;
   /** Calls answered from the cache in this run (their cost was paid in an earlier run). */
   cachedCalls: number;
@@ -39,7 +39,7 @@ export interface Spend {
 export const spendByModel = new Map<string, Spend>();
 
 /** Records one call's cost; a paid call counts even when its output is then rejected. */
-export const recordSpend = (modelId: string, costUsd: number, cached: boolean) => {
+const recordSpend = (modelId: string, costUsd: number, cached: boolean) => {
   const spend = spendByModel.get(modelId) ?? { cachedCalls: 0, calls: 0, newUsd: 0, totalUsd: 0 };
   spend.calls += 1;
   spend.totalUsd += costUsd;
@@ -78,7 +78,7 @@ const gatewayCost = (metadata: unknown) => {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 };
 
-export interface CallOptions<Schema extends z.ZodType> {
+interface CallOptions<Schema extends z.ZodType> {
   instructions: string;
   modelId: string;
   prompt: string;

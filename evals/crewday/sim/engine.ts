@@ -66,7 +66,7 @@ import { replaySignal } from "./submitter";
  * Runtime overrides are process-wide, so runs in one process are sequential.
  */
 
-export interface RunArmOptions {
+interface RunArmOptions {
   /** Signal arm AI ports; default the offline fakes. Ignored by the board arm. */
   ai?: SignalAi;
   arm: Arm;
@@ -346,7 +346,7 @@ const takeSnapshot = async (
 };
 
 /** The world's four quarters and the whole year, for the prevention-by-quarter report. */
-export const metricsWindowsFor = (start: Date) => [
+const metricsWindowsFor = (start: Date) => [
   ...[0, 1, 2, 3].map((q) => ({
     from: addUtcMonths(start, q * 3),
     label: `Q${q + 1}`,

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/button";
 
 /** The Signal mark: three rules, the outer two converging into one line (DESIGN.md → Identity). */
-export function SignalMark({ className }: { className?: string }) {
+function SignalMark({ className }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} viewBox="0 0 32 32">
       <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="3.2">
@@ -17,7 +17,7 @@ export function SignalMark({ className }: { className?: string }) {
 }
 
 /** Header for the public Signal pages: mark and wordmark, Board, and the one way to submit. */
-export function SiteHeader() {
+function SiteHeader() {
   return (
     <header className="border-b">
       <div className="mx-auto flex max-w-[880px] items-center justify-between gap-4 px-4 py-3">

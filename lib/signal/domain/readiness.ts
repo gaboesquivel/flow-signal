@@ -44,7 +44,7 @@ import type { SuggestionScheduler } from "./scheduler";
  * `ai_unavailable` leaves readiness recorded and no brief; the next check for that need drafts it.
  */
 
-export interface ReadinessDeps {
+interface ReadinessDeps {
   ai: SignalAi;
   clock: Clock;
   db: SignalDb;
@@ -53,7 +53,7 @@ export interface ReadinessDeps {
 }
 
 /** Distinct supporting accounts' ARR in cents (the query Crewday's `observeDemand` uses). */
-export const needArrCentsSql = sql<string>`coalesce((
+const needArrCentsSql = sql<string>`coalesce((
   select sum(a.arr_cents) from accounts a where a.id in (
     select sb.account_id from signals s join submitters sb on sb.id = s.submitter_id
     where s.need_id = "needs"."id"
@@ -61,12 +61,12 @@ export const needArrCentsSql = sql<string>`coalesce((
 ), 0)`;
 
 /** Distinct supporters (submitters) with a signal on the need. */
-export const needSupportersSql = sql<string>`(
+const needSupportersSql = sql<string>`(
   select count(distinct s.submitter_id) from signals s where s.need_id = "needs"."id"
 )`;
 
 /** Live (`draft | open`) needs with no published decision. */
-export const liveUndecided = (db: SignalQueryable): SQL =>
+const liveUndecided = (db: SignalQueryable): SQL =>
   and(
     inArray(needs.status, ["draft", "open"]),
     notExists(
@@ -78,7 +78,7 @@ export const liveUndecided = (db: SignalQueryable): SQL =>
   ) ?? sql`false`;
 
 /** Whether demand meets the line: either nonzero threshold reached. */
-export const meetsReadiness = (
+const meetsReadiness = (
   line: Readiness,
   { arrCents, supporters }: { arrCents: number; supporters: number },
 ) =>
@@ -136,7 +136,7 @@ export const resetAutoBriefs = () => {
  * Drafts the automatic brief for a ready need unless one is pending or already drafted since it
  * became ready (rechecked here, when the task runs). Never throws.
  */
-export const draftAutoBrief = async ({ ai, clock, db }: ReadinessDeps, needId: string) => {
+const draftAutoBrief = async ({ ai, clock, db }: ReadinessDeps, needId: string) => {
   try {
     const [wanted] = await needsWantingBrief(db, [needId]);
     if (!wanted) return null;
@@ -247,7 +247,7 @@ export const readyNeedSchema = z.object({
   statement: z.string(),
   supporters: z.number().int(),
 });
-export type ReadyNeed = z.infer<typeof readyNeedSchema>;
+type ReadyNeed = z.infer<typeof readyNeedSchema>;
 
 /** Ready, undecided needs, oldest ready first, with their latest brief. */
 export const listReadyNeeds = async (

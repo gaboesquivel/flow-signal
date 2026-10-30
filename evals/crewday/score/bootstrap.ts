@@ -7,7 +7,7 @@ import { createRng } from "../sim/rng";
  * with the same seed draw the same needs, so their difference has a paired interval.
  */
 
-export const RESAMPLES = 1000;
+const RESAMPLES = 1000;
 
 export type Interval = [number, number];
 

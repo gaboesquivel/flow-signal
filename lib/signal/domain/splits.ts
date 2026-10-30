@@ -23,7 +23,7 @@ export const splitResultSchema = z.object({
   statement: z.string(),
   status: z.enum(["draft", "open"]),
 });
-export type SplitResult = z.infer<typeof splitResultSchema>;
+type SplitResult = z.infer<typeof splitResultSchema>;
 
 export const splitNeed = async (
   tx: SignalTx,

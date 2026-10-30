@@ -6,7 +6,7 @@ import type { ErrorCode } from "./errors";
  * sends, and the `{ error: { code, message, retryable } }` envelope into a typed result.
  */
 
-export interface SignalRoute {
+interface SignalRoute {
   access: "public" | "operator";
   method: "GET" | "POST" | "PUT";
   name: string;

@@ -33,7 +33,7 @@ import type { AgentName, ToolCallRecord, Transcript } from "./harness";
  * database state. `script` is the scripted model reply for `--fake` (wiring only).
  */
 
-export interface Scenario {
+interface Scenario {
   agent: AgentName;
   check: (transcript: Transcript, fixture: Fixture) => Promise<CheckResult[]> | CheckResult[];
   /** Sent while `until` is unmet, e.g. when the agent stops to confirm a match with the user. */

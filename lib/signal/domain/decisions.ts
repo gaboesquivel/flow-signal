@@ -21,12 +21,12 @@ import type { Strategy } from "./strategy";
  */
 
 export const decisionStatusSchema = z.enum(["planned", "in_progress", "shipped", "declined"]);
-export type DecisionStatus = z.infer<typeof decisionStatusSchema>;
+type DecisionStatus = z.infer<typeof decisionStatusSchema>;
 
 const iso = z.iso.datetime({ offset: true });
 
 /** What the reasoning model returns for task `decision_brief`. */
-export const decisionBriefDraftSchema = z.object({
+const decisionBriefDraftSchema = z.object({
   options: z
     .array(
       z.object({
@@ -64,13 +64,13 @@ export const decisionBriefDraftSchema = z.object({
   }),
   summary: z.string().min(1).describe("Two or three sentences: who asks, why, and how much"),
 });
-export type DecisionBriefDraft = z.infer<typeof decisionBriefDraftSchema>;
+type DecisionBriefDraft = z.infer<typeof decisionBriefDraftSchema>;
 
 /**
  * The recommendation as stored: briefs drafted before spec 007 have only `note` and `status`, so
  * the direction fields are optional on read.
  */
-export const storedRecommendationSchema = decisionBriefDraftSchema.shape.recommendation.partial({
+const storedRecommendationSchema = decisionBriefDraftSchema.shape.recommendation.partial({
   capacityNote: true,
   confidence: true,
   strategyFit: true,
@@ -87,7 +87,7 @@ const factsSchema = z.object({
 });
 
 /** `decision_brief` suggestion payload: the facts (from the database), the model's draft, and markdown. */
-export const decisionBriefPayloadSchema = z.object({
+const decisionBriefPayloadSchema = z.object({
   facts: factsSchema,
   markdown: z.string().min(1),
   options: decisionBriefDraftSchema.shape.options,
@@ -98,7 +98,7 @@ export const decisionBriefPayloadSchema = z.object({
   /** The strategy version the brief was drafted against; null when none was written (absent before spec 007). */
   strategyVersion: z.number().int().positive().nullable().optional(),
 });
-export type DecisionBriefPayload = z.infer<typeof decisionBriefPayloadSchema>;
+type DecisionBriefPayload = z.infer<typeof decisionBriefPayloadSchema>;
 
 /** `resolve_suggestion` edit for a `decision_brief` suggestion: the PM's rewritten brief. */
 export const decisionBriefEditSchema = z.strictObject({ markdown: z.string().trim().min(1) });
@@ -121,7 +121,7 @@ const statusLabel: Record<DecisionStatus, string> = {
 };
 
 /** The brief as markdown; demand, accounts, and value come from the database, not the model. */
-export const briefMarkdown = (
+const briefMarkdown = (
   facts: NeedFacts,
   draft: DecisionBriefDraft,
   strategy: Strategy | null = null,
