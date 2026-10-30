@@ -9,6 +9,9 @@ import type { SignalDb } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
+import { checkReadinessQuietly } from "./readiness";
+import { scheduleOffHotPath } from "./scheduler";
+import type { SuggestionScheduler } from "./scheduler";
 import { suggestPriorityScores } from "./priority";
 import type { SuggestionKind } from "./suggestion-types";
 
@@ -345,8 +348,10 @@ export const generateSuggestionsForSignal = async (
     }
   };
   // Kinds are independent model calls: run them together, store each as it is ready.
+  // Readiness (spec 007) runs beside them: it may mark the need ready and schedule a brief.
   await Promise.all([
     rescore(),
+    checkReadinessQuietly(deps, [current.need.id]),
     ...proposers.map(async ([kind, propose]) => {
       if (current.pendingKinds.has(kind)) {
         outcome.skipped.push({ kind, reason: "already pending" });
@@ -370,30 +375,13 @@ export const generateSuggestionsForSignal = async (
   return outcome;
 };
 
-export type SuggestionScheduler = (task: () => Promise<unknown>) => void;
-
-/**
- * Default: start the task now without awaiting it (scripts, Eve agents). Next.js route handlers
- * install `after()` through `lib/signal/next.ts`, so this module stays framework-free and the Eve
- * agent bundles can load it.
- */
-export const startNow: SuggestionScheduler = (task) => {
-  void task().catch(() => null);
-};
-
-let scheduler: SuggestionScheduler = startNow;
-
-/**
- * Swaps how generation is scheduled. The test database harness installs a recorder so parity
- * stays deterministic (nothing runs in the background); `resetSuggestionScheduler` restores
- * the default.
- */
-export const configureSuggestionScheduler = (next: SuggestionScheduler) => {
-  scheduler = next;
-};
-export const resetSuggestionScheduler = () => {
-  scheduler = startNow;
-};
+export {
+  configureSuggestionScheduler,
+  resetSuggestionScheduler,
+  scheduleOffHotPath,
+  startNow,
+} from "./scheduler";
+export type { SuggestionScheduler } from "./scheduler";
 
 /**
  * The hook `submit_signal` calls once its transaction commits:
@@ -402,7 +390,7 @@ export const resetSuggestionScheduler = () => {
 export const scheduleSuggestionGeneration = (
   deps: GenerationDeps,
   signalId: string,
-  schedule: SuggestionScheduler = scheduler,
+  schedule: SuggestionScheduler = scheduleOffHotPath,
 ) => {
   schedule(() => generateSuggestionsForSignal(deps, { signalId }));
 };

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { mergeNeeds as mergeNeedsInDb, mergeResultSchema } from "../domain/merges";
+import { scheduleReadinessCheck } from "../domain/readiness";
 import { defineOperation } from "./types";
 
 export const mergeNeeds = defineOperation({
@@ -18,9 +19,12 @@ export const mergeNeeds = defineOperation({
   }),
   name: "merge_needs",
   output: mergeResultSchema,
-  run({ id, intoNeedId }, { actor, clock, db }) {
-    return db.transaction((tx) =>
+  async run({ id, intoNeedId }, { actor, ai, clock, db }) {
+    const result = await db.transaction((tx) =>
       mergeNeedsInDb(tx, { actor, fromNeedId: id, intoNeedId, now: clock.now() }),
     );
+    // Spec 007: readiness moves to the surviving need if it now meets the line (after the response).
+    scheduleReadinessCheck({ ai, clock, db }, [result.intoNeedId]);
+    return result;
   },
 });
