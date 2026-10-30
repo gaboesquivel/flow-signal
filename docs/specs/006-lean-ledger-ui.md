@@ -1,6 +1,6 @@
 # 006 — Lean Ledger UI: submit wizard, My signals that carry forward, and the PM console
 
-Status: accepted (2026-10-30)
+Status: implemented (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md). Design: [DESIGN.md](../../DESIGN.md). Glossary: [GLOSSARY.md](../../GLOSSARY.md). Builds on [001](./001-signal-mvp.md) (accepted).
 Decisions: [0005 My signals links carry forward; never grouped by email](../decisions/0005-my-signals-link-carries-forward.md) (Accepted).
@@ -117,7 +117,7 @@ Agent journey: an Assistant agent calls `preview_signal`, then `submit_signal` w
 - [x] 05: Console shell, Triage, and Needs
 - [x] 06: Need detail, decide, and publish
 - [x] 07: Criteria, Metrics, and Chat
-- [ ] 08: Acceptance run and docs
+- [x] 08: Acceptance run and docs
 
 Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 run in parallel after 05; 08 last.
 
@@ -129,8 +129,8 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** None (can start immediately)
 
-- [ ] Each primitive renders in light and dark with the DESIGN.md tokens; status never relies on colour alone.
-- [ ] The ruled list allows exactly one expanded row and is keyboard reachable; the side-by-side pair stacks at 390px with no sideways scroll.
+- [x] Each primitive renders in light and dark with the DESIGN.md tokens; status never relies on colour alone.
+- [x] The ruled list allows exactly one expanded row and is keyboard reachable; the side-by-side pair stacks at 390px with no sideways scroll.
 
 ### 02: My signals links that carry forward
 
@@ -140,10 +140,10 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** None (can start immediately)
 
-- [ ] Additive migration (tracking links table, nullable link reference on signals) passes `migration-safety`.
-- [ ] `submit_signal` accepts `trackingToken` and returns `linkReused`; existing, unknown, legacy, and replayed-idempotency cases behave as the spec says; parity on REST, public MCP, and the Assistant agent tool.
-- [ ] `get_my_signals` returns every signal on a link, adopting a legacy token on first use; two links sharing an email never see each other's signals.
-- [ ] The Assistant agent's instructions say to pass a token only when the submitter gave it.
+- [x] Additive migration (tracking links table, nullable link reference on signals) passes `migration-safety`.
+- [x] `submit_signal` accepts `trackingToken` and returns `linkReused`; existing, unknown, legacy, and replayed-idempotency cases behave as the spec says; parity on REST, public MCP, and the Assistant agent tool.
+- [x] `get_my_signals` returns every signal on a link, adopting a legacy token on first use; two links sharing an email never see each other's signals.
+- [x] The Assistant agent's instructions say to pass a token only when the submitter gave it.
 
 ### 03: Operator contract additions
 
@@ -153,10 +153,10 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** None (can start immediately)
 
-- [ ] `list_operator_needs` and `check_public_text` exist on the Operator REST prefix, Operator MCP, and Operator agent tools, absent from public discovery, `unauthorized` without the secret, fail closed when `OPERATOR_SECRET` is unset.
-- [ ] `list_operator_needs` filters by theme, status, and query and sorts by priority (nulls last, then people), people, accounts, or ARR.
-- [ ] `resolve_suggestion` reject accepts `reason` and the `suggestion.rejected` event carries it; `get_demand_summary` filters by `plan`.
-- [ ] The typed client is regenerated; parity and domain tests are written red first.
+- [x] `list_operator_needs` and `check_public_text` exist on the Operator REST prefix, Operator MCP, and Operator agent tools, absent from public discovery, `unauthorized` without the secret, fail closed when `OPERATOR_SECRET` is unset.
+- [x] `list_operator_needs` filters by theme, status, and query and sorts by priority (nulls last, then people), people, accounts, or ARR.
+- [x] `resolve_suggestion` reject accepts `reason` and the `suggestion.rejected` event carries it; `get_demand_summary` filters by `plan`.
+- [x] The typed client is regenerated; parity and domain tests are written red first.
 
 ### 04: Public board, submit wizard, and My signals UI
 
@@ -166,10 +166,10 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** 01, 02
 
-- [ ] Nothing is suggested while typing; `preview_signal` runs once on Continue and again only after the words change; Back keeps what was typed.
-- [ ] Check shows up to three matches with the first read side by side; "None of these" is one click; additional asks are offered in one line; AI-unavailable and database-unavailable states are explained.
-- [ ] Details shows where it lands with Change and which My signals link it files under; Done shows the link and whether it was reused.
-- [ ] Public pages show no PII of other customers.
+- [x] Nothing is suggested while typing; `preview_signal` runs once on Continue and again only after the words change; Back keeps what was typed.
+- [x] Check shows up to three matches with the first read side by side; "None of these" is one click; additional asks are offered in one line; AI-unavailable and database-unavailable states are explained.
+- [x] Details shows where it lands with Change and which My signals link it files under; Done shows the link and whether it was reused.
+- [x] Public pages show no PII of other customers.
 
 ### 05: Console shell, Triage, and Needs
 
@@ -179,10 +179,10 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** 01, 03
 
-- [ ] Shell: Triage (live count) · Needs · Criteria · Metrics · Chat, behind Operator access; unauthorized shows the access page.
-- [ ] Triage: J/K/A/E/R/Esc work; each suggestion kind edits only what `resolve_suggestion` allows; summary approval runs `check_public_text` and blocks on findings.
-- [ ] Needs reads `list_operator_needs` with filters and sort in the URL.
-- [ ] Takes client plumbing from `build/t08` where it fits.
+- [x] Shell: Triage (live count) · Needs · Criteria · Metrics · Chat, behind Operator access; unauthorized shows the access page.
+- [x] Triage: J/K/A/E/R/Esc work; each suggestion kind edits only what `resolve_suggestion` allows; summary approval runs `check_public_text` and blocks on findings.
+- [x] Needs reads `list_operator_needs` with filters and sort in the URL.
+- [x] Takes client plumbing from `build/t08` where it fits.
 
 ### 06: Need detail, decide, and publish
 
@@ -192,9 +192,9 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** 05
 
-- [ ] The override needs a note and is offered only while a priority suggestion is pending.
-- [ ] The brief stays pencil until accepted or edited; the public note runs `check_public_text` and Publish is blocked on findings.
-- [ ] After publishing, the need's status and note show on the public need and on the supporters' My signals pages.
+- [x] The override needs a note and is offered only while a priority suggestion is pending.
+- [x] The brief stays pencil until accepted or edited; the public note runs `check_public_text` and Publish is blocked on findings.
+- [x] After publishing, the need's status and note show on the public need and on the supporters' My signals pages.
 
 ### 07: Criteria, Metrics, and Chat
 
@@ -204,9 +204,9 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** 05
 
-- [ ] Weights must sum to 1.00 to save; the preview re-ranks from `list_operator_needs` criterion scores; Undo restores the previous weights.
-- [ ] Metrics show 28 and 90 days, unknown baselines labelled, people and agents apart.
-- [ ] "What are enterprise accounts blocked on?" is answered through `get_demand_summary` with `plan: Enterprise`, rendered as pencil prose with a cited-needs list.
+- [x] Weights must sum to 1.00 to save; the preview re-ranks from `list_operator_needs` criterion scores; Undo restores the previous weights.
+- [x] Metrics show 28 and 90 days, unknown baselines labelled, people and agents apart.
+- [x] "What are enterprise accounts blocked on?" is answered through `get_demand_summary` with `plan: Enterprise`, rendered as pencil prose with a cited-needs list.
 
 ### 08: Acceptance run and docs
 
@@ -216,8 +216,8 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 **Blocked by:** 04, 06, 07
 
-- [ ] Every human and agent step of the acceptance scenario passes, with the metric step counting Maya's signal once.
-- [ ] GLOSSARY defines My signals link (carries forward); ARCHITECTURE notes tracking links and the new operator operations; DESIGN.md's "Checking rendered output" passes on every screen.
+- [x] Every human and agent step of the acceptance scenario passes, with the metric step counting Maya's signal once.
+- [x] GLOSSARY defines My signals link (carries forward); ARCHITECTURE notes tracking links and the new operator operations; DESIGN.md's "Checking rendered output" passes on every screen.
 
 ## Direction changes
 
@@ -240,3 +240,4 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 - Prototypes in `docs/design/` are local and untracked; they are evidence, not the authority. Round-3 numbers differ between files (triage counts 7, 6, 5) because each was built from a different slice of the seed; the console reads live data.
 - The seed scores only 4 of 23 needs, so "sorted by priority" mostly falls back to people; consider seeding more priority suggestions before the demo.
 - `build/t08` holds about 2,100 lines of unreviewed console UI; take its client plumbing, rebuild the screens to DESIGN.md.
+- Acceptance run (2026-10-30, local database, live AI Gateway): every human and agent step met except step 2's matcher-owned parts, left unresolved: `preview_signal` took 3.5–4.6 s (target 2 s) and returned only N1, not N2. `preview_signal` and matching are unchanged by this spec (spec 001, [0002](../decisions/0002-retrieve-then-judge-matching.md)); the step's own behaviour (no check while typing, one check on Continue, side-by-side reading, pencil) was met.
