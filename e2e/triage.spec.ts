@@ -1,11 +1,13 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
-import { signIn } from "./operator";
+import { reseedConsole, signIn } from "./operator";
+
+test.beforeAll(reseedConsole);
 
 /**
- * Triage keyboard flow (spec 006 task 05; acceptance step 5). The e2e seed puts a pending merge
- * first (newest) and a split second, ahead of the demo seed's drafts, theme, and summary.
+ * Triage keyboard flow (spec 006 task 05; acceptance step 5). The e2e seed adds a pending merge
+ * and split to the demo seed's drafts, theme, and summary.
  */
 
 const row = (page: Page, kind: string) => page.locator(`[data-kind=${kind}]`).first();
@@ -29,9 +31,10 @@ test("clears the queue from the keyboard", async ({ page }) => {
   const before = await pendingCount(page);
   expect(before).toBeGreaterThan(3);
 
-  // The newest suggestion, a merge, is open and read side by side.
+  // The newest suggestion is open; the seeded merge is read side by side.
+  await expect(page.locator("[data-suggestion]").first()).toHaveAttribute("data-state", "open");
   const merge = row(page, "merge");
-  await expect(merge).toHaveAttribute("data-state", "open");
+  await moveTo(page, merge);
   await expect(merge.getByRole("heading", { name: /^From/u })).toBeVisible();
   await expect(merge.getByRole("heading", { name: /^Into/u })).toBeVisible();
   await expect(merge.locator("[data-slot=pencil][data-state=suggested]").first()).toBeVisible();
@@ -39,7 +42,8 @@ test("clears the queue from the keyboard", async ({ page }) => {
   // A accepts; the next row opens, and Undo merge stays on the merge row.
   await page.keyboard.press("a");
   await expect(merge).toHaveAttribute("data-outcome", "accept");
-  await expect(row(page, "split")).toHaveAttribute("data-state", "open");
+  await expect(merge).toHaveAttribute("data-state", "closed");
+  await expect(page.locator("[data-outcome=pending][data-state=open]")).toHaveCount(1);
   await expect.poll(() => pendingCount(page)).toBe(before - 1);
   await merge.getByRole("button", { name: "Undo merge" }).click();
   await expect(merge).toHaveAttribute("data-outcome", "undone");

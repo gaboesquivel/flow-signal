@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-import { signIn } from "./operator";
+import { reseedConsole, signIn } from "./operator";
+
+test.beforeAll(reseedConsole);
 
 /** Needs (spec 006 task 05): one list_operator_needs table, filters and sort in the URL. */
 
