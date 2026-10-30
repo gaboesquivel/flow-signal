@@ -197,6 +197,10 @@ This edits AGENTS.md. The user authorizes it by accepting this spec.
 - The AGENTS.md rule becomes: "A hook logs each prompt with its timestamp. After responding, append one `Response:` line under it with a brief summary."
 - Worktree entries still diverge, so `prompts.txt` merges as a union: add `prompts.txt merge=union` to `.gitattributes`.
 
+### Task 09: Neon preview branches deleted on PR close
+
+Added after the build: the PR 10 preview failed with "Resource provisioning failed" because the Neon Free plan's 10-branch limit was full of `preview/*` branches from merged PRs. The Vercel-managed integration deletes a preview branch only when Vercel's retention removes its deployment (30 days on Hobby). `.github/workflows/neon-preview-cleanup.yml` runs `neondatabase/delete-branch-action` (pinned v3.2.1) on `pull_request: closed` for `preview/<head branch>`, using repo variable `NEON_PROJECT_ID` (set) and secret `NEON_API_KEY` (a project-scoped key; the user sets it once, `docs/database.md`).
+
 ### Task 08: Repository hygiene
 
 This task is operational and changes no files.
@@ -262,6 +266,7 @@ Then, from a terminal, run `claude auto-mode critique`. After that, remove `ANTH
 - [x] 05: Check economy
 - [x] 06: Docs match what shipped
 - [x] 07: Prompt-log hook
+- [x] 09: Neon preview branches deleted on PR close
 - [ ] 08: Repository hygiene _(runs after this PR merges)_
 
 ## Out of Scope
