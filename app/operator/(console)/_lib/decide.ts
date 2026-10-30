@@ -143,7 +143,19 @@ const formatExtra = (value: unknown): string | null => {
     const parts = value.map(formatExtra).filter((part): part is string => part !== null);
     return parts.length > 0 ? parts.join("; ") : null;
   }
-  return JSON.stringify(value);
+  if (typeof value === "object") {
+    // e.g. strategyFit { inFocus, reason } → "In focus: Yes. <reason>", never raw JSON.
+    const entries = Object.entries(value).toSorted(
+      ([a], [b]) => Number(a === "reason") - Number(b === "reason"),
+    );
+    const parts = entries.flatMap(([key, entry]) => {
+      const text = formatExtra(entry);
+      if (text === null) return [];
+      return [key === "reason" ? text : `${humanizeKey(key)}: ${text}.`];
+    });
+    return parts.length > 0 ? parts.join(" ") : null;
+  }
+  return String(value);
 };
 
 export interface BriefOption {
