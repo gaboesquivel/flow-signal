@@ -109,7 +109,7 @@ Agent journey: an Assistant agent calls `preview_signal`, then `submit_signal` w
 ## Tasks
 
 - [ ] 01: Ledger UI primitives
-- [ ] 02: My signals links that carry forward
+- [x] 02: My signals links that carry forward
 - [ ] 03: Operator contract additions
 - [ ] 04: Public board, submit wizard, and My signals UI
 - [ ] 05: Console shell, Triage, and Needs
