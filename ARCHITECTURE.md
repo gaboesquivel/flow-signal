@@ -20,6 +20,8 @@ Cross-template interoperability details live in `docs/INTEROP.md` from the templ
 - `pnpm setup` — dependencies and template technical skills
 - `pnpm db:dev` — local Docker Postgres `signal_dev` behind the Neon proxy, migrated and seeded ([decision 0009](docs/decisions/0009-local-dev-on-docker-postgres.md))
 - `pnpm dev` — Portless at `signal.localhost`
+- `pnpm env:sync` (run by `pnpm db:dev`) — adds the keys in `.env.example`'s `# >>> local defaults` section (today `OPERATOR_ASSISTANT=on`) to `.env.local` when it does not mention them; never overwrites a value, an empty key, or a commented-out key, and prints key names only. Put a flag there when it should be on for every local checkout.
+- `pnpm smoke [--live]` — HTTP check of the key surfaces against a running server (`SMOKE_BASE_URL`, default `https://signal.localhost`; Operator via `OPERATOR_SECRET`): public board, needs API, submit preview, My signals, Operator sign-in and console pages, report dataset, the assistant's 401 and flag state. Read-only and no model call; `--live` adds one `generate_report` call, which saves nothing. Run it before merging to `main`; not in CI.
 
 ## Data
 
@@ -37,6 +39,7 @@ My signals: signals point to a shared tracking link (`tracking_links`), so a sub
 
 - **Automated tests cover the API, MCP, and agent surfaces only:** operation contracts, the parity suite (REST, MCP, and agent tools agree on output, error codes, events, and access), domain behaviour on a test database, migration safety, and agent tool behaviour. Parity proves the surfaces agree; behaviour cases belong in domain tests.
 - **No UI tests:** no component, unit, or browser (Playwright) tests for pages or components. UI is checked by hand in a browser against [DESIGN.md](./DESIGN.md) → Checking rendered output.
+- **Test databases are per worktree:** with `DATABASE_URL_TEST` naming the shared `signal_test`, a linked worktree's tests use `signal_test_<worktree dir>`; `DATABASE_URL_TEST= pnpm test:changed` runs on PGlite instead ([docs/database.md](./docs/database.md)).
 - **CI is light:** `pnpm qa` (lint, types, and unit/parity/domain tests on in-process PGlite). Live-model evals never run in CI.
 - **Each check runs once:** workers and the integrator run `pnpm test:changed` plus lint and types for their files; CI runs the full suite once. Don't re-run a green suite to confirm it.
 - **Evals match the change, on demand** ([spec 010](./docs/specs/010-retro-remediation.md)). `pnpm eval` is the cheap tier (offline GenUI, Eve smoke, matching, agents); Crewday costs dollars and runs only when asked:

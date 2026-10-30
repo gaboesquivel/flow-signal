@@ -28,7 +28,7 @@ Starts the Docker stack, creates `signal_dev` if missing, applies the migrations
 pnpm db:up
 ```
 
-Then set `DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/signal_test` in `.env.local` (the default in `.env.example`). The test harness creates the database, enables pgvector, and applies the schema. Stop it with `pnpm db:down`. Without Docker, leave `DATABASE_URL_TEST` empty and tests run on PGlite.
+Then set `DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/signal_test` in `.env.local` (the default in `.env.example`). The test harness creates the database, enables pgvector, and applies the schema. In a linked git worktree it uses `signal_test_<worktree dir>` instead of the shared `signal_test` (`tests/setup/test-database-url.ts`), so parallel worktrees never rebuild each other's schema; any other name is used as given. Stop it with `pnpm db:down`. Without Docker, leave `DATABASE_URL_TEST` empty and tests run on PGlite.
 
 ## Current setup
 
