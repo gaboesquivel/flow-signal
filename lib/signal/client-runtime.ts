@@ -47,6 +47,7 @@ const errorCodes = new Set<string>([
   "database_unavailable",
   "unauthorized",
   "internal",
+  "action_closed",
 ]);
 
 const appendQuery = (query: URLSearchParams, key: string, value: unknown) => {
