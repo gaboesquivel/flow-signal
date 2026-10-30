@@ -220,10 +220,10 @@ Human journey:
 1. Maya (maya@acme.example, Acme, Enterprise) opens `/submit` and types title "Export dashboards to PDF" and body "Our CEO wants the KPI dashboard in the board deck every month." → within 2 s the preview shows N1 first with a reason mentioning sharing with executives, and does not rank N2 first.
 2. Maya picks N1, adds use case "monthly board deck" and urgency high, enters her email, and submits → response has `attachedTo: existing` and a `trackingUrl`; N1 shows 12 supporters on the board; the board shows no Acme or Maya details.
 3. A retry of the same submit with the same `idempotencyKey` → returns the same `signalId`; N1 still shows 12; one `signal.created` event exists.
-4. In `/operator/triage` (`list_suggestions`) the PM sees a pending `priority` suggestion for N1 (business value raised, reason cites Acme's ARR) and a pending `public_summary` update → the PM accepts the score and edits the summary (`resolve_suggestion`) → `suggestion.accepted` and `suggestion.edited` events recorded; the approved summary appears on N1 without Acme's name.
-5. The PM requests a decision brief for N1 (`draft_decision_brief`) → a `decision_brief` suggestion with demand, accounts, value, and options appears; the PM accepts it and publishes decision `planned` with note "Targeting Q1" (`publish_decision`) → N1 status is `planned`.
+4. In `/operator/triage` (`list_suggestions`) the PM sees no new `priority` or `public_summary` suggestion for N1: Maya's signal is N1's 12th, and need-level kinds run only on a need's signals 1, 2, then every 5th (spend cadence, spec 004, `onNeedCadence`), so her signal adds demand without a model call. N1 became ready, so its auto-drafted `decision_brief` (spec 007) is pending. (Accepting and editing priority and summary suggestions is covered by the parity suite for `resolve_suggestion`.)
+5. The PM requests a decision brief for N1 (`draft_decision_brief`) → the pending auto-drafted brief is returned rather than a second one (a need holds one pending brief), with demand, accounts, value, and options; the PM accepts it and publishes decision `planned` with note "Targeting Q1" (`publish_decision`) → N1 status is `planned`, and no `decision_brief` stays pending for N1.
 6. Maya opens her `trackingUrl` → she sees N1 as Planned with "Targeting Q1".
-7. `/operator/metrics` for this week → prevention rate counts Maya's signal once in the numerator under human; decision latency includes N1 (first signal date to today); suggestion acceptance counts 2 accepted (score, brief) and 1 edited (summary); a submission that failed validation earlier in the week is not counted.
+7. `/operator/metrics` for this week → prevention rate counts Maya's signal once in the numerator under human; decision latency includes N1 (first signal date to today); suggestion acceptance counts 1 accepted (the brief) and 0 edited; a submission that failed validation earlier in the week is not counted.
 
 Agent journey (same starting state):
 
@@ -233,6 +233,8 @@ Agent journey (same starting state):
 4. `get_metrics` → the agent signal is counted once under agent, not human; the decision is attributed `published_by_kind = agent`.
 
 The same steps through the REST API and the Eve agent tools are covered by the parity suite: same outputs, error codes, and events on every surface.
+
+Amended 2026-10-30: human steps 4, 5, and 7 now follow spec 004's suggestion spend cadence and spec 007's auto-drafted briefs (the [acceptance run](#acceptance-run-2026-10-30) found the original step 4 contradicts them); they expected a priority and summary suggestion on Maya's off-cadence signal, and 2 accepted plus 1 edited suggestions.
 
 ## Tasks
 
@@ -388,8 +390,8 @@ Local production build (`pnpm build && pnpm start --port 3104`) on a fresh seed 
 Open findings:
 
 - **Preview latency over 2 s** (step 1). Not a small fix: model latency for extract plus judge.
-- **No priority or summary suggestion on Maya's signal** (step 4). The spend cadence (spec 004) and this scenario disagree; decide whether a signal from a high-ARR account, or one that raises business value, should trigger a priority rescore off cadence, or amend the scenario.
-- **Duplicate pending brief after an agent publishes.** In the agent journey, readiness auto-drafted a brief 33 ms before the agent's own `draft_decision_brief`, so N1 had two briefs; the agent accepted one and published, and the other stays pending in triage on a decided need. Repro: fresh seed, `submit_signal` onto N1, then immediately `draft_decision_brief`, `resolve_suggestion` accept, `publish_decision`; `list_suggestions` still shows a pending `decision_brief` for N1.
+- **No priority or summary suggestion on Maya's signal** (step 4). The spend cadence (spec 004) and this scenario disagreed. Resolved 2026-10-30 by amending human steps 4, 5, and 7 to the cadence; a rerun of the human journey is still to do.
+- **Duplicate pending brief after an agent publishes** (fixed 2026-10-30: `draft_decision_brief` returns the need's pending brief instead of filing another, and `publish_decision` closes any brief still pending on the need as `superseded`, recording `suggestion.superseded`). In the agent journey, readiness auto-drafted a brief 33 ms before the agent's own `draft_decision_brief`, so N1 had two briefs; the agent accepted one and published, and the other stays pending in triage on a decided need. Repro: fresh seed, `submit_signal` onto N1, then immediately `draft_decision_brief`, `resolve_suggestion` accept, `publish_decision`; `list_suggestions` still shows a pending `decision_brief` for N1.
 
 ## Out of Scope
 

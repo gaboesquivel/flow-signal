@@ -56,6 +56,8 @@ export interface ArmRunInfo {
 
 export interface CrewdayReport {
   arms: ArmName[];
+  /** `--cached` runs: responses replayed from the cache and calls that missed it (went live). */
+  cache: { hits: number; misses: number } | null;
   comparison: Omit<Comparison, "board" | "signal"> | null;
   gitSha: { dirty: boolean; sha: string | null };
   /** Smoke runs only: replay truncated to this many weeks. Never a result. */
@@ -463,6 +465,11 @@ const headerLines = (report: CrewdayReport) => {
     `PM policy: ${report.policy.pmPolicy}${report.policy.pmPolicy === "follows_signal" ? ` (override ${report.policy.pPmOverride}; Signal arm only, the board runs oracle)` : ""}`,
     ...(report.mode === "offline"
       ? ["OFFLINE: fake AI ports. These numbers are not a Signal result."]
+      : []),
+    ...(report.cache
+      ? [
+          `CACHED: ${report.cache.hits} AI responses replayed, ${report.cache.misses} new calls. A dev iteration: the spend guardrail is not judged.`,
+        ]
       : []),
     ...(report.limitWeeks === null
       ? []

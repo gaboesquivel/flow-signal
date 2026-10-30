@@ -62,11 +62,13 @@ export const suggestionKind = pgEnum("suggestion_kind", [
   "split",
   "decision_brief",
 ]);
+/** `superseded`: closed without review because a later write made it moot (a pending brief on a decided need). */
 export const suggestionStatus = pgEnum("suggestion_status", [
   "pending",
   "accepted",
   "edited",
   "rejected",
+  "superseded",
 ]);
 export const decisionStatus = pgEnum("decision_status", [
   "planned",

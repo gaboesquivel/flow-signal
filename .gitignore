@@ -36,6 +36,8 @@ evals/agents/results/
 evals/crewday/generate/.cache/
 # Crewday outcome eval reports (pnpm eval:crewday)
 evals/crewday/results/
+# Crewday AI response cache (pnpm eval:crewday --cached)
+evals/crewday/.cache/
 
 # Claude Code session worktrees
 .claude/worktrees/

@@ -40,8 +40,15 @@
     {
       "idx": 5,
       "version": "7",
-      "when": 1793399180920,
-      "tag": "0005_merge_checks",
+      "when": 1793399951584,
+      "tag": "0005_suggestion_superseded",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793400354993,
+      "tag": "0006_merge_checks",
       "breakpoints": true
     }
   ]

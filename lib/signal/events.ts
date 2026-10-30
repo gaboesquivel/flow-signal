@@ -30,6 +30,10 @@ import type { SignalQueryable } from "./db";
  *   join also records `need.merged` and `suggestion.accepted` with payload `via: "submitter"`.
  * - `signal.created` also carries `possibleDuplicates: [{ needId, probability }]` (spec 009) when
  *   `submit_signal` ran its own check (new need, no usable preview).
+ * - `suggestion.superseded`: `suggestionId`, `needId`, payload `{ kind, decisionId }`; a pending
+ *   `decision_brief` closed unreviewed because a decision was published on its need; the actor is
+ *   the publisher. Not a resolution: suggestion acceptance leaves it out; review load stops
+ *   counting it as pending.
  * - `assistant.action_proposed` (spec 014): payload `{ actionId, operation }`; the actor is the
  *   assistant agent (`client: "console:assistant"`).
  * - `assistant.action_confirmed` (spec 014): payload `{ actionId, operation, edited }`;
@@ -61,7 +65,8 @@ export type SignalEventType =
   | "suggestion.accepted"
   | "suggestion.created"
   | "suggestion.edited"
-  | "suggestion.rejected";
+  | "suggestion.rejected"
+  | "suggestion.superseded";
 
 export interface SignalEvent {
   actor: Actor;

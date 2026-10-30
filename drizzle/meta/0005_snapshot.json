@@ -1,5 +1,5 @@
 {
-  "id": "11fda491-ce61-4c3e-949f-d12a478baa3b",
+  "id": "82d7d178-d6e2-494c-a85a-32778ea5bf68",
   "prevId": "69b2b549-0898-467c-ba16-0f5c50cb5d08",
   "version": "7",
   "dialect": "postgresql",
@@ -364,58 +364,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.merge_checks": {
-      "name": "merge_checks",
-      "schema": "",
-      "columns": {
-        "candidates": {
-          "name": "candidates",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "checked_at": {
-          "name": "checked_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "draft_supporters": {
-          "name": "draft_supporters",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "need_id": {
-          "name": "need_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "merge_checks_need_id_needs_id_fk": {
-          "name": "merge_checks_need_id_needs_id_fk",
-          "tableFrom": "merge_checks",
-          "tableTo": "needs",
-          "columnsFrom": [
-            "need_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -1675,7 +1623,8 @@
         "pending",
         "accepted",
         "edited",
-        "rejected"
+        "rejected",
+        "superseded"
       ]
     },
     "public.urgency": {
