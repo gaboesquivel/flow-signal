@@ -15,7 +15,10 @@ import {
 import { ACTION_TTL_MS } from "../../../lib/signal/domain/assistant-action-contract";
 import type { ActionContext } from "../../../lib/signal/domain/assistant-actions";
 import type { ActionPreview } from "../../../lib/signal/domain/assistant-action-contract";
-import { mergeNeeds as mergeNeedsInDb } from "../../../lib/signal/domain/merges";
+import {
+  mergeNeeds as mergeNeedsInDb,
+  undoMerge as undoMergeInDb,
+} from "../../../lib/signal/domain/merges";
 import { SignalError } from "../../../lib/signal/errors";
 import { mergeNeeds } from "../../../lib/signal/operations/merge-needs";
 import { defineOperation } from "../../../lib/signal/operations/types";
@@ -460,6 +463,76 @@ describeWithDatabase("assistant actions: propose, confirm, reject", () => {
     expect(await codeOf(confirmAction(harness.db, { actionId: missing }, ctx))).toBe("not_found");
     expect(await codeOf(rejectAction(harness.db, { actionId: missing }, ctx))).toBe("not_found");
     expect(await codeOf(getAction(harness.db, "not-a-uuid"))).toBe("not_found");
+  });
+});
+
+const uuidIn = /[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/iu;
+
+describeWithDatabase("assistant actions: stale cards with the real previews", () => {
+  const harness = useTestDatabase();
+  /** The registry's own `merge_needs` and `undo_merge`, whose previews throw once stale. */
+  const realCtx: ActionContext = { ai: createFakeAi(), clock };
+
+  beforeEach(async () => {
+    await resetDatabase(harness.db);
+    clock.current = start;
+  });
+
+  const expectStale = async (actionId: string, message: RegExp) => {
+    const outcome = await confirmAction(harness.db, { actionId }, realCtx);
+    expect(outcome.status).toBe("needs_review");
+    if (outcome.status !== "needs_review") return;
+    const [block] = outcome.preview.blocks;
+    expect(block?.code).toBe("conflict");
+    expect(block?.message).toMatch(message);
+    expect(block?.message).not.toMatch(uuidIn);
+    const row = await actionRow(harness.db, actionId);
+    expect(row.status).toBe("proposed");
+    expect(row.preview).toEqual(outcome.preview);
+    // Still blocked on a second confirm; nothing runs.
+    expect((await confirmAction(harness.db, { actionId }, realCtx)).status).toBe("needs_review");
+    expect(await eventsOf(harness.db, "assistant.action_confirmed")).toHaveLength(0);
+  };
+
+  it("a merge undone elsewhere returns needs_review with a conflict block, not a raw error", async () => {
+    const { from, into } = await twoNeeds(harness.db);
+    const { mergeId } = await harness.db.transaction((tx) =>
+      mergeNeedsInDb(tx, {
+        actor: { kind: "human", ref: "web" },
+        fromNeedId: from.id,
+        intoNeedId: into.id,
+        now: start,
+      }),
+    );
+    const { actionId } = await proposeAction(
+      harness.db,
+      { input: { id: mergeId }, operation: "undo_merge" },
+      realCtx,
+    );
+    await harness.db.transaction((tx) =>
+      undoMergeInDb(tx, { actor: { kind: "human", ref: "web" }, mergeId, now: start }),
+    );
+    await expectStale(actionId, /already undone/u);
+    expect(await eventsOf(harness.db, "merge.undone")).toHaveLength(1);
+  });
+
+  it("a need merged elsewhere first names the need by its statement, not its id", async () => {
+    const { from, into } = await twoNeeds(harness.db);
+    const { actionId } = await proposeAction(
+      harness.db,
+      { input: { id: from.id, intoNeedId: into.id }, operation: "merge_needs" },
+      realCtx,
+    );
+    await harness.db.transaction((tx) =>
+      mergeNeedsInDb(tx, {
+        actor: { kind: "human", ref: "web" },
+        fromNeedId: from.id,
+        intoNeedId: into.id,
+        now: start,
+      }),
+    );
+    await expectStale(actionId, new RegExp(`“${from.statement}” is already merged`, "u"));
+    expect(await eventsOf(harness.db, "need.merged")).toHaveLength(1);
   });
 });
 

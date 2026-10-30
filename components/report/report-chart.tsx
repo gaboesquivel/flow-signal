@@ -17,6 +17,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import type { XAxisTickContentProps } from "recharts";
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/chart";
 import type { ColumnDef, DatasetQuery, DatasetResult } from "@/lib/signal/domain/report-datasets";
@@ -130,6 +131,35 @@ const xFormatter =
       return mode === "tick" ? shortDate(value) : value.slice(0, 10);
     if (typeof value === "number") return formatValue(value, column);
     return mode === "tick" ? truncate(String(value), max) : String(value);
+  };
+
+/** Advance of one 11px monospace character (about 6.6px), plus air between neighbouring ticks. */
+const TICK_CHAR_PX = 7.4;
+
+/**
+ * Category ticks for a vertical bar chart: every bar keeps its label (recharts drops ticks that
+ * would collide), cut with an ellipsis to the bar's slot; the full label shows on hover.
+ */
+const categoryTick =
+  (format: (value: Cell) => string) =>
+  ({ fill, payload, visibleTicksCount, width, x, y }: XAxisTickContentProps) => {
+    const full = format(payload.value as Cell);
+    const slot = Number(width) / Math.max(1, visibleTicksCount);
+    const fits = Math.max(3, Math.floor(slot / TICK_CHAR_PX));
+    return (
+      <text
+        className="recharts-text recharts-cartesian-axis-tick-value"
+        dy="0.71em"
+        fill={fill}
+        fontSize={axisTick.fontSize}
+        textAnchor="middle"
+        x={x}
+        y={y}
+      >
+        <title>{full}</title>
+        {truncate(full, fits)}
+      </text>
+    );
   };
 
 /**
@@ -315,7 +345,15 @@ function Cartesian({
               </>
             ) : (
               <>
-                <XAxis {...categoryAxis} minTickGap={8} />
+                {xColumn?.type === "date" || xColumn?.type === "number" ? (
+                  <XAxis {...categoryAxis} minTickGap={8} />
+                ) : (
+                  <XAxis
+                    {...categoryAxis}
+                    interval={0}
+                    tick={categoryTick(xFormatter(xColumn, "full"))}
+                  />
+                )}
                 <YAxis {...valueAxis} width="auto" />
               </>
             )}
