@@ -32,3 +32,5 @@ playwright-report
 evals/matching/results/
 # agent behaviour eval reports (pnpm eval:agents)
 evals/agents/results/
+# crewday world generation cache (pnpm crewday:generate)
+evals/crewday/generate/.cache/

@@ -1,0 +1,284 @@
+[
+  {
+    "body": "leads approve trades blind. Ironvale asked twice.",
+    "rowId": "T-001",
+    "title": "OT warning when approving swaps",
+    "trueNeedKey": "swap-overtime-warning"
+  },
+  {
+    "body": "Meridian wants their own bank carers offered gaps before agency. per CSM (Dana)",
+    "rowId": "T-002",
+    "title": "bank staff first for open shifts",
+    "trueNeedKey": "open-shift-float-first"
+  },
+  {
+    "body": "guard does 2-3 client sites in one shift, rota can't model it. Northgate + Sentinel",
+    "rowId": "T-003",
+    "title": "Multi-site shifts for guards",
+    "trueNeedKey": "guard-multi-site-rota"
+  },
+  {
+    "body": "pull ASN / inbound volume so planners can size the rota. big ask from Pallet Ridge",
+    "rowId": "T-004",
+    "title": "Manhattan WMS integration",
+    "trueNeedKey": "wms-volume-forecast"
+  },
+  {
+    "body": "customers keep asking for 'just make the schedule for me'. +1 Quickstep, +1 Kiteline, +1 Nimbus",
+    "rowId": "T-005",
+    "title": "AUTO SCHEDULE",
+    "trueNeedKey": "autopilot-rota"
+  },
+  {
+    "body": "Lost a Starter deal to a tool with one-click rotas. see ticket 4471",
+    "rowId": "T-006",
+    "title": "AI scheduling (like competitor X)",
+    "trueNeedKey": "autopilot-rota"
+  },
+  {
+    "body": "can't stop untrained people being put on forklifts",
+    "rowId": "T-007",
+    "title": "skills matrix",
+    "trueNeedKey": "trained-station-assignment"
+  },
+  {
+    "body": "cleaning cos set up 20+ identical buildings by hand",
+    "rowId": "T-008",
+    "title": "Clone site / templates",
+    "trueNeedKey": "contract-template-rollout"
+  },
+  {
+    "body": "depot managers want to text all free drivers at once when someone's sick. many drivers have no app",
+    "rowId": "T-009",
+    "title": "SMS blast for cover",
+    "trueNeedKey": "same-day-cover-sms"
+  },
+  {
+    "body": "Kestrel + Lumen asking for visit routing like CareRoute has",
+    "rowId": "T-010",
+    "title": "Map / route optimisation for home care",
+    "trueNeedKey": "home-care-visit-routing"
+  },
+  {
+    "body": "if same role, auto approve? Vinecrest + Meridian",
+    "rowId": "T-011",
+    "title": "let carers swap without approval",
+    "trueNeedKey": "peer-swap-auto-approve"
+  },
+  {
+    "body": "people clocking in from car park / home. Ironvale loss prevention furious",
+    "rowId": "T-012",
+    "title": "Geofence!!",
+    "trueNeedKey": "buddy-punch-prevention"
+  },
+  {
+    "body": "stop buddy punching at Redline + Pallet Ridge. could also do selfie check",
+    "rowId": "T-013",
+    "title": "Photo on clock in",
+    "trueNeedKey": "buddy-punch-prevention"
+  },
+  {
+    "body": "queues at the tablets at 6am shift change",
+    "rowId": "T-014",
+    "title": "HID / badge readers for clock in",
+    "trueNeedKey": "badge-tap-clock-in"
+  },
+  {
+    "body": "workers should be able to request a fix in app instead of yellow slips",
+    "rowId": "T-015",
+    "title": "missed punch request flow",
+    "trueNeedKey": "missed-punch-requests"
+  },
+  {
+    "body": "300 manual corrections/week at Polar. payroll begging for this",
+    "rowId": "T-016",
+    "title": "Forgot to clock out - fix from phone",
+    "trueNeedKey": "missed-punch-requests"
+  },
+  {
+    "body": "Sparkline area mgrs approve 30+ sites one at a time, miss cutoff",
+    "rowId": "T-017",
+    "title": "Bulk approve timesheets",
+    "trueNeedKey": "bulk-timesheet-approval"
+  },
+  {
+    "body": "DC HR wants occurrence/points tracking",
+    "rowId": "T-018",
+    "title": "attendance points",
+    "trueNeedKey": "attendance-points-policy"
+  },
+  {
+    "body": "",
+    "rowId": "T-019",
+    "title": "Call in sick button",
+    "trueNeedKey": "sick-call-in-from-app"
+  },
+  {
+    "body": "Northgate billing team rebuilds this in excel monthly; client disputes. renewal risk",
+    "rowId": "T-020",
+    "title": "Hours by post export for client invoicing",
+    "trueNeedKey": "guard-hours-client-billing"
+  },
+  {
+    "body": "field workers unpaid between sites. sparkline, kestrel, brightpath all asked. big one",
+    "rowId": "T-021",
+    "title": "Travel time / mileage",
+    "trueNeedKey": "field-travel-pay"
+  },
+  {
+    "body": "stop CSV reformatting",
+    "rowId": "T-022",
+    "title": "ADP integration",
+    "trueNeedKey": "adp-hours-connector"
+  },
+  {
+    "body": "Bluefin + Oakmoor: leading zeros on emp IDs break their import every time",
+    "rowId": "T-023",
+    "title": "Direct export to ADP WFN",
+    "trueNeedKey": "adp-hours-connector"
+  },
+  {
+    "body": "premiums arriving as REG in UKG. Ironvale payroll escalated to VP",
+    "rowId": "T-024",
+    "title": "UKG earnings code mapping",
+    "trueNeedKey": "ukg-earnings-code-mapping"
+  },
+  {
+    "body": "pay rules for unsocial hours, midnight split is wrong",
+    "rowId": "T-025",
+    "title": "Night / weekend differentials",
+    "trueNeedKey": "unsocial-hours-premiums"
+  },
+  {
+    "body": "care homes add xmas/BH premiums manually after export",
+    "rowId": "T-026",
+    "title": "bank holiday double time",
+    "trueNeedKey": "unsocial-hours-premiums"
+  },
+  {
+    "body": "re-export resends everything and ADP double pays. need delta export",
+    "rowId": "T-027",
+    "title": "adjustments after period close",
+    "trueNeedKey": "post-close-corrections"
+  },
+  {
+    "body": "small customers want payroll + payslips in Crewday so they can drop Gusto",
+    "rowId": "T-028",
+    "title": "Payroll (full)",
+    "trueNeedKey": "built-in-payroll"
+  },
+  {
+    "body": "weekly bank staff + monthly contracted in one account (Meridian, Clearwater)",
+    "rowId": "T-029",
+    "title": "multiple pay frequencies",
+    "trueNeedKey": "multiple-pay-calendars"
+  },
+  {
+    "body": "groups with several Ltds get one mixed file",
+    "rowId": "T-030",
+    "title": "Export split by legal entity",
+    "trueNeedKey": "per-entity-export"
+  },
+  {
+    "body": "CQC finding at Meridian. URGENT per CSM",
+    "rowId": "T-031",
+    "title": "NMC PIN expiry - block from rota",
+    "trueNeedKey": "lapsed-registration-block"
+  },
+  {
+    "body": "nurses with expired registration getting rostered. needs hard block not just report",
+    "rowId": "T-032",
+    "title": "credential expiry",
+    "trueNeedKey": "lapsed-registration-block"
+  },
+  {
+    "body": "WTR breaches from close/open patterns",
+    "rowId": "T-033",
+    "title": "11 hr rest rule",
+    "trueNeedKey": "minimum-rest-between-shifts"
+  },
+  {
+    "body": "Northgate legal asked in renewal. who changed what when",
+    "rowId": "T-034",
+    "title": "audit log for schedule changes",
+    "trueNeedKey": "rota-change-history"
+  },
+  {
+    "body": "care homes need min nurse:resident ratio warnings",
+    "rowId": "T-035",
+    "title": "Staffing ratios",
+    "trueNeedKey": "nurse-resident-ratio"
+  },
+  {
+    "body": "paper forms today; also need 17wk avg",
+    "rowId": "T-036",
+    "title": "48h opt out tracking",
+    "trueNeedKey": "weekly-hours-opt-out"
+  },
+  {
+    "body": "Okta / Azure AD. blocker in 3 security questionnaires",
+    "rowId": "T-037",
+    "title": "SAML SSO",
+    "trueNeedKey": "idp-single-sign-on"
+  },
+  {
+    "body": "employee changes via weekly CSV, rates go stale",
+    "rowId": "T-038",
+    "title": "Workday / BambooHR sync",
+    "trueNeedKey": "hris-employee-sync"
+  },
+  {
+    "body": "rota published/changed events; customers polling API",
+    "rowId": "T-039",
+    "title": "webhooks",
+    "trueNeedKey": "rota-change-webhooks"
+  },
+  {
+    "body": "workers want shifts in personal calendar",
+    "rowId": "T-040",
+    "title": "Google calendar sync",
+    "trueNeedKey": "personal-calendar-feed"
+  },
+  {
+    "body": "subscribe link per worker. lots of +1s on old board",
+    "rowId": "T-041",
+    "title": "ical feed for staff",
+    "trueNeedKey": "personal-calendar-feed"
+  },
+  {
+    "body": "in-app messaging for teams. everyone uses WhatsApp",
+    "rowId": "T-042",
+    "title": "Chat",
+    "trueNeedKey": "in-app-team-chat"
+  },
+  {
+    "body": "Polar, Kiteline, Brightpath want to message whole site from Crewday",
+    "rowId": "T-043",
+    "title": "group messaging / announcements",
+    "trueNeedKey": "in-app-team-chat"
+  },
+  {
+    "body": "night guards",
+    "rowId": "T-044",
+    "title": "dark mode pls",
+    "trueNeedKey": "dark-theme"
+  },
+  {
+    "body": "app blank in freezers / basements",
+    "rowId": "T-045",
+    "title": "Offline mode",
+    "trueNeedKey": "offline-rota-view"
+  },
+  {
+    "body": "workers want to check before payday. reduces payroll tickets",
+    "rowId": "T-046",
+    "title": "show my hours + estimated pay",
+    "trueNeedKey": "worker-earnings-to-date"
+  },
+  {
+    "body": "constant logouts, password resets. see ticket 5120",
+    "rowId": "T-047",
+    "title": "remember me / stay logged in",
+    "trueNeedKey": "stay-signed-in"
+  }
+]
