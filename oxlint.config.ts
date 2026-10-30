@@ -27,6 +27,15 @@ export default defineConfig({
       },
     },
     {
+      // Tests build database fixtures step by step and index into rows they just inserted.
+      files: ["tests/**"],
+      rules: {
+        "eslint/no-await-in-loop": "off",
+        "typescript/no-non-null-assertion": "off",
+        "unicorn/no-await-expression-member": "off",
+      },
+    },
+    {
       files: ["lib/genui/orchestration/stream.ts"],
       rules: {
         "eslint/no-await-in-loop": "off",

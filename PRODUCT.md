@@ -2,16 +2,166 @@
 
 ## Definition
 
-Signal is a new application initialized from the **flow-next** template (4dcbf0f).
+Signal is an AI-first feature intelligence system. It turns unstructured feature requests into clear, actionable product decisions: it prevents duplicates at the moment of submission without losing the customer's context, and it moves product managers from organizing feedback to reviewing and deciding.
 
 This document describes **this product only**. It is not Flow's methodology identity from flow-skills.
 
-## Current scope
+## Problem
 
-The repository ships the template application shell: public routes (`/`, `/genui`), public MCP (`/api/mcp`), and Operator surfaces that fail closed until `OPERATOR_SECRET` is configured. Product features beyond that shell are not defined yet.
+Product teams receive feature requests from customers, prospects, support teams, and internal stakeholders. As volume grows, the same need arrives many times in different words, and the context that makes a request useful (who asked, why, how much it matters) is scattered or lost. PMs spend hours merging, tagging, and summarizing by hand; popular requests drown out strategically valuable ones; decisions are slow and inconsistent; and requesters rarely hear back.
+
+**Prioritized problem:** duplicates are created, and context is lost, at the moment of submission. Fixing it there means every later step (grouping, prioritizing, deciding, communicating) works from consolidated, context-rich demand instead of a pile of near-copies.
+
+## Who
+
+- **Submitters (primary):** customers, prospects, and support or sales staff filing on a customer's behalf. They want to be heard and to see what happens. No sign-in: they identify by email (and company).
+- **Product managers (primary):** triage, group, prioritize, decide, and communicate decisions, in the protected Operator console.
+- **Agent users (first-class, alongside humans):** AI assistants and agents use the same workflow over MCP: search needs, submit through the same duplicate check, add support with context on a customer's behalf (public MCP); review suggestions, get demand summaries and decision briefs, publish decisions (Operator MCP).
+- **Stakeholders:** leadership and go-to-market teams consume decision briefs and status.
+
+## Product model
+
+```
+Theme   — PM-defined area (e.g. "Reporting")
+  └─ Need   — the underlying problem; AI-drafted, PM-edited; what people support and PMs decide on
+       ├─ Proposed solutions — extracted by AI from signals ("PDF export", "scheduled digest")
+       └─ Signal × N — one person's submission, kept verbatim (their words, email, account, urgency, date)
+```
+
+- **Add my voice** creates a signal on an existing need. **Submit new** creates a signal and a draft need awaiting PM approval; draft needs appear publicly marked "new".
+- A **merge** moves all of one need's signals onto another need; nothing is lost and merges can be undone.
+- Matching is on the **problem, not the named solution**: "PDF export to share with execs" and "PDF export for compliance archiving" are two needs sharing a proposed solution.
+- Needs are written as "_who_ needs to _do what_ so that _outcome_"; anything broader is a theme. PM edits are final.
+- A submission containing two asks is flagged at submission with an offer to split; otherwise it attaches to the primary need and a PM can split it later.
+
+## Why AI, and how it changes the workflow
+
+Recognizing that differently worded requests describe the same underlying need is a judgment about meaning that keyword search misses and humans do slowly. AI moves that work to where it is cheapest and most valuable:
+
+- **Today:** submit → pile up → PM reads everything later → merges by hand → context lost.
+- **With Signal:** as a request is submitted, AI states the underlying need, finds matching needs and explains why; the submitter adds their voice with their context, or files something genuinely new. Behind that, AI proposes merges and themes, scores priority against the team's criteria, and drafts decision briefs and stakeholder updates.
+
+The PM's job shifts from **organizing** feedback to **reviewing and deciding**.
+
+## Where human judgment stays
+
+AI proposes; people decide.
+
+- Submitters choose whether to support an existing need or submit a new one. Nothing is auto-merged against their will.
+- PMs approve every draft need, merge, theme, and public use-case summary, and can undo merges.
+- PMs own the priority criteria and weights. AI scores each criterion with reasons; PMs can override any score.
+- PMs make and publish every decision. AI drafts the brief and the update.
+
+## Prioritization
+
+Default criteria, with PM-editable weights; AI scores each with reasons, PMs override:
+
+- **Demand:** supporters, weighted by account.
+- **Business value:** revenue of requesting accounts and deals in progress.
+- **Strategic fit:** match to PM-set themes.
+- **Effort:** rough PM estimate, or AI-suggested and PM-approved.
+
+## Visibility
+
+| Data                                  | Public (board, public MCP)               | PM (Operator, Operator MCP) |
+| ------------------------------------- | ---------------------------------------- | --------------------------- |
+| Need statement, status, decision note | Yes                                      | Yes                         |
+| Proposed solutions                    | Yes                                      | Yes                         |
+| Supporters                            | People count only                        | People, accounts, revenue   |
+| Use cases                             | Anonymized AI summary, after PM approval | Every signal, verbatim      |
+| Submitter name, email, company        | No                                       | Yes                         |
+| Priority                              | Demand band only (high / medium / low)   | Full score breakdown        |
+
+Submitters track their own signals through a private, unguessable "My signals" link shown after submission (no email is sent); status changes and decision notes appear there and over MCP.
+
+## Why now
+
+Language models make meaning-based matching, summarization, and reasoning cheap enough to run on every submission, and MCP lets agents act as real users of the same workflow.
+
+## Metrics
+
+The MVP documents three metrics. All are collected by Signal's own event log, which the MVP adds; baselines are unknown, and targets are hypotheses.
+
+### 1. Prevention rate (one metric that matters)
+
+Duplicates stopped at the source, with the customer's words kept.
+
+- **Counts:** signals attached to an existing need at submission ÷ (those + signals whose draft need was later merged into an existing need).
+- **Population:** all signals, human and agent, reported separately. **Window:** weekly.
+- **Source:** `signal.created` (`attached_to: existing | draft`) and `need.merged`.
+- **Baseline:** unknown; a plain vote board is the comparison. **Target:** ≥ 50% (hypothesis, low confidence).
+
+### 2. Decision latency
+
+Product decisions get made faster.
+
+- **Counts:** median days from a need's first signal to its published decision (planned, in progress, shipped, or declined); needs open past 30 days are reported separately.
+- **Source:** `need.created` → `decision.published`.
+- **Baseline:** unknown; in the demo it comes from seeded history. **Target:** halve the baseline (hypothesis).
+
+### 3. AI suggestion acceptance
+
+PMs trust the AI enough that their work shifts from organizing to deciding.
+
+- **Counts:** share of AI proposals (need statements, merges, splits, themes, priority scores, public summaries, decision briefs) a PM accepts as-is; edited and rejected are counted separately, by suggestion type.
+- **Source:** `suggestion.accepted | edited | rejected`.
+- **Target:** ≥ 70% accepted as-is (hypothesis). High acceptance with a rising unmerge rate means rubber-stamping.
+
+### Supporting metrics and guardrails
+
+- **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
+- **AI quality (offline eval set, run in `pnpm eval`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
+- **Guardrails:** unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
+
+## Riskiest assumptions
+
+1. Submitters will add their voice to an existing need rather than file their own version, as long as their context is kept and visible. _Confidence: medium._ The main bet.
+2. Matching is accurate enough to trust; wrong matches feel dismissive. _Confidence: medium._
+3. PMs will trust and act on AI-proposed merges, scores, and briefs instead of redoing the work. _Confidence: low to medium._
+4. A duplicate check on every submission is fast and cheap enough (under 2 s, under $0.01). _Confidence: high._
+
+## Kill criterion
+
+- **MVP (build exercise):** the offline eval set misses its thresholds (precision@3 < 90% or false-match rate > 5%) after tuning; then submission-time matching is not trustworthy and the bet is rethought.
+- **With real users:** over at least 200 submissions where Signal showed a match, prevention rate stays under 30% or unmerge rate exceeds 10%.
+
+## Core journeys
+
+1. **Submit with a duplicate check:** a person or agent describes a need; Signal shows likely matching needs with reasons; they add their voice with context, or submit a new signal and draft need.
+2. **Discover and support:** browse or search needs by theme and status; see how they are grouped and their demand band.
+3. **Track my signals:** follow status changes and decision notes through the private "My signals" link or MCP.
+4. **PM triage:** review AI-proposed draft needs, merges, themes, and public summaries; accept, edit, or reject; undo merges.
+5. **PM decide and communicate:** review priority scores against the team's criteria, generate a decision brief, publish a decision; supporters see the update.
+6. **Agent:** over MCP, search, submit, and add support with context; with PM access, review suggestions and get demand summaries and decision briefs.
+
+## Alternatives
+
+- **Status quo:** a spreadsheet, a Slack channel, and Jira tickets.
+- **Feedback tools:** Canny (AI duplicate detection), Productboard (AI insights), UserVoice, Jira Product Discovery.
+
+Signal's angle: prevention at submission that keeps every customer's own words, matching on the underlying problem rather than the requested solution, agents as first-class users, and the PM decision loop built in. Competitors already ship AI duplicate detection, so that alone is not the differentiator.
+
+## Out of scope (MVP)
+
+- Ingestion from Intercom, Zendesk, Slack, or email.
+- CRM revenue data (account context is seeded or entered by hand).
+- Roadmap or Jira sync.
+- Multiple customer organizations, SSO, submitter sign-in, granular permissions.
+- Email or Slack notifications (updates appear in the app and over MCP only).
+
+## Pre-mortem
+
+Six months from now it failed because:
+
+- Wrong matches made customers feel brushed off, and they stopped using the board.
+- PMs did not trust the scores and returned to spreadsheets; the AI became decoration.
+- The pilot had too few submissions to show anything.
+- Competitors' AI duplicate detection was good enough, and kept context was not visible enough to switch for.
 
 ## Technical baseline
 
 - Package / Portless slug: `signal`
 - Local dev host: `signal.localhost`
 - Template: `flow-next` at `4dcbf0f`
+- Database: Neon Postgres with pgvector; `main` and `test` branches ([docs/database.md](./docs/database.md))
+- Agent- and API-first: every capability is one operation in a registry, exposed as REST, MCP, and agent tools, built test-first; the UI comes last ([spec 001](./docs/specs/001-signal-mvp.md))

@@ -17,7 +17,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
@@ -29,7 +29,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm security:check
+      # Light by design: lint, types, and unit/parity/domain tests on in-process PGlite
+      # (DATABASE_URL_TEST unset). No live-model evals here: run `pnpm eval` on demand and
+      # whenever agent code changes. The Next.js build is covered by Vercel's preview deploy.
       - run: pnpm qa
-      - run: pnpm eval:offline
-      # test already built the MCP App bundle; build only the Next.js app.
-      - run: pnpm exec next build --webpack

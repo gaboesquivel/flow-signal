@@ -40,7 +40,7 @@ test("GET /api/chat returns JSON error", async () => {
 });
 
 test("unknown API path returns JSON 404", async () => {
-  const response = getApiCatchAll();
+  const response = await getApiCatchAll(new Request("https://example.com/api/nope"));
   assert.equal(response.status, 404);
   const body = await response.json();
   assert.equal(body.code, "api_route_not_found");

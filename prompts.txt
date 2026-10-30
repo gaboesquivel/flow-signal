@@ -9,3 +9,93 @@ Response: Checked the staged set for secrets and build output (none), then commi
 [2026-10-30T13:46:10Z]
 Prompt: Start a new project called Signal — AI that prevents duplicate feature requests at submission, steers users to support existing requests, and helps product managers understand demand, decide, and measure impact.
 Response: Ran /start in place on the template clone (slug signal, host signal.localhost, preset minimal). User approved pushing to origin gaboesquivel/flow-signal. Bootstrap (rename, setup, baseline docs, Flow block, checks, initial commit, push, deployment) runs in a worker while explore shapes the product.
+
+[2026-10-30T13:54:11Z]
+Prompt: Answered explore questions (customer submissions first but PM decision workflow in MVP; Signal hosts the board; agents are first-class users; main metric = duplicates prevented without losing customer context, plus PM metrics) and shared the full assignment brief (AI-first Feature Intelligence System, core requirements, required documentation). Asked to zoom out and spec the first MVP before slicing.
+Response: Read baseline docs and the AI stack, drafted the PRODUCT.md brief covering the required documentation points, and asked for confirmation before writing it on a branch and specifying the MVP.
+
+[2026-10-30T13:59:29Z]
+Prompt: Let's explore a bit more (brief not yet approved).
+Response: Kept the brief unwritten and asked five follow-up questions with guesses: build exercise vs. real pilot, the core data model (need vs. request), what customer context is visible to whom, submitter identity, and the default priority criteria.
+
+[2026-10-30T14:04:52Z]
+Prompt: Confirmed: it's a build exercise (eval set + seeded demo), no auth for submitters (email only), default priority criteria OK. Asked to zoom into the need-vs-request data model and the visibility of customer context.
+Response: Proposed a three-level model (signal -> need -> theme), worked through edge cases (bundled asks, same solution for different needs, need granularity, merges), proposed a public vs. PM visibility split, and asked targeted questions with guesses. Nothing written yet.
+
+[2026-10-30T14:10:11Z]
+Prompt: Approved the signal/need/theme model, edge-case handling, and visibility rules; asked what metrics we are optimizing for.
+Response: Laid out the metric set for the new model: one main metric (duplicate prevention at submission), offline AI-quality metrics for the exercise, PM workflow metrics, and guardrails, each with what it counts and its source. Brief still unwritten.
+
+[2026-10-30T14:13:26Z]
+Prompt: Approved prevention rate as the one metric that matters; asked for two more MVP metrics, one on decision-making.
+Response: Proposed decision latency (decision-making) and AI suggestion acceptance (trust and the workflow shift) as the two MVP metrics alongside the OMTM, with definitions; other metrics stay as diagnostics and guardrails. Brief still unwritten.
+
+[2026-10-30T14:14:56Z]
+Prompt: Lock and write.
+Response: On new branch signal-mvp (from 02a1133), wrote the confirmed product brief into PRODUCT.md (model, visibility, three MVP metrics, assumptions, kill criterion, journeys) and added Signal, Need, Draft need, Theme, Proposed solution, Merge, Decision and Prevention rate to GLOSSARY.md, then committed.
+
+[2026-10-30T14:18:37Z]
+Prompt: Spec it.
+Response: Wrote draft spec 001 (Signal MVP: duplicate check at submission, board, my-signals, PM triage, priority and decision brief, MCP tools, event log for the three metrics, seed and labeled eval, exposure rules), Proposed decision records 0001 (Neon Postgres with pgvector) and 0002 (retrieve-then-judge matching workflow; Haiku on the hot path, Sonnet off it), and candidate stubs 002 (feedback ingestion) and 003 (stakeholder notifications). Committed on signal-mvp.
+
+[2026-10-30T14:24:28Z]
+Prompt: Before breaking down tasks, make spec 001 agent- and API-first with TDD for agent, MCP and API and consistency between them; provision the database with the repo's neon:setup script and document it.
+Response: Added an operation registry (one definition per capability, thin HTTP/MCP/Eve adapters, generated client, per-operation build order) and a TDD plan (parity suite across all three surfaces, domain tests on a real Neon test branch, contract and agent behaviour tests) to spec 001. Found no neon:setup script, so added one as an alias for the existing Neon preset; documented setup, branches and env in docs/database.md, README, ARCHITECTURE and .env.example; switched tests from PGlite to a Neon test branch in decision 0001. Provisioning waits on the user's Neon and Vercel tokens.
+
+[2026-10-30T14:25:51Z]
+Prompt: Asked whether /start succeeded and whether the repo is ready for development.
+Response: Confirmed the /start bootstrap succeeded (02a1133 pushed and deployed, all checks passed). Started the dev server: home, GenUI and public MCP work; Operator was disabled and the database is not configured. Generated a local OPERATOR_SECRET in .env.local (not printed or committed) and added .claude/launch.json for the dev server. The database still needs provisioning.
+
+[2026-10-30T14:28:25Z]
+Prompt: Provision Neon with the already signed-in CLIs; meanwhile, in a subagent, make sure PRODUCT.md and the specs are up to date.
+Response: Created Neon project signal (wispy-paper-65345567, Gabo org, aws-us-east-1) with main and test branches, wrote pooled DATABASE_URL and DATABASE_URL_TEST to .env.local, added DATABASE_URL to Vercel production/preview/development, pushed the schema to both branches, and confirmed /api/db returns 200 in dev. Documented the CLI route and current project in docs/database.md. A subagent synced PRODUCT.md, GLOSSARY.md and the specs with the operation registry, TDD and database decisions.
+
+[2026-10-30T14:29:28Z]
+(Follow-up within the same request.) Test run with the dev server up pulled Eve dev-runtime snapshots into vitest (48 failing files from bundled zod tests); widened the vitest exclude to **/.eve/** and reran: 20 files, 172 tests pass; lint and types pass. Updated decision 0001's context to record the approval. Committed the subagent's doc sync together with the database work.
+
+[2026-10-30T14:31:48Z]
+Prompt: Close the two spec gaps, then break spec 001 into tasks.
+Response: Added get_criteria (GET /api/operator/criteria) and defined set_criteria validation, get_demand_summary inputs, output and trend rule in spec 001. Wrote a Tasks section with 9 vertical-slice tasks (registry/schema/public reads; submit with duplicate check; matching eval; PM triage; prioritization and decisions; metrics; public UI; Operator UI; agent evals and acceptance run) with areas, blockers and acceptance criteria. Ready now: task 01. Committed on signal-mvp.
+
+[2026-10-30T14:32:51Z]
+Prompt: Ship it using max parallel agents.
+Response: Ran ship -> build on spec 001: accepted the spec and decisions 0001/0002, built the nine tasks in parallel waves by blocker frontier (each worker in its own worktree and its own Neon test branch), integrated them on signal-mvp, opened a PR, reviewed, checked CI, merged to main and checked the deployment. See the final report for results.
+
+[2026-10-30T15:04:41Z]
+Prompt: (During the build) Use local Docker for Neon in tests; CI should be PGlite; for branch databases use the Vercel connect integration; then "you run the commands".
+Response: Recorded decision 0003 (local Docker Postgres 18 + pgvector behind a Neon HTTP proxy for local tests, PGlite in CI) amending 0001, updated docs/spec, and redirected the task 01 worker. Removed the hand-set Vercel DATABASE_URL values at the user's request, installed the Neon integration via vercel integration add (resource signal, iad1) connected to all environments, copied the development DATABASE_URL into .env.local, pushed the schema, confirmed /api/db 200, and documented the integration setup and its gaps. The integration also added the neon and neon-postgres agent skills.
+
+[2026-10-30T15:16:00Z]
+Prompt: Keep CI testing light; agent evals on demand or when agent code changes; overall goal is faster dev and maximum parallel execution. (Earlier: "you run all commands, I need to step away".)
+Response: Trimmed CI to install, security check and pnpm qa on PGlite (no evals, no Next build; Vercel previews build PRs); recorded the policy in spec 001; re-sequenced tasks so 03, 04 and 05 start now alongside 02 and 06, with UI tasks after their contracts merge. Also turned on Neon preview branching on the Vercel connection, gave local dev its own seeded Neon dev branch, and merged task 01.
+
+[2026-10-30T15:44:24Z]
+Prompt: Don't build UI yet; focus on the API, MCP and agents first.
+Response: Stopped the Operator UI worker (task 08) and saved its partial work on build/t08 (not merged); task 07's public UI was already merged and stays. Marked 08 deferred and 09 limited to agent and API journeys in spec 001. Recorded task 03's live eval (threshold 0.6 kept; quality targets met; latency 6.2 s p95 and rubric 3.69 still open) after making preview run extraction concurrently with judging. Task 09's agent behaviour evals continue.
+
+[2026-10-30T16:10:00Z]
+Prompt: Explore a long-term testing strategy for Signal using Crewday as a realistic B2B SaaS customer (reproducible seed data, independent evals across MCP, APIs and agents, baselines, measuring improvement over time; no UI). Interview first.
+Response: Ran the interview skill: read PRODUCT.md, spec 001, the matching eval (131 cases, 30-need catalog, precision@3 0.99, rubric 3.69, p95 6.2 s) and the seed (analytics-product demo, 8 accounts). Opened with a hypothesis and challenges (saturated, self-authored eval; no baseline; only matching is measured; Crewday not yet in the repo) and asked the first question about who Crewday is.
+
+[2026-10-30T15:53:57Z]
+(Follow-up within the API/MCP/agents focus.) Fixed the failing Vercel preview build (Next.js import reached the Eve agent bundles; moved after() into lib/signal/next.ts with a guard test). Ran the full agent acceptance journey over MCP with live AI on the Neon dev branch (all steps pass) and committed it as pnpm acceptance:mcp (on demand). Cut fast-model latency by disabling extended thinking; live eval: precision@3 100%, false-match 0%, p95 4.7 s (target 2 s, open).
+
+[2026-10-30T16:14:00Z]
+Prompt: Crewday is FICTIONAL; the goal is to verify the system really helps optimize the core metrics in PRODUCT.md.
+Response: Updated the interview hypothesis (simulated Crewday world scored on prevention rate, decision latency, suggestion acceptance plus guardrails) and asked batched closed questions on simulating human behaviour, the baseline, and dataset scale.
+
+[2026-10-30T16:18:00Z]
+Prompt: Answered interview form: oracle + noise simulation; baseline is the plain vote board (testing MCP, agents and APIs first); world size ~1.5k signals over 12 months.
+Response: Raised confidence to ~65% and asked the next open question: how ground truth is generated and who verifies it, to avoid a self-graded eval.
+
+[2026-10-30T15:58:41Z]
+Prompt: Ship partial (API, MCP and agents without the Operator UI) once the agent evals pass.
+Response: Started an independent review of signal-mvp against spec 001 while the task 09 agent evals finish; the plan is to merge 09, fix blocking findings, confirm CI, merge PR #1 with spec 001 left accepted (tasks 08 and the browser part of 09 open), and check production liveness.
+
+[2026-10-30T16:40:00Z]
+Prompt: /to-spec (turn the Crewday testing-strategy conversation into a spec), then mid-turn: wait for the "Source code review" session before branching or pushing.
+Response: Wrote draft spec docs/specs/004-crewday-outcome-eval.md (frozen versioned Crewday world, oracle+noise policies with a behaviour sweep, vote-board arm on alternative AI ports, ground-truth metrics, dev/test splits, run history, agent sub-run) and Proposed decision 0004. Held the commit, branch and push until the review session finishes.
+
+[2026-10-30T16:50:00Z]
+Prompt: In retro, is there anything you would add or change in our spec (004)?
+Response: Reviewed spec 004 critically and listed changes: fix the dev/test split (separate worlds), guard against generator leakage, measure decision quality and ARR-weighted outcomes, start from a messy migrated backlog, add confidence intervals and a regression rule, make latency a reported metric not a gate, drop the model grader from the PM policy, and cut a thinner first slice (agent sub-run as its own candidate spec). No files changed beyond this log.

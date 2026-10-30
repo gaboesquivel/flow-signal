@@ -27,3 +27,8 @@ playwright-report
 
 # eve build output (pnpm build:agents)
 .output/
+
+# matching eval reports (pnpm eval:matching)
+evals/matching/results/
+# agent behaviour eval reports (pnpm eval:agents)
+evals/agents/results/

@@ -4,17 +4,20 @@ import { z } from "zod";
 
 import { eveModelId, gatewayAvailable } from "@/lib/ai/models";
 import { getOperatorAccessToken, isOperatorAccessConfigured } from "@/lib/auth/operator-access";
+import { operations } from "@/lib/signal/operations/registry";
 
 import { starterMcpToolCatalog } from "./tool-catalog";
 import { asToolResult } from "./tool-result";
 
 const plainToolMeta = { _meta: {} };
 
-export const operatorMcpToolNames = [
+/** Tools only the Operator MCP lists: diagnostics plus Signal's `access: "operator"` operations. */
+export const operatorMcpToolNames: readonly string[] = [
   "operator_health",
   "config_status",
   "public_tool_catalog",
-] as const;
+  ...operations.filter((operation) => operation.access === "operator").map(({ name }) => name),
+];
 
 export const registerOperatorMcpTools = (server: McpServer) => {
   registerAppTool(

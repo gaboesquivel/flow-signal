@@ -1,3 +1,5 @@
+import { signalOpenApiPaths, signalOpenApiSchemas } from "@/lib/signal/adapters/openapi";
+
 const toolPaths = {
   compose_ui: {
     operationId: "composeUi",
@@ -139,6 +141,7 @@ const openApiComponents = {
       type: "object",
     },
     ...mcpToolComponents,
+    ...signalOpenApiSchemas(),
   },
 };
 
@@ -260,6 +263,7 @@ const versioningDescription = `API versioning (v1): Prefer X-API-Version: v1 or 
 
 export const buildOpenApiDocument = (origin: string) => {
   const paths = {
+    ...signalOpenApiPaths(),
     "/api/chat": { post: chatOperation },
     "/api/genui/compose": { post: genuiOperation },
     "/api/mcp": { post: mcpOperation },
@@ -293,6 +297,7 @@ export const buildOpenApiDocument = (origin: string) => {
       { description: "Streamable HTTP MCP", name: "mcp" },
       { description: "GenUI NDJSON compose", name: "genui" },
       { description: "Chat assistant", name: "chat" },
+      { description: "Signal public operations (needs, signals)", name: "signal" },
     ],
   };
 };

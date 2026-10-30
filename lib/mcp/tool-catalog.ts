@@ -1,3 +1,5 @@
+import { publicOperations } from "@/lib/signal/operations/registry";
+
 import { GENUI_PREVIEW_RESOURCE_URI } from "./genui-preview-resource";
 
 const starterMcpAppResourceUri = GENUI_PREVIEW_RESOURCE_URI;
@@ -20,11 +22,14 @@ export const starterMcpToolCatalog: StarterMcpToolCard[] = [
     description: "Generate a validated OpenUI composition from a natural-language UI request.",
     name: "compose_ui",
   },
+  // Signal's public operations (`lib/signal/operations/registry.ts`); never Operator ones.
+  ...publicOperations.map(({ description, name }) => ({ description, name })),
 ];
 
 export const buildMcpServerCard = (origin: string) => ({
   authentication: { required: false },
-  description: "Agentic UI starter — compose OpenUI layouts with synthetic data over MCP.",
+  description:
+    "Signal — search product needs, check for duplicates, and add your voice over MCP; plus GenUI compose tools.",
   resources: [
     {
       description: "GenUI Preview MCP App",
@@ -60,7 +65,7 @@ export const buildMcpRegistryManifest = (origin: string) => ({
 export const buildAiCatalog = (origin: string) => ({
   servers: [
     {
-      description: "Signal MCP — GenUI compose and catalog tools.",
+      description: "Signal MCP — public need search and submission tools, plus GenUI compose.",
       name: "signal",
       transport: {
         type: "streamable-http",
