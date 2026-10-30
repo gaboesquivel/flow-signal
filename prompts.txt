@@ -99,3 +99,35 @@ Response: Wrote draft spec docs/specs/004-crewday-outcome-eval.md (frozen versio
 [2026-10-30T16:50:00Z]
 Prompt: In retro, is there anything you would add or change in our spec (004)?
 Response: Reviewed spec 004 critically and listed changes: fix the dev/test split (separate worlds), guard against generator leakage, measure decision quality and ARR-weighted outcomes, start from a messy migrated backlog, add confidence intervals and a regression rule, make latency a reported metric not a gate, drop the model grader from the PM policy, and cut a thinner first slice (agent sub-run as its own candidate spec). No files changed beyond this log.
+
+[2026-10-30T17:05:00Z]
+Prompt: ok please adjust accordingly (apply the retro changes to spec 004).
+Response: Rewrote spec 004: two separate frozen worlds (crewday-dev, crewday-test) from one recipe; signals generated from persona and scenario with a keyword-findable leakage check (<= 60%); migrated messy backlog at day 0; headline business outcomes (true prevention, decision quality vs. strategy memo, ARR-weighted revenue coverage, close-the-loop, PM organizing share); 95% bootstrap intervals and an interval-based regression rule; PM policy counts actions and never calls a model; latency reported not gated; unmeasurable metrics stated; five ordered slices. Moved live agent runs to candidate spec 005 and aligned decision 0004. Still uncommitted pending the Source code review session.
+
+[2026-10-30T17:12:00Z]
+Prompt: Yes, commit then (commit specs 004/005 and decision 0004 once Source code review merges PR 1).
+Response: PR 1 still open; held the commit and asked the review session to notify on merge (plus an idle notice). Will stage only the three spec/decision paths and prompts.txt on signal-mvp when it lands.
+
+
+[2026-10-30T16:08:28Z]
+Prompt: before continue with UI work lets review our /design strategy
+Response: Ran the design skill as a review: read DESIGN.md, PRODUCT.md, globals.css tokens, layout, task 07 public UI and paused task 08 Operator UI. Found DESIGN.md is still the template stub; tokens/fonts were set ad hoc with no recorded direction. Recommended running a design round (2-3 directions on the real board + triage screens) before resuming task 08.
+
+[2026-10-30T17:20:00Z]
+Prompt: /to-tasks (break spec 004 into tasks).
+Response: Wrote spec 004's Tasks section: 01 world format and fixture world; 02 generate the Crewday worlds; 03 engine, policies, arms and scorer (offline); 04 Signal vs. vote board lift run; 05 behaviour sweep with cache; 06 tagged runs, history, regression rule; 07 harder matching set. Replaced the Slices list with a pointer to Tasks. Ready: 01; then 02 and 03 in parallel. Not committed yet (waiting for PR 1 to merge, then a fresh branch from main).
+
+[2026-10-30T17:25:00Z]
+Prompt: Ship it when Source code review is done.
+Response: Checked the review session and PR 1; waiting on its merge notice before cutting a fresh branch from main and running ship on spec 004.
+
+[2026-10-30T17:28:00Z]
+Prompt: max parallel execution (for shipping spec 004).
+Response: Planned the ship as parallel worktree workers by blocker frontier, with recipe authoring pulled forward alongside task 01; still waiting for PR 1 to merge before starting.
+
+[2026-10-30T16:19:23Z]
+Prompt: Yes, design round
+Response: Wrote docs/design/round-1/brief.md and rendered three directions in parallel (a-ledger.html, b-instrument.html, c-chorus.html); screenshotted each (board, submit, triage, light/dark, phone). Recommended Ledger with Instrument's confidence readout and triage keyboard hints; awaiting user choice before recording DESIGN.md.
+
+[2026-10-30T16:19:56Z]
+(Ship, continued.) Merged task 09 agent evals (15/15 live), fixed search_needs to match every word, merged review fixes (internal error envelope, MCP rate limits, no regeneration on replay, agent prompt-injection hardening with approval on Operator writes). CI and Vercel preview green on 0b06aa2; squash-merged PR #1 as 1672717; production is live (pages, DB, public MCP 200; Operator fails closed until OPERATOR_SECRET is set). Spec 001 stays accepted (Operator UI task 08 deferred, paused on build/t08).
