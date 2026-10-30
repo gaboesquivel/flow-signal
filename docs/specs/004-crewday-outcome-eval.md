@@ -200,7 +200,7 @@ On `crewday-test`, default policy, Signal arm vs. vote board. A criterion passes
 - Tagged runs on `crewday-test` repeat 3 times with different seeds. History entries store each metric's point estimate and interval. A change counts as an **improvement** or **regression** against the previous tagged run only when the two intervals do not overlap. Otherwise it is reported as **no detectable change**.
 - Dev runs may replay AI responses from a local cache keyed by model, prompt hash, and input (`--cached`). Tagged runs are always live.
 - A full world in both arms at the default policy is budgeted at about $5 of model spend. _Assumption; the first run measures it._
-- Never in CI (spec 001's CI policy). `pnpm test` gets only an offline smoke: a 50-signal slice with fake AI ports on PGlite.
+- Never in CI (spec 001's CI policy), by contract: every live eval entry point calls `refuseInCi` (`evals/ci-guard.ts`) and exits when `CI` is set, and `tests/evals/ci-contract.test.ts` fails if a workflow invokes an eval or an entry point drops the guard. `pnpm test` gets only an offline smoke: a 50-signal slice with fake AI ports on PGlite.
 
 ### Commands
 
@@ -247,7 +247,7 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 - [x] 01: World format and fixture world
 - [x] 02: Generate the Crewday worlds
 - [x] 03: Simulation engine, policies, arms, and scorer (offline)
-- [ ] 04: Signal vs. vote board on Crewday (the lift run) _(runner built and merged; live dev and test results pending)_
+- [ ] 04: Signal vs. vote board on Crewday (the lift run) _(runner built and merged; live dev and test results pending: the first live runs were stopped on 2026-10-30 before finishing, and evals are on hold until the team reruns them)_
 - [ ] 05: Behaviour sweep with cached AI responses _(deferred 2026-10-30: shipped without it for speed)_
 - [ ] 06: Tagged runs, history, and the regression rule _(deferred 2026-10-30: shipped without it for speed)_
 - [ ] 07: Harder matching set from the test world _(deferred 2026-10-30: shipped without it for speed)_
