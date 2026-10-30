@@ -21,4 +21,9 @@ describe("isDatabaseUnavailable", () => {
       false,
     );
   });
+
+  it("treats every SQLSTATE class 57 error (operator intervention, e.g. statement timeout) as unavailable", () => {
+    for (const code of ["57014", "57P01", "57P03"])
+      expect(isDatabaseUnavailable(Object.assign(new Error("x"), { code })), code).toBe(true);
+  });
 });

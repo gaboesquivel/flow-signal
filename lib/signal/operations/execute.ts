@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 import type { Actor } from "../context";
-import { isDatabaseUnavailable, SignalError, toErrorEnvelope } from "../errors";
+import {
+  describeUnexpectedError,
+  INTERNAL_ERROR_MESSAGE,
+  isDatabaseUnavailable,
+  SignalError,
+  toErrorEnvelope,
+} from "../errors";
 import type { ErrorEnvelope } from "../errors";
 import { createOperationContext } from "../runtime";
 import { implicitErrors } from "./types";
@@ -16,7 +22,7 @@ const failure = (error: SignalError): OperationResult => ({
 
 /**
  * The single execution path behind every surface: validate input, build the context, run,
- * map errors to the envelope, and parse the output. Adapters only translate transport.
+ * map errors to the envelope (anything unexpected becomes `internal`), and parse the output. Adapters only translate transport.
  * Data is returned as plain JSON so every surface returns byte-identical values.
  */
 export const executeOperation = async (
@@ -47,6 +53,11 @@ export const executeOperation = async (
       return failure(
         new SignalError("database_unavailable", "The Signal database is unavailable."),
       );
-    throw error;
+    // Driver errors carry SQL and params (emails, names, bodies): log a sanitized line and
+    // return a generic envelope instead of letting a surface echo `error.message`.
+    console.error(
+      `[signal] ${operation.name} failed unexpectedly: ${describeUnexpectedError(error)}`,
+    );
+    return failure(new SignalError("internal", INTERNAL_ERROR_MESSAGE));
   }
 };

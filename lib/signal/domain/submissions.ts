@@ -180,12 +180,18 @@ const createDraftNeed = async (
 
 const channelFor = (ref: string) => (ref.startsWith("mcp:") ? "mcp" : "web");
 
+/**
+ * `replayed` (internal, not in the output schema) is true when a reused `idempotencyKey`
+ * returned the stored result, so callers skip side effects such as suggestion generation.
+ */
+export type SubmitResult = SubmitOutput & { replayed: boolean };
+
 export const submitSignal = async (
   { actor, ai, clock, db }: OperationContext,
   input: SubmitInput,
-): Promise<SubmitOutput> => {
+): Promise<SubmitResult> => {
   const prior = await findPrior(db, input);
-  if (prior) return prior;
+  if (prior) return { ...prior, replayed: true };
 
   const email = normalizeEmail(input.email);
   const existingNeedId =
@@ -260,14 +266,15 @@ export const submitSignal = async (
       return {
         attachedTo,
         needId,
+        replayed: false,
         signalId: signal.id,
         trackingUrl: trackingUrlFor(trackingToken),
-      } satisfies SubmitOutput;
+      } satisfies SubmitResult;
     });
   } catch (error) {
     if (!(error instanceof DuplicateSubmissionError)) throw error;
     const raced = await findPrior(db, input);
     if (!raced) throw error;
-    return raced;
+    return { ...raced, replayed: true };
   }
 };

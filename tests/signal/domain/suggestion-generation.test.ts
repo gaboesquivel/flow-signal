@@ -261,4 +261,29 @@ describeWithDatabase("suggestion generation", () => {
     expect(f.n1.need.id).toBeTruthy();
     configureSignalRuntime({ ai: createFakeAi(), clock: { now: () => new Date() } });
   });
+
+  it("a replayed submit_signal (same idempotencyKey) schedules nothing", async () => {
+    await build();
+    scheduledGenerations.length = 0;
+    const submission = {
+      body: "Board members want the KPI dashboard as a monthly snapshot.",
+      email: "lee@example.test",
+      idempotencyKey: "gen-replay-0001",
+      target: {
+        newNeed: {
+          statement:
+            "Board members need monthly KPI snapshots so that meetings use current numbers",
+        },
+      },
+      title: "Monthly KPI snapshot",
+    };
+    const human = { kind: "human" as const, ref: "web" };
+    const first = await executeOperation(submitSignal, submission, human);
+    const replay = await executeOperation(submitSignal, submission, human);
+    expect(first.ok && replay.ok).toBe(true);
+    expect(replay).toEqual(first);
+    // `replayed` is internal: the public output is unchanged.
+    expect(replay.ok && "replayed" in (replay.data as object)).toBe(false);
+    expect(scheduledGenerations).toHaveLength(1);
+  });
 });

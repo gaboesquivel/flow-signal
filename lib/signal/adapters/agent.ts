@@ -1,5 +1,6 @@
 import { defineDurableCallback, defineDurableSchema, defineTool } from "eve/tools";
 import type { ToolContext } from "eve/tools";
+import { always } from "eve/tools/approval";
 
 import { executeOperation } from "../operations/execute";
 import { operations } from "../operations/registry";
@@ -12,6 +13,8 @@ import { passthroughSchema } from "./schema";
  * of them (`agents/<agent>/agent/tools/signal.ts` resolves these with `defineDynamic`).
  * Callbacks are durable (`defineDurableCallback`) and capture only the operation name, so a
  * parked call replays in a fresh process. Errors return the envelope instead of throwing.
+ * On the Operator agent, `effects: "write"` operations require user approval (`always()`), so
+ * a write never runs because tool output (signals, briefs, customer text) asked for it.
  */
 
 export type SignalAgent = "assistant" | "operator";
@@ -33,6 +36,7 @@ export const signalAgentTools = (agent: SignalAgent, ops: readonly AnyOperation[
       return [
         operation.name,
         defineTool({
+          ...(agent === "operator" && operation.effects === "write" ? { approval: always() } : {}),
           description: operation.description,
           execute: defineDurableCallback({
             callback: async (

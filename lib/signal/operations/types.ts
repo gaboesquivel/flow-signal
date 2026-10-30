@@ -15,15 +15,24 @@ export interface Operation<I extends z.ZodObject = z.ZodObject, O extends z.ZodT
   /** Shared by the MCP tool, the agent tool, and OpenAPI; written for an agent reading it. */
   description: string;
   /**
-   * Codes `run` may throw as `SignalError`. `validation_failed`, `database_unavailable`, and
-   * `rate_limited` (plus `unauthorized` for operator operations) are implicit on every surface.
+   * Codes `run` may throw as `SignalError`. `validation_failed`, `database_unavailable`,
+   * `rate_limited`, and `internal` (plus `unauthorized` for operator operations) are implicit on
+   * every surface.
    */
   errors: readonly ErrorCode[];
+  /**
+   * `"write"` marks an operation that changes PM-owned state (merges, splits, resolutions,
+   * criteria, decisions). The Operator agent asks the user to approve each such call.
+   */
+  effects?: "read" | "write";
   /** REST mapping; `:param` segments are merged into the input. GET reads the query string. */
   http: { method: HttpMethod; path: string };
   /** zod object: REST query/body, MCP `inputSchema`, and agent tool schema. Use `z.coerce` for GET numbers. */
   input: I;
-  /** Per-operation HTTP limits; public operations default to 120 requests/min per IP and 16 KB bodies. */
+  /**
+   * Per-operation limits; public operations default to 120 requests/min per IP (REST and MCP
+   * share the budget) and 16 KB REST bodies.
+   */
   limits?: { maxBodyBytes?: number; requestsPerMinute?: number };
   /** snake_case; the MCP and agent tool name. */
   name: string;
@@ -64,5 +73,5 @@ export const isPlanned = (
 
 export const implicitErrors = (access: Access): ErrorCode[] =>
   access === "operator"
-    ? ["validation_failed", "database_unavailable", "rate_limited", "unauthorized"]
-    : ["validation_failed", "database_unavailable", "rate_limited"];
+    ? ["validation_failed", "database_unavailable", "rate_limited", "internal", "unauthorized"]
+    : ["validation_failed", "database_unavailable", "rate_limited", "internal"];

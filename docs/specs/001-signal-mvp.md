@@ -135,7 +135,7 @@ Thin adapters expose the registry and contain no business logic:
 
 ### Typed API contract (before any UI)
 
-Generated from the operation registry: route handlers validate with the operation's zod schemas, and the UI uses only the generated client in `lib/signal/client.ts`. The same inputs, outputs, and error codes apply to the MCP and agent tools. Every error is `{ error: { code, message, retryable } }` with codes `validation_failed`, `not_found`, `conflict`, `rate_limited`, `ai_unavailable`, `database_unavailable`, `unauthorized`.
+Generated from the operation registry: route handlers validate with the operation's zod schemas, and the UI uses only the generated client in `lib/signal/client.ts`. The same inputs, outputs, and error codes apply to the MCP and agent tools. Every error is `{ error: { code, message, retryable } }` with codes `validation_failed`, `not_found`, `conflict`, `rate_limited`, `ai_unavailable`, `database_unavailable`, `unauthorized`, and `internal` (any unexpected failure; a generic message, never driver text).
 
 Public (no auth, rate limited per IP, body limits):
 
