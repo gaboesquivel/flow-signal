@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-10-30T17:10:42.971Z",
+  "generator": {
+    "models": {
+      "writer": "google/gemini-3-flash"
+    },
+    "promptsHash": "e3d803060e2997739d87063a729a84c16faa0a2173f5c6e149ddae574c30f90f",
+    "seeds": {
+      "plan": 20270101
+    }
+  },
+  "keywordFindableShare": 0.4451,
+  "review": {
+    "dropped": 0,
+    "fixed": 0,
+    "method": "none (deferred)",
+    "notes": "Review deferred for speed. Leakage: keyword-findable share 0.4468 before and 0.4468 after one strict regeneration pass over 0 signals. Labels: existedAtTime recomputed from main asks only (spec 004 review fix); keyword-findable share updated to 0.4451.",
+    "reviewer": "none",
+    "sampleSize": 0
+  },
+  "startsAt": "2027-01-01T00:00:00Z",
+  "version": "v1",
+  "world": "test"
+}

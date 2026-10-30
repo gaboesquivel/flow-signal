@@ -1,0 +1,1802 @@
+[
+  {
+    "key": "d-p-001",
+    "accountKey": "aurora",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.villanueva@crewday.example",
+    "name": "Esteban Villanueva",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-002",
+    "accountKey": "aurora",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "malik.galloway@crewday.example",
+    "name": "Malik Galloway",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-003",
+    "accountKey": "bayside-scoops",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.yilmaz@baysidescoops.example",
+    "name": "Linh Yilmaz",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-004",
+    "accountKey": "bayside-scoops",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.esposito@baysidescoops.example",
+    "name": "Lucia Esposito",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-005",
+    "accountKey": "blue-anchor",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@blueanchorseafood.example",
+    "name": "Blue Anchor Seafood Houses support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-006",
+    "accountKey": "blue-anchor",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gemma.brannigan@crewday.example",
+    "name": "Gemma Brannigan",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-007",
+    "accountKey": "blue-anchor",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hana.gutierrez@blueanchorseafood.example",
+    "name": "Hana Gutierrez",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-008",
+    "accountKey": "blue-anchor",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "imani.halvorsen@blueanchorseafood.example",
+    "name": "Imani Halvorsen",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-009",
+    "accountKey": "blue-anchor",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.montoya@blueanchorseafood.example",
+    "name": "Nikhil Montoya",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-010",
+    "accountKey": "blue-anchor",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.bellamy@blueanchorseafood.example",
+    "name": "Quinn Bellamy",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-011",
+    "accountKey": "cedar-hollow",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.ferreira@cedarhollowcamp.example",
+    "name": "Ines Ferreira",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-012",
+    "accountKey": "cobalt-parking",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@cobaltparking.example",
+    "name": "Cobalt Parking Services support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-013",
+    "accountKey": "cobalt-parking",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.zielinski@cobaltparking.example",
+    "name": "Farah Zielinski",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-014",
+    "accountKey": "cobalt-parking",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.bautista@crewday.example",
+    "name": "Lorenzo Bautista",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-015",
+    "accountKey": "copperleaf",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@copperleafoutfitters.example",
+    "name": "Copperleaf Outfitters support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-016",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "felipe.esposito@copperleafoutfitters.example",
+    "name": "Felipe Esposito",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-017",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hamza.petrakis@copperleafoutfitters.example",
+    "name": "Hamza Petrakis",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-018",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.santana@crewday.example",
+    "name": "Jana Santana",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-019",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "keiko.toussaint@copperleafoutfitters.example",
+    "name": "Keiko Toussaint",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-020",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.engstrom@copperleafoutfitters.example",
+    "name": "Leila Engstrom",
+    "role": "regional director (escalation)"
+  },
+  {
+    "key": "d-p-021",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "pilar.desai@copperleafoutfitters.example",
+    "name": "Pilar Desai",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-022",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.nguyen@copperleafoutfitters.example",
+    "name": "Sanjay Nguyen",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-023",
+    "accountKey": "copperleaf",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wanjiru.lindqvist@copperleafoutfitters.example",
+    "name": "Wanjiru Lindqvist",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-024",
+    "accountKey": "corner-crust",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "malik.zielinski@cornercrust.example",
+    "name": "Malik Zielinski",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-025",
+    "accountKey": "corner-crust",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "odette.dabrowski@cornercrust.example",
+    "name": "Odette Dabrowski",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-026",
+    "accountKey": "corner-crust",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rania.kaur@cornercrust.example",
+    "name": "Rania Kaur",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-027",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "chidi.bautista@evergreenjanitorial.example",
+    "name": "Chidi Bautista",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-028",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.halvorsen@evergreenjanitorial.example",
+    "name": "Lorenzo Halvorsen",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-029",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.lindqvist@evergreenjanitorial.example",
+    "name": "Lucia Lindqvist",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-030",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mareike.gutierrez@evergreenjanitorial.example",
+    "name": "Mareike Gutierrez",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-031",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.petrakis@evergreenjanitorial.example",
+    "name": "Rafael Petrakis",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-032",
+    "accountKey": "evergreen",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yara.iwasaki@evergreenjanitorial.example",
+    "name": "Yara Iwasaki",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-033",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "alejandro.whitlock@fairwaygrocers.example",
+    "name": "Alejandro Whitlock",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-034",
+    "accountKey": "fairway",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@fairwaygrocers.example",
+    "name": "Fairway Grocers support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-035",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.eklund@fairwaygrocers.example",
+    "name": "Dalia Eklund",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-036",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "elena.toussaint@fairwaygrocers.example",
+    "name": "Elena Toussaint",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-037",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "felipe.hoang@fairwaygrocers.example",
+    "name": "Felipe Hoang",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-038",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gideon.zamora@fairwaygrocers.example",
+    "name": "Gideon Zamora",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-039",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jonah.toussaint@fairwaygrocers.example",
+    "name": "Jonah Toussaint",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-040",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mateo.albrecht@fairwaygrocers.example",
+    "name": "Mateo Albrecht",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-041",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "priya.galloway@fairwaygrocers.example",
+    "name": "Priya Galloway",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-042",
+    "accountKey": "fairway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "thanh.iwasaki@crewday.example",
+    "name": "Thanh Iwasaki",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-043",
+    "accountKey": "grandview",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@grandviewvenues.example",
+    "name": "Grandview Venues & Concessions support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-044",
+    "accountKey": "grandview",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dara.iwasaki@crewday.example",
+    "name": "Dara Iwasaki",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-045",
+    "accountKey": "grandview",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hamza.esposito@grandviewvenues.example",
+    "name": "Hamza Esposito",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-046",
+    "accountKey": "grandview",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "keiko.sandoval@grandviewvenues.example",
+    "name": "Keiko Sandoval",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-047",
+    "accountKey": "grandview",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.pacheco@grandviewvenues.example",
+    "name": "Leila Pacheco",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-048",
+    "accountKey": "grandview",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nico.fairbanks@crewday.example",
+    "name": "Nico Fairbanks",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-049",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bea.galloway@harborlinehotels.example",
+    "name": "Bea Galloway",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-050",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bogdan.lindqvist@harborlinehotels.example",
+    "name": "Bogdan Lindqvist",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-051",
+    "accountKey": "harborline",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@harborlinehotels.example",
+    "name": "Harborline Hotels Group support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-052",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "elena.whitlock@harborlinehotels.example",
+    "name": "Elena Whitlock",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-053",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.bautista@crewday.example",
+    "name": "Jana Bautista",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-054",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mateo.engstrom@harborlinehotels.example",
+    "name": "Mateo Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-055",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nico.rasmussen@harborlinehotels.example",
+    "name": "Nico Rasmussen",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-056",
+    "accountKey": "harborline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yara.eklund@harborlinehotels.example",
+    "name": "Yara Eklund",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-057",
+    "accountKey": "harvest-table",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ximena.albrecht@crewday.example",
+    "name": "Ximena Albrecht",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-058",
+    "accountKey": "harvest-table",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yara.tran@crewday.example",
+    "name": "Yara Tran",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-059",
+    "accountKey": "high-tide",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rosa.albrecht@hightidesurf.example",
+    "name": "Rosa Albrecht",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-060",
+    "accountKey": "juniper",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.rasmussen@juniperflorist.example",
+    "name": "Ngozi Rasmussen",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-061",
+    "accountKey": "juniper",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "thanh.rasmussen@juniperflorist.example",
+    "name": "Thanh Rasmussen",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-062",
+    "accountKey": "kettle",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@kettleandcrumb.example",
+    "name": "Kettle & Crumb Bakery Cafés support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-063",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "felipe.mbeki@kettleandcrumb.example",
+    "name": "Felipe Mbeki",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-064",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lars.ferreira@kettleandcrumb.example",
+    "name": "Lars Ferreira",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-065",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mareike.ferreira@kettleandcrumb.example",
+    "name": "Mareike Ferreira",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-066",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.toussaint@kettleandcrumb.example",
+    "name": "Oksana Toussaint",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-067",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wendell.kaur@crewday.example",
+    "name": "Wendell Kaur",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-068",
+    "accountKey": "kettle",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ximena.ibarra@kettleandcrumb.example",
+    "name": "Ximena Ibarra",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-069",
+    "accountKey": "kingsway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.desai@crewday.example",
+    "name": "Aisha Desai",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-070",
+    "accountKey": "kingsway",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ezra.chau@crewday.example",
+    "name": "Ezra Chau",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-071",
+    "accountKey": "lanternhouse",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@lanternhouseinns.example",
+    "name": "Lanternhouse Inns support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-072",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "emeka.dabrowski@lanternhouseinns.example",
+    "name": "Emeka Dabrowski",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-073",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.jovanovic@lanternhouseinns.example",
+    "name": "Esteban Jovanovic",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-074",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kalani.bellamy@crewday.example",
+    "name": "Kalani Bellamy",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-075",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kwame.tran@lanternhouseinns.example",
+    "name": "Kwame Tran",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-076",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "marisol.novak@lanternhouseinns.example",
+    "name": "Marisol Novak",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-077",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mateo.sandoval@lanternhouseinns.example",
+    "name": "Mateo Sandoval",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-078",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.haddad@lanternhouseinns.example",
+    "name": "Mei Haddad",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-079",
+    "accountKey": "lanternhouse",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rohan.takahashi@lanternhouseinns.example",
+    "name": "Rohan Takahashi",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-080",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "alejandro.jovanovic@larkspurliving.example",
+    "name": "Alejandro Jovanovic",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-081",
+    "accountKey": "larkspur",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@larkspurliving.example",
+    "name": "Larkspur Senior Living support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-082",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.nguyen@larkspurliving.example",
+    "name": "Dalia Nguyen",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-083",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "emeka.brannigan@larkspurliving.example",
+    "name": "Emeka Brannigan",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-084",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "felipe.ueda@larkspurliving.example",
+    "name": "Felipe Ueda",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-085",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jonah.santana@crewday.example",
+    "name": "Jonah Santana",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-086",
+    "accountKey": "larkspur",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.brannigan@larkspurliving.example",
+    "name": "Lucia Brannigan",
+    "role": "regional director (escalation)"
+  },
+  {
+    "key": "d-p-087",
+    "accountKey": "little-fig",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.pacheco@littlefigcafe.example",
+    "name": "Teodoro Pacheco",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-088",
+    "accountKey": "lucky-lane",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hana.vasquez@luckylanebowl.example",
+    "name": "Hana Vasquez",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-089",
+    "accountKey": "mainstreet",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@mainstreethardware.example",
+    "name": "Main Street Hardware Co support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-090",
+    "accountKey": "mainstreet",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dara.sandoval@mainstreethardware.example",
+    "name": "Dara Sandoval",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-091",
+    "accountKey": "mainstreet",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ezra.haddad@mainstreethardware.example",
+    "name": "Ezra Haddad",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-092",
+    "accountKey": "mainstreet",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.lindqvist@mainstreethardware.example",
+    "name": "Harper Lindqvist",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-093",
+    "accountKey": "mainstreet",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.valdivia@mainstreethardware.example",
+    "name": "Rafael Valdivia",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-094",
+    "accountKey": "mainstreet",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tomasz.okonkwo@crewday.example",
+    "name": "Tomasz Okonkwo",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-095",
+    "accountKey": "mango-tree",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "emeka.vasquez@mangotreethai.example",
+    "name": "Emeka Vasquez",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-096",
+    "accountKey": "mango-tree",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "marisol.eklund@mangotreethai.example",
+    "name": "Marisol Eklund",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-097",
+    "accountKey": "mango-tree",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "priya.chau@mangotreethai.example",
+    "name": "Priya Chau",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-098",
+    "accountKey": "mango-tree",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "uma.xiong@mangotreethai.example",
+    "name": "Uma Xiong",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-099",
+    "accountKey": "mango-tree",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "vivian.kaur@mangotreethai.example",
+    "name": "Vivian Kaur",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-100",
+    "accountKey": "meadowbrook",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bogdan.halvorsen@crewday.example",
+    "name": "Bogdan Halvorsen",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-101",
+    "accountKey": "meadowbrook",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.ferreira@crewday.example",
+    "name": "Lorenzo Ferreira",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-102",
+    "accountKey": "metro-fitness",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@metrofitnessclubs.example",
+    "name": "Metro Fitness Clubs support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-103",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dmitri.esposito@metrofitnessclubs.example",
+    "name": "Dmitri Esposito",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-104",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.sandoval@metrofitnessclubs.example",
+    "name": "Esteban Sandoval",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-105",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.vasquez@metrofitnessclubs.example",
+    "name": "Farah Vasquez",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-106",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gideon.eklund@metrofitnessclubs.example",
+    "name": "Gideon Eklund",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-107",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.desai@metrofitnessclubs.example",
+    "name": "Jalen Desai",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-108",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "keiko.reyes@metrofitnessclubs.example",
+    "name": "Keiko Reyes",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-109",
+    "accountKey": "metro-fitness",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.dabrowski@crewday.example",
+    "name": "Oksana Dabrowski",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-110",
+    "accountKey": "northpoint",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@northpointrx.example",
+    "name": "Northpoint Pharmacy support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-111",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dmitri.nakashima@crewday.example",
+    "name": "Dmitri Nakashima",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-112",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.haddad@northpointrx.example",
+    "name": "Farah Haddad",
+    "role": "regional director (escalation)"
+  },
+  {
+    "key": "d-p-113",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "isaac.iwasaki@crewday.example",
+    "name": "Isaac Iwasaki",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-114",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.iwasaki@northpointrx.example",
+    "name": "Linh Iwasaki",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-115",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.galloway@northpointrx.example",
+    "name": "Lorenzo Galloway",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-116",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rania.albrecht@northpointrx.example",
+    "name": "Rania Albrecht",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-117",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "saoirse.hoang@northpointrx.example",
+    "name": "Saoirse Hoang",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-118",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tamar.lindqvist@northpointrx.example",
+    "name": "Tamar Lindqvist",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-119",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "valeria.jovanovic@northpointrx.example",
+    "name": "Valeria Jovanovic",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-120",
+    "accountKey": "northpoint",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "zara.engstrom@northpointrx.example",
+    "name": "Zara Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-121",
+    "accountKey": "northshore-yoga",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gideon.haddad@northshoreyoga.example",
+    "name": "Gideon Haddad",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-122",
+    "accountKey": "northshore-yoga",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.montoya@northshoreyoga.example",
+    "name": "Ines Montoya",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-123",
+    "accountKey": "patchwork",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yusuf.lindqvist@patchworkthrift.example",
+    "name": "Yusuf Lindqvist",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-124",
+    "accountKey": "pepperwood",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@pepperwoodkitchens.example",
+    "name": "Pepperwood Kitchens support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-125",
+    "accountKey": "pepperwood",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.pacheco@pepperwoodkitchens.example",
+    "name": "Jalen Pacheco",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-126",
+    "accountKey": "pepperwood",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.vasquez@pepperwoodkitchens.example",
+    "name": "Jana Vasquez",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-127",
+    "accountKey": "pepperwood",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mareike.obi@pepperwoodkitchens.example",
+    "name": "Mareike Obi",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-128",
+    "accountKey": "pepperwood",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.takahashi@pepperwoodkitchens.example",
+    "name": "Ngozi Takahashi",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-129",
+    "accountKey": "pepperwood",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sione.kowalczyk@crewday.example",
+    "name": "Sione Kowalczyk",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-130",
+    "accountKey": "polished-nail",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "amara.engstrom@polishednail.example",
+    "name": "Amara Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-131",
+    "accountKey": "polished-nail",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.valdivia@polishednail.example",
+    "name": "Harper Valdivia",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-132",
+    "accountKey": "polished-nail",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.wojcik@polishednail.example",
+    "name": "Oksana Wojcik",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-133",
+    "accountKey": "quill",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "amara.zamora@quillandpage.example",
+    "name": "Amara Zamora",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-134",
+    "accountKey": "quill",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@quillandpage.example",
+    "name": "Quill & Page Bookshops support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-135",
+    "accountKey": "quill",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "elena.galloway@crewday.example",
+    "name": "Elena Galloway",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-136",
+    "accountKey": "quill",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "joaquin.valdivia@quillandpage.example",
+    "name": "Joaquin Valdivia",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-137",
+    "accountKey": "quill",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.rasmussen@quillandpage.example",
+    "name": "Mei Rasmussen",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-138",
+    "accountKey": "ridgeline",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@ridgelineski.example",
+    "name": "Ridgeline Ski Resorts support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-139",
+    "accountKey": "ridgeline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.yilmaz@crewday.example",
+    "name": "Farah Yilmaz",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-140",
+    "accountKey": "ridgeline",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.valdivia@ridgelineski.example",
+    "name": "Mei Valdivia",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-141",
+    "accountKey": "rosie-diner",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gemma.esposito@rosiesdiner.example",
+    "name": "Gemma Esposito",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-142",
+    "accountKey": "rosie-diner",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.yilmaz@rosiesdiner.example",
+    "name": "Ines Yilmaz",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-143",
+    "accountKey": "rosie-diner",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.brannigan@rosiesdiner.example",
+    "name": "Leila Brannigan",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-144",
+    "accountKey": "rosie-diner",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.ueda@rosiesdiner.example",
+    "name": "Paulo Ueda",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-145",
+    "accountKey": "saltmarsh",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@saltmarshgroup.example",
+    "name": "Saltmarsh Restaurant Group support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-146",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ezra.quintero@saltmarshgroup.example",
+    "name": "Ezra Quintero",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-147",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "fiona.montoya@saltmarshgroup.example",
+    "name": "Fiona Montoya",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-148",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.laurent@saltmarshgroup.example",
+    "name": "Linh Laurent",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-149",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.engstrom@saltmarshgroup.example",
+    "name": "Lucia Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-150",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.tran@saltmarshgroup.example",
+    "name": "Oksana Tran",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-151",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.vasquez@saltmarshgroup.example",
+    "name": "Oksana Vasquez",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-152",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "pilar.ferreira@saltmarshgroup.example",
+    "name": "Pilar Ferreira",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-153",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.ramos@saltmarshgroup.example",
+    "name": "Rafael Ramos",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-154",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "saoirse.iwasaki@crewday.example",
+    "name": "Saoirse Iwasaki",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-155",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.ramos@saltmarshgroup.example",
+    "name": "Teodoro Ramos",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-156",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "uma.ueda@saltmarshgroup.example",
+    "name": "Uma Ueda",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-157",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "valeria.eklund@saltmarshgroup.example",
+    "name": "Valeria Eklund",
+    "role": "regional director (escalation)"
+  },
+  {
+    "key": "d-p-158",
+    "accountKey": "saltmarsh",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wanjiru.obi@saltmarshgroup.example",
+    "name": "Wanjiru Obi",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-159",
+    "accountKey": "silver-spoon",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.mbeki@silverspooncatering.example",
+    "name": "Sanjay Mbeki",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-160",
+    "accountKey": "silver-spoon",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.okonkwo@silverspooncatering.example",
+    "name": "Teodoro Okonkwo",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-161",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "amara.reyes@crewday.example",
+    "name": "Amara Reyes",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-162",
+    "accountKey": "sunbeam",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@sunbeamcinemas.example",
+    "name": "Sunbeam Cinemas support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-163",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.laurent@sunbeamcinemas.example",
+    "name": "Harper Laurent",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-164",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "isaac.jaramillo@sunbeamcinemas.example",
+    "name": "Isaac Jaramillo",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-165",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.eklund@sunbeamcinemas.example",
+    "name": "Jalen Eklund",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-166",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "malik.engstrom@sunbeamcinemas.example",
+    "name": "Malik Engstrom",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-167",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mateo.kaur@sunbeamcinemas.example",
+    "name": "Mateo Kaur",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-168",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.engstrom@sunbeamcinemas.example",
+    "name": "Ngozi Engstrom",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-169",
+    "accountKey": "sunbeam",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "olu.nguyen@sunbeamcinemas.example",
+    "name": "Olu Nguyen",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-170",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "alejandro.rasmussen@swiftbaydelivery.example",
+    "name": "Alejandro Rasmussen",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-171",
+    "accountKey": "swiftbay",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@swiftbaydelivery.example",
+    "name": "Swiftbay Delivery support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-172",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gideon.bellamy@swiftbaydelivery.example",
+    "name": "Gideon Bellamy",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-173",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jonah.kowalczyk@crewday.example",
+    "name": "Jonah Kowalczyk",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-174",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kalani.vasquez@swiftbaydelivery.example",
+    "name": "Kalani Vasquez",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-175",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mateo.desai@swiftbaydelivery.example",
+    "name": "Mateo Desai",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-176",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.hoang@swiftbaydelivery.example",
+    "name": "Nikhil Hoang",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-177",
+    "accountKey": "swiftbay",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rohan.ramos@swiftbaydelivery.example",
+    "name": "Rohan Ramos",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-178",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bea.xiong@crewday.example",
+    "name": "Bea Xiong",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "d-p-179",
+    "accountKey": "tessera",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@tesserahotels.example",
+    "name": "Tessera Boutique Hotels support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-180",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "imani.yilmaz@tesserahotels.example",
+    "name": "Imani Yilmaz",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-181",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.esposito@tesserahotels.example",
+    "name": "Ines Esposito",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-182",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.fairbanks@tesserahotels.example",
+    "name": "Leila Fairbanks",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-183",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.hoang@tesserahotels.example",
+    "name": "Lucia Hoang",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-184",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.obi@tesserahotels.example",
+    "name": "Sanjay Obi",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-185",
+    "accountKey": "tessera",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.xiong@crewday.example",
+    "name": "Teodoro Xiong",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-186",
+    "accountKey": "two-rivers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ezra.pereira@tworiversbrewpub.example",
+    "name": "Ezra Pereira",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-187",
+    "accountKey": "two-rivers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "fiona.takahashi@tworiversbrewpub.example",
+    "name": "Fiona Takahashi",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-188",
+    "accountKey": "urban-sprout",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "chidi.wojcik@urbansprout.example",
+    "name": "Chidi Wojcik",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-189",
+    "accountKey": "urban-sprout",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ezra.achebe@urbansprout.example",
+    "name": "Ezra Achebe",
+    "role": "shift manager"
+  },
+  {
+    "key": "d-p-190",
+    "accountKey": "urban-sprout",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.albrecht@urbansprout.example",
+    "name": "Leila Albrecht",
+    "role": "owner-operator"
+  },
+  {
+    "key": "d-p-191",
+    "accountKey": "urban-sprout",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.jovanovic@urbansprout.example",
+    "name": "Lorenzo Jovanovic",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "d-p-192",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bogdan.xiong@verdantgardens.example",
+    "name": "Bogdan Xiong",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "d-p-193",
+    "accountKey": "verdant",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@verdantgardens.example",
+    "name": "Verdant Garden Centers support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "d-p-194",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.osei@verdantgardens.example",
+    "name": "Jana Osei",
+    "role": "ops admin"
+  },
+  {
+    "key": "d-p-195",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kwame.nakashima@verdantgardens.example",
+    "name": "Kwame Nakashima",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-196",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.novak@verdantgardens.example",
+    "name": "Ngozi Novak",
+    "role": "IT or security"
+  },
+  {
+    "key": "d-p-197",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.albrecht@verdantgardens.example",
+    "name": "Nikhil Albrecht",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-198",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "odette.iwasaki@crewday.example",
+    "name": "Odette Iwasaki",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "d-p-199",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "pilar.vasquez@verdantgardens.example",
+    "name": "Pilar Vasquez",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "d-p-200",
+    "accountKey": "verdant",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.castellano@crewday.example",
+    "name": "Teodoro Castellano",
+    "role": "sales rep filing for prospect"
+  }
+]

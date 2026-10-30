@@ -1,0 +1,362 @@
+[
+  {
+    "arrCents": 56000000,
+    "churnRisk": true,
+    "domain": "ironvale.example",
+    "key": "ironvale",
+    "name": "Ironvale Logistics",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 45000000,
+    "churnRisk": false,
+    "domain": "meridian-care.example",
+    "key": "meridian-care",
+    "name": "Meridian Care Homes",
+    "openDealCents": 9000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 36000000,
+    "churnRisk": true,
+    "domain": "northgate-security.example",
+    "key": "northgate-security",
+    "name": "Northgate Security Services",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 29000000,
+    "churnRisk": false,
+    "domain": "pallet-ridge.example",
+    "key": "pallet-ridge",
+    "name": "Pallet Ridge Distribution",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 24000000,
+    "churnRisk": false,
+    "domain": "clearwater-staffing.example",
+    "key": "clearwater-staffing",
+    "name": "Clearwater Nurse Staffing",
+    "openDealCents": 12000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 18000000,
+    "churnRisk": false,
+    "domain": "sparkline-facilities.example",
+    "key": "sparkline-facilities",
+    "name": "Sparkline Facility Services",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 9800000,
+    "churnRisk": false,
+    "domain": "bluefin-freight.example",
+    "key": "bluefin-freight",
+    "name": "Bluefin Freight",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 7200000,
+    "churnRisk": true,
+    "domain": "tallyho-couriers.example",
+    "key": "tallyho-couriers",
+    "name": "Tallyho Couriers",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 8500000,
+    "churnRisk": false,
+    "domain": "kestrel-homecare.example",
+    "key": "kestrel-homecare",
+    "name": "Kestrel Homecare",
+    "openDealCents": 6000000,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 6400000,
+    "churnRisk": true,
+    "domain": "oakmoor-clinics.example",
+    "key": "oakmoor-clinics",
+    "name": "Oakmoor Clinics",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 5500000,
+    "churnRisk": false,
+    "domain": "redline-depots.example",
+    "key": "redline-depots",
+    "name": "Redline Depots",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4800000,
+    "churnRisk": true,
+    "domain": "quayside-cold.example",
+    "key": "quayside-cold",
+    "name": "Quayside Cold Storage",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4400000,
+    "churnRisk": false,
+    "domain": "brightpath-cleaning.example",
+    "key": "brightpath-cleaning",
+    "name": "Brightpath Cleaning",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4000000,
+    "churnRisk": false,
+    "domain": "sentinel-patrol.example",
+    "key": "sentinel-patrol",
+    "name": "Sentinel Patrol Group",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 3800000,
+    "churnRisk": false,
+    "domain": "crestview-pharmstaff.example",
+    "key": "crestview-pharmstaff",
+    "name": "Crestview Pharmacy Staffing",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 10500000,
+    "churnRisk": false,
+    "domain": "ferro-fulfilment.example",
+    "key": "ferro-fulfilment",
+    "name": "Ferro Fulfilment",
+    "openDealCents": 18000000,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 3300000,
+    "churnRisk": false,
+    "domain": "lumen-homehealth.example",
+    "key": "lumen-homehealth",
+    "name": "Lumen Home Health",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 2900000,
+    "churnRisk": false,
+    "domain": "polar-parcel.example",
+    "key": "polar-parcel",
+    "name": "Polar Parcel",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 2700000,
+    "churnRisk": false,
+    "domain": "ashdown-guarding.example",
+    "key": "ashdown-guarding",
+    "name": "Ashdown Guarding",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 2600000,
+    "churnRisk": false,
+    "domain": "tidewell-laundry.example",
+    "key": "tidewell-laundry",
+    "name": "Tidewell Commercial Laundry",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 1400000,
+    "churnRisk": false,
+    "domain": "mapleton-movers.example",
+    "key": "mapleton-movers",
+    "name": "Mapleton Movers",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 1200000,
+    "churnRisk": true,
+    "domain": "quickstep-couriers.example",
+    "key": "quickstep-couriers",
+    "name": "Quickstep Couriers",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 1100000,
+    "churnRisk": false,
+    "domain": "vinecrest-care.example",
+    "key": "vinecrest-care",
+    "name": "Vinecrest Care",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 900000,
+    "churnRisk": false,
+    "domain": "rowan-cleaning.example",
+    "key": "rowan-cleaning",
+    "name": "Rowan Cleaning Co",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 800000,
+    "churnRisk": false,
+    "domain": "sixth-street-pharmacy.example",
+    "key": "sixth-street-pharmacy",
+    "name": "Sixth Street Pharmacy",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 700000,
+    "churnRisk": false,
+    "domain": "dockside-coffee.example",
+    "key": "dockside-coffee",
+    "name": "Dockside Coffee Roasters",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 650000,
+    "churnRisk": false,
+    "domain": "kiteline-deliveries.example",
+    "key": "kiteline-deliveries",
+    "name": "Kiteline Deliveries",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 600000,
+    "churnRisk": false,
+    "domain": "birchway-aides.example",
+    "key": "birchway-aides",
+    "name": "Birchway Home Aides",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 550000,
+    "churnRisk": false,
+    "domain": "peak-patrol.example",
+    "key": "peak-patrol",
+    "name": "Peak Patrol",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 500000,
+    "churnRisk": false,
+    "domain": "stonebridge-storage.example",
+    "key": "stonebridge-storage",
+    "name": "Stonebridge Self Storage",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 450000,
+    "churnRisk": false,
+    "domain": "ember-catering.example",
+    "key": "ember-catering",
+    "name": "Ember Catering Vans",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 400000,
+    "churnRisk": false,
+    "domain": "nimbus-carwash.example",
+    "key": "nimbus-carwash",
+    "name": "Nimbus Car Wash",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 350000,
+    "churnRisk": false,
+    "domain": "laurel-dental.example",
+    "key": "laurel-dental",
+    "name": "Laurel Dental Group",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 300000,
+    "churnRisk": false,
+    "domain": "tinker-toolhire.example",
+    "key": "tinker-toolhire",
+    "name": "Tinker Tool Hire",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 250000,
+    "churnRisk": false,
+    "domain": "willow-daycare.example",
+    "key": "willow-daycare",
+    "name": "Willow Day Care",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 200000,
+    "churnRisk": false,
+    "domain": "glint-windows.example",
+    "key": "glint-windows",
+    "name": "Glint Window Cleaning",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "vantor-health.example",
+    "key": "vantor-health",
+    "name": "Vantor Health Staffing",
+    "openDealCents": 34000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "coldline-3pl.example",
+    "key": "coldline-3pl",
+    "name": "Coldline 3PL",
+    "openDealCents": 26000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "metro-transit-cleaning.example",
+    "key": "metro-transit-cleaning",
+    "name": "Metro Transit Cleaning",
+    "openDealCents": 7000000,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "apex-event-security.example",
+    "key": "apex-event-security",
+    "name": "Apex Event Security",
+    "openDealCents": 4500000,
+    "plan": "Growth"
+  }
+]

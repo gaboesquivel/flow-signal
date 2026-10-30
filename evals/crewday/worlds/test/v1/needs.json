@@ -1,0 +1,3593 @@
+[
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "inBacklog": true,
+    "key": "swap-overtime-warning",
+    "outcome": "labour cost stays inside the weekly budget",
+    "problem": "Swaps are approved without any view of the worker's running weekly hours, so overtime is only discovered at payroll.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "ferro-fulfilment", "bluefin-freight"],
+    "scenarios": [
+      "Approved three trades on Friday and found out Monday that Dmitri ended at 52 hours; finance flagged it.",
+      "Our Q3 spend at Dock 4 was 9% over plan because of trades nobody checked.",
+      "I want a heads-up before I click yes on a trade, not a report after the pay run.",
+      "Leads approve trades from the floor in ten seconds; nobody can add up hours in their head."
+    ],
+    "solutions": ["Overtime warning on swaps", "Weekly hours counter"],
+    "statement": "Warehouse shift leads need to see before approving a swap whether it pushes someone into overtime so that labour cost stays inside the weekly budget",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-nn-swap-limits",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 41,
+    "who": "Warehouse shift leads"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": true,
+    "key": "open-shift-float-first",
+    "outcome": "residents see familiar carers and agency spend falls",
+    "problem": "Vacancies are broadcast to everyone at once, so agency nurses take shifts that in-house bank staff would have covered.",
+    "requesterAccounts": ["meridian-care", "vinecrest-care", "oakmoor-clinics"],
+    "scenarios": [
+      "Mrs Okafor's dementia wing had four unknown faces last week and two families complained.",
+      "Outside-supplier invoices hit £38k in March while our bank team sat at home.",
+      "The vacancy blast goes to everybody and the agency nurses grab them in minutes.",
+      "I want my in-house bank to get a two-hour head start on any gap."
+    ],
+    "solutions": ["Tiered open shift offers", "Bank staff priority"],
+    "statement": "Care home rota managers need to offer open shifts to their own float pool before agency staff so that residents see familiar carers and agency spend falls",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-nn-open-shift-order",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 31,
+    "who": "Care home rota managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "startMonth": 1,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "open-shift-seniority-order",
+    "outcome": "extra hours follow the collective agreement and avoid grievances",
+    "problem": "Open shifts go to whoever taps first, which breaks union contracts that allocate extra work by length of service.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "coldline-3pl"],
+    "scenarios": [
+      "Local 418 filed a grievance because a six-month picker got Saturday OT before a 12-year guy.",
+      "Our contract says spare work goes by hire date; the app hands it to the fastest thumb.",
+      "The steward wants proof of who was asked first and in which sequence.",
+      "We still run a paper sign-up sheet by the time clock because the app can't do it right."
+    ],
+    "solutions": ["Tiered open shift offers", "Seniority list"],
+    "statement": "Unionised warehouse supervisors need to offer open shifts in seniority order so that extra hours follow the collective agreement and avoid grievances",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-nn-open-shift-order",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 26,
+    "who": "Unionised warehouse supervisors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": true,
+    "key": "guard-multi-site-rota",
+    "outcome": "every client post is covered and guards know where they are going",
+    "problem": "A shift is tied to one location, so guards who move between client buildings are tracked in side spreadsheets.",
+    "requesterAccounts": [
+      "northgate-security",
+      "sentinel-patrol",
+      "ashdown-guarding",
+      "peak-patrol"
+    ],
+    "scenarios": [
+      "One shift on paper is really four hours at Lakeside Tower then four at the bus depot.",
+      "We keep a second spreadsheet of posts because the rota only knows 'Northgate - Day'.",
+      "A customer phoned at 2am asking why reception was empty; the officer was at the other building.",
+      "Supervisors text the location list to the team every morning."
+    ],
+    "solutions": ["Multi-site shifts", "Post-based scheduling"],
+    "splitInto": ["post-coverage-board", "post-orders-on-phone"],
+    "statement": "Security operations managers need to schedule guards who rotate across several client sites in one shift so that every client post is covered and guards know where they are going",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-split-guard-posts",
+      "kind": "split"
+    },
+    "truePriority": 45,
+    "who": "Security operations managers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 4,
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "post-coverage-board",
+    "outcome": "an empty post is spotted before the client notices",
+    "problem": "Supervisors cannot see in real time which gates and lobbies are staffed, so gaps are found by complaints.",
+    "requesterAccounts": ["northgate-security", "sentinel-patrol", "apex-event-security"],
+    "scenarios": [
+      "At 3am I have no idea which gates are actually staffed right now.",
+      "Lost the Brennan Logistics contract after their gatehouse sat unmanned for 40 minutes.",
+      "I want a wall screen with every gate and lobby, green or red.",
+      "Phoning six officers to find out who's where takes my whole night."
+    ],
+    "solutions": ["Live coverage board", "Post status dashboard"],
+    "statement": "Security supervisors need to see live coverage per client post across all sites so that an empty post is spotted before the client notices",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-split-guard-posts",
+      "kind": "split"
+    },
+    "truePriority": 20,
+    "who": "Security supervisors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "credential-renewal-pipeline",
+    "outcome": "they arrange renewals before nurses lose placements",
+    "problem": "Coordinators only discover expiring certificates when a hospital turns a nurse away.",
+    "requesterAccounts": ["clearwater-staffing", "crestview-pharmstaff", "vantor-health"],
+    "scenarios": [
+      "Lost a two-week ICU block at St. Bride's because Amaka's BLS ran out the day before.",
+      "I pull a monthly report from three systems to know who needs a CPR refresher.",
+      "We find out about an expired card when the ward refuses the nurse at the door.",
+      "I'd book the refresher class if I just knew who was due."
+    ],
+    "solutions": ["Credential expiry report", "Renewal reminders"],
+    "statement": "Agency placement coordinators need to see which nurses' credentials lapse in the next 60 days so that they arrange renewals before nurses lose placements",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-nn-credentials",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 55,
+    "who": "Agency placement coordinators"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 2,
+      "startMonth": 2,
+      "weight": 12
+    },
+    "inBacklog": false,
+    "key": "dst-shift-drift",
+    "outcome": "nobody turns up an hour early or late",
+    "problem": "Recurring shifts are stored in one timezone offset, so they move by an hour at daylight-saving changes in some states.",
+    "requesterAccounts": [
+      "ironvale",
+      "tallyho-couriers",
+      "polar-parcel",
+      "bluefin-freight",
+      "redline-depots"
+    ],
+    "scenarios": [
+      "Half the Sunday night crew showed up at 9 instead of 10.",
+      "Everything in the app is suddenly off by an hour, and only for the Phoenix site.",
+      "My schedule said 6am, I came at 6, the lead says I'm late.",
+      "Since last weekend the rota and the time clock disagree."
+    ],
+    "solutions": ["Timezone-aware recurring shifts"],
+    "statement": "Multi-state ops admins need to keep recurring shifts at the same local clock time across daylight-saving changes so that nobody turns up an hour early or late",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "scheduling",
+    "trap": {
+      "group": "t-sym-dst",
+      "kind": "symptom_only"
+    },
+    "truePriority": 35,
+    "who": "Multi-state ops admins"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "inBacklog": true,
+    "key": "wms-volume-forecast",
+    "outcome": "staffing matches the trucks actually arriving",
+    "problem": "Headcount is guessed from last week's rota while the WMS already knows how many trailers are booked.",
+    "requesterAccounts": ["pallet-ridge", "ferro-fulfilment", "bluefin-freight", "coldline-3pl"],
+    "scenarios": [
+      "Tuesday we had 40 pickers and 6 trailers; Thursday 22 pickers and 19 trailers.",
+      "I copy pallet counts from Manhattan into Excel and then guess headcount.",
+      "Overstaffed Monday, sending people home early, and they hate it.",
+      "Promo week caught us short again because nobody looked at the ASN list."
+    ],
+    "solutions": ["Manhattan WMS demand feed", "Volume-based forecasting"],
+    "statement": "Warehouse planners need to build next week's rota from inbound volume forecasts so that staffing matches the trucks actually arriving",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 59,
+    "who": "Warehouse planners"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 28
+    },
+    "inBacklog": true,
+    "key": "autopilot-rota",
+    "outcome": "they never spend time building schedules",
+    "problem": "Building rotas is manual work every week, and admins want it fully handed off.",
+    "requesterAccounts": [
+      "quickstep-couriers",
+      "kiteline-deliveries",
+      "mapleton-movers",
+      "nimbus-carwash",
+      "polar-parcel",
+      "brightpath-cleaning"
+    ],
+    "scenarios": [
+      "Why do I still drag blocks around in 2026? Let the AI do it and send it out.",
+      "A competitor demoed one button that makes the whole month.",
+      "I lose every Thursday afternoon to the plan for 30 couriers.",
+      "Make it like autopilot, I'll fix the odd mistake after."
+    ],
+    "solutions": ["AI auto-scheduling", "One-click schedule"],
+    "statement": "Ops admins need to have rotas generated and published automatically without a manager so that they never spend time building schedules",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 114,
+    "who": "Ops admins"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "alternating-availability",
+    "outcome": "they are only offered visits they can actually do",
+    "problem": "Availability is one fixed weekly pattern, so aides with alternating custody or second jobs get booked on days they can't work.",
+    "requesterAccounts": ["kestrel-homecare", "lumen-homehealth", "birchway-aides"],
+    "scenarios": [
+      "I have my kids every other week, so I can only work weekends on odd weeks.",
+      "The coordinator keeps booking me Tuesdays when I told her I can't.",
+      "The availability screen only lets me pick one fixed week.",
+      "I've turned down six calls this month because they landed on my custody days."
+    ],
+    "solutions": ["Two-week availability patterns"],
+    "statement": "Home care aides need to set availability that alternates week by week so that they are only offered visits they can actually do",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 82,
+    "who": "Home care aides"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "quarterly-shift-bidding",
+    "outcome": "they can plan childcare and second jobs months ahead",
+    "problem": "Shifts change every week, so workers with outside commitments cannot plan and leave.",
+    "requesterAccounts": ["pallet-ridge", "ironvale", "redline-depots", "coldline-3pl"],
+    "scenarios": [
+      "At my old DC we bid on lines every three months; here it changes weekly.",
+      "I work at a gym too, I need to know my nights for the whole season.",
+      "Supervisors spend days on a paper bid sheet.",
+      "People quit because they can't plan anything."
+    ],
+    "solutions": ["Shift bidding", "Line bidding by seniority"],
+    "statement": "Distribution centre staff need to bid on fixed shift patterns each quarter so that they can plan childcare and second jobs months ahead",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 89,
+    "who": "Distribution centre staff"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 11
+    },
+    "inBacklog": true,
+    "key": "trained-station-assignment",
+    "outcome": "forklift and reach-truck lines are never run by untrained staff",
+    "problem": "The rota has no notion of station skills, so untrained people are placed on equipment.",
+    "requesterAccounts": [
+      "ferro-fulfilment",
+      "bluefin-freight",
+      "pallet-ridge",
+      "stonebridge-storage"
+    ],
+    "scenarios": [
+      "The rota put a temp on the high-bay picker; he'd never touched one.",
+      "We track who's signed off on what on a whiteboard in the break room.",
+      "Safety officer wants the schedule to refuse to place Jo on the FLT until she's certified.",
+      "Monday we had 5 pickers and no one who could run the packing machine."
+    ],
+    "solutions": ["Skills matrix", "Skill-based scheduling"],
+    "statement": "Fulfilment shift leads need to assign people only to stations they are trained on so that forklift and reach-truck lines are never run by untrained staff",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 68,
+    "who": "Fulfilment shift leads"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": true,
+    "key": "contract-template-rollout",
+    "outcome": "setting up a new contract takes minutes not days",
+    "problem": "Each new building's rota has to be built by hand even when every site has the same pattern.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "brightpath-cleaning",
+      "rowan-cleaning",
+      "glint-windows",
+      "metro-transit-cleaning"
+    ],
+    "scenarios": [
+      "We won 28 office blocks for Calder Bank and I'm building each evening rota by hand.",
+      "Every site is basically 6pm-10pm, three cleaners, and I click it 28 times.",
+      "Onboarding the Metro Transit stations will take me two weeks of data entry.",
+      "Can I just clone the Wexford site and change the address?"
+    ],
+    "solutions": ["Shift templates", "Clone site"],
+    "statement": "Regional cleaning managers need to copy a shift template across dozens of client buildings so that setting up a new contract takes minutes not days",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 99,
+    "who": "Regional cleaning managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "on-call-standby-rota",
+    "outcome": "standby and callouts are tracked without a spreadsheet",
+    "problem": "On-call cover can only be entered as a normal shift, which counts as worked hours and distorts overtime.",
+    "requesterAccounts": ["oakmoor-clinics", "laurel-dental", "meridian-care"],
+    "scenarios": [
+      "Our nurses carry the pager every fifth weekend and it lives in a Google Sheet.",
+      "If I enter on-call as a normal block it counts as hours and breaks overtime.",
+      "Payroll asks me every month who got called in at night.",
+      "We need standby that's visible but isn't a real duty."
+    ],
+    "solutions": ["On-call scheduling", "Standby shifts"],
+    "statement": "Clinic managers need to run an on-call rota separate from worked shifts so that standby and callouts are tracked without a spreadsheet",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 79,
+    "who": "Clinic managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 13
+    },
+    "inBacklog": true,
+    "key": "same-day-cover-sms",
+    "outcome": "routes leave on time when someone calls in sick",
+    "problem": "Same-day gaps are filled by phoning drivers one by one, and many drivers don't use the app.",
+    "requesterAccounts": [
+      "tallyho-couriers",
+      "polar-parcel",
+      "quickstep-couriers",
+      "kiteline-deliveries",
+      "mapleton-movers"
+    ],
+    "scenarios": [
+      "6:10am, two out sick, I'm ringing people one by one with 40 parcels sitting.",
+      "Our WhatsApp group is how we fill gaps and it's chaos.",
+      "Some of our drivers don't have the app, just a phone that gets texts.",
+      "Vans left 50 minutes late Tuesday because I couldn't find cover."
+    ],
+    "solutions": ["SMS broadcast", "Open shift alerts"],
+    "statement": "Courier depot managers need to fill a same-day gap by texting available drivers in one go so that routes leave on time when someone calls in sick",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 96,
+    "who": "Courier depot managers"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 9,
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "peak-leave-blackout",
+    "outcome": "the warehouse has enough hands for holiday volume",
+    "problem": "Any supervisor can approve leave in the busiest weeks, and planners only find out when the peak rota is short.",
+    "requesterAccounts": ["ironvale", "ferro-fulfilment", "polar-parcel", "bluefin-freight"],
+    "scenarios": [
+      "Twelve pickers got approved for Thanksgiving week by a new supervisor.",
+      "Every October I have to tell people their approved leave is cancelled.",
+      "Can the app just refuse leave from Nov 20 to Dec 24?",
+      "We were 30% short on Cyber Monday because of approved vacations."
+    ],
+    "solutions": ["Leave blackout dates"],
+    "statement": "Peak-season planners need to block time-off requests during the November-December peak so that the warehouse has enough hands for holiday volume",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 93,
+    "who": "Peak-season planners"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "inBacklog": true,
+    "key": "home-care-visit-routing",
+    "outcome": "carers spend their time with clients, not in traffic",
+    "problem": "Visit runs are planned without any map, so carers zigzag across town.",
+    "requesterAccounts": [
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "birchway-aides",
+      "vantor-health"
+    ],
+    "scenarios": [
+      "My carer had back-to-back calls on opposite ends of Leeds with 15 minutes in between.",
+      "We plan the day on a paper map with pins.",
+      "A competitor has a map that orders the calls for you.",
+      "Staff are burning petrol and arriving late to Mrs Hale every day."
+    ],
+    "solutions": ["Route optimisation", "Map view of visits"],
+    "statement": "Home care schedulers need to build visit runs that keep travel between clients short so that carers spend their time with clients, not in traffic",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 113,
+    "who": "Home care schedulers"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 11,
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "agency-shift-marketplace",
+    "outcome": "shifts fill hours earlier and fewer go unfilled",
+    "problem": "Nurses learn about available shifts and their pay only by phoning the agency, so fills are slow.",
+    "requesterAccounts": ["clearwater-staffing", "vantor-health", "crestview-pharmstaff"],
+    "scenarios": [
+      "Nurses ring me at 7am asking what's on today and I read the list out.",
+      "Every nurse asks me what it pays before saying yes.",
+      "By the time I've phoned around, a rival agency has taken it.",
+      "Vantor won't sign unless their people can self-book."
+    ],
+    "solutions": ["Shift marketplace", "Self-booking for nurses"],
+    "statement": "Staffing agency coordinators need to publish client hospital shifts to their nurse pool with rates shown so that shifts fill hours earlier and fewer go unfilled",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 49,
+    "who": "Staffing agency coordinators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "printable-weekly-rota",
+    "outcome": "staff without smartphones still know their hours",
+    "problem": "The only printable view cuts off long rotas, and many cleaners never open the app.",
+    "requesterAccounts": [
+      "brightpath-cleaning",
+      "rowan-cleaning",
+      "glint-windows",
+      "tidewell-laundry"
+    ],
+    "scenarios": [
+      "Half my team are 60+ and don't use the app; they look at the wall.",
+      "The PDF cuts off after 12 names.",
+      "I screenshot the schedule and paste it into Word every Friday.",
+      "Need something A4 I can pin up in the laundry room."
+    ],
+    "solutions": ["Printable rota", "PDF export"],
+    "statement": "Cleaning site supervisors need to print a weekly rota for the noticeboard so that staff without smartphones still know their hours",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 109,
+    "who": "Cleaning site supervisors"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 10,
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "cross-depot-loans",
+    "outcome": "one depot's quiet day covers another's rush without new hires",
+    "problem": "Each site's rota is isolated, so borrowed staff can't be scheduled or clock in at the other site.",
+    "requesterAccounts": ["ironvale", "redline-depots", "polar-parcel", "tallyho-couriers"],
+    "scenarios": [
+      "Leeds was idle Tuesday while Bradford was 8 short, 12 miles apart.",
+      "Borrowed staff don't show on the other site's rota, so they can't punch in there.",
+      "I arrange it by phone and payroll charges the wrong cost centre.",
+      "Ironvale wants to share pickers across the Midlands hubs."
+    ],
+    "solutions": ["Cross-location scheduling", "Shared labour pool"],
+    "statement": "Regional logistics managers need to lend workers between nearby depots for a day so that one depot's quiet day covers another's rush without new hires",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 76,
+    "who": "Regional logistics managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "labour-budget-while-planning",
+    "outcome": "they stop overspending before the week starts",
+    "problem": "Labour budgets live in finance spreadsheets, so managers only learn about overspend weeks later.",
+    "requesterAccounts": ["ironvale", "sparkline-facilities", "meridian-care", "ferro-fulfilment"],
+    "scenarios": [
+      "Finance tells me three weeks later that Week 32 was £14k over.",
+      "I'd cut an evening slot if I could see the money while I plan.",
+      "Our hours plan lives in a separate spreadsheet nobody updates.",
+      "The area director wants a red flag when a site's rota exceeds plan."
+    ],
+    "solutions": ["Labour cost forecast", "Budget vs. schedule"],
+    "statement": "Site general managers need to see scheduled labour cost against budget while editing the rota so that they stop overspending before the week starts",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 63,
+    "who": "Site general managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 15
+    },
+    "inBacklog": true,
+    "key": "peer-swap-auto-approve",
+    "outcome": "simple swaps don't wait days for approval",
+    "problem": "Every like-for-like swap needs a manager's click, so swaps happen off the system.",
+    "requesterAccounts": ["meridian-care", "vinecrest-care", "kestrel-homecare", "willow-daycare"],
+    "scenarios": [
+      "Two seniors want to trade a Sunday and I'm on holiday, so it sits pending.",
+      "Staff sort it out on WhatsApp and then the rota is wrong.",
+      "Every trade between two qualified seniors needs my click; it's silly.",
+      "By the time I approve, the shift's already happened."
+    ],
+    "solutions": ["Auto-approved swaps", "Swap rules"],
+    "statement": "Care home managers need to let carers swap shifts directly when both hold the same role so that simple swaps don't wait days for approval",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 97,
+    "who": "Care home managers"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 6,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "event-temp-staffing",
+    "outcome": "big events are covered without building every shift by hand",
+    "problem": "The product assumes a stable weekly roster, so festivals and concerts are planned in Excel.",
+    "requesterAccounts": ["apex-event-security", "sentinel-patrol", "northgate-security"],
+    "scenarios": [
+      "The stadium concert Saturday needs 220 stewards in 9 roles; I'm doing that in Excel.",
+      "Apex won't move to Crewday unless we can run a festival weekend.",
+      "I hire 80 casuals for one night; they shouldn't need full onboarding.",
+      "For each gig I recreate the same layout of gates and bars."
+    ],
+    "solutions": ["Event scheduling", "Bulk shift creation"],
+    "statement": "Event security managers need to staff one-off events with hundreds of temporary guards so that big events are covered without building every shift by hand",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 83,
+    "who": "Event security managers"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 9,
+      "weight": 12
+    },
+    "inBacklog": false,
+    "key": "peak-temp-bulk-onboarding",
+    "outcome": "peak shifts are filled before the first wave of parcels",
+    "problem": "Temps are added one at a time and the CSV import fails on small formatting errors.",
+    "requesterAccounts": ["polar-parcel", "ferro-fulfilment", "ironvale", "bluefin-freight"],
+    "scenarios": [
+      "We bring on 300 people from Staffline in two weeks every October.",
+      "Adding them one at a time in the admin is a full week of work.",
+      "The CSV import fails if one phone number has a space.",
+      "New starters didn't get a rota because their accounts weren't ready."
+    ],
+    "solutions": ["Bulk employee import", "Agency temp onboarding"],
+    "statement": "Parcel hub managers need to add hundreds of seasonal temps to the rota in a day so that peak shifts are filled before the first wave of parcels",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 71,
+    "who": "Parcel hub managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "client-approved-worker-lists",
+    "outcome": "nobody a client has refused is sent back to their site",
+    "problem": "Client restrictions on individual workers live in managers' heads, so banned workers get rostered again.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "brightpath-cleaning",
+      "northgate-security",
+      "metro-transit-cleaning"
+    ],
+    "scenarios": [
+      "Calder Bank asked us never to send Pawel again and the rota put him there Monday.",
+      "Some buildings require vetting and only five of our cleaners have it.",
+      "Complaints about the same person keep coming back.",
+      "I keep a sticky note of who can't go where."
+    ],
+    "solutions": ["Site restrictions", "Preferred and blocked workers"],
+    "statement": "Cleaning contract managers need to keep a list of workers each client has approved or banned so that nobody a client has refused is sent back to their site",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "scheduling",
+    "truePriority": 84,
+    "who": "Cleaning contract managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 16
+    },
+    "inBacklog": true,
+    "key": "buddy-punch-prevention",
+    "outcome": "paid hours match people actually on the floor",
+    "problem": "Anyone can punch in from anywhere with someone else's PIN, so pay goes to people who aren't there.",
+    "requesterAccounts": [
+      "ironvale",
+      "pallet-ridge",
+      "redline-depots",
+      "ferro-fulfilment",
+      "stonebridge-storage"
+    ],
+    "scenarios": [
+      "Caught a guy punching in four badges from the car park.",
+      "Our headcount on the floor is 60 and the clock says 67.",
+      "Some clock on from home, then drive in 20 minutes later.",
+      "Loss prevention says we paid 1,100 hours last quarter to people who weren't there."
+    ],
+    "solutions": ["Geofenced clock-in", "Photo clock-in"],
+    "statement": "Warehouse operations managers need to stop workers clocking in for absent colleagues so that paid hours match people actually on the floor",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "time-attendance",
+    "trap": {
+      "group": "t-ss-geofence",
+      "kind": "shared_solution"
+    },
+    "truePriority": 46,
+    "who": "Warehouse operations managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": true,
+    "key": "badge-tap-clock-in",
+    "outcome": "a shift change doesn't mean a queue at the tablets",
+    "problem": "Clocking in means typing a PIN on one of two tablets, which creates long queues at start times.",
+    "requesterAccounts": ["pallet-ridge", "ferro-fulfilment", "coldline-3pl", "bluefin-freight"],
+    "scenarios": [
+      "At 6am there's a line of 80 people waiting at two iPads.",
+      "Everyone already carries an HID card for the doors.",
+      "Workers lose 7 minutes paid time each start waiting to punch.",
+      "Typing a 6-digit PIN with gloves on is a joke."
+    ],
+    "solutions": ["Badge reader integration", "HID badge clock-in"],
+    "statement": "Distribution centre shift leads need to let crews clock in by tapping their site badge so that a shift change doesn't mean a queue at the tablets",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "trap": {
+      "group": "t-ss-badge",
+      "kind": "shared_solution"
+    },
+    "truePriority": 80,
+    "who": "Distribution centre shift leads"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 1,
+      "startMonth": 1,
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "kiosk-offline-punches",
+    "outcome": "no worked time disappears",
+    "problem": "Kiosks in freezer bays drop Wi-Fi and silently discard punches made while offline.",
+    "requesterAccounts": ["quayside-cold", "coldline-3pl", "ironvale", "stonebridge-storage"],
+    "scenarios": [
+      "The freezer bay tablet said success and then my Tuesday was blank.",
+      "Lost 3 hours on my pay; the supervisor says the system shows nothing.",
+      "Every week someone on nights has a missing in or out.",
+      "It shows a green tick, then later it's like I was never there."
+    ],
+    "solutions": ["Offline kiosk mode"],
+    "statement": "Cold-store workers need to have punches recorded when the kiosk loses connection so that no worked time disappears",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "time-attendance",
+    "trap": {
+      "group": "t-sym-kiosk",
+      "kind": "symptom_only"
+    },
+    "truePriority": 22,
+    "who": "Cold-store workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 22
+    },
+    "inBacklog": true,
+    "key": "missed-punch-requests",
+    "outcome": "their manager approves it instead of chasing paper forms",
+    "problem": "Missed punches are corrected on paper slips that payroll keys in by hand.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "ironvale",
+      "redline-depots",
+      "tallyho-couriers",
+      "kestrel-homecare",
+      "brightpath-cleaning"
+    ],
+    "scenarios": [
+      "Forgot to punch out Friday; now I have to find the supervisor and fill a yellow slip.",
+      "Payroll fixes 300 missing punches a week by hand.",
+      "My timesheet shows 19 hours for one shift because I didn't punch out.",
+      "Let me just say 'I left at 6' in the app and the lead signs it off."
+    ],
+    "solutions": ["Punch correction requests"],
+    "statement": "Hourly workers need to fix a forgotten clock-out from their phone with a reason so that their manager approves it instead of chasing paper forms",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 57,
+    "who": "Hourly workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 11
+    },
+    "inBacklog": true,
+    "key": "bulk-timesheet-approval",
+    "outcome": "the payroll cutoff is met every Monday",
+    "problem": "Timesheets are approved site by site, so managers with dozens of sites miss the payroll deadline.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "brightpath-cleaning",
+      "northgate-security",
+      "meridian-care"
+    ],
+    "scenarios": [
+      "I have 34 buildings and I open each one to click approve.",
+      "Monday 10am cutoff and I'm still clicking at 9:55.",
+      "Payroll gets late sign-offs and runs on estimates.",
+      "Exceptions I'd look at; the clean ones should go in one batch."
+    ],
+    "solutions": ["Bulk approval", "Approve all clean timesheets"],
+    "statement": "Area managers need to approve a whole week of timesheets for many sites at once so that the payroll cutoff is met every Monday",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 36,
+    "who": "Area managers"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 4,
+      "startMonth": 3,
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "punch-exception-queue",
+    "outcome": "they review a few dozen exceptions instead of thousands of timesheets",
+    "problem": "There is no exception view, so odd punches reach payroll unless someone scrolls every timesheet.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "meridian-care", "clearwater-staffing"],
+    "scenarios": [
+      "Every Monday I scroll 2,400 records looking for weird ones.",
+      "Someone had a 22-hour day and it went straight to ADP.",
+      "I want a list: no out, under 4 hours, over 12.",
+      "We find the problems after people get paid."
+    ],
+    "solutions": ["Exception dashboard", "Timesheet anomalies"],
+    "statement": "Payroll supervisors need to see only the punches that need attention, such as missed, early or very long ones so that they review a few dozen exceptions instead of thousands of timesheets",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 32,
+    "who": "Payroll supervisors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "kiosk-break-tracking",
+    "outcome": "break time comes off their hours correctly",
+    "problem": "Breaks are deducted automatically or typed by leads, so recorded breaks rarely match reality.",
+    "requesterAccounts": ["pallet-ridge", "redline-depots", "ferro-fulfilment", "quayside-cold"],
+    "scenarios": [
+      "I take 30 minutes, the system takes 60 because the lead types it.",
+      "We write lunches on a clipboard by the canteen.",
+      "Auto-deduct takes a lunch even on days I worked straight through.",
+      "My pay is always half an hour short on doubles."
+    ],
+    "solutions": ["Break punches", "Auto-deduct override"],
+    "statement": "Warehouse workers need to start and end unpaid breaks at the kiosk so that break time comes off their hours correctly",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 77,
+    "who": "Warehouse workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "lead-punch-on-behalf",
+    "outcome": "new starters are paid from their first hour",
+    "problem": "Day-one starters cannot punch in, so their first shifts are missing from payroll.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "ferro-fulfilment",
+      "mapleton-movers",
+      "kiteline-deliveries"
+    ],
+    "scenarios": [
+      "Day one temps don't have their login, so the first day is missing.",
+      "I write names on paper and HR keys them in later.",
+      "An agency guy worked a full day and didn't get paid for 3 weeks.",
+      "Let me punch someone in from my handset with a note."
+    ],
+    "solutions": ["Manager clock-in on behalf"],
+    "statement": "Shift leads need to clock in workers who have no phone or badge yet so that new starters are paid from their first hour",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 101,
+    "who": "Shift leads"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 10,
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "overtime-pre-approval",
+    "outcome": "unplanned overtime is caught on the day",
+    "problem": "Workers stay late without asking, and managers only see the cost in payroll.",
+    "requesterAccounts": ["ironvale", "bluefin-freight", "redline-depots", "quayside-cold"],
+    "scenarios": [
+      "Pickers stay 40 minutes after to 'finish the trailer' and it adds up to £9k a month.",
+      "Nobody asked me if Tom could stay late; I see it on payroll.",
+      "I want the clock to ask for a lead's OK when someone punches out late.",
+      "Extra time is our biggest cost overrun and none of it is signed off."
+    ],
+    "solutions": ["Overtime approval at clock-out"],
+    "statement": "Logistics managers need to require approval before anyone works past their scheduled end so that unplanned overtime is caught on the day",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 60,
+    "who": "Logistics managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "kiosk-pin-self-reset",
+    "outcome": "they don't wait for a manager to start the shift",
+    "problem": "Only managers can reset kiosk PINs, so workers who forget them can't punch in until a manager arrives.",
+    "requesterAccounts": [
+      "quickstep-couriers",
+      "nimbus-carwash",
+      "dockside-coffee",
+      "tinker-toolhire",
+      "glint-windows"
+    ],
+    "scenarios": [
+      "Forgot my 4-digit code and the manager doesn't arrive until 9.",
+      "Every Monday someone's locked out of the tablet.",
+      "The reset email goes to an address the worker doesn't have.",
+      "Make it text me a code."
+    ],
+    "solutions": ["PIN reset by SMS"],
+    "statement": "Kiosk users need to reset their own forgotten PIN at the kiosk so that they don't wait for a manager to start the shift",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 111,
+    "who": "Kiosk users"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": true,
+    "key": "attendance-points-policy",
+    "outcome": "the attendance policy is applied the same way to everyone",
+    "problem": "Attendance discipline is tracked in spreadsheets, so supervisors apply it inconsistently.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "ferro-fulfilment", "redline-depots"],
+    "scenarios": [
+      "Eight occurrences and you're out, and we keep the tally in Excel.",
+      "Two supervisors gave different warnings for the same lateness.",
+      "The union rep says we discipline unfairly and I can't prove otherwise.",
+      "I want no-call no-show to add 3 points automatically."
+    ],
+    "solutions": ["Attendance points", "Occurrence tracking"],
+    "statement": "HR managers at distribution centres need to track lateness and no-shows as attendance points so that the attendance policy is applied the same way to everyone",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 94,
+    "who": "HR managers at distribution centres"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 3,
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "aide-no-show-alerts",
+    "outcome": "a missed visit is covered before the client goes without care",
+    "problem": "Late or missed home visits only appear in next-day reports.",
+    "requesterAccounts": [
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "birchway-aides",
+      "vantor-health"
+    ],
+    "scenarios": [
+      "Mr Patel waited 3 hours for his insulin call; we found out when his daughter rang.",
+      "I see missed calls on Monday's report, far too late.",
+      "If someone isn't at the door 15 minutes in, I want my phone to buzz.",
+      "Aides oversleep, it happens, but we need to know fast."
+    ],
+    "solutions": ["Late arrival alerts"],
+    "statement": "Home care coordinators need to get alerted when an aide hasn't arrived at a visit so that a missed visit is covered before the client goes without care",
+    "strategyDecision": {
+      "byMonth": 6,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 50,
+    "who": "Home care coordinators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "early-punch-block",
+    "outcome": "early punches don't turn into paid minutes",
+    "problem": "The kiosk accepts punches at any time, so arriving early becomes paid time.",
+    "requesterAccounts": [
+      "redline-depots",
+      "polar-parcel",
+      "tallyho-couriers",
+      "kiteline-deliveries"
+    ],
+    "scenarios": [
+      "Drivers arrive at 5:30 for a 6:00 shift, punch in, and drink coffee on the clock.",
+      "15 minutes a day times 90 drivers is real money.",
+      "I want the kiosk to say 'too early, come back at 5:55'.",
+      "Payroll says we can't round it off, so stop it at the door."
+    ],
+    "solutions": ["Early clock-in restriction"],
+    "statement": "Depot managers need to stop people clocking in more than ten minutes before their start so that early punches don't turn into paid minutes",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 69,
+    "who": "Depot managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "ward-timesheet-signoff",
+    "outcome": "the agency can invoice and pay them without chasing paper",
+    "problem": "Agency nurses carry paper timesheets that a ward manager must sign, and lost signatures delay pay.",
+    "requesterAccounts": ["clearwater-staffing", "vantor-health", "crestview-pharmstaff"],
+    "scenarios": [
+      "I still carry a paper sheet to every ward and chase a sister to sign it.",
+      "Lost signatures mean I wait a month to be paid.",
+      "The trust rejects sheets without the nurse in charge's name.",
+      "A photo of a crumpled form is how we send it now."
+    ],
+    "solutions": ["Digital timesheet signature"],
+    "statement": "Agency nurses need to get their timesheet signed by the ward on their phone at the end of a hospital shift so that the agency can invoice and pay them without chasing paper",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 39,
+    "who": "Agency nurses"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "break-overrun-alerts",
+    "outcome": "lines restart on time after breaks",
+    "problem": "Supervisors can't see who is still on break, so lines restart short-handed.",
+    "requesterAccounts": ["bluefin-freight", "ferro-fulfilment", "pallet-ridge"],
+    "scenarios": [
+      "Half the pack line wandered back at 10:47 from a 10:30 return.",
+      "I can't watch the canteen and the conveyor at the same time.",
+      "Want a ping on my handheld if anyone's out past 30.",
+      "We lose a pallet's throughput every afternoon to stragglers."
+    ],
+    "solutions": ["Break overrun alert"],
+    "statement": "Line supervisors need to know when someone's break runs long so that lines restart on time after breaks",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 107,
+    "who": "Line supervisors"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 0,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "sickness-absence-records",
+    "outcome": "return-to-work and sick pay follow the policy",
+    "problem": "Sickness is shown on the rota as a grey block with no dates, notes or totals.",
+    "requesterAccounts": ["meridian-care", "oakmoor-clinics", "vinecrest-care"],
+    "scenarios": [
+      "I keep GP notes in a drawer and the time off on the rota as a grey block.",
+      "HR asked how many days Grace was off this year and I couldn't say.",
+      "Statutory sick pay was missed for two carers in May.",
+      "Back-to-work interviews never happen because nobody knows when people come back."
+    ],
+    "solutions": ["Absence management", "Fit note upload"],
+    "statement": "Care home managers need to record sickness absence with the fit note attached so that return-to-work and sick pay follow the policy",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 90,
+    "who": "Care home managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "planned-vs-worked-variance",
+    "outcome": "chronic overstaffing or no-shows show up in one report",
+    "problem": "Planned and actual hours live in separate exports, so variance by site is invisible.",
+    "requesterAccounts": [
+      "ironvale",
+      "sparkline-facilities",
+      "meridian-care",
+      "northgate-security"
+    ],
+    "scenarios": [
+      "Plan says 1,200 hours at Daventry, payroll paid 1,410, nobody can explain it.",
+      "I build a pivot every Monday from two exports.",
+      "Which sites keep running over their rota? I can't tell.",
+      "The board wants rota accuracy as a KPI."
+    ],
+    "solutions": ["Schedule vs. actual report"],
+    "statement": "Operations directors need to compare scheduled hours with worked hours per site each week so that chronic overstaffing or no-shows show up in one report",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 72,
+    "who": "Operations directors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "kiosk-languages",
+    "outcome": "new starters don't get stuck on English prompts",
+    "problem": "The kiosk is English-only and many warehouse workers misread it.",
+    "requesterAccounts": ["pallet-ridge", "ironvale", "quayside-cold"],
+    "scenarios": [
+      "Half my night crew is from Iasi and the tablet only speaks English.",
+      "People tap random buttons and end up on 'start break'.",
+      "Agency temps from Poland ask me to punch them in.",
+      "Could there be a flag to choose the language?"
+    ],
+    "solutions": ["Multilingual kiosk"],
+    "statement": "Warehouse kiosk users need to use the clock-in screen in Polish, Romanian or Spanish so that new starters don't get stuck on English prompts",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 104,
+    "who": "Warehouse kiosk users"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "overtime-lieu-banking",
+    "outcome": "they can take paid days later instead of overtime pay",
+    "problem": "TOIL balances are tracked on paper, so workers and supervisors disagree on what is owed.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "redline-depots"],
+    "scenarios": [
+      "Our contract allows TOIL but we keep the balance on paper.",
+      "I did 14 more hours in December and want 2 days off in January.",
+      "Supervisors forget who's owed what.",
+      "HR spent a week reconciling balances at year end."
+    ],
+    "solutions": ["TOIL balances"],
+    "statement": "Warehouse employees need to bank extra hours as time off in lieu so that they can take paid days later instead of overtime pay",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 100,
+    "who": "Warehouse employees"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 16
+    },
+    "inBacklog": true,
+    "key": "sick-call-in-from-app",
+    "outcome": "the lead knows right away to find cover",
+    "problem": "Calling in sick means phoning or texting a lead, and messages are missed until it is too late.",
+    "requesterAccounts": [
+      "tallyho-couriers",
+      "polar-parcel",
+      "meridian-care",
+      "kestrel-homecare",
+      "ferro-fulfilment"
+    ],
+    "scenarios": [
+      "I rang the depot at 5am, nobody picked up, then got marked no-show.",
+      "Calling in poorly means texting my lead's personal number.",
+      "Our sick line is a voicemail nobody checks until 9.",
+      "Want a button: 'can't make it' with a reason."
+    ],
+    "solutions": ["Call-in sick button"],
+    "statement": "Frontline workers need to report sick before a shift from the app so that the lead knows right away to find cover",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 85,
+    "who": "Frontline workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "evacuation-headcount",
+    "outcome": "evacuation roll calls account for everyone",
+    "problem": "During an alarm, wardens use the printed rota, which does not show who actually came in.",
+    "requesterAccounts": ["pallet-ridge", "ironvale", "ferro-fulfilment", "coldline-3pl"],
+    "scenarios": [
+      "Fire alarm Tuesday; it took 25 minutes to check 140 people in the car park.",
+      "Our roll list is the printed rota, which is wrong half the time.",
+      "The insurer asked how we know nobody's left inside.",
+      "I want a list on my phone of who's in the building."
+    ],
+    "solutions": ["Live on-site list"],
+    "statement": "Fire wardens at warehouses need to see who is clocked in on site right now so that evacuation roll calls account for everyone",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 54,
+    "who": "Fire wardens at warehouses"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "crew-group-clock-in",
+    "outcome": "a five-person crew isn't recorded as one person working",
+    "problem": "Each cleaner must punch on their own phone, and many have no data, so only the leader's time is captured.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "rowan-cleaning",
+      "glint-windows",
+      "brightpath-cleaning"
+    ],
+    "scenarios": [
+      "We arrive as a van of five and only I have a phone that works.",
+      "Two of my team have no data plan.",
+      "I end up texting the office the names every morning.",
+      "Our timesheets show me on site and four ghosts."
+    ],
+    "solutions": ["Group clock-in"],
+    "statement": "Cleaning team leaders need to clock in a whole van crew at once on arrival so that a five-person crew isn't recorded as one person working",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "time-attendance",
+    "truePriority": 106,
+    "who": "Cleaning team leaders"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": true,
+    "key": "guard-hours-client-billing",
+    "outcome": "client invoices match hours worked and get paid without disputes",
+    "problem": "Billing is rebuilt by hand from several reports, so clients dispute invoices that don't match their sign-in books.",
+    "requesterAccounts": [
+      "northgate-security",
+      "sentinel-patrol",
+      "ashdown-guarding",
+      "sparkline-facilities"
+    ],
+    "scenarios": [
+      "Lakeside Tower disputes every invoice line because our numbers differ from their sign-in book.",
+      "I rebuild time per gate in Excel from three reports every month.",
+      "Our biggest customer is threatening to withhold payment until we show who stood where.",
+      "DSO is 78 days because invoices go out wrong."
+    ],
+    "solutions": ["Hours CSV export", "Excel export"],
+    "statement": "Security firm billing teams need to send each client a breakdown of guard hours by post so that client invoices match hours worked and get paid without disputes",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "trap": {
+      "group": "t-ss-hours-csv",
+      "kind": "shared_solution"
+    },
+    "truePriority": 23,
+    "who": "Security firm billing teams"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 1,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "comp-insurance-audit-report",
+    "outcome": "workers' compensation premium audits are settled without overpaying",
+    "problem": "Insurers audit payroll by job class, and Crewday cannot split hours and pay by classification.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "ferro-fulfilment", "bluefin-freight"],
+    "scenarios": [
+      "The insurer's auditor wants forklift drivers split from clerks; we can't.",
+      "We overpaid £31k premium because everyone got lumped in as warehouse.",
+      "Every February I lose a week to the comp audit.",
+      "Need a yearly file: class code, headcount, gross pay."
+    ],
+    "solutions": ["Hours CSV export", "Payroll audit report"],
+    "statement": "Finance controllers need to report total hours and wages by job classification each year so that workers' compensation premium audits are settled without overpaying",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "trap": {
+      "group": "t-ss-hours-csv",
+      "kind": "shared_solution"
+    },
+    "truePriority": 37,
+    "who": "Finance controllers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": true,
+    "key": "field-travel-pay",
+    "outcome": "driving between jobs isn't unpaid",
+    "problem": "Only time at a client site is recorded, so travel between jobs is invisible to payroll.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "brightpath-cleaning",
+      "birchway-aides"
+    ],
+    "scenarios": [
+      "I do 7 houses a day and only the time inside counts.",
+      "My car does 400 a month for work and I see nothing for it.",
+      "Carers are leaving for supermarket jobs because the drive is free labour.",
+      "Our CSM keeps saying it's on the roadmap."
+    ],
+    "solutions": ["Travel time tracking", "Mileage tracking"],
+    "splitInto": ["travel-time-wages", "mileage-expense-export"],
+    "statement": "Mobile field workers need to have time and distance between client sites counted in their pay so that driving between jobs isn't unpaid",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "trap": {
+      "group": "t-split-travel",
+      "kind": "split"
+    },
+    "truePriority": 42,
+    "who": "Mobile field workers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 4,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "travel-time-wages",
+    "outcome": "carers' hourly pay never falls below minimum wage",
+    "problem": "Gaps between home visits are unpaid, which pushes effective hourly pay under the legal minimum.",
+    "requesterAccounts": [
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "birchway-aides",
+      "vantor-health"
+    ],
+    "scenarios": [
+      "An HMRC investigation found our staff dropped under the legal floor once the gaps were counted.",
+      "Twelve 30-minute calls with 10-minute gaps, only 6 hours paid.",
+      "We fudge it by adding a flat 15 minutes per call.",
+      "The tribunal case from a former carer is about exactly this."
+    ],
+    "solutions": ["Travel time tracking", "Paid travel rules"],
+    "statement": "Home care payroll teams need to pay travel minutes between back-to-back visits as working time so that carers' hourly pay never falls below minimum wage",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "trap": {
+      "group": "t-split-travel",
+      "kind": "split"
+    },
+    "truePriority": 9,
+    "who": "Home care payroll teams"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 7,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "mileage-expense-export",
+    "outcome": "mileage is reimbursed from records, not guesses",
+    "problem": "Mileage claims are filled from memory, so reimbursements are slow and unreliable.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "brightpath-cleaning",
+      "kestrel-homecare",
+      "glint-windows"
+    ],
+    "scenarios": [
+      "People fill in a form from memory at month end; some claim 200 a day.",
+      "I want the miles from their visits to land in Expensify monthly.",
+      "Our tax adviser says we need logs to back up the 45p rate.",
+      "Reimbursements are two months behind because I check every claim."
+    ],
+    "solutions": ["Mileage tracking", "Expensify export"],
+    "statement": "Finance teams at field service firms need to export each worker's business miles to the expense system so that mileage is reimbursed from records, not guesses",
+    "strategyDecision": {
+      "byMonth": 10,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "trap": {
+      "group": "t-split-travel",
+      "kind": "split"
+    },
+    "truePriority": 86,
+    "who": "Finance teams at field service firms"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 24
+    },
+    "inBacklog": true,
+    "key": "adp-hours-connector",
+    "outcome": "nobody rekeys hours and payroll runs without import errors",
+    "problem": "Hours are exported as CSV, reformatted by hand, and uploaded to ADP, which introduces errors.",
+    "requesterAccounts": [
+      "ironvale",
+      "bluefin-freight",
+      "oakmoor-clinics",
+      "redline-depots",
+      "crestview-pharmstaff",
+      "ferro-fulfilment"
+    ],
+    "scenarios": [
+      "Every other Thursday I download a CSV, fix the columns, and upload it to ADP.",
+      "ADP rejected the file because employee IDs had their leading zeros stripped.",
+      "One typo and 200 people get the wrong pay.",
+      "Our auditors flagged manual rekeying as a control weakness."
+    ],
+    "solutions": ["ADP Workforce Now connector", "Paychex connector"],
+    "statement": "Payroll administrators need to send approved hours straight into ADP Workforce Now so that nobody rekeys hours and payroll runs without import errors",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 16,
+    "who": "Payroll administrators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": true,
+    "key": "ukg-earnings-code-mapping",
+    "outcome": "premiums and differentials land in the right pay lines",
+    "problem": "Crewday's pay codes don't map to UKG earnings codes, so premiums arrive as regular hours.",
+    "requesterAccounts": ["ironvale", "meridian-care", "pallet-ridge", "northgate-security"],
+    "scenarios": [
+      "Night premium shows up as regular hours in UKG, so 300 people were underpaid in June.",
+      "We maintain a 90-row mapping sheet between your codes and ours.",
+      "Ironvale's payroll lead said this is why they're evaluating Deputy.",
+      "Every new allowance we add means a ticket to your support team."
+    ],
+    "solutions": ["UKG Pro connector", "Pay code mapping"],
+    "statement": "Enterprise payroll teams on UKG Pro need to receive hours with pay codes mapped to UKG earnings codes so that premiums and differentials land in the right pay lines",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 5,
+    "who": "Enterprise payroll teams on UKG Pro"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "inBacklog": true,
+    "key": "unsocial-hours-premiums",
+    "outcome": "unsocial hours are paid at the contracted rate",
+    "problem": "Premiums are added by hand after export, and shifts crossing midnight are split wrongly.",
+    "requesterAccounts": [
+      "meridian-care",
+      "clearwater-staffing",
+      "pallet-ridge",
+      "quayside-cold",
+      "tallyho-couriers"
+    ],
+    "scenarios": [
+      "Carers who work Christmas Day should get double time; we add it by hand.",
+      "A shift crossing midnight gets all of it at the late rate, or none of it.",
+      "Our union contract says +18% after 10pm and the export ignores it.",
+      "Every pay run we have 20 corrections for Sunday work."
+    ],
+    "solutions": ["Pay rules engine", "Shift differentials"],
+    "statement": "Payroll managers need to apply night, weekend and bank-holiday premiums automatically so that unsocial hours are paid at the contracted rate",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 13,
+    "who": "Payroll managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": true,
+    "key": "post-close-corrections",
+    "outcome": "corrections reach the next pay run without reopening the whole period",
+    "problem": "Fixing a closed period re-exports everyone's hours, causing double payments.",
+    "requesterAccounts": ["ironvale", "sparkline-facilities", "meridian-care", "bluefin-freight"],
+    "scenarios": [
+      "A guard's Tuesday was missing; fixing it reopened the fortnight and resent 400 people's time.",
+      "We pay fixes by bank transfer and tidy the records later.",
+      "ADP double-counted after we re-exported a closed week.",
+      "I need a 'delta' file, not a full new export."
+    ],
+    "solutions": ["Adjustment export", "Delta file"],
+    "statement": "Payroll teams need to correct hours after a pay period is closed and send only the difference so that corrections reach the next pay run without reopening the whole period",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 10,
+    "who": "Payroll teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 30
+    },
+    "inBacklog": true,
+    "key": "built-in-payroll",
+    "outcome": "they can drop their separate payroll provider",
+    "problem": "Small customers pay for a scheduling tool and a payroll tool and want one bill.",
+    "requesterAccounts": [
+      "quickstep-couriers",
+      "nimbus-carwash",
+      "dockside-coffee",
+      "tinker-toolhire",
+      "willow-daycare",
+      "kiteline-deliveries"
+    ],
+    "scenarios": [
+      "Why do I pay Gusto AND you? Just do the whole thing.",
+      "My staff want payslips in the same app as their rota.",
+      "Tax filing would be amazing; then I'd cancel my bookkeeper.",
+      "A competitor bundles it in for £2 more per head."
+    ],
+    "solutions": ["Native payroll", "Pay slips", "Tax filing"],
+    "statement": "Small business owners need to run payroll and pay slips inside Crewday so that they can drop their separate payroll provider",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 117,
+    "who": "Small business owners"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 3,
+      "weight": 18
+    },
+    "inBacklog": false,
+    "key": "earned-wage-access",
+    "outcome": "an emergency doesn't push them to payday lenders",
+    "problem": "Workers wait for a fixed pay date even when they have already earned the money.",
+    "requesterAccounts": [
+      "tallyho-couriers",
+      "polar-parcel",
+      "quickstep-couriers",
+      "kiteline-deliveries",
+      "peak-patrol"
+    ],
+    "scenarios": [
+      "My car broke down Tuesday and we get paid on the 28th.",
+      "Other warehouses advertise 'get paid daily' and we lose applicants.",
+      "DailyPay keeps calling us about a partnership.",
+      "Could I see what I've made and take £100 now?"
+    ],
+    "solutions": ["Earned wage access", "DailyPay integration"],
+    "statement": "Hourly workers need to draw part of their earned pay before payday so that an emergency doesn't push them to payday lenders",
+    "strategyDecision": {
+      "byMonth": 6,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 112,
+    "who": "Hourly workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "agency-bill-and-pay-rates",
+    "outcome": "margin per placement is known before invoicing",
+    "problem": "Bill rates and pay rates are kept in separate spreadsheets, so loss-making contracts go unnoticed.",
+    "requesterAccounts": ["clearwater-staffing", "vantor-health", "crestview-pharmstaff"],
+    "scenarios": [
+      "St. Bride's pays us £48 an hour for ICU, the nurse gets £31; I compute it in a spreadsheet.",
+      "Weekend uplift applies to what the trust pays but not to the nurse's base.",
+      "We discovered a contract running at a loss for four months.",
+      "Vantor's CFO asked to see profit by ward in the demo."
+    ],
+    "solutions": ["Rate cards", "Bill and pay rates"],
+    "statement": "Staffing agency finance teams need to apply each client's bill rate and each nurse's pay rate to the same shift so that margin per placement is known before invoicing",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 21,
+    "who": "Staffing agency finance teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "mid-shift-role-rates",
+    "outcome": "forklift cover is paid correctly without manual adjustments",
+    "problem": "A shift carries one rate, so workers who switch to skilled equipment are underpaid.",
+    "requesterAccounts": ["ferro-fulfilment", "pallet-ridge", "bluefin-freight", "ironvale"],
+    "scenarios": [
+      "Jamal picks for 4 hours then drives a reach truck for 4; he gets picker rate all day.",
+      "Supervisors write task changes on a sheet and I fix pay by hand.",
+      "Grievance from the union about an unpaid skill premium.",
+      "Need the clock to switch the job code when they change task."
+    ],
+    "solutions": ["Job codes", "Rate by task"],
+    "statement": "Fulfilment payroll clerks need to pay the higher rate for hours spent on a skilled role mid-shift so that forklift cover is paid correctly without manual adjustments",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 47,
+    "who": "Fulfilment payroll clerks"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": true,
+    "key": "multiple-pay-calendars",
+    "outcome": "agency and permanent staff are exported on their own cycles",
+    "problem": "An account supports one pay calendar, so groups with mixed pay frequencies run two accounts.",
+    "requesterAccounts": ["meridian-care", "clearwater-staffing", "sparkline-facilities"],
+    "scenarios": [
+      "Our bank carers are paid every week, contracted staff monthly; Crewday only does one.",
+      "We run two Crewday logins just to get two calendars.",
+      "The acquired homes are on a two-week cycle and we can't merge them in.",
+      "Cutoff dates are wrong for half the company every month."
+    ],
+    "solutions": ["Multiple pay calendars"],
+    "statement": "Multi-entity payroll leads need to run weekly and fortnightly pay periods in one account so that agency and permanent staff are exported on their own cycles",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 33,
+    "who": "Multi-entity payroll leads"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": true,
+    "key": "per-entity-export",
+    "outcome": "each company in the group runs its own payroll from the right file",
+    "problem": "One account produces one export that mixes employees of several legal entities.",
+    "requesterAccounts": [
+      "meridian-care",
+      "sparkline-facilities",
+      "ironvale",
+      "clearwater-staffing"
+    ],
+    "scenarios": [
+      "We have 4 companies under one Crewday login and one file with everyone mixed.",
+      "I split it by hand using employee ID prefixes.",
+      "After acquiring Hollin Care we need their staff paid by Hollin Ltd.",
+      "Wages went to the wrong PAYE scheme for 30 staff in August."
+    ],
+    "solutions": ["Export by legal entity", "Multi-entity"],
+    "statement": "Group finance teams need to export hours separately for each legal entity so that each company in the group runs its own payroll from the right file",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 29,
+    "who": "Group finance teams"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 4,
+      "startMonth": 3,
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "irregular-hours-holiday-pay",
+    "outcome": "leave entitlement matches the law for zero-hours staff",
+    "problem": "Holiday accrual uses fixed contracted hours, which is wrong under the new rules for irregular-hours workers.",
+    "requesterAccounts": [
+      "meridian-care",
+      "sparkline-facilities",
+      "oakmoor-clinics",
+      "tidewell-laundry"
+    ],
+    "scenarios": [
+      "The April rule change means 12.07% accrual for casual staff and we're doing it in Excel.",
+      "A cleaner challenged her balance and she was right.",
+      "Rolled-up pay is allowed again but your export has no field for it.",
+      "Our accountant says we've under-accrued for 600 people."
+    ],
+    "solutions": ["Holiday accrual rules", "Rolled-up holiday pay"],
+    "statement": "UK payroll teams need to calculate holiday pay for irregular-hours workers from actual hours so that leave entitlement matches the law for zero-hours staff",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 15,
+    "who": "UK payroll teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "gl-cost-centre-export",
+    "outcome": "monthly accounts close on time",
+    "problem": "Wage cost is split across contracts by hand from payroll PDFs every month end.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "ironvale",
+      "northgate-security",
+      "meridian-care"
+    ],
+    "scenarios": [
+      "Month end, I spend two days splitting wages across 41 client contracts.",
+      "Our NetSuite journal is built by hand from a payroll PDF.",
+      "Auditors want staff cost per contract, not one big number.",
+      "Close slipped to day 9 again because of wage allocations."
+    ],
+    "solutions": ["NetSuite journal export", "Cost centre mapping"],
+    "statement": "Finance teams need to post labour cost to the general ledger by cost centre so that monthly accounts close on time",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 61,
+    "who": "Finance teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "driver-overnight-allowances",
+    "outcome": "drivers on overnight routes get their allowances without paper claims",
+    "problem": "Exports carry only hours, so per-night allowances are entered from paper forms.",
+    "requesterAccounts": ["tallyho-couriers", "ironvale", "bluefin-freight"],
+    "scenarios": [
+      "Trunkers sleeping in the cab get £30 a night; I enter it from a paper form.",
+      "We miss payments and the guys notice right away.",
+      "Tax rules differ for meals vs nights out and we mix them up.",
+      "The export has no column for non-hour payments."
+    ],
+    "solutions": ["Allowances in export", "Per diem"],
+    "statement": "Logistics payroll teams need to add meal and overnight allowances to trunk drivers' pay so that drivers on overnight routes get their allowances without paper claims",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 64,
+    "who": "Logistics payroll teams"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 2,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "pay-run-variance-check",
+    "outcome": "outliers are caught before money leaves the bank",
+    "problem": "There is no check between export and payment, so duplicated shifts are paid out.",
+    "requesterAccounts": ["ironvale", "meridian-care", "clearwater-staffing", "pallet-ridge"],
+    "scenarios": [
+      "Someone got paid for 140 hours last fortnight because of a duplicated shift.",
+      "I'd love a red flag when a person's total jumps 50%.",
+      "Our check is me eyeballing a 900-row spreadsheet.",
+      "The finance director wants sign-off with variance by site."
+    ],
+    "solutions": ["Pay run comparison", "Variance report"],
+    "statement": "Payroll managers need to compare this pay run's hours with last period before sending so that outliers are caught before money leaves the bank",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 27,
+    "who": "Payroll managers"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 4,
+      "startMonth": 3,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "backdated-rate-changes",
+    "outcome": "workers get back pay without manual sums",
+    "problem": "Rate changes only apply from the day they are entered, so back pay is calculated by hand.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "meridian-care", "redline-depots"],
+    "scenarios": [
+      "The union settled 4.5% from January in March; I calculated arrears for 700 people by hand.",
+      "Your rates only apply from the day I change them.",
+      "Arrears went out wrong for night staff because premiums weren't recalculated.",
+      "Each April the same mess."
+    ],
+    "solutions": ["Retro pay", "Effective-dated rates"],
+    "statement": "Payroll teams need to apply a backdated pay rise to hours already exported so that workers get back pay without manual sums",
+    "strategyDecision": {
+      "byMonth": 6,
+      "status": "declined"
+    },
+    "themeKey": "payroll-exports",
+    "truePriority": 51,
+    "who": "Payroll teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": false,
+    "key": "evv-visit-proof",
+    "outcome": "Medicaid claims pass electronic visit verification audits",
+    "problem": "Visit times come from paper forms, which state aggregators and auditors reject.",
+    "requesterAccounts": [
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "birchway-aides",
+      "vinecrest-care"
+    ],
+    "scenarios": [
+      "A state auditor clawed back $22k because our call times came from paper timesheets.",
+      "Our aides write arrival times on a form the patient signs; nobody trusts it.",
+      "Ohio's aggregator rejects submissions without GPS on check-in.",
+      "We bill in 15-minute units and need a record of exactly when the aide was at the door."
+    ],
+    "solutions": ["Geofenced clock-in", "Electronic visit verification"],
+    "statement": "Home care agencies need to prove each visit happened at the client's home at the billed time so that Medicaid claims pass electronic visit verification audits",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "trap": {
+      "group": "t-ss-geofence",
+      "kind": "shared_solution"
+    },
+    "truePriority": 7,
+    "who": "Home care agencies"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 3,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "driver-hours-limit-on-swap",
+    "outcome": "drivers never exceed hours-of-service rules",
+    "problem": "Swaps only check availability, so a trade can put a driver over legal driving time.",
+    "requesterAccounts": ["tallyho-couriers", "ironvale", "polar-parcel", "bluefin-freight"],
+    "scenarios": [
+      "Two of our van drivers did a double after a trade and DOT auditors found it in the logs.",
+      "Rafael picked up Kenji's afternoon route after a 10-hour morning; nobody caught it.",
+      "Our ELD shows the violation days later; by then the run is done.",
+      "The trade screen only checks if the person is free, not if they're legally allowed on the road."
+    ],
+    "solutions": ["Hours-of-service check", "Swap rules"],
+    "statement": "Fleet dispatchers need to see before approving a swap whether it breaks a driver's legal driving-hours limit so that drivers never exceed hours-of-service rules",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "trap": {
+      "group": "t-nn-swap-limits",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 11,
+    "who": "Fleet dispatchers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": true,
+    "key": "lapsed-registration-block",
+    "outcome": "residents are never cared for by unlicensed staff",
+    "problem": "The rota does not check professional registrations, so nurses with expired PINs get scheduled.",
+    "requesterAccounts": [
+      "meridian-care",
+      "oakmoor-clinics",
+      "vinecrest-care",
+      "clearwater-staffing"
+    ],
+    "scenarios": [
+      "A CQC inspector found a nurse worked three nights after her NMC PIN expired.",
+      "We check PINs in a spreadsheet once a month, if someone remembers.",
+      "The rota happily put Sarah on nights with her revalidation overdue.",
+      "One more finding like that and we lose our rating."
+    ],
+    "solutions": ["Credential checks", "Credential expiry report"],
+    "statement": "Care home compliance leads need to stop anyone with a lapsed nursing registration being put on shift so that residents are never cared for by unlicensed staff",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "trap": {
+      "group": "t-nn-credentials",
+      "kind": "near_neighbour"
+    },
+    "truePriority": 1,
+    "who": "Care home compliance leads"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "two-way-punch-rounding",
+    "outcome": "rounding never shortchanges paid time",
+    "problem": "Rounding rules round clock-ins up and clock-outs down, which always favours the employer.",
+    "requesterAccounts": [
+      "ironvale",
+      "redline-depots",
+      "polar-parcel",
+      "bluefin-freight",
+      "tallyho-couriers"
+    ],
+    "scenarios": [
+      "My pay is always a few minutes short, every single week.",
+      "Clocked 6:07 to 2:52 and got paid 6:15 to 2:45, how?",
+      "Ten of us compared stubs; all of us lose about an hour a month.",
+      "Feels like the system is stealing from us."
+    ],
+    "solutions": ["Neutral rounding rules"],
+    "statement": "Hourly employees need to have punch rounding applied evenly in both directions so that rounding never shortchanges paid time",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "trap": {
+      "group": "t-sym-rounding",
+      "kind": "symptom_only"
+    },
+    "truePriority": 12,
+    "who": "Hourly employees"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": true,
+    "key": "minimum-rest-between-shifts",
+    "outcome": "the business complies with working time rules",
+    "problem": "Nothing stops a close followed by an open, so rest-period breaches pile up.",
+    "requesterAccounts": [
+      "ironvale",
+      "pallet-ridge",
+      "redline-depots",
+      "quayside-cold",
+      "tallyho-couriers"
+    ],
+    "scenarios": [
+      "Close at 23:00, open at 06:00; the rota let me do it four times this month.",
+      "A Working Time Regulations audit found 62 breaches in one quarter.",
+      "Our union rep printed my schedule and laughed.",
+      "People build back-to-back closes and opens because it's easy cover."
+    ],
+    "solutions": ["Rest period rules", "Schedule compliance checks"],
+    "statement": "Logistics HR leads need to block any rota that gives less than eleven hours' rest between shifts so that the business complies with working time rules",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 8,
+    "who": "Logistics HR leads"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 3,
+      "startMonth": 2,
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "meal-break-attestation",
+    "outcome": "missed breaks trigger the premium and class actions are avoided",
+    "problem": "There is no record that meal periods were offered, which exposes employers to PAGA claims.",
+    "requesterAccounts": [
+      "ironvale",
+      "bluefin-freight",
+      "ferro-fulfilment",
+      "polar-parcel",
+      "coldline-3pl"
+    ],
+    "scenarios": [
+      "A PAGA claim against a competitor in Ontario, CA cost them $4M; our lawyer called the same day.",
+      "We have no record that anyone was offered a 30-minute lunch before the 5th hour.",
+      "Need a yes/no question when people punch out.",
+      "If the answer is no, payroll should add the extra hour automatically."
+    ],
+    "solutions": ["Break attestation", "Meal premium rules"],
+    "statement": "California logistics employers need to have workers confirm at clock-out whether they got their meal break so that missed breaks trigger the premium and class actions are avoided",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 4,
+    "who": "California logistics employers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 2,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "cold-room-warm-up-breaks",
+    "outcome": "teams meet cold-environment safety limits",
+    "problem": "Time in sub-zero rooms is not tracked, so exposure limits are exceeded when sites are short.",
+    "requesterAccounts": ["quayside-cold", "coldline-3pl", "ironvale"],
+    "scenarios": [
+      "Our blast room is -28°C and the HSE says 45 minutes max before a warm-up.",
+      "Pickers stay in for two hours when we're short and nobody tracks it.",
+      "Coldline asked in the demo how we'd prove rotation in and out of the chill.",
+      "Frostnip incident in January; the insurer wants records."
+    ],
+    "solutions": ["Exposure timers", "Rotation rules"],
+    "statement": "Cold-store operators need to schedule warm-up breaks after each stint in the freezer so that teams meet cold-environment safety limits",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 30,
+    "who": "Cold-store operators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "inBacklog": true,
+    "key": "rota-change-history",
+    "outcome": "they can answer labour inspectors and disputes with evidence",
+    "problem": "Only the latest rota is kept, so nobody can prove who removed or moved a shift.",
+    "requesterAccounts": ["northgate-security", "meridian-care", "ironvale"],
+    "scenarios": [
+      "A guard says he was removed from Saturday after he complained; I can't show who did it.",
+      "An inspector asked for the history of the March rota; we have the final version only.",
+      "Edits vanish; only the latest state is kept.",
+      "Northgate's legal team asked for a change trail in their renewal call."
+    ],
+    "solutions": ["Audit log", "Schedule history"],
+    "statement": "Compliance officers need to see who changed a published rota and when so that they can answer labour inspectors and disputes with evidence",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 3,
+    "who": "Compliance officers"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 6,
+      "startMonth": 5,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "timesheet-edit-trail",
+    "outcome": "wage claims can be defended",
+    "problem": "Supervisors can change approved punches without leaving any trace.",
+    "requesterAccounts": [
+      "ironvale",
+      "sparkline-facilities",
+      "clearwater-staffing",
+      "pallet-ridge"
+    ],
+    "scenarios": [
+      "A worker says 40 hours were cut from her timesheets; the lead says he only fixed a typo.",
+      "Our DOL investigator wanted original punches next to the paid totals.",
+      "Supervisors can change anything and leave no trace.",
+      "Can't tell if a 7:58 became 8:00 by rule or by hand."
+    ],
+    "solutions": ["Audit log", "Timesheet edit reasons"],
+    "statement": "Payroll auditors need to see every edit to approved hours with who, when and why so that wage claims can be defended",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 6,
+    "who": "Payroll auditors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": true,
+    "key": "nurse-resident-ratio",
+    "outcome": "the home stays within its registration conditions",
+    "problem": "Ratios are checked by counting heads on the rota, so swaps and sickness create unsafe shifts unnoticed.",
+    "requesterAccounts": ["meridian-care", "vinecrest-care", "oakmoor-clinics"],
+    "scenarios": [
+      "Night on Rowan Wing had 1 RN for 34 people after a sickness swap.",
+      "Our conditions say 1:8 carers by day; we check by counting heads.",
+      "The inspection report flagged unsafe staffing on two weekends.",
+      "Swaps go through without anyone checking the mix of RNs and carers."
+    ],
+    "solutions": ["Staffing ratio rules", "Minimum coverage"],
+    "statement": "Care home registered managers need to see when a shift drops below the required nurse-to-resident ratio so that the home stays within its registration conditions",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 2,
+    "who": "Care home registered managers"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 7,
+      "startMonth": 7,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "right-to-work-expiry",
+    "outcome": "they avoid illegal-working fines",
+    "problem": "Right-to-work is checked once at hire and never again, so expired visas go unnoticed.",
+    "requesterAccounts": [
+      "clearwater-staffing",
+      "vantor-health",
+      "sparkline-facilities",
+      "ferro-fulfilment"
+    ],
+    "scenarios": [
+      "A Home Office civil penalty is up to £60k per worker now.",
+      "A cleaner's visa ended in June and we found out in September.",
+      "Share codes are checked at hire and never again.",
+      "Agency temps arrive with a photo of a BRP and we trust it."
+    ],
+    "solutions": ["Document expiry checks", "Share code verification"],
+    "statement": "Staffing agencies need to block shifts for workers whose visa or right-to-work document has expired so that they avoid illegal-working fines",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 19,
+    "who": "Staffing agencies"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 9,
+      "startMonth": 9,
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "leaver-data-retention",
+    "outcome": "they meet GDPR storage limits",
+    "problem": "Former employees' personal data is kept forever with no purge option.",
+    "requesterAccounts": ["meridian-care", "clearwater-staffing", "northgate-security"],
+    "scenarios": [
+      "We still have 6,000 leavers' phone numbers from 2019 in your system.",
+      "Our DPO asked what our retention period is in Crewday; there isn't one.",
+      "A subject access request took me a week to pull together.",
+      "Auto-purge after 2 years would close our audit finding."
+    ],
+    "solutions": ["Data retention policy", "Auto-purge"],
+    "statement": "IT security teams need to delete ex-employee personal data after the retention period so that they meet GDPR storage limits",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "declined"
+    },
+    "themeKey": "compliance",
+    "truePriority": 65,
+    "who": "IT security teams"
+  },
+  {
+    "arrival": {
+      "curve": "seasonal",
+      "peakMonth": 10,
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "winter-vaccination-rostering",
+    "outcome": "infection-control rules are met",
+    "problem": "Vaccination status lives in occupational health systems, so it is not checked when rostering.",
+    "requesterAccounts": [
+      "oakmoor-clinics",
+      "clearwater-staffing",
+      "meridian-care",
+      "crestview-pharmstaff"
+    ],
+    "scenarios": [
+      "Every October, a scramble to know who's had the jab before they go on the oncology unit.",
+      "Occupational health keeps the list in a separate system.",
+      "A hospital refused two of our nurses at the door with no proof.",
+      "Can we tag people 'jabbed 2026' and filter the rota?"
+    ],
+    "solutions": ["Credential checks", "Staff tags"],
+    "statement": "Clinic schedulers need to only place staff with up-to-date flu vaccination on high-risk wards in winter so that infection-control rules are met",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 43,
+    "who": "Clinic schedulers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 3,
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "lone-worker-check-ins",
+    "outcome": "someone notices fast if a lone worker is hurt",
+    "problem": "Lone workers have no welfare check, so incidents go unnoticed for hours.",
+    "requesterAccounts": [
+      "northgate-security",
+      "sentinel-patrol",
+      "sparkline-facilities",
+      "ashdown-guarding"
+    ],
+    "scenarios": [
+      "Our guard at the scrapyard fell and lay there for 4 hours before anyone knew.",
+      "HSE guidance says we need a procedure; ours is 'call if there's trouble'.",
+      "I want the app to ping him on the hour and alert control if he doesn't answer.",
+      "The insurer asked how we monitor guards alone at night."
+    ],
+    "solutions": ["Lone worker check-ins", "Welfare timer"],
+    "statement": "Security and cleaning firms need to get a check-in from lone night workers every hour so that someone notices fast if a lone worker is hurt",
+    "strategyDecision": {
+      "byMonth": 6,
+      "status": "declined"
+    },
+    "themeKey": "compliance",
+    "truePriority": 52,
+    "who": "Security and cleaning firms"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": true,
+    "key": "weekly-hours-opt-out",
+    "outcome": "nobody works over the legal average without signed consent",
+    "problem": "Opt-out forms are on paper and the rota never checks the 17-week average.",
+    "requesterAccounts": [
+      "ironvale",
+      "pallet-ridge",
+      "clearwater-staffing",
+      "sparkline-facilities"
+    ],
+    "scenarios": [
+      "We have paper forms in a filing cabinet in Daventry.",
+      "The rota let Marek run 56 a week for months and he never agreed to anything.",
+      "The inspector wants a 17-week reference period calculation.",
+      "Agency temps work for us and two other places; we have no idea of their total."
+    ],
+    "solutions": ["Working time limits", "Opt-out records"],
+    "statement": "HR teams need to record which workers opted out of the 48-hour week and cap the rest so that nobody works over the legal average without signed consent",
+    "strategyDecision": {
+      "byMonth": 2,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 18,
+    "who": "HR teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 3
+    },
+    "inBacklog": false,
+    "key": "random-drug-test-selection",
+    "outcome": "the testing programme meets DOT rules and can't be called biased",
+    "problem": "Test selection is done from a hat or spreadsheet, which neither DOT nor unions accept as random.",
+    "requesterAccounts": ["tallyho-couriers", "ironvale", "polar-parcel"],
+    "scenarios": [
+      "We draw names from a hat; the union says it's rigged.",
+      "The DOT auditor wanted proof the pool was those actually driving that day.",
+      "I want 10% of the drivers on duty chosen fairly.",
+      "Spreadsheets with RAND() don't survive an audit."
+    ],
+    "solutions": ["Random selection tool"],
+    "statement": "Logistics safety managers need to pick random people from today's roster for drug and alcohol tests so that the testing programme meets DOT rules and can't be called biased",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "compliance",
+    "truePriority": 58,
+    "who": "Logistics safety managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "site-rule-acknowledgement",
+    "outcome": "there's proof each person was briefed",
+    "problem": "Site inductions are handed out on paper with no record of who read them.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "northgate-security",
+      "ferro-fulfilment",
+      "pallet-ridge"
+    ],
+    "scenarios": [
+      "A contractor at the Calder site got hurt and we couldn't show he'd seen the induction.",
+      "We hand out a laminated sheet and hope.",
+      "The client wants a signed record for every new cleaner.",
+      "Make them tick a box on the app before the shift unlocks."
+    ],
+    "solutions": ["Policy acknowledgement", "Site induction"],
+    "statement": "Ops admins need to have workers acknowledge site safety rules before their first shift there so that there's proof each person was briefed",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "compliance",
+    "truePriority": 66,
+    "who": "Ops admins"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "seven-day-rest-rule",
+    "outcome": "carers get the rest day the law and their contract require",
+    "problem": "The rota counts days per calendar week, so long runs across week boundaries go unnoticed.",
+    "requesterAccounts": [
+      "kestrel-homecare",
+      "lumen-homehealth",
+      "meridian-care",
+      "birchway-aides"
+    ],
+    "scenarios": [
+      "Abi did 13 days straight over Easter because nobody else would take the calls.",
+      "The rota counts Sunday to Saturday, so splits hide long runs.",
+      "Our policy says one day off in seven; we've breached it 40 times.",
+      "Burnout is why staff quit."
+    ],
+    "solutions": ["Consecutive day limits", "Schedule compliance checks"],
+    "statement": "Care agencies need to stop anyone being scheduled more than six days in a row so that carers get the rest day the law and their contract require",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 24,
+    "who": "Care agencies"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "agency-worker-12-week-parity",
+    "outcome": "they get equal pay on time and the business avoids tribunal claims",
+    "problem": "Nobody tracks qualifying periods for agency workers, so parity pay is missed.",
+    "requesterAccounts": ["ironvale", "ferro-fulfilment", "pallet-ridge"],
+    "scenarios": [
+      "90 temps hit week 12 in peak and nobody moved them onto the permanent rate.",
+      "A tribunal letter from a former picker about AWR parity.",
+      "Gaps under six weeks don't reset the clock and we track that in a notebook.",
+      "Staffline sends us a list but it's always wrong."
+    ],
+    "solutions": ["Agency worker tracking", "Qualifying period alerts"],
+    "statement": "Logistics HR teams need to track when agency temps reach 12 weeks in the same role so that they get equal pay on time and the business avoids tribunal claims",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 17,
+    "who": "Logistics HR teams"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 8,
+      "startMonth": 8,
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "eu-data-residency",
+    "outcome": "procurement and data protection officers can approve the contract",
+    "problem": "Crewday cannot state where data is stored, which blocks security reviews.",
+    "requesterAccounts": ["sparkline-facilities", "meridian-care", "vantor-health"],
+    "scenarios": [
+      "Our DPO blocked renewal sign-off until we confirm where the data sits.",
+      "Questionnaire question 41: data location; we answered 'unsure'.",
+      "Schrems II came up in the Vantor security review.",
+      "Do you have a Frankfurt region?"
+    ],
+    "solutions": ["EU data region"],
+    "statement": "IT security teams at EU customers need to keep employee data hosted in the EU so that procurement and data protection officers can approve the contract",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "declined"
+    },
+    "themeKey": "compliance",
+    "truePriority": 56,
+    "who": "IT security teams at EU customers"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 5,
+      "startMonth": 4,
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "sick-leave-accrual-by-jurisdiction",
+    "outcome": "workers get the sick time the local law requires",
+    "problem": "One accrual rule applies to every site, while cities and states each have different laws.",
+    "requesterAccounts": [
+      "ironvale",
+      "polar-parcel",
+      "bluefin-freight",
+      "tallyho-couriers",
+      "redline-depots"
+    ],
+    "scenarios": [
+      "New Jersey, NYC and Colorado each count accrual differently and we do it in Excel.",
+      "A driver in Denver sued over unpaid sick days.",
+      "Minnesota's law took effect and our policy didn't change.",
+      "Every new site means a new set of rules for time off."
+    ],
+    "solutions": ["Sick leave accrual rules"],
+    "statement": "Multi-state HR teams need to accrue paid sick leave by each city's and state's rules so that workers get the sick time the local law requires",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 14,
+    "who": "Multi-state HR teams"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 6,
+      "startMonth": 6,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "biometric-consent",
+    "outcome": "they avoid BIPA lawsuits",
+    "problem": "Fingerprint readers enrol workers with no recorded consent.",
+    "requesterAccounts": ["pallet-ridge", "coldline-3pl", "redline-depots"],
+    "scenarios": [
+      "We just got a demand letter about our finger scanners in Joliet.",
+      "Nobody signed anything when the readers went in.",
+      "Our lawyer says $1,000 per scan violation; we have 400 staff.",
+      "Need a release form in the app before the reader enrols someone."
+    ],
+    "solutions": ["Biometric consent forms"],
+    "statement": "Illinois employers need to collect written consent before using fingerprint clocks so that they avoid BIPA lawsuits",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "compliance",
+    "truePriority": 28,
+    "who": "Illinois employers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 2,
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "badge-access-sync",
+    "outcome": "an off-roster or dismissed guard cannot enter a secure site",
+    "problem": "Access-control groups are updated by hand, so dismissed or off-duty guards keep door access.",
+    "requesterAccounts": ["northgate-security", "sentinel-patrol", "apex-event-security"],
+    "scenarios": [
+      "A guard we let go last month walked into the data centre with his old card.",
+      "Lenel access groups are updated by hand every Monday.",
+      "The client wants proof that card access matches who's on duty.",
+      "Night relief officers get stuck at the turnstile because nobody added them."
+    ],
+    "solutions": ["Badge reader integration", "Access control sync"],
+    "statement": "Corporate security teams at client sites need to let only guards scheduled for today through the site's doors so that an off-roster or dismissed guard cannot enter a secure site",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "trap": {
+      "group": "t-ss-badge",
+      "kind": "shared_solution"
+    },
+    "truePriority": 44,
+    "who": "Corporate security teams at client sites"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "inBacklog": true,
+    "key": "idp-single-sign-on",
+    "outcome": "password resets stop and access follows company policy",
+    "problem": "Managers sign in with separate Crewday passwords that IT cannot control.",
+    "requesterAccounts": [
+      "ironvale",
+      "meridian-care",
+      "vantor-health",
+      "coldline-3pl",
+      "clearwater-staffing"
+    ],
+    "scenarios": [
+      "Vantor's security questionnaire is a hard no without SAML.",
+      "Helpdesk resets 200 Crewday passwords a month.",
+      "Managers reuse their email login everywhere, I've seen it.",
+      "We have Entra ID for everything except you."
+    ],
+    "solutions": ["SAML SSO", "Okta integration", "Azure AD"],
+    "statement": "IT administrators need to require single sign-on through the company identity provider so that password resets stop and access follows company policy",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "truePriority": 34,
+    "who": "IT administrators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "scim-user-provisioning",
+    "outcome": "leavers lose access on their last day",
+    "problem": "Users are added and removed by hand, so leavers keep access for weeks.",
+    "requesterAccounts": ["ironvale", "northgate-security", "meridian-care", "ferro-fulfilment"],
+    "scenarios": [
+      "A fired supervisor approved timesheets two weeks after leaving.",
+      "We hire 40 a month and each one is typed in by hand.",
+      "Workday is our source of truth and Crewday is always behind.",
+      "Audit finding: orphaned users in your app."
+    ],
+    "solutions": ["SCIM provisioning"],
+    "statement": "IT administrators need to have accounts created and removed from the HR system automatically so that leavers lose access on their last day",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "truePriority": 38,
+    "who": "IT administrators"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": true,
+    "key": "hris-employee-sync",
+    "outcome": "rotas and pay use current employee data",
+    "problem": "Employee changes made in the HRIS reach Crewday only through weekly CSV uploads.",
+    "requesterAccounts": ["pallet-ridge", "ironvale", "sparkline-facilities", "vantor-health"],
+    "scenarios": [
+      "Promotions in Workday don't reach Crewday, so people get the old rate.",
+      "We transfer a worker to Bristol and the schedule still has them in Bath.",
+      "I export from BambooHR every Monday and upload a CSV.",
+      "Pay changes take two pay periods to land."
+    ],
+    "solutions": ["Workday connector", "BambooHR connector"],
+    "statement": "HR operations teams need to keep job titles, pay rates and locations synced from their HRIS so that rotas and pay use current employee data",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "truePriority": 40,
+    "who": "HR operations teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": true,
+    "key": "rota-change-webhooks",
+    "outcome": "their own systems stay up to date without polling",
+    "problem": "The API has no events, so integrations poll and hit rate limits.",
+    "requesterAccounts": ["ironvale", "bluefin-freight", "ferro-fulfilment"],
+    "scenarios": [
+      "Our WMS polls your API every 5 minutes and hits the rate limit.",
+      "We want our door system to react the moment a shift moves.",
+      "The integration team built a nightly job that's always stale.",
+      "Is there an event when someone swaps?"
+    ],
+    "solutions": ["Webhooks", "REST API"],
+    "statement": "Customer developers need to be notified when a rota is published or changed so that their own systems stay up to date without polling",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 78,
+    "who": "Customer developers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "tms-route-plan-import",
+    "outcome": "the right number of drivers is booked for the routes",
+    "problem": "Route plans from the TMS are turned into driver shifts by hand every afternoon.",
+    "requesterAccounts": [
+      "tallyho-couriers",
+      "polar-parcel",
+      "redline-depots",
+      "quickstep-couriers"
+    ],
+    "scenarios": [
+      "Our optimiser spits out 38 vans at 4pm and I then build the next day by hand.",
+      "Days with 52 vans going out and only 44 people rostered are a nightmare.",
+      "Descartes and Crewday don't talk.",
+      "Want the van count to become shifts automatically."
+    ],
+    "solutions": ["Descartes TMS integration", "Route plan import"],
+    "statement": "Delivery depot planners need to import tomorrow's route plan from the TMS to size driver shifts so that the right number of drivers is booked for the routes",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 73,
+    "who": "Delivery depot planners"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "teams-approvals-bot",
+    "outcome": "they act without keeping another tab open",
+    "problem": "Crewday notifications only arrive by email or in the app, which office managers rarely open.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "meridian-care",
+      "ferro-fulfilment",
+      "bluefin-freight"
+    ],
+    "scenarios": [
+      "I live in Teams all day and miss everything Crewday emails me.",
+      "Sign-offs sit for hours because I never open your app.",
+      "Our IT won't allow another notifier on laptops.",
+      "A bot that lets me approve right in the chat would be perfect."
+    ],
+    "solutions": ["Microsoft Teams integration", "Slack integration"],
+    "statement": "Office-based operations managers need to receive swap requests and no-show alerts in Microsoft Teams so that they act without keeping another tab open",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 105,
+    "who": "Office-based operations managers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 6,
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "clinic-appointment-demand",
+    "outcome": "clinics aren't short on busy session days",
+    "problem": "Rotas are built without appointment volumes, which live in the practice system.",
+    "requesterAccounts": ["oakmoor-clinics", "laurel-dental", "clearwater-staffing"],
+    "scenarios": [
+      "Tuesday's diabetic clinic has 60 bookings and two nurses rostered.",
+      "Our EMIS diary and the rota live in different worlds.",
+      "I print the appointment list and count by hand.",
+      "Dental hygienists sit idle on cancellation days."
+    ],
+    "solutions": ["EMIS integration", "Appointment-based forecasting"],
+    "statement": "Outpatient clinic managers need to plan staffing from booked appointments in the practice system so that clinics aren't short on busy session days",
+    "strategyDecision": {
+      "byMonth": 9,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 98,
+    "who": "Outpatient clinic managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "zapier-automations",
+    "outcome": "simple automations don't need a developer",
+    "problem": "Small customers have no developers to use the API.",
+    "requesterAccounts": [
+      "kiteline-deliveries",
+      "nimbus-carwash",
+      "glint-windows",
+      "dockside-coffee",
+      "rowan-cleaning"
+    ],
+    "scenarios": [
+      "I want a Google Sheet row every time someone calls in sick.",
+      "Our tiny team has nobody who can code against your API.",
+      "Every app I use is on Zapier except you.",
+      "Would love new hires from Typeform to land in the rota."
+    ],
+    "solutions": ["Zapier integration"],
+    "statement": "Small business admins need to connect Crewday to other tools via Zapier so that simple automations don't need a developer",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 110,
+    "who": "Small business admins"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 18
+    },
+    "inBacklog": true,
+    "key": "personal-calendar-feed",
+    "outcome": "personal plans don't clash with work",
+    "problem": "Shifts only exist inside the Crewday app, separate from workers' personal calendars.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "kestrel-homecare",
+      "brightpath-cleaning",
+      "quickstep-couriers",
+      "redline-depots",
+      "willow-daycare"
+    ],
+    "scenarios": [
+      "I double-booked my daughter's dentist with a Saturday shift again.",
+      "My whole life is in my phone's calendar except my job.",
+      "Can I subscribe to my rota like a football fixture list?",
+      "My partner wants to see when I'm on nights."
+    ],
+    "solutions": ["Calendar sync", "iCal feed"],
+    "statement": "Frontline workers need to see their shifts in Google or Apple Calendar so that personal plans don't clash with work",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 108,
+    "who": "Frontline workers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 5,
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "telematics-hours-match",
+    "outcome": "paid hours reflect when vans actually moved",
+    "problem": "Driver punches and vehicle data are reconciled by eye, so overtime disputes have no evidence.",
+    "requesterAccounts": ["tallyho-couriers", "polar-parcel", "bluefin-freight", "ironvale"],
+    "scenarios": [
+      "A driver clocked off at 7pm but Samsara shows the van parked at 5:40.",
+      "We reconcile tachograph data with timesheets by eye.",
+      "Disputes about overtime would end with GPS proof.",
+      "Our fleet system knows exactly when engines start."
+    ],
+    "solutions": ["Samsara integration", "Geotab integration"],
+    "statement": "Fleet managers need to match driver clock times with vehicle telematics so that paid hours reflect when vans actually moved",
+    "strategyDecision": {
+      "byMonth": 8,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 70,
+    "who": "Fleet managers"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 2,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "hospital-vms-orders",
+    "outcome": "orders are filled before competitors see them",
+    "problem": "Hospital shift orders are copied by hand from VMS portals, which is slow and error-prone.",
+    "requesterAccounts": ["clearwater-staffing", "vantor-health", "crestview-pharmstaff"],
+    "scenarios": [
+      "St. Bride's posts 40 orders a week in ShiftWise and I copy each into Crewday.",
+      "Rival firms fill requests in 3 minutes; we take 40.",
+      "Vantor uses Fieldglass for all their trusts.",
+      "Typos in copied requests sent someone to the wrong ward."
+    ],
+    "solutions": ["ShiftWise VMS integration", "Fieldglass integration"],
+    "statement": "Nurse staffing agencies need to receive shift orders from hospital vendor management systems automatically so that orders are filled before competitors see them",
+    "strategyDecision": {
+      "byMonth": 5,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "truePriority": 25,
+    "who": "Nurse staffing agencies"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "warehouse-data-export",
+    "outcome": "labour analytics sit next to sales and volume data",
+    "problem": "Data leaves Crewday only as manual CSVs or slow API extracts.",
+    "requesterAccounts": ["ironvale", "pallet-ridge", "ferro-fulfilment"],
+    "scenarios": [
+      "Our BI team scrapes 14 CSVs from your admin every morning.",
+      "We want to join punches with units shipped in Looker.",
+      "API pagination makes full extracts take 3 hours.",
+      "The ops VP asked for cost per pallet and we can't build it."
+    ],
+    "solutions": ["Snowflake connector", "Nightly data export"],
+    "statement": "Data teams need to load scheduling and hours data into Snowflake daily so that labour analytics sit next to sales and volume data",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 91,
+    "who": "Data teams"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 16
+    },
+    "inBacklog": false,
+    "key": "built-in-hiring",
+    "outcome": "new hires land on the rota without another tool",
+    "problem": "Recruiting happens in job boards and spreadsheets disconnected from scheduling.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "quickstep-couriers",
+      "kiteline-deliveries",
+      "peak-patrol",
+      "nimbus-carwash"
+    ],
+    "scenarios": [
+      "We take on 20 drivers every month using Indeed plus a spreadsheet.",
+      "Would love candidates to pick interview slots in the same app.",
+      "A competitor has a hiring module included.",
+      "Onboarding paperwork should live where the rota is."
+    ],
+    "solutions": ["Applicant tracking", "Indeed integration"],
+    "statement": "Hiring managers need to post jobs and screen applicants inside Crewday so that new hires land on the rota without another tool",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 116,
+    "who": "Hiring managers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "inBacklog": false,
+    "key": "phone-number-sign-in",
+    "outcome": "every worker can use the app without IT creating mailboxes",
+    "problem": "Sign-in requires an email address that most frontline workers don't have.",
+    "requesterAccounts": ["ironvale", "ferro-fulfilment", "polar-parcel"],
+    "scenarios": [
+      "Two thirds of our pickers have no corporate address and Okta requires one.",
+      "We create fake gmail accounts for temps just to log in.",
+      "A text code to their mobile would solve it.",
+      "IT refuses to license 900 inboxes for warehouse staff."
+    ],
+    "solutions": ["SMS sign-in", "Passwordless login"],
+    "statement": "IT administrators need to let frontline staff without company email sign in with a phone number so that every worker can use the app without IT creating mailboxes",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 87,
+    "who": "IT administrators"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 3,
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "legacy-system-migration",
+    "outcome": "go-live doesn't reset everyone's history",
+    "problem": "There is no migration path from Kronos and similar tools, so new customers start from zero.",
+    "requesterAccounts": ["coldline-3pl", "ferro-fulfilment", "vantor-health"],
+    "scenarios": [
+      "Coldline has 3 years of Kronos data and won't start from scratch.",
+      "Holiday totals were wrong for 400 people after we moved.",
+      "Our sales engineer promised a migration tool that doesn't exist.",
+      "We kept the old platform running six months just to look things up."
+    ],
+    "solutions": ["Kronos migration tool", "Historical data import"],
+    "statement": "Implementation leads at new customers need to bring years of rotas and leave balances over from their old system so that go-live doesn't reset everyone's history",
+    "strategyDecision": {
+      "byMonth": 6,
+      "status": "declined"
+    },
+    "themeKey": "integrations",
+    "truePriority": 53,
+    "who": "Implementation leads at new customers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "inBacklog": false,
+    "key": "payroll-file-sftp",
+    "outcome": "nobody emails pay data around",
+    "problem": "Payroll files are downloaded and emailed as attachments, which security teams flag as a breach risk.",
+    "requesterAccounts": ["northgate-security", "ironvale", "meridian-care"],
+    "scenarios": [
+      "Our clerk sends a spreadsheet of wages to the bureau as an attachment every week.",
+      "Security flagged that unencrypted attachment as a breach risk.",
+      "The bureau supports drop folders; you don't.",
+      "I want it to just appear on their server Monday 6am."
+    ],
+    "solutions": ["SFTP delivery", "Scheduled exports"],
+    "statement": "IT teams need to deliver payroll files to the provider over SFTP on a schedule so that nobody emails pay data around",
+    "strategyDecision": {
+      "byMonth": 11,
+      "status": "planned"
+    },
+    "themeKey": "integrations",
+    "truePriority": 48,
+    "who": "IT teams"
+  },
+  {
+    "arrival": {
+      "curve": "late",
+      "startMonth": 6,
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "post-orders-on-phone",
+    "outcome": "they follow each client's site rules without calling a supervisor",
+    "problem": "Post instructions live in binders at gatehouses and are often out of date.",
+    "requesterAccounts": ["northgate-security", "ashdown-guarding", "peak-patrol"],
+    "scenarios": [
+      "The new guy at Pier 9 didn't know the alarm procedure and set it off.",
+      "The binder at the gatehouse is three versions old.",
+      "Every handover I get the same five questions about which doors to check.",
+      "The customer changed their visitor policy and nobody told the night officer."
+    ],
+    "solutions": ["Post orders in app", "Site instructions"],
+    "statement": "Guards need to read the instructions for each post on their phone when they arrive so that they follow each client's site rules without calling a supervisor",
+    "strategyDecision": {
+      "byMonth": 9,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "trap": {
+      "group": "t-split-guard-posts",
+      "kind": "split"
+    },
+    "truePriority": 75,
+    "who": "Guards"
+  },
+  {
+    "arrival": {
+      "curve": "burst",
+      "peakMonth": 5,
+      "startMonth": 4,
+      "weight": 18
+    },
+    "inBacklog": false,
+    "key": "android-background-alerts",
+    "outcome": "they don't miss urgent shift offers",
+    "problem": "Android battery optimisation kills the app in the background, so push notifications never arrive.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "tallyho-couriers",
+      "ferro-fulfilment",
+      "kestrel-homecare",
+      "quickstep-couriers",
+      "brightpath-cleaning"
+    ],
+    "scenarios": [
+      "I only find out about extra work after it's already taken.",
+      "Nothing shows on my phone until I open the app myself.",
+      "My Samsung got nothing today; my mate's iPhone got five.",
+      "Since the update last week I'm missing everything."
+    ],
+    "solutions": ["Push notifications", "Android reliability fix"],
+    "statement": "Frontline workers on Android need to receive shift alerts even when the app is in the background so that they don't miss urgent shift offers",
+    "strategyDecision": {
+      "byMonth": 7,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "trap": {
+      "group": "t-sym-push",
+      "kind": "symptom_only"
+    },
+    "truePriority": 67,
+    "who": "Frontline workers on Android"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 32
+    },
+    "inBacklog": true,
+    "key": "in-app-team-chat",
+    "outcome": "they stop using WhatsApp groups for work",
+    "problem": "Teams coordinate in personal messaging apps outside the company's control.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "kiteline-deliveries",
+      "brightpath-cleaning",
+      "kestrel-homecare",
+      "rowan-cleaning",
+      "sentinel-patrol"
+    ],
+    "scenarios": [
+      "Everyone's on WhatsApp and the managers hate it.",
+      "Would love a group thread per site in Crewday.",
+      "A competitor has chat built in; we'd drop WhatsApp tomorrow.",
+      "Swaps get arranged in DMs and nobody sees them."
+    ],
+    "solutions": ["Team chat", "Group messaging"],
+    "statement": "Crews need to message their whole team inside the app so that they stop using WhatsApp groups for work",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 118,
+    "who": "Crews"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 20
+    },
+    "inBacklog": true,
+    "key": "dark-theme",
+    "outcome": "the screen doesn't dazzle them at 3am",
+    "problem": "The app is bright white, which is uncomfortable in dark environments.",
+    "requesterAccounts": [
+      "northgate-security",
+      "peak-patrol",
+      "quayside-cold",
+      "polar-parcel",
+      "sentinel-patrol"
+    ],
+    "scenarios": [
+      "Checking my rota on the night break burns my eyes.",
+      "Every other app has a black background option.",
+      "Guards in dark patrol cars need something dim.",
+      "Please, a night version of the display."
+    ],
+    "solutions": ["Dark mode"],
+    "statement": "Night-shift workers need to use the app in a dark theme so that the screen doesn't dazzle them at 3am",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 119,
+    "who": "Night-shift workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "attendance-gamification",
+    "outcome": "attendance improves through friendly competition",
+    "problem": "Managers want a lightweight way to recognise reliability.",
+    "requesterAccounts": ["polar-parcel", "ferro-fulfilment", "kiteline-deliveries"],
+    "scenarios": [
+      "Our Gen Z pickers love streaks on every other app.",
+      "A top-10 board for no-sick-days would be fun.",
+      "A competitor shows points for picking up open shifts.",
+      "Kudos from managers would cost us nothing."
+    ],
+    "solutions": ["Badges", "Leaderboards", "Kudos"],
+    "statement": "Ops directors need to reward reliable workers with badges and leaderboards so that attendance improves through friendly competition",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 120,
+    "who": "Ops directors"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "inBacklog": true,
+    "key": "offline-rota-view",
+    "outcome": "they know their next shift in basements and freezers",
+    "problem": "The app shows nothing without a connection because the rota is not cached.",
+    "requesterAccounts": [
+      "quayside-cold",
+      "coldline-3pl",
+      "sparkline-facilities",
+      "ironvale",
+      "northgate-security"
+    ],
+    "scenarios": [
+      "In the sub-basement car park the app just shows a spinner.",
+      "I'm in a steel building all day, no bars.",
+      "I screenshot my week every Sunday just in case.",
+      "Guards at the reservoir can't check tomorrow's post."
+    ],
+    "solutions": ["Offline mode", "Cached schedule"],
+    "statement": "Frontline workers in low-signal sites need to see their upcoming rota without a connection so that they know their next shift in basements and freezers",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 81,
+    "who": "Frontline workers in low-signal sites"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "inBacklog": true,
+    "key": "worker-earnings-to-date",
+    "outcome": "they spot missing hours before payday",
+    "problem": "Workers can't see their recorded time, so errors are only found on payslips.",
+    "requesterAccounts": [
+      "ironvale",
+      "polar-parcel",
+      "kestrel-homecare",
+      "pallet-ridge",
+      "sparkline-facilities"
+    ],
+    "scenarios": [
+      "I only find mistakes when the money is short, then wait two weeks for a fix.",
+      "Want a running total: 31.5 so far this week.",
+      "My supervisor can see my timesheet; I can't.",
+      "Half the payroll queries are 'what have I clocked?'"
+    ],
+    "solutions": ["Earnings preview", "My hours"],
+    "statement": "Hourly workers need to see hours worked and estimated earnings for the current pay period so that they spot missing hours before payday",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 62,
+    "who": "Hourly workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "inBacklog": false,
+    "key": "mobile-manager-approvals",
+    "outcome": "requests don't wait until they get back to a desk",
+    "problem": "The manager view on mobile is read-only, so approvals wait for a laptop.",
+    "requesterAccounts": [
+      "ferro-fulfilment",
+      "bluefin-freight",
+      "meridian-care",
+      "sparkline-facilities"
+    ],
+    "scenarios": [
+      "I'm walking the dock 10 hours a day; the admin site needs a laptop.",
+      "Swap requests expire while I'm away from the office.",
+      "The manager view on mobile is read-only, why?",
+      "Signing off holiday in the mobile browser zooms everything."
+    ],
+    "solutions": ["Manager mobile app"],
+    "statement": "Shift supervisors on the floor need to approve swaps, leave and timesheets from their phone so that requests don't wait until they get back to a desk",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 74,
+    "who": "Shift supervisors on the floor"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "inBacklog": false,
+    "key": "accessible-app",
+    "outcome": "everyone can read and act on their rota",
+    "problem": "The app ignores system text size and is not labelled for screen readers.",
+    "requesterAccounts": [
+      "meridian-care",
+      "brightpath-cleaning",
+      "tidewell-laundry",
+      "sparkline-facilities"
+    ],
+    "scenarios": [
+      "Our cleaners are mostly over 55 and the text is tiny.",
+      "VoiceOver reads the buttons as 'button button button'.",
+      "A blind receptionist at Tidewell can't swap shifts.",
+      "Zooming breaks the layout and hides the Accept button."
+    ],
+    "solutions": ["Accessibility fixes", "Dynamic type"],
+    "statement": "Older and visually impaired workers need to use the app with large text and a screen reader so that everyone can read and act on their rota",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 88,
+    "who": "Older and visually impaired workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "inBacklog": false,
+    "key": "job-photo-evidence",
+    "outcome": "client complaints about missed areas can be answered",
+    "problem": "There is no way to attach proof of work to a job, so complaints can't be disputed.",
+    "requesterAccounts": [
+      "sparkline-facilities",
+      "brightpath-cleaning",
+      "glint-windows",
+      "rowan-cleaning",
+      "metro-transit-cleaning"
+    ],
+    "scenarios": [
+      "The bank says the 4th floor kitchens weren't touched; we have no proof.",
+      "I take pictures on my own phone and WhatsApp them to my supervisor.",
+      "Metro Transit wants evidence for every station clean.",
+      "Credits we give for skipped cleans cost us £2k a month."
+    ],
+    "solutions": ["Photo attachments", "Proof of service"],
+    "statement": "Cleaning crews need to attach before-and-after photos to each job so that client complaints about missed areas can be answered",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 102,
+    "who": "Cleaning crews"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 16
+    },
+    "inBacklog": true,
+    "key": "stay-signed-in",
+    "outcome": "checking the rota doesn't need a password every time",
+    "problem": "Sessions expire after a day, forcing frequent logins and resets.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "tallyho-couriers",
+      "kestrel-homecare",
+      "brightpath-cleaning",
+      "peak-patrol"
+    ],
+    "scenarios": [
+      "Each time I open it, it wants my login again.",
+      "I forgot my details again; third reset this month.",
+      "Face ID would be enough.",
+      "I gave up and just ask my lead when I'm on."
+    ],
+    "solutions": ["Persistent sessions", "Face ID login"],
+    "statement": "Frontline workers need to stay signed in on their own phone so that checking the rota doesn't need a password every time",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 95,
+    "who": "Frontline workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "inBacklog": false,
+    "key": "pre-shift-reminders",
+    "outcome": "fewer people turn up late or forget",
+    "problem": "The app sends no reminders, so workers mix up days and start times.",
+    "requesterAccounts": [
+      "polar-parcel",
+      "kiteline-deliveries",
+      "glint-windows",
+      "kestrel-homecare"
+    ],
+    "scenarios": [
+      "I mixed up Tuesday and Wednesday and missed my start.",
+      "An hour-ahead ping would save me.",
+      "Our no-shows are mostly staff who genuinely forgot.",
+      "My old job's app nudged me the night ahead."
+    ],
+    "solutions": ["Shift reminders"],
+    "statement": "Frontline workers need to get a reminder before each shift starts so that fewer people turn up late or forget",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 103,
+    "who": "Frontline workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "inBacklog": false,
+    "key": "one-tap-shift-pickup",
+    "outcome": "they earn more and gaps fill fast",
+    "problem": "Picking up an open shift takes several screens, so others grab it first.",
+    "requesterAccounts": ["pallet-ridge", "ferro-fulfilment", "polar-parcel", "bluefin-freight"],
+    "scenarios": [
+      "I see a Saturday posted but it takes 6 screens to grab it.",
+      "By the time I'm through the menus someone else got it.",
+      "I want more hours and the app makes it hard.",
+      "Pickup should be a big green button on the home screen."
+    ],
+    "solutions": ["Open shift pickup"],
+    "statement": "Part-time warehouse workers need to claim extra shifts from their phone in one tap so that they earn more and gaps fill fast",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 92,
+    "who": "Part-time warehouse workers"
+  },
+  {
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "inBacklog": false,
+    "key": "branded-worker-app",
+    "outcome": "staff see the company name, not Crewday's",
+    "problem": "Workers see Crewday's brand rather than their employer's.",
+    "requesterAccounts": ["meridian-care", "sparkline-facilities", "northgate-security"],
+    "scenarios": [
+      "Our staff think Crewday is a separate agency.",
+      "Marketing wants our logo and colours on the home screen.",
+      "We'd pay extra for an app store listing under our name.",
+      "People delete apps they don't recognise."
+    ],
+    "solutions": ["White-label app", "Custom branding"],
+    "statement": "Large customers need to give their workers an app with their own brand so that staff see the company name, not Crewday's",
+    "strategyDecision": {
+      "byMonth": 3,
+      "status": "declined"
+    },
+    "themeKey": "mobile",
+    "truePriority": 115,
+    "who": "Large customers"
+  }
+]

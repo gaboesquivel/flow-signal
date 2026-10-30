@@ -1,0 +1,71 @@
+{
+  "count": 200,
+  "roles": [
+    {
+      "role": "ops admin",
+      "share": 0.1,
+      "channel": "web",
+      "writingStyle": "organised and specific; names settings screens, location counts, and the spreadsheet they use instead"
+    },
+    {
+      "role": "shift manager",
+      "share": 0.17,
+      "channel": "web",
+      "writingStyle": "rambling, written after a bad shift; tells the story of what went wrong tonight before getting to the ask"
+    },
+    {
+      "role": "frontline staff (non-native English)",
+      "share": 0.1,
+      "channel": "web",
+      "writingStyle": "non-native English (Spanish, Haitian Creole, Vietnamese, Tagalog speakers); short sentences; sometimes mixes languages; written on a phone"
+    },
+    {
+      "role": "frontline staff (terse)",
+      "share": 0.13,
+      "channel": "web",
+      "writingStyle": "terse, lowercase, typos, no punctuation; often only a symptom ('app broken again'); sometimes angry about pay"
+    },
+    {
+      "role": "HR or payroll",
+      "share": 0.12,
+      "channel": "web",
+      "writingStyle": "polite and precise; cites pay periods, dollar amounts, laws, and how long the manual fix takes"
+    },
+    {
+      "role": "IT or security",
+      "share": 0.05,
+      "channel": "web",
+      "writingStyle": "formal, checklist style; references security questionnaires, audit findings, and vendor policies"
+    },
+    {
+      "role": "CSM filing for account",
+      "share": 0.1,
+      "channel": "web",
+      "writingStyle": "polite, account-first; names the customer, renewal date, and ARR at stake; sometimes bundles two asks in one note"
+    },
+    {
+      "role": "sales rep filing for prospect",
+      "share": 0.06,
+      "channel": "web",
+      "writingStyle": "upbeat and solution-named ('they need a Workday connector'); mentions deal size, close date, and a competitor"
+    },
+    {
+      "role": "support copilot",
+      "share": 0.1,
+      "channel": "mcp",
+      "writingStyle": "neutral third-person summary of a support ticket ('Customer reports…'); includes the ticket number; sometimes copies caller names, phone numbers, or employee IDs from the ticket"
+    },
+    {
+      "role": "owner-operator",
+      "share": 0.05,
+      "channel": "web",
+      "writingStyle": "small-business owner; friendly but impatient; compares Crewday with the cheaper tool they almost switched to"
+    },
+    {
+      "role": "regional director (escalation)",
+      "share": 0.02,
+      "channel": "web",
+      "writingStyle": "angry, ALL-CAPS bursts; threatens to leave at renewal; names the executive who is upset"
+    }
+  ]
+}

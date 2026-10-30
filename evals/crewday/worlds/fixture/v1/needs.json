@@ -1,0 +1,290 @@
+[
+  {
+    "key": "fx-shift-swap",
+    "themeKey": "scheduling",
+    "statement": "Frontline staff need to trade shifts with a qualified coworker without a manager phoning around so that shifts stay covered when plans change",
+    "who": "Frontline staff",
+    "problem": "Swapping a shift means calling the manager, who then calls around",
+    "outcome": "Covered shifts with no manager time spent",
+    "solutions": ["Shift swap requests", "Manager approval queue"],
+    "scenarios": [
+      "A cashier's kid gets sick on Thursday night and she spends an hour texting coworkers to cover Friday",
+      "A warehouse picker trades a weekend for a weekday by writing it on the break-room whiteboard and the manager never sees it",
+      "Two nurses agree to switch nights but the schedule still shows the old names, so the wrong one is paged"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 3
+    },
+    "truePriority": 1,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fx-harbor", "fx-northgate", "fx-pinecrest", "fx-bluebird"],
+    "trap": {
+      "group": "fx-coverage",
+      "kind": "near_neighbour"
+    }
+  },
+  {
+    "key": "fx-open-shift-fill",
+    "themeKey": "scheduling",
+    "statement": "Shift managers need to offer an uncovered shift to every eligible worker at once so that last-minute gaps are filled before the shift starts",
+    "who": "Shift managers",
+    "problem": "A call-out an hour before opening leaves a gap nobody hears about in time",
+    "outcome": "Gaps filled before the shift starts",
+    "solutions": ["Open shift broadcast", "Shift swap requests"],
+    "scenarios": [
+      "A guard calls out at 5am and the supervisor rings eight people before anyone answers",
+      "The hotel front desk is short on a holiday and the manager posts in three group chats",
+      "A store manager learns at opening that two people are out and works the register herself"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 2
+    },
+    "truePriority": 3,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-summit", "fx-lakeside", "fx-northgate"],
+    "trap": {
+      "group": "fx-coverage",
+      "kind": "near_neighbour"
+    }
+  },
+  {
+    "key": "fx-payroll-csv-accountants",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll admins need approved hours in the format their outside accountant imports so that payroll closes without retyping timesheets",
+    "who": "Payroll admins",
+    "problem": "Hours are retyped from screenshots into the accountant's spreadsheet",
+    "outcome": "Payroll closes on time with no retyping",
+    "solutions": ["Payroll CSV export", "Accounting software integration"],
+    "scenarios": [
+      "Every second Friday the office manager copies 40 timesheets into a spreadsheet by hand",
+      "The outside bookkeeper rejects a file because the columns are in the wrong order",
+      "A typo while retyping hours means a cook is underpaid and has to be corrected next cycle"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 2
+    },
+    "truePriority": 6,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 4
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fx-bluebird", "fx-pinecrest"],
+    "trap": {
+      "group": "fx-payroll-csv",
+      "kind": "shared_solution"
+    }
+  },
+  {
+    "key": "fx-union-audit-records",
+    "themeKey": "payroll-exports",
+    "statement": "HR managers need a tamper-evident record of hours and edits per worker so that union and labour audits can be answered from the system",
+    "who": "HR managers",
+    "problem": "Auditors ask who changed a timesheet and when, and nobody can say",
+    "outcome": "Audits answered in a day from one record",
+    "solutions": ["Payroll CSV export", "Timesheet audit log"],
+    "scenarios": [
+      "The union rep asks for every edit made to a member's hours in March and HR has only the final numbers",
+      "A labour inspector wants twelve months of hours for one site and IT has to stitch exports together",
+      "A supervisor quietly changes a clock-out time and the worker disputes it months later"
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 1,
+      "peakMonth": 9
+    },
+    "truePriority": 8,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-northgate", "fx-harbor"],
+    "trap": {
+      "group": "fx-payroll-csv",
+      "kind": "shared_solution"
+    }
+  },
+  {
+    "key": "fx-overtime-warning",
+    "themeKey": "time-attendance",
+    "statement": "Shift managers need to know before a worker crosses into overtime so that they can rebalance hours instead of paying unplanned overtime",
+    "who": "Shift managers",
+    "problem": "Overtime shows up only on the payroll report, after it is paid",
+    "outcome": "Unplanned overtime spend drops",
+    "solutions": ["Overtime alerts", "Weekly hours dashboard"],
+    "scenarios": [
+      "A distribution centre finds out at month end that one forklift driver logged 22 hours of overtime",
+      "A manager approves an extra shift without noticing it pushes the person over 40 hours",
+      "Finance asks why labour cost jumped and nobody saw it coming"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 2
+    },
+    "truePriority": 2,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fx-harbor", "fx-northgate", "fx-summit"]
+  },
+  {
+    "key": "fx-site-clock-in",
+    "themeKey": "time-attendance",
+    "statement": "Site managers need clock-ins to be tied to the work site so that hours reflect where people actually worked",
+    "who": "Site managers",
+    "problem": "Anyone can clock in from anywhere",
+    "outcome": "Hours that match real presence on site",
+    "solutions": ["Geofenced clock-in"],
+    "scenarios": [
+      "A guard clocks in from the bus on the way to the post",
+      "A cleaner is paid for a site she never reached because the app accepted her clock-in from home",
+      "A manager cannot tell which of two warehouses a picker worked at on Tuesday"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 1
+    },
+    "truePriority": 5,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 6
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fx-summit", "fx-harbor"],
+    "trap": {
+      "group": "fx-clock-in",
+      "kind": "split"
+    },
+    "splitInto": ["fx-clock-in-proof", "fx-clock-in-offline"]
+  },
+  {
+    "key": "fx-clock-in-proof",
+    "themeKey": "time-attendance",
+    "statement": "Compliance leads need evidence of where and when each clock-in happened so that client contracts that bill by site presence can be verified",
+    "who": "Compliance leads",
+    "problem": "Clients dispute invoices because presence cannot be shown",
+    "outcome": "Disputed invoices settled with evidence",
+    "solutions": ["Geofenced clock-in", "Clock-in photo"],
+    "scenarios": [
+      "A client refuses to pay for night patrols because the guard company cannot show the guard was on site",
+      "A hospital contract requires proof that agency nurses arrived before handover",
+      "An auditor samples twenty shifts and asks for the location of each clock-in"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 1,
+      "startMonth": 5
+    },
+    "truePriority": 4,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 9
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-summit", "fx-pinecrest"],
+    "trap": {
+      "group": "fx-clock-in",
+      "kind": "split"
+    }
+  },
+  {
+    "key": "fx-clock-in-offline",
+    "themeKey": "time-attendance",
+    "statement": "Frontline staff working without reception need to clock in and have it record later so that they are paid from when they started",
+    "who": "Frontline staff",
+    "problem": "Basement and rural sites have no signal, so clock-ins fail",
+    "outcome": "Correct start times with no manual fixes",
+    "solutions": ["Offline clock-in", "Geofenced clock-in"],
+    "scenarios": [
+      "A stocker in a basement storeroom walks back upstairs to find signal before she can start",
+      "A rural care worker's clock-in fails and her manager edits the time by hand every day",
+      "A loading dock has one bar of signal and the app spins until the shift has started"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 1,
+      "startMonth": 6
+    },
+    "truePriority": 7,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 10
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-harbor", "fx-northgate"],
+    "trap": {
+      "group": "fx-clock-in",
+      "kind": "split"
+    }
+  },
+  {
+    "key": "fx-weekend-schedule-sync",
+    "themeKey": "scheduling",
+    "statement": "Frontline staff need schedule changes made over the weekend to reach their phones right away so that nobody misses a shift that moved",
+    "who": "Frontline staff",
+    "problem": "Weekend edits only appear after the next login sync",
+    "outcome": "No missed shifts after weekend changes",
+    "solutions": ["Push notifications for schedule changes"],
+    "scenarios": [
+      "A barista's Sunday shift moves to 6am on Saturday night and she arrives at 9",
+      "The schedule on a guard's phone still shows last week's rota on Sunday",
+      "A server shows up to a closed restaurant because the Sunday change never reached her"
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 1,
+      "peakMonth": 7
+    },
+    "truePriority": 9,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-bluebird", "fx-summit", "fx-lakeside"],
+    "trap": {
+      "group": "fx-sunday",
+      "kind": "symptom_only"
+    }
+  },
+  {
+    "key": "fx-availability",
+    "themeKey": "scheduling",
+    "statement": "Part-time staff need to state when they can and cannot work so that managers stop scheduling them during classes or second jobs",
+    "who": "Part-time staff",
+    "problem": "Managers schedule students during exams",
+    "outcome": "Fewer declined shifts and no-shows",
+    "solutions": ["Availability calendar", "Recurring unavailability"],
+    "scenarios": [
+      "A student is put on Tuesday mornings every week despite telling the manager about her lecture",
+      "A cook with a second job keeps getting double-booked on Fridays",
+      "A new hire's availability lives on a sticky note on the manager's monitor"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 1,
+      "startMonth": 8
+    },
+    "truePriority": 10,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fx-bluebird", "fx-lakeside"]
+  }
+]
