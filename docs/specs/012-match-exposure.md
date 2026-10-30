@@ -135,7 +135,7 @@ In scope:
 ## Out of Scope
 
 - A server-side duplicate check for skipped-preview submissions, sweeps, and submitter follow-ups. These stay in [spec 009](./009-duplicate-backstop.md).
-- Close-the-loop rate (needs a tracking-page view event; [spec 003](./003-stakeholder-notifications.md) territory).
+- Close-the-loop rate (needs a tracking-page view event).
 - Production latency and spend tracking for the hot path.
 - Changing the match threshold, the number of matches, or the wizard's copy.
 - Backfilling exposure for signals created before this ships. They count as no exposure.

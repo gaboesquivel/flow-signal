@@ -366,7 +366,7 @@ This task answers the bet on the dev world.
 - Competitor-style embedding-only dedupe as a third arm. It is the next comparison once the vote-board comparison holds.
 - Validating riskiest assumption 1 (real submitters' willingness to add their voice). The simulation assumes behaviour and sweeps it. Only real users can confirm it.
 - Replacing `pnpm db:seed`'s demo workspace with Crewday. Seeding the demo from a world is a later option.
-- Ingestion (spec 002) and notifications (spec 003) inside the simulation.
+- Ingestion and notifications inside the simulation.
 - Running evals in CI.
 
 ## Further Notes

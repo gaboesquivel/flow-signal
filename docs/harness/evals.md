@@ -23,7 +23,7 @@ flowchart TB
   end
   subgraph OUT[Outcome evals · dollars, only when asked]
     CD[eval:crewday<br/>Signal vs vote board]
-    AO[Agent outcome eval<br/>spec 005, candidate]
+    AO[Agent outcome eval<br/>spec 005, later]
   end
   CI --> EV --> OUT
 ```

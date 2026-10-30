@@ -368,8 +368,8 @@ Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once,
 
 ## Out of Scope
 
-- Ingestion from Intercom, Zendesk, Slack, or email ([002 candidate](./002-feedback-ingestion.md)).
-- Email or Slack notifications to supporters ([003 candidate](./003-stakeholder-notifications.md)); updates appear in the app and over MCP only.
+- Ingestion from Intercom, Zendesk, Slack, or email (dropped 2026-10-30).
+- Email or Slack notifications to supporters (dropped 2026-10-30); updates appear in the app and over MCP only.
 - CRM revenue sync (accounts are seeded or edited by a PM).
 - Submitter sign-in, SSO, multiple workspaces, granular roles.
 - Roadmap or Jira sync; an MCP App UI.

@@ -1,6 +1,6 @@
 # 005 — Agent outcome eval: do agents reach the outcomes a careful human would?
 
-Status: candidate (2026-10-30)
+Status: later (deferred 2026-10-30)
 
 ## Problem
 
