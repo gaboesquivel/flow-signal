@@ -1,0 +1,278 @@
+[
+  {
+    "body": "NYC + Chicago + Seattle stores. need 14 day posting + premium calc. Copperleaf legal asking monthly",
+    "rowId": "D-001",
+    "title": "Fair workweek",
+    "trueNeedKey": "fair-workweek-advance-posting"
+  },
+  {
+    "body": "how do we know which changes owe predictability pay. Kingsway asked in demo",
+    "rowId": "D-002",
+    "title": "Predictive scheduling premiums??",
+    "trueNeedKey": "fair-workweek-advance-posting"
+  },
+  {
+    "body": "teen cashiers being scheduled til close on school nights. fine in OH ($11k). per CSM Marta",
+    "rowId": "D-003",
+    "title": "minors - school hours limits",
+    "trueNeedKey": "minor-hours-school-week"
+  },
+  {
+    "body": "store food handler cards + expiry, block scheduling if expired",
+    "rowId": "D-004",
+    "title": "ServSafe tracking",
+    "trueNeedKey": "food-handler-card-expiry"
+  },
+  {
+    "body": "Saltmarsh legal. need sidework time vs tipped time",
+    "rowId": "D-005",
+    "title": "80/20 tip credit report",
+    "trueNeedKey": "tip-credit-side-work"
+  },
+  {
+    "body": "small customers want new hire paperwork in the app. lots of +1s",
+    "rowId": "D-006",
+    "title": "Onboarding docs (W4/I9)",
+    "trueNeedKey": "new-hire-paperwork"
+  },
+  {
+    "body": "custom CSV columns so owners can send to bookkeeper. Rosie's, Little Fig, Mango Tree",
+    "rowId": "D-007",
+    "title": "Export for accountant",
+    "trueNeedKey": "accountant-payroll-csv"
+  },
+  {
+    "body": "direct integration. Lanternhouse + Sunbeam. 'like the ADP one' (we don't have an ADP one)",
+    "rowId": "D-008",
+    "title": "Paychex",
+    "trueNeedKey": "paychex-flex-export"
+  },
+  {
+    "body": "premiums come through as REG. Copperleaf CFO escalated, renewal in Q3",
+    "rowId": "D-009",
+    "title": "Dayforce earning codes broken",
+    "trueNeedKey": "dayforce-pay-codes"
+  },
+  {
+    "body": "",
+    "rowId": "D-010",
+    "title": "Add Gusto export",
+    "trueNeedKey": "gusto-sync"
+  },
+  {
+    "body": "+1 Kettle & Crumb, +1 Urban Sprout, +1 Polished Nail. small shops on Gusto everywhere",
+    "rowId": "D-011",
+    "title": "gusto integration",
+    "trueNeedKey": "gusto-sync"
+  },
+  {
+    "body": "payroll adding by hand. wage claim last yr",
+    "rowId": "D-012",
+    "title": "Split shift premium (CA) / spread of hours (NY)",
+    "trueNeedKey": "split-shift-spread-premium"
+  },
+  {
+    "body": "8h/12h + 7th day. only weekly OT supported today",
+    "rowId": "D-013",
+    "title": "CA daily OT",
+    "trueNeedKey": "daily-overtime-rules"
+  },
+  {
+    "body": "Colorado + California daily overtime. Grandview & Saltmarsh fixing in payroll every cycle. see ticket 5120",
+    "rowId": "D-014",
+    "title": "Overtime rules per state",
+    "trueNeedKey": "daily-overtime-rules"
+  },
+  {
+    "body": "restaurants want tips. big theme",
+    "rowId": "D-015",
+    "title": "TIPS",
+    "trueNeedKey": "tip-handling"
+  },
+  {
+    "body": "pepperwood does tip outs in a 14 tab spreadsheet. could we own this?",
+    "rowId": "D-016",
+    "title": "Tip pooling / tip out",
+    "trueNeedKey": "tip-handling"
+  },
+  {
+    "body": "shared ipad at store entrance for clock in w/ PIN",
+    "rowId": "D-017",
+    "title": "Kiosk mode",
+    "trueNeedKey": "tablet-clock-in-no-phones"
+  },
+  {
+    "body": "Fairway LP policy = no phones on floor. staff clock in at lockers",
+    "rowId": "D-018",
+    "title": "Time clock w/o phones",
+    "trueNeedKey": "tablet-clock-in-no-phones"
+  },
+  {
+    "body": "prompt servers to enter cash tips when punching out",
+    "rowId": "D-019",
+    "title": "cash tips at clock out",
+    "trueNeedKey": "tip-declaration-at-clock-out"
+  },
+  {
+    "body": "staff email HR to ask. tons of tickets in Jan",
+    "rowId": "D-020",
+    "title": "Show PTO balance",
+    "trueNeedKey": "pto-balance-visibility"
+  },
+  {
+    "body": "hotels: exec chef approves kitchen, exec housekeeper approves HK. GM is bottleneck",
+    "rowId": "D-021",
+    "title": "Dept head approvals",
+    "trueNeedKey": "department-timesheet-approval"
+  },
+  {
+    "body": "Copperleaf benefits team. avg hours per PT employee over 12mo",
+    "rowId": "D-022",
+    "title": "ACA look-back report",
+    "trueNeedKey": "aca-hours-tracking"
+  },
+  {
+    "body": "payroll chasing mgrs every monday",
+    "rowId": "D-023",
+    "title": "Remind managers to approve",
+    "trueNeedKey": "approval-deadline-reminders"
+  },
+  {
+    "body": "allow hours-based time off requests",
+    "rowId": "D-024",
+    "title": "half day off",
+    "trueNeedKey": "time-off-partial-days"
+  },
+  {
+    "body": "students change avail every semester. Sunbeam, Quill",
+    "rowId": "D-025",
+    "title": "Availability by date range",
+    "trueNeedKey": "student-availability-term"
+  },
+  {
+    "body": "Harborline: 'make crewday work for housekeeping'. unclear scope, talk to Priya",
+    "rowId": "D-026",
+    "title": "Housekeeping",
+    "trueNeedKey": "housekeeping-room-staffing"
+  },
+  {
+    "body": "GMs want labour vs sales live during service",
+    "rowId": "D-027",
+    "title": "Labor % on dashboard",
+    "trueNeedKey": "labour-percent-live"
+  },
+  {
+    "body": "Pepperwood + Blue Anchor owner wants it on phone",
+    "rowId": "D-028",
+    "title": "live labor cost vs sales",
+    "trueNeedKey": "labour-percent-live"
+  },
+  {
+    "body": "Swiftbay depot + Larkspur nights",
+    "rowId": "D-029",
+    "title": "Rotations (4on4off, 2-2-3)",
+    "trueNeedKey": "rotating-patterns"
+  },
+  {
+    "body": "",
+    "rowId": "D-030",
+    "title": "approve availability changes",
+    "trueNeedKey": "availability-approval"
+  },
+  {
+    "body": "e.g. 2 cashiers 4-7pm. warn if below",
+    "rowId": "D-031",
+    "title": "Min staffing per dept",
+    "trueNeedKey": "minimum-coverage-per-department"
+  },
+  {
+    "body": "see everyone off in one view",
+    "rowId": "D-032",
+    "title": "Vacation calendar view",
+    "trueNeedKey": "time-off-calendar"
+  },
+  {
+    "body": "let customers pick role colours. lots of small customers asking",
+    "rowId": "D-033",
+    "title": "custom colors",
+    "trueNeedKey": "custom-shift-colours"
+  },
+  {
+    "body": "pepperwood + urban sprout. 'you already have the forecast'",
+    "rowId": "D-034",
+    "title": "Recipes / prep lists",
+    "trueNeedKey": "menu-prep-lists"
+  },
+  {
+    "body": "select many > change time. mall hours changes",
+    "rowId": "D-035",
+    "title": "Bulk edit shifts",
+    "trueNeedKey": "manager-bulk-edit-shifts"
+  },
+  {
+    "body": "Toast/Square/Lightspeed sales -> staffing suggestions. competitor has it",
+    "rowId": "D-036",
+    "title": "Sales forecasting from POS",
+    "trueNeedKey": "pos-sales-forecast"
+  },
+  {
+    "body": "auto suggest headcount per hour based on last year. Patchwork + Quill asked",
+    "rowId": "D-037",
+    "title": "AI demand forecast",
+    "trueNeedKey": "pos-sales-forecast"
+  },
+  {
+    "body": "read punches from Toast instead of our clock",
+    "rowId": "D-038",
+    "title": "Toast time clock",
+    "trueNeedKey": "toast-punch-sync"
+  },
+  {
+    "body": "odata / connector. Fairway analytics",
+    "rowId": "D-039",
+    "title": "Power BI",
+    "trueNeedKey": "power-bi-connector"
+  },
+  {
+    "body": "security questionnaire item 14.2. Copperleaf + Northpoint",
+    "rowId": "D-040",
+    "title": "Splunk / SIEM log export",
+    "trueNeedKey": "siem-audit-stream"
+  },
+  {
+    "body": "leave approved in Bamboo not showing in rota",
+    "rowId": "D-041",
+    "title": "BambooHR PTO sync",
+    "trueNeedKey": "bamboohr-time-off-sync"
+  },
+  {
+    "body": "staff w/o smartphones miss changes",
+    "rowId": "D-042",
+    "title": "SMS notifications",
+    "trueNeedKey": "sms-schedule-changes"
+  },
+  {
+    "body": "morale feature. lots of votes on old board",
+    "rowId": "D-043",
+    "title": "Kudos / shoutouts",
+    "trueNeedKey": "kudos-wall"
+  },
+  {
+    "body": "#1 ask from Harborline housekeeping + Saltmarsh kitchens",
+    "rowId": "D-044",
+    "title": "Spanish app",
+    "trueNeedKey": "app-languages"
+  },
+  {
+    "body": "evergreen crews + lanternhouse. kids translate for parents",
+    "rowId": "D-045",
+    "title": "Translate app (es, ht, vi)",
+    "trueNeedKey": "app-languages"
+  },
+  {
+    "body": "open shift pings at 2am",
+    "rowId": "D-046",
+    "title": "quiet hours for notifications",
+    "trueNeedKey": "quiet-hours"
+  }
+]

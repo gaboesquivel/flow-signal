@@ -38,7 +38,8 @@
     "db:up": "docker compose -p signal up -d --wait",
     "db:down": "docker compose -p signal down",
     "db:test:setup": "node --import tsx scripts/db-test-setup.ts",
-    "signal:client": "node --import tsx scripts/generate-signal-client.ts"
+    "signal:client": "node --import tsx scripts/generate-signal-client.ts",
+    "crewday:generate": "node --env-file-if-exists=.env.local --import tsx evals/crewday/generate/run.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",

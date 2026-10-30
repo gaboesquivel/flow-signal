@@ -283,9 +283,14 @@ describe("crewday held-out test world", () => {
    * Files under evals/crewday allowed to name the test world or the held-out token. Keep it small:
    * - held-out.ts defines the token.
    * - world.ts is the loader that checks it (and `checkRecipes`, which loads both recipes).
+   * - generate/run.ts reads the test recipe and writes the frozen test world (task 02).
    * Tagged and acceptance runners (spec 004, tasks 06 and 07) are added here when they exist.
    */
-  const allowlist = new Set(["evals/crewday/held-out.ts", "evals/crewday/world.ts"]);
+  const allowlist = new Set([
+    "evals/crewday/generate/run.ts",
+    "evals/crewday/held-out.ts",
+    "evals/crewday/world.ts",
+  ]);
   const forbidden = [
     /worlds[\\/]test/u,
     /recipe[\\/]test/u,
