@@ -102,8 +102,11 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Public[Public MCP / Assistant agent]
-    A1[search_needs, get_need] --> A2[preview_signal] --> A3[submit_signal<br/>on a customer's behalf]
-    A3 --> A5[trackingUrl back to the submitter only<br/>reuse a token only if they gave it]
+    A1[search_needs, get_need] --> A2[preview_signal]
+    A2 -->|match| A3[submit_signal target needId<br/>adds a voice to an existing need]
+    A2 -->|none of these| A6[submit_signal target newNeed<br/>opens a new request as a draft need]
+    A3 --> A5
+    A6 --> A5[trackingUrl back to the submitter only<br/>reuse a token only if they gave it]
     A4[get_my_signals]
   end
   subgraph Op[Operator MCP / Operator agent · needs OPERATOR_SECRET]
