@@ -15,9 +15,9 @@ Product teams receive feature requests from customers, prospects, support teams,
 ## Who
 
 - **Submitters (primary):** customers, prospects, and support or sales staff filing on a customer's behalf. They want to be heard and to see what happens. No sign-in: they identify by email (and company).
-- **Product managers (primary):** triage, group, prioritize, decide, and communicate decisions, in the protected Operator console.
-- **Agent users (first-class, alongside humans):** AI assistants and agents use the same workflow over MCP: search needs, submit through the same duplicate check, add support with context on a customer's behalf (public MCP); review suggestions, get demand summaries and decision briefs, publish decisions (Operator MCP).
-- **Stakeholders:** leadership and go-to-market teams consume decision briefs and status.
+- **Product managers (primary):** triage, group, prioritize, decide, and communicate decisions, in the protected Operator console. They also generate reports on demand: they describe a report in plain words, refine it, save it, and share it.
+- **Agent users (first-class, alongside humans):** AI assistants and agents use the same workflow over MCP: search needs, submit through the same duplicate check, add support with context on a customer's behalf (public MCP); review suggestions, get demand summaries and decision briefs, publish decisions, and generate or re-run saved reports (Operator MCP).
+- **Stakeholders:** leadership and go-to-market teams consume decision briefs, status, and shared PM reports (read-only link; no sign-in).
 
 ## Product model
 
@@ -119,6 +119,7 @@ Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero
 - **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals (`pnpm eval:crewday`, on demand). Decision quality is a non-inferiority check: both arms publish through the same noisy PM, so it mostly measures that noise. The simulation takes submitter behaviour as an input, so it cannot test riskiest assumption 1.
 - **Direction accuracy (proposed):** decision briefs whose recommended status matches the published decision ÷ published decisions that had a brief; weekly; source: the `decision_brief` payload + `decision.published`. On Crewday it is also scored against the strategy-implied decision. Baseline unknown; target ≥ 80% (hypothesis, low confidence).
 - **Readiness lead time (proposed):** median days from `need.ready` (a new event) to `decision.published`. Baseline unknown.
+- **Report reuse (proposed):** saved reports re-opened, re-run, or shared within 14 days ÷ reports saved; PMs and agents counted separately; weekly. Source: new `report.saved | report.viewed | report.shared` events (none exist today). Baseline unknown; target ≥ 40% (hypothesis, low confidence). Guardrail: zero report figures that don't trace to a record.
 
 ## Riskiest assumptions
 
@@ -127,6 +128,7 @@ Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero
 3. PMs will trust and act on AI-proposed merges, scores, and briefs instead of redoing the work. _Confidence: low to medium._
 4. A duplicate check on every submission is fast and cheap enough (under 2 s, under $0.01). _Confidence: medium:_ the last live runs measured p95 4.7 s and $0.014 per signal ([spec 010](./docs/specs/010-retro-remediation.md)).
 5. A recommended direction grounded in a written strategy is right often enough that PMs follow it instead of redoing the analysis. _Confidence: low._
+6. A fixed set of read-only data tools covers most report requests PMs actually ask, so "any report" holds up without free-form SQL. _Confidence: low to medium._
 
 ## Kill criterion
 
@@ -143,6 +145,7 @@ Decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero
 5. **PM decide and communicate:** Signal flags needs ready to decide with a recommended direction and brief; the PM reviews it against the strategy, publishes a decision; supporters see the update.
 6. **Agent:** over MCP, search, submit, and add support with context; with PM access, review suggestions and get demand summaries and decision briefs.
 7. **PM strategy:** write and update the strategy that scores and recommendations are judged against.
+8. **PM reports:** a PM describes any report in plain words (e.g. "ARR-weighted demand by theme this quarter", "decision latency trend", "top unmet needs for enterprise accounts"); Signal composes it from Signal's own data with charts and tables, and every figure traces to real records. The model never invents data. The PM refines, saves, re-runs it on fresh data, and shares a read-only link.
 
 ## Alternatives
 

@@ -5,6 +5,8 @@ import "@/lib/signal/next";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+/** `generate_report` makes two reasoning-model calls plus SQL (spec 013). */
+export const maxDuration = 60;
 
 const notFound = () =>
   withExtraHeaders(

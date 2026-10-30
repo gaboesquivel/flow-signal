@@ -47,6 +47,14 @@ const specTable = [
   ["set_strategy", "operator", "PUT", "/api/operator/strategy"],
   ["list_ready_needs", "operator", "GET", "/api/operator/needs/ready"],
   ["list_themes", "operator", "GET", "/api/operator/themes"],
+  // Spec 013 → Implementation Decisions.
+  ["get_report_dataset", "operator", "GET", "/api/operator/report-datasets/:name"],
+  ["generate_report", "operator", "POST", "/api/operator/reports/generate"],
+  ["save_report", "operator", "POST", "/api/operator/reports"],
+  ["list_reports", "operator", "GET", "/api/operator/reports"],
+  ["get_report", "operator", "GET", "/api/operator/reports/:reportId"],
+  ["share_report", "operator", "POST", "/api/operator/reports/:reportId/share"],
+  ["get_shared_report", "public", "GET", "/api/shared-reports/:token"],
 ] as const;
 
 const withoutDialect = (schema: Record<string, unknown>) => {
@@ -166,8 +174,10 @@ describe("surfaces generated from the registry", () => {
       "merge_needs",
       "publish_decision",
       "resolve_suggestion",
+      "save_report",
       "set_criteria",
       "set_strategy",
+      "share_report",
       "split_need",
       "undo_merge",
     ];

@@ -9,29 +9,41 @@ import { callSignalOperation } from "./client-runtime";
 import type { SignalCallOptions, SignalClientOptions, SignalResult } from "./client-runtime";
 import type { checkPublicText } from "./operations/check-public-text";
 import type { draftDecisionBrief } from "./operations/draft-decision-brief";
+import type { generateReport } from "./operations/generate-report";
 import type { getCriteria } from "./operations/get-criteria";
 import type { getDemandSummary } from "./operations/get-demand-summary";
 import type { getMetrics } from "./operations/get-metrics";
 import type { getMySignals } from "./operations/get-my-signals";
 import type { getNeed } from "./operations/get-need";
 import type { getNeedDetail } from "./operations/get-need-detail";
+import type { getReport } from "./operations/get-report";
+import type { getReportDataset } from "./operations/get-report-dataset";
+import type { getSharedReport } from "./operations/get-shared-report";
 import type { getStrategy } from "./operations/get-strategy";
 import type { listOperatorNeeds } from "./operations/list-operator-needs";
 import type { listReadyNeeds } from "./operations/list-ready-needs";
+import type { listReports } from "./operations/list-reports";
 import type { listSuggestions } from "./operations/list-suggestions";
 import type { listThemes } from "./operations/list-themes";
 import type { mergeNeeds } from "./operations/merge-needs";
 import type { previewSignal } from "./operations/preview-signal";
 import type { publishDecision } from "./operations/publish-decision";
 import type { resolveSuggestion } from "./operations/resolve-suggestion";
+import type { saveReport } from "./operations/save-report";
 import type { searchNeeds } from "./operations/search-needs";
 import type { setCriteria } from "./operations/set-criteria";
 import type { setStrategy } from "./operations/set-strategy";
+import type { shareReport } from "./operations/share-report";
 import type { splitNeed } from "./operations/split-need";
 import type { submitSignal } from "./operations/submit-signal";
 import type { undoMerge } from "./operations/undo-merge";
 
-export type { SignalCallOptions, SignalClientError, SignalResult } from "./client-runtime";
+export type {
+  SignalCallOptions,
+  SignalClientError,
+  SignalClientOptions,
+  SignalResult,
+} from "./client-runtime";
 
 /** Input as callers send it (before defaults); `never` until the operation is built. */
 type InputOf<T> = T extends { input: infer I extends z.ZodType } ? z.input<I> : never;
@@ -50,6 +62,12 @@ export const signalRoutes = {
     method: "POST",
     name: "draft_decision_brief",
     path: "/api/operator/needs/:id/decision-brief",
+  },
+  generate_report: {
+    access: "operator",
+    method: "POST",
+    name: "generate_report",
+    path: "/api/operator/reports/generate",
   },
   get_criteria: {
     access: "operator",
@@ -82,6 +100,24 @@ export const signalRoutes = {
     name: "get_need_detail",
     path: "/api/operator/needs/:id",
   },
+  get_report: {
+    access: "operator",
+    method: "GET",
+    name: "get_report",
+    path: "/api/operator/reports/:reportId",
+  },
+  get_report_dataset: {
+    access: "operator",
+    method: "GET",
+    name: "get_report_dataset",
+    path: "/api/operator/report-datasets/:name",
+  },
+  get_shared_report: {
+    access: "public",
+    method: "GET",
+    name: "get_shared_report",
+    path: "/api/shared-reports/:token",
+  },
   get_strategy: {
     access: "operator",
     method: "GET",
@@ -99,6 +135,12 @@ export const signalRoutes = {
     method: "GET",
     name: "list_ready_needs",
     path: "/api/operator/needs/ready",
+  },
+  list_reports: {
+    access: "operator",
+    method: "GET",
+    name: "list_reports",
+    path: "/api/operator/reports",
   },
   list_suggestions: {
     access: "operator",
@@ -136,6 +178,12 @@ export const signalRoutes = {
     name: "resolve_suggestion",
     path: "/api/operator/suggestions/:id/resolve",
   },
+  save_report: {
+    access: "operator",
+    method: "POST",
+    name: "save_report",
+    path: "/api/operator/reports",
+  },
   search_needs: { access: "public", method: "GET", name: "search_needs", path: "/api/needs" },
   set_criteria: {
     access: "operator",
@@ -148,6 +196,12 @@ export const signalRoutes = {
     method: "PUT",
     name: "set_strategy",
     path: "/api/operator/strategy",
+  },
+  share_report: {
+    access: "operator",
+    method: "POST",
+    name: "share_report",
+    path: "/api/operator/reports/:reportId/share",
   },
   split_need: {
     access: "operator",
@@ -164,6 +218,8 @@ export const signalRoutes = {
   },
 } as const;
 
+export type SignalOperationName = keyof typeof signalRoutes;
+
 export interface SignalOperations {
   check_public_text: {
     input: InputOf<typeof checkPublicText>;
@@ -172,6 +228,10 @@ export interface SignalOperations {
   draft_decision_brief: {
     input: InputOf<typeof draftDecisionBrief>;
     output: OutputOf<typeof draftDecisionBrief>;
+  };
+  generate_report: {
+    input: InputOf<typeof generateReport>;
+    output: OutputOf<typeof generateReport>;
   };
   get_criteria: { input: InputOf<typeof getCriteria>; output: OutputOf<typeof getCriteria> };
   get_demand_summary: {
@@ -182,6 +242,15 @@ export interface SignalOperations {
   get_my_signals: { input: InputOf<typeof getMySignals>; output: OutputOf<typeof getMySignals> };
   get_need: { input: InputOf<typeof getNeed>; output: OutputOf<typeof getNeed> };
   get_need_detail: { input: InputOf<typeof getNeedDetail>; output: OutputOf<typeof getNeedDetail> };
+  get_report: { input: InputOf<typeof getReport>; output: OutputOf<typeof getReport> };
+  get_report_dataset: {
+    input: InputOf<typeof getReportDataset>;
+    output: OutputOf<typeof getReportDataset>;
+  };
+  get_shared_report: {
+    input: InputOf<typeof getSharedReport>;
+    output: OutputOf<typeof getSharedReport>;
+  };
   get_strategy: { input: InputOf<typeof getStrategy>; output: OutputOf<typeof getStrategy> };
   list_operator_needs: {
     input: InputOf<typeof listOperatorNeeds>;
@@ -191,6 +260,7 @@ export interface SignalOperations {
     input: InputOf<typeof listReadyNeeds>;
     output: OutputOf<typeof listReadyNeeds>;
   };
+  list_reports: { input: InputOf<typeof listReports>; output: OutputOf<typeof listReports> };
   list_suggestions: {
     input: InputOf<typeof listSuggestions>;
     output: OutputOf<typeof listSuggestions>;
@@ -206,9 +276,11 @@ export interface SignalOperations {
     input: InputOf<typeof resolveSuggestion>;
     output: OutputOf<typeof resolveSuggestion>;
   };
+  save_report: { input: InputOf<typeof saveReport>; output: OutputOf<typeof saveReport> };
   search_needs: { input: InputOf<typeof searchNeeds>; output: OutputOf<typeof searchNeeds> };
   set_criteria: { input: InputOf<typeof setCriteria>; output: OutputOf<typeof setCriteria> };
   set_strategy: { input: InputOf<typeof setStrategy>; output: OutputOf<typeof setStrategy> };
+  share_report: { input: InputOf<typeof shareReport>; output: OutputOf<typeof shareReport> };
   split_need: { input: InputOf<typeof splitNeed>; output: OutputOf<typeof splitNeed> };
   submit_signal: { input: InputOf<typeof submitSignal>; output: OutputOf<typeof submitSignal> };
   undo_merge: { input: InputOf<typeof undoMerge>; output: OutputOf<typeof undoMerge> };
@@ -223,6 +295,10 @@ export interface SignalClient {
     input: SignalOperations["draft_decision_brief"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["draft_decision_brief"]["output"]>>;
+  generateReport: (
+    input: SignalOperations["generate_report"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["generate_report"]["output"]>>;
   getCriteria: (
     input: SignalOperations["get_criteria"]["input"],
     call?: SignalCallOptions,
@@ -247,6 +323,18 @@ export interface SignalClient {
     input: SignalOperations["get_need_detail"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["get_need_detail"]["output"]>>;
+  getReport: (
+    input: SignalOperations["get_report"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["get_report"]["output"]>>;
+  getReportDataset: (
+    input: SignalOperations["get_report_dataset"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["get_report_dataset"]["output"]>>;
+  getSharedReport: (
+    input: SignalOperations["get_shared_report"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["get_shared_report"]["output"]>>;
   getStrategy: (
     input: SignalOperations["get_strategy"]["input"],
     call?: SignalCallOptions,
@@ -259,6 +347,10 @@ export interface SignalClient {
     input: SignalOperations["list_ready_needs"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["list_ready_needs"]["output"]>>;
+  listReports: (
+    input: SignalOperations["list_reports"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["list_reports"]["output"]>>;
   listSuggestions: (
     input: SignalOperations["list_suggestions"]["input"],
     call?: SignalCallOptions,
@@ -283,6 +375,10 @@ export interface SignalClient {
     input: SignalOperations["resolve_suggestion"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["resolve_suggestion"]["output"]>>;
+  saveReport: (
+    input: SignalOperations["save_report"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["save_report"]["output"]>>;
   searchNeeds: (
     input: SignalOperations["search_needs"]["input"],
     call?: SignalCallOptions,
@@ -295,6 +391,10 @@ export interface SignalClient {
     input: SignalOperations["set_strategy"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["set_strategy"]["output"]>>;
+  shareReport: (
+    input: SignalOperations["share_report"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["share_report"]["output"]>>;
   splitNeed: (
     input: SignalOperations["split_need"]["input"],
     call?: SignalCallOptions,
@@ -314,6 +414,8 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
     callSignalOperation(signalRoutes.check_public_text, input, options, call),
   draftDecisionBrief: (input, call) =>
     callSignalOperation(signalRoutes.draft_decision_brief, input, options, call),
+  generateReport: (input, call) =>
+    callSignalOperation(signalRoutes.generate_report, input, options, call),
   getCriteria: (input, call) =>
     callSignalOperation(signalRoutes.get_criteria, input, options, call),
   getDemandSummary: (input, call) =>
@@ -324,12 +426,19 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
   getNeed: (input, call) => callSignalOperation(signalRoutes.get_need, input, options, call),
   getNeedDetail: (input, call) =>
     callSignalOperation(signalRoutes.get_need_detail, input, options, call),
+  getReport: (input, call) => callSignalOperation(signalRoutes.get_report, input, options, call),
+  getReportDataset: (input, call) =>
+    callSignalOperation(signalRoutes.get_report_dataset, input, options, call),
+  getSharedReport: (input, call) =>
+    callSignalOperation(signalRoutes.get_shared_report, input, options, call),
   getStrategy: (input, call) =>
     callSignalOperation(signalRoutes.get_strategy, input, options, call),
   listOperatorNeeds: (input, call) =>
     callSignalOperation(signalRoutes.list_operator_needs, input, options, call),
   listReadyNeeds: (input, call) =>
     callSignalOperation(signalRoutes.list_ready_needs, input, options, call),
+  listReports: (input, call) =>
+    callSignalOperation(signalRoutes.list_reports, input, options, call),
   listSuggestions: (input, call) =>
     callSignalOperation(signalRoutes.list_suggestions, input, options, call),
   listThemes: (input, call) => callSignalOperation(signalRoutes.list_themes, input, options, call),
@@ -340,12 +449,15 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
     callSignalOperation(signalRoutes.publish_decision, input, options, call),
   resolveSuggestion: (input, call) =>
     callSignalOperation(signalRoutes.resolve_suggestion, input, options, call),
+  saveReport: (input, call) => callSignalOperation(signalRoutes.save_report, input, options, call),
   searchNeeds: (input, call) =>
     callSignalOperation(signalRoutes.search_needs, input, options, call),
   setCriteria: (input, call) =>
     callSignalOperation(signalRoutes.set_criteria, input, options, call),
   setStrategy: (input, call) =>
     callSignalOperation(signalRoutes.set_strategy, input, options, call),
+  shareReport: (input, call) =>
+    callSignalOperation(signalRoutes.share_report, input, options, call),
   splitNeed: (input, call) => callSignalOperation(signalRoutes.split_need, input, options, call),
   submitSignal: (input, call) =>
     callSignalOperation(signalRoutes.submit_signal, input, options, call),

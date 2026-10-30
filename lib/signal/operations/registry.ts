@@ -3,10 +3,15 @@ import { draftDecisionBrief } from "./draft-decision-brief";
 import { getCriteria } from "./get-criteria";
 import { getDemandSummary } from "./get-demand-summary";
 import { getMetrics } from "./get-metrics";
+import { generateReport } from "./generate-report";
 import { getMySignals } from "./get-my-signals";
 import { getNeed } from "./get-need";
 import { getNeedDetail } from "./get-need-detail";
+import { getReport } from "./get-report";
+import { getReportDataset } from "./get-report-dataset";
+import { getSharedReport } from "./get-shared-report";
 import { listOperatorNeeds } from "./list-operator-needs";
+import { listReports } from "./list-reports";
 import { getStrategy } from "./get-strategy";
 import { listReadyNeeds } from "./list-ready-needs";
 import { listThemes } from "./list-themes";
@@ -15,9 +20,11 @@ import { mergeNeeds } from "./merge-needs";
 import { previewSignal } from "./preview-signal";
 import { publishDecision } from "./publish-decision";
 import { resolveSuggestion } from "./resolve-suggestion";
+import { saveReport } from "./save-report";
 import { searchNeeds } from "./search-needs";
 import { setCriteria } from "./set-criteria";
 import { setStrategy } from "./set-strategy";
+import { shareReport } from "./share-report";
 import { splitNeed } from "./split-need";
 import { submitSignal } from "./submit-signal";
 import { undoMerge } from "./undo-merge";
@@ -26,7 +33,7 @@ import type { AnyOperation, PlannedOperation } from "./types";
 
 /**
  * Every spec 001 operation, in the spec's table order, then later specs' additions (006: the
- * PM console's operator reads; 007: decision direction). Built operations are exposed on REST,
+ * PM console's operator reads; 007: decision direction; 013: PM reports). Built operations are exposed on REST,
  * MCP, and Eve; planned ones hold their slot until their task replaces the file. Adding an
  * operation outside spec 001: one import and one entry here, plus its file.
  */
@@ -57,6 +64,14 @@ export const allOperations: readonly (AnyOperation | PlannedOperation)[] = [
   listReadyNeeds,
   // Spec 007 follow-up: theme choices for the strategy form.
   listThemes,
+  // Spec 013 (PM reports).
+  getReportDataset,
+  generateReport,
+  saveReport,
+  listReports,
+  getReport,
+  shareReport,
+  getSharedReport,
 ];
 
 export const operations: readonly AnyOperation[] = allOperations.filter(

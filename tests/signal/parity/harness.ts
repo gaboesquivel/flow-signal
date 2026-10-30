@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 import { asc } from "drizzle-orm";
 import type { ToolContext } from "eve/tools";
-import { afterAll, beforeAll, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { GET, POST, PUT } from "../../../app/api/[...path]/route";
 import { POST as postOperatorMcp } from "../../../app/api/mcp/operator/route";
@@ -65,6 +65,8 @@ const isoPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:
 const previewIdPattern = /\bpv_[\w-]{22}(?![\w-])/gu;
 /** `submit_signal` tracking links carry a random token. */
 const trackingTokenPattern = /\/my\/[\w-]{16,128}/gu;
+/** `share_report` links carry a random token (spec 013). */
+const reportTokenPattern = /\/r\/[\w-]{16,128}/gu;
 
 /**
  * For writing tables each surface starts from a rebuilt fixture, so ids and timestamps differ;
@@ -80,6 +82,7 @@ export const normalizeRun = (value: unknown) => {
     })
     .replaceAll(isoPattern, "<time>")
     .replaceAll(trackingTokenPattern, "/my/<token>")
+    .replaceAll(reportTokenPattern, "/r/<token>")
     .replaceAll(previewIdPattern, "pv_<id>");
   return JSON.parse(text) as unknown;
 };
@@ -239,5 +242,36 @@ export const runParityTable = <F>(table: ParityTable<F>) => {
 
     for (const parityCase of table.cases)
       it(parityCase.name, () => runCase(table, parityCase, harness.db, () => state.shared as F));
+  });
+};
+
+/**
+ * Registers a check that an Operator operation refuses a caller without the Operator secret:
+ * REST answers 401 `unauthorized` and the Operator MCP route refuses before any tool runs.
+ */
+export const runUnauthorizedCheck = (operation: AnyOperation, input: Record<string, unknown>) => {
+  describe(`unauthorized: ${operation.name}`, () => {
+    let priorSecret: string | undefined;
+    beforeAll(() => {
+      priorSecret = process.env.OPERATOR_SECRET;
+      process.env.OPERATOR_SECRET = OPERATOR_SECRET;
+    });
+    afterAll(() => {
+      if (priorSecret === undefined) delete process.env.OPERATOR_SECRET;
+      else process.env.OPERATOR_SECRET = priorSecret;
+    });
+
+    it("returns unauthorized without the Operator secret", async () => {
+      const response = await restHandlers[operation.http.method](
+        restRequestFor(operation, input, { "x-signal-agent": "parity" }),
+      );
+      expect(response.status).toBe(401);
+      const body = (await response.json()) as { error: { code: string } };
+      expect(body.error.code).toBe("unauthorized");
+      const mcp = await postOperatorMcp(
+        mcpRequestFor("operator", "tools/call", { arguments: input, name: operation.name }),
+      );
+      expect(mcp.status).toBe(401);
+    });
   });
 };

@@ -62,7 +62,7 @@ test("GET /sitemap.xml returns valid urlset XML for public routes", async () => 
   assert.equal(response.status, 200);
   const body = await response.text();
   assert.match(body, /^<\?xml version="1\.0"/u);
-  for (const routePath of ["/", "/genui", "/dev"])
+  for (const routePath of ["/", "/dev"])
     assert.match(body, new RegExp(`<loc>https://example.com${routePath}</loc>`, "u"));
 });
 
