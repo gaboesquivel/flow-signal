@@ -18,6 +18,7 @@
 //   --pm-override <p>         follows_signal: chance of publishing the strategy-implied status
 //                             instead of the recommendation (default 0.2)
 // oxlint-disable eslint/no-await-in-loop -- runtime overrides are process-wide, so arms run one at a time
+import { refuseInCi } from "@/evals/ci-guard";
 import { execFileSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -345,6 +346,7 @@ const describeError = (error: unknown): string =>
     : String(error);
 
 const main = async () => {
+  refuseInCi("eval:crewday");
   const options = parseCrewdayArgs(process.argv.slice(2));
   if (!gatewayAvailable()) {
     console.log(

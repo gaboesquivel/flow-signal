@@ -12,6 +12,7 @@
 //   --no-gate              exit 0 even when the gated threshold misses the targets
 //   --out <path>           JSON report (default evals/matching/results/latest.json, gitignored)
 //   --fake                 offline smoke of the runner with the test fakes (not a result; no grading)
+import { refuseInCi } from "@/evals/ci-guard";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -44,6 +45,8 @@ import {
 } from "./metrics";
 import type { ThresholdScore } from "./metrics";
 import { indexCatalog, mapLimit, runPipeline } from "./pipeline";
+
+refuseInCi("eval:matching");
 
 const log = (line = "") => console.log(line);
 const describeError = (error: unknown): string =>

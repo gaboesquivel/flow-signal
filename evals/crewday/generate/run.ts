@@ -1,3 +1,4 @@
+import { refuseInCi } from "@/evals/ci-guard";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -21,6 +22,8 @@ import {
   writtenSchema,
 } from "./prompts";
 import type { WriteContext, Written } from "./prompts";
+
+refuseInCi("crewday:generate");
 
 /**
  * Generates and freezes `crewday-dev@v1` and `crewday-test@v1` from the hand-written recipe

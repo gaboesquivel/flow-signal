@@ -16,6 +16,7 @@
 //                  (proves the wiring; not an agent result)
 //   --list         print the scenarios and exit
 // oxlint-disable eslint/no-await-in-loop -- scenarios share one database and run one at a time
+import { refuseInCi } from "@/evals/ci-guard";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -45,6 +46,8 @@ import { seedFixture } from "./fixture";
 import { loadAgent, runConversation } from "./harness";
 import type { AgentName, LoadedAgent, Transcript } from "./harness";
 import { scenarios, selectScenarios } from "./scenarios";
+
+refuseInCi("eval:agents");
 
 const log = (line = "") => console.log(line);
 const describeError = (error: unknown): string =>
