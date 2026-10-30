@@ -19,6 +19,7 @@ const operator: Actor = { kind: "human", ref: "operator" };
 /**
  * A week of history: Maya's human signal and an agent's signal attach to N1, a draft need is
  * merged into it (Maya took N1 when shown it; the draft's submitter was shown N1 and filed new), N1 gets a decision from an agent, and the PM resolves three suggestions.
+ * Maya then sees the decision on her My signals link.
  */
 const buildFixture = async (db: SignalDb) => {
   configureSignalRuntime({ clock: { now: () => now } });
@@ -36,16 +37,17 @@ const buildFixture = async (db: SignalDb) => {
     previewId: `pv_${randomUUID()}`,
     shownNeedIds: [n1],
   });
-  for (const [actor, when, exposure] of [
-    [human, "2026-10-27T10:00:00Z", shownN1(1)],
-    [agent, "2026-10-28T10:00:00Z", { kind: "skipped" }],
+  const maya = randomUUID();
+  for (const [actor, when, exposure, signalId] of [
+    [human, "2026-10-27T10:00:00Z", shownN1(1), maya],
+    [agent, "2026-10-28T10:00:00Z", { kind: "skipped" }, randomUUID()],
   ] as const)
     await recordEvent(db, {
       actor,
       needId: n1,
       occurredAt: at(when),
       payload: { attachedTo: "existing", exposure, hasUseCase: true },
-      signalId: randomUUID(),
+      signalId,
       type: "signal.created",
     });
   const draftSignal = randomUUID();
@@ -79,17 +81,27 @@ const buildFixture = async (db: SignalDb) => {
     payload: { arrCents: 30_000_000, strategyVersion: 1, supporters: 3 },
     type: "need.ready",
   });
+  const decisionId = randomUUID();
   await recordEvent(db, {
     actor: agent,
     needId: n1,
     occurredAt: at("2026-10-29T12:00:00Z"),
     payload: {
       briefSuggestionId: randomUUID(),
-      decisionId: randomUUID(),
+      decisionId,
       recommendedStatus: "planned",
       status: "planned",
     },
     type: "decision.published",
+  });
+  await recordEvent(db, {
+    actor: human,
+    dedupeKey: `signal.decision_seen:${maya}:${decisionId}`,
+    needId: n1,
+    occurredAt: at("2026-10-30T08:00:00Z"),
+    payload: { decisionId, status: "planned" },
+    signalId: maya,
+    type: "signal.decision_seen",
   });
   for (const [kind, status] of [
     ["priority", "accepted"],
@@ -189,6 +201,9 @@ runParityTable({
           medianDays: 2,
           readyUndecidedOver30Days: 0,
         });
+        // Three signals on N1 before its decision (the merged draft included); Maya saw it.
+        assert.deepEqual(metrics.closeTheLoopRate, { decidedSignals: 3, rate: 0.3333, seen: 1 });
+        assert.deepEqual(metrics.unsupported, []);
       },
       input: () => thisWeek,
       name: "reads this week's metrics, split human vs. agent",
@@ -212,6 +227,7 @@ runParityTable({
         assert.equal(metrics.preventionRate.overall.all.rate, null);
         assert.equal(metrics.suggestionAcceptance.overall.all.acceptanceRate, null);
         assert.deepEqual(metrics.suggestionAcceptance.byKind, []);
+        assert.equal(metrics.closeTheLoopRate.rate, null);
       },
       input: () => ({ from: "2026-09-01", to: "2026-09-08" }),
       name: "returns null rates for an empty window",

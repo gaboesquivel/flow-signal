@@ -31,6 +31,10 @@ import type { SignalQueryable } from "./db";
  *   `dedupeKey` from the action id; the actor is the PM. The write it ran records its own event
  *   with `client: "console:assistant"`.
  * - `assistant.action_rejected` (spec 014): payload `{ actionId, operation }`; the actor is the PM.
+ * - `signal.decision_seen` (close-the-loop rate): `signalId`, `needId` (the need the decision is
+ *   on), payload `{ decisionId, status }`; `dedupeKey` `signal.decision_seen:<signalId>:<decisionId>`.
+ *   Recorded when `get_my_signals` returns a signal with a decision published after the signal
+ *   was created; the actor is whoever read the link (`domain/my-signals.ts`).
  */
 export type SignalEventType =
   | "assistant.action_confirmed"
@@ -47,6 +51,7 @@ export type SignalEventType =
   | "report.shared"
   | "report.viewed"
   | "signal.created"
+  | "signal.decision_seen"
   | "suggestion.accepted"
   | "suggestion.created"
   | "suggestion.edited"
@@ -64,6 +69,21 @@ export interface SignalEvent {
   type: SignalEventType;
 }
 
+const eventRow = (event: SignalEvent) => ({
+  actorKind: event.actor.kind,
+  actorRef: event.actor.ref,
+  dedupeKey: event.dedupeKey,
+  needId: event.needId ?? null,
+  occurredAt: event.occurredAt,
+  payload: {
+    ...event.payload,
+    ...(event.actor.client ? { client: event.actor.client } : {}),
+  },
+  signalId: event.signalId ?? null,
+  suggestionId: event.suggestionId ?? null,
+  type: event.type,
+});
+
 /**
  * Appends an event. Call it with the transaction (`tx`) that makes the change it describes, so
  * a failed or rolled-back request writes no event. Returns false when `dedupeKey` was already
@@ -72,21 +92,17 @@ export interface SignalEvent {
 export const recordEvent = async (db: SignalQueryable, event: SignalEvent) => {
   const rows = await db
     .insert(events)
-    .values({
-      actorKind: event.actor.kind,
-      actorRef: event.actor.ref,
-      dedupeKey: event.dedupeKey,
-      needId: event.needId ?? null,
-      occurredAt: event.occurredAt,
-      payload: {
-        ...event.payload,
-        ...(event.actor.client ? { client: event.actor.client } : {}),
-      },
-      signalId: event.signalId ?? null,
-      suggestionId: event.suggestionId ?? null,
-      type: event.type,
-    })
+    .values(eventRow(event))
     .onConflictDoNothing({ target: events.dedupeKey })
     .returning({ id: events.id });
   return rows.length > 0;
+};
+
+/** Appends several events in one statement; rows whose `dedupeKey` exists are skipped. */
+export const recordEvents = async (db: SignalQueryable, batch: SignalEvent[]) => {
+  if (batch.length === 0) return;
+  await db
+    .insert(events)
+    .values(batch.map(eventRow))
+    .onConflictDoNothing({ target: events.dedupeKey });
 };

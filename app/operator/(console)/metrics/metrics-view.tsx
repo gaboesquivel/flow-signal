@@ -18,12 +18,13 @@ import { WindowToggle } from "./window-toggle";
 const label = "text-muted-foreground text-[11px] font-semibold tracking-[0.08em] uppercase";
 const quiet = "text-muted-foreground";
 
-const metricNames: Record<string, string> = { close_the_loop_rate: "Close-the-loop rate" };
+const metricNames: Record<string, string> = {};
 
 /** The MVP metrics as large mono numbers with one-line definitions (DESIGN.md → Metrics). */
 export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metrics }) {
   const {
     assistantActions,
+    closeTheLoopRate,
     decisionLatency,
     exposure,
     killCriterion,
@@ -346,6 +347,15 @@ export function MetricsView({ days, metrics }: { days: WindowDays; metrics: Metr
             detail={`${plural(supporting.reviewLoad.created, "suggestion")} created, ${supporting.reviewLoad.resolved} resolved in the window`}
             name="Review load"
             value={`${supporting.reviewLoad.pendingAtEnd} pending`}
+          />
+          <Supporting
+            detail={
+              closeTheLoopRate.decidedSignals === 0
+                ? "No signals on needs decided in the window"
+                : `${closeTheLoopRate.seen} of ${plural(closeTheLoopRate.decidedSignals, "signal")} on decided needs seen on My signals`
+            }
+            name="Close-the-loop rate"
+            value={formatRate(closeTheLoopRate.rate)}
           />
         </dl>
         {metrics.unsupported.length > 0 ? (

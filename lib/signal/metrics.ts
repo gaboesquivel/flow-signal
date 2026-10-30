@@ -61,7 +61,17 @@ import {
  *     `to` (created before `to` with no resolution before `to`).
  *   - Unmerge rate (guardrail): `need.merged` in the window and how many a `merge.undone`
  *     (same `payload.mergeId`) reverted before `to`.
- *   - Close-the-loop rate is not computed yet; see `unsupportedMetrics`.
+ *
+ * - **Close-the-loop rate** (PRODUCT.md → Diagnostics) reads `decision.published` (`need_id`,
+ *   `payload.decisionId`), `signal.created`, `need.split` (`payload.newNeedId`, `signalIds`),
+ *   `need.merged` / `merge.undone`, and `signal.decision_seen` (`signal_id`,
+ *   `payload.decisionId`, recorded by `get_my_signals`). The unit is a signal and a decision:
+ *   each decision published in the window (each `decisionId` once) pairs with every signal on
+ *   its need created before it. A signal is on the need it was filed on, or moved to by its
+ *   latest split, followed along active merges as of `to` (merged duplicates count only once
+ *   their merge moved them; an undone merge does not). Seen: a `signal.decision_seen` for that
+ *   signal and decision before `to`. Rate = seen ÷ pairs. A decision on a need merged away by
+ *   `to` pairs with no signals (My signals shows the surviving need's decisions).
  *
  * - **Match exposure** (spec 012) reads `signal.created` `payload.exposure` (from
  *   `domain/exposure.ts`) for signals created in the window, split by `actor_kind`:
@@ -122,13 +132,7 @@ const PREVIEW_SUBMIT_HOURS = 24;
 /** A saved report counts as reused when opened, shared, or saved again within this (spec 013). */
 export const REPORT_REUSE_DAYS = 14;
 
-const unsupportedMetrics = [
-  {
-    metric: "close_the_loop_rate",
-    reason:
-      "Needs an event recording that a submitter was told the outcome (e.g. a decision notification or tracking-page view per signal); the MVP records none.",
-  },
-] as const;
+const unsupportedMetrics: { metric: string; reason: string }[] = [];
 
 const ratio = (numerator: number, denominator: number) =>
   denominator === 0 ? null : Math.round((numerator / denominator) * 10_000) / 10_000;
@@ -252,6 +256,15 @@ const assistantActionsSchema = z.object({
 export const metricsSchema = z.object({
   /** PM writes confirmed through the Operator assistant, and proposal outcomes (spec 014). */
   assistantActions: assistantActionsSchema,
+  /** Signals whose holder saw a decision published in the window on My signals. */
+  closeTheLoopRate: z.object({
+    /** Signal–decision pairs: a decision in the window and each signal on its need before it. */
+    decidedSignals: count,
+    /** seen ÷ decidedSignals; null with no decided signals. */
+    rate: rateSchema,
+    /** Of those, pairs whose holder's My signals read recorded the decision before `to`. */
+    seen: count,
+  }),
   decisionLatency: z.object({
     /** First decisions published in the window, by who published them. */
     decided: split(latencySchema),
@@ -1011,6 +1024,64 @@ const assistantActionCounts = async (
   };
 };
 
+/** Close-the-loop rate: signals whose holder saw a decision in the window (see the header). */
+const closeTheLoopRate = async (db: SignalQueryable, { from, to }: MetricsWindow) => {
+  const [row] = await query<{ decided: unknown; seen: unknown }>(
+    db,
+    sql`
+      WITH RECURSIVE decided AS (
+        SELECT DISTINCT ON (COALESCE(payload->>'decisionId', id::text))
+          COALESCE(payload->>'decisionId', id::text) AS decision_id, need_id::text AS need_id,
+          occurred_at
+        FROM events
+        WHERE type = 'decision.published' AND need_id IS NOT NULL
+          AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
+        ORDER BY COALESCE(payload->>'decisionId', id::text), occurred_at
+      ), created AS (
+        SELECT DISTINCT ON (signal_id) signal_id, need_id, occurred_at
+        FROM events
+        WHERE type = 'signal.created' AND signal_id IS NOT NULL AND need_id IS NOT NULL
+          AND occurred_at < (SELECT max(occurred_at) FROM decided)
+        ORDER BY signal_id, occurred_at
+      ), placed AS (
+        SELECT c.signal_id, c.occurred_at, COALESCE((
+          SELECT s.payload->>'newNeedId' FROM events s
+          WHERE s.type = 'need.split' AND s.occurred_at < ${ts(to)}
+            AND s.payload->'signalIds' @> jsonb_build_array(c.signal_id::text)
+          ORDER BY s.occurred_at DESC LIMIT 1
+        ), c.need_id::text) AS need_id
+        FROM created c
+      ), merges AS (${activeMergeTargets(to)}),
+      chain (need_id, into_need_id, depth) AS (
+        SELECT need_id, into_need_id, 1 FROM merges
+        UNION ALL
+        SELECT ch.need_id, mg.into_need_id, ch.depth + 1
+        FROM chain ch JOIN merges mg ON mg.need_id = ch.into_need_id
+        WHERE ch.depth < ${MAX_MERGE_CHAIN}
+      ), resolved AS (
+        SELECT DISTINCT ON (need_id) need_id, into_need_id AS end_id
+        FROM chain ORDER BY need_id, depth DESC
+      ), pairs AS (
+        SELECT p.signal_id, d.decision_id
+        FROM placed p
+        LEFT JOIN resolved r ON r.need_id = p.need_id
+        JOIN decided d ON d.need_id = COALESCE(r.end_id, p.need_id)
+          AND p.occurred_at < d.occurred_at
+      )
+      SELECT count(*)::int AS decided,
+        count(*) FILTER (WHERE EXISTS (
+          SELECT 1 FROM events v
+          WHERE v.type = 'signal.decision_seen' AND v.signal_id = pr.signal_id
+            AND v.payload->>'decisionId' = pr.decision_id AND v.occurred_at < ${ts(to)}
+        ))::int AS seen
+      FROM pairs pr
+    `,
+  );
+  const decidedSignals = num(row?.decided);
+  const seen = num(row?.seen);
+  return { decidedSignals, rate: ratio(seen, decidedSignals), seen };
+};
+
 /**
  * All MVP metrics and supporting counts for `[from, to)`. `now` (default `to`) decides which
  * unanswered assistant proposals have expired.
@@ -1032,9 +1103,11 @@ export const computeMetrics = async (
   const kill = await killCriterion(db, window);
   const reuse = await reportReuse(db, window);
   const assistant = await assistantActionCounts(db, window, now);
+  const closeTheLoop = await closeTheLoopRate(db, window);
 
   return {
     assistantActions: assistant,
+    closeTheLoopRate: closeTheLoop,
     decisionLatency: latency,
     directionAccuracy: direction,
     exposure: {
