@@ -1,0 +1,38 @@
+[
+  {
+    "description": "Building, publishing, and changing rotas: forecasts, availability, open shifts, swaps, time off, and templates.",
+    "key": "scheduling",
+    "name": "Scheduling",
+    "strategicWeight": 0.45
+  },
+  {
+    "description": "Clocking in and out, breaks, timesheets, exceptions, and manager approval of hours.",
+    "key": "time-attendance",
+    "name": "Time and attendance",
+    "strategicWeight": 0.65
+  },
+  {
+    "description": "Pay rules, differentials, corrections, and getting approved hours to payroll providers and finance correctly.",
+    "key": "payroll-exports",
+    "name": "Payroll and exports",
+    "strategicWeight": 0.9
+  },
+  {
+    "description": "Labour-law rules, rest and break rules, minors, credentials before a shift, and audit records.",
+    "key": "compliance",
+    "name": "Compliance",
+    "strategicWeight": 1
+  },
+  {
+    "description": "HRIS, payroll, POS, and WMS connectors, SSO and SCIM, the API, and webhooks.",
+    "key": "integrations",
+    "name": "Integrations",
+    "strategicWeight": 0.5
+  },
+  {
+    "description": "The Crewday app for frontline staff and managers on iOS and Android: reliability, notifications, and on-the-go tasks.",
+    "key": "mobile",
+    "name": "Mobile",
+    "strategicWeight": 0.3
+  }
+]

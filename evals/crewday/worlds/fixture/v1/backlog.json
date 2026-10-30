@@ -1,0 +1,32 @@
+[
+  {
+    "rowId": "fx-bl-1",
+    "title": "Shift swap",
+    "body": "Staff want to swap shifts in the app. Asked by Northgate + Bluebird.",
+    "trueNeedKey": "fx-shift-swap"
+  },
+  {
+    "rowId": "fx-bl-2",
+    "title": "Let employees trade shifts w/o calling mgr",
+    "body": "",
+    "trueNeedKey": "fx-shift-swap"
+  },
+  {
+    "rowId": "fx-bl-3",
+    "title": "OT alerts",
+    "body": "Warn before overtime. Harbor asked twice in QBR.",
+    "trueNeedKey": "fx-overtime-warning"
+  },
+  {
+    "rowId": "fx-bl-4",
+    "title": "Geofencing",
+    "body": "Only allow clock in near the site.",
+    "trueNeedKey": "fx-site-clock-in"
+  },
+  {
+    "rowId": "fx-bl-5",
+    "title": "CSV export for payroll",
+    "body": "Bluebird's accountant needs a file, not screenshots.",
+    "trueNeedKey": "fx-payroll-csv-accountants"
+  }
+]

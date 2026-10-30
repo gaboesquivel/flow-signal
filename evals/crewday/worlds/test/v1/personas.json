@@ -1,0 +1,1802 @@
+[
+  {
+    "key": "t-p-001",
+    "accountKey": "apex-event-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.nguyen@crewday.example",
+    "name": "Ines Nguyen",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-002",
+    "accountKey": "apex-event-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "priya.carvalho@crewday.example",
+    "name": "Priya Carvalho",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-003",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@ashdown-guarding.example",
+    "name": "Ashdown Guarding support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-004",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.ueda@ashdown-guarding.example",
+    "name": "Linh Ueda",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-005",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.nguyen@ashdown-guarding.example",
+    "name": "Ngozi Nguyen",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-006",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "noor.takahashi@ashdown-guarding.example",
+    "name": "Noor Takahashi",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-007",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "olu.quintero@ashdown-guarding.example",
+    "name": "Olu Quintero",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-008",
+    "accountKey": "ashdown-guarding",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tomasz.yilmaz@ashdown-guarding.example",
+    "name": "Tomasz Yilmaz",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-009",
+    "accountKey": "birchway-aides",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "olu.obi@birchway-aides.example",
+    "name": "Olu Obi",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-010",
+    "accountKey": "bluefin-freight",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@bluefin-freight.example",
+    "name": "Bluefin Freight support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-011",
+    "accountKey": "bluefin-freight",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gideon.whitlock@bluefin-freight.example",
+    "name": "Gideon Whitlock",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-012",
+    "accountKey": "bluefin-freight",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.laurent@bluefin-freight.example",
+    "name": "Harper Laurent",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-013",
+    "accountKey": "bluefin-freight",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.osei@bluefin-freight.example",
+    "name": "Jana Osei",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-014",
+    "accountKey": "bluefin-freight",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kalani.iwasaki@bluefin-freight.example",
+    "name": "Kalani Iwasaki",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-015",
+    "accountKey": "bluefin-freight",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rania.bautista@crewday.example",
+    "name": "Rania Bautista",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-016",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.iwasaki@brightpath-cleaning.example",
+    "name": "Aisha Iwasaki",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-017",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@brightpath-cleaning.example",
+    "name": "Brightpath Cleaning support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-018",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.delacroix@brightpath-cleaning.example",
+    "name": "Esteban Delacroix",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-019",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.zamora@brightpath-cleaning.example",
+    "name": "Mei Zamora",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-020",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.lindqvist@crewday.example",
+    "name": "Nikhil Lindqvist",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-021",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "olu.nakashima@brightpath-cleaning.example",
+    "name": "Olu Nakashima",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-022",
+    "accountKey": "brightpath-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.brannigan@brightpath-cleaning.example",
+    "name": "Paulo Brannigan",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-023",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.kaur@clearwater-staffing.example",
+    "name": "Aisha Kaur",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-024",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "callum.whitlock@clearwater-staffing.example",
+    "name": "Callum Whitlock",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-025",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@clearwater-staffing.example",
+    "name": "Clearwater Nurse Staffing support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-026",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gemma.obi@clearwater-staffing.example",
+    "name": "Gemma Obi",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-027",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.mbeki@clearwater-staffing.example",
+    "name": "Jalen Mbeki",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-028",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.hoang@clearwater-staffing.example",
+    "name": "Leila Hoang",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-029",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.abara@clearwater-staffing.example",
+    "name": "Paulo Abara",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-030",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "selin.eklund@clearwater-staffing.example",
+    "name": "Selin Eklund",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-031",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "thanh.ramos@clearwater-staffing.example",
+    "name": "Thanh Ramos",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-032",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "uma.montoya@crewday.example",
+    "name": "Uma Montoya",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-033",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "valeria.zielinski@clearwater-staffing.example",
+    "name": "Valeria Zielinski",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-034",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wanjiru.halvorsen@clearwater-staffing.example",
+    "name": "Wanjiru Halvorsen",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-035",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wendell.vasquez@clearwater-staffing.example",
+    "name": "Wendell Vasquez",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-036",
+    "accountKey": "clearwater-staffing",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yusuf.galloway@crewday.example",
+    "name": "Yusuf Galloway",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-037",
+    "accountKey": "coldline-3pl",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.obi@crewday.example",
+    "name": "Leila Obi",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-038",
+    "accountKey": "coldline-3pl",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.reyes@crewday.example",
+    "name": "Mei Reyes",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-039",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.grabowski@crestview-pharmstaff.example",
+    "name": "Aisha Grabowski",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-040",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@crestview-pharmstaff.example",
+    "name": "Crestview Pharmacy Staffing support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-041",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.albrecht@crestview-pharmstaff.example",
+    "name": "Jalen Albrecht",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-042",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kwame.toussaint@crestview-pharmstaff.example",
+    "name": "Kwame Toussaint",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-043",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.mbeki@crestview-pharmstaff.example",
+    "name": "Ngozi Mbeki",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-044",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.engstrom@crewday.example",
+    "name": "Paulo Engstrom",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-045",
+    "accountKey": "crestview-pharmstaff",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sione.bautista@crestview-pharmstaff.example",
+    "name": "Sione Bautista",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-046",
+    "accountKey": "dockside-coffee",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.halvorsen@dockside-coffee.example",
+    "name": "Aisha Halvorsen",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-047",
+    "accountKey": "dockside-coffee",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "saoirse.haddad@dockside-coffee.example",
+    "name": "Saoirse Haddad",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-048",
+    "accountKey": "dockside-coffee",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wanjiru.mendoza@dockside-coffee.example",
+    "name": "Wanjiru Mendoza",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-049",
+    "accountKey": "ember-catering",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dara.laurent@ember-catering.example",
+    "name": "Dara Laurent",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-050",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bogdan.engstrom@ferro-fulfilment.example",
+    "name": "Bogdan Engstrom",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-051",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@ferro-fulfilment.example",
+    "name": "Ferro Fulfilment support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-052",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "noor.novak@ferro-fulfilment.example",
+    "name": "Noor Novak",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-053",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.grabowski@crewday.example",
+    "name": "Quinn Grabowski",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-054",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.yilmaz@ferro-fulfilment.example",
+    "name": "Rafael Yilmaz",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-055",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "selin.kaur@crewday.example",
+    "name": "Selin Kaur",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-056",
+    "accountKey": "ferro-fulfilment",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "vivian.bellamy@ferro-fulfilment.example",
+    "name": "Vivian Bellamy",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-057",
+    "accountKey": "glint-windows",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "keiko.pacheco@glint-windows.example",
+    "name": "Keiko Pacheco",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-058",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bogdan.takahashi@ironvale.example",
+    "name": "Bogdan Takahashi",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-059",
+    "accountKey": "ironvale",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@ironvale.example",
+    "name": "Ironvale Logistics support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-060",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.reyes@ironvale.example",
+    "name": "Dalia Reyes",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-061",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "fiona.xiong@ironvale.example",
+    "name": "Fiona Xiong",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-062",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gemma.gutierrez@ironvale.example",
+    "name": "Gemma Gutierrez",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-063",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hana.pereira@ironvale.example",
+    "name": "Hana Pereira",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-064",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kalani.quintero@ironvale.example",
+    "name": "Kalani Quintero",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-065",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.ibarra@crewday.example",
+    "name": "Lucia Ibarra",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-066",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.xiong@ironvale.example",
+    "name": "Lucia Xiong",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-067",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "malik.reyes@ironvale.example",
+    "name": "Malik Reyes",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-068",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.sandoval@ironvale.example",
+    "name": "Ngozi Sandoval",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-069",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.jovanovic@ironvale.example",
+    "name": "Paulo Jovanovic",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-070",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.bellamy@ironvale.example",
+    "name": "Quinn Bellamy",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-071",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.petrakis@ironvale.example",
+    "name": "Rafael Petrakis",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-072",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.yilmaz@ironvale.example",
+    "name": "Sanjay Yilmaz",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-073",
+    "accountKey": "ironvale",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yara.kowalczyk@ironvale.example",
+    "name": "Yara Kowalczyk",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-074",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bea.sato@kestrel-homecare.example",
+    "name": "Bea Sato",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-075",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@kestrel-homecare.example",
+    "name": "Kestrel Homecare support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-076",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.ramos@crewday.example",
+    "name": "Esteban Ramos",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-077",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.takahashi@kestrel-homecare.example",
+    "name": "Farah Takahashi",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-078",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.wojcik@kestrel-homecare.example",
+    "name": "Leila Wojcik",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-079",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nico.galloway@kestrel-homecare.example",
+    "name": "Nico Galloway",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-080",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.delacroix@kestrel-homecare.example",
+    "name": "Teodoro Delacroix",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-081",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "thanh.achebe@crewday.example",
+    "name": "Thanh Achebe",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-082",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "uma.gutierrez@kestrel-homecare.example",
+    "name": "Uma Gutierrez",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-083",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "uma.iwasaki@kestrel-homecare.example",
+    "name": "Uma Iwasaki",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-084",
+    "accountKey": "kestrel-homecare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yusuf.chau@kestrel-homecare.example",
+    "name": "Yusuf Chau",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-085",
+    "accountKey": "kiteline-deliveries",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "priya.xiong@kiteline-deliveries.example",
+    "name": "Priya Xiong",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-086",
+    "accountKey": "kiteline-deliveries",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.toussaint@kiteline-deliveries.example",
+    "name": "Quinn Toussaint",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-087",
+    "accountKey": "kiteline-deliveries",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ximena.valdivia@kiteline-deliveries.example",
+    "name": "Ximena Valdivia",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-088",
+    "accountKey": "laurel-dental",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.nakashima@laurel-dental.example",
+    "name": "Jalen Nakashima",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-089",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@lumen-homehealth.example",
+    "name": "Lumen Home Health support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-090",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.jovanovic@lumen-homehealth.example",
+    "name": "Leila Jovanovic",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-091",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.pacheco@lumen-homehealth.example",
+    "name": "Linh Pacheco",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-092",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.mendoza@lumen-homehealth.example",
+    "name": "Nikhil Mendoza",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-093",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "valeria.ramos@lumen-homehealth.example",
+    "name": "Valeria Ramos",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-094",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wendell.sandoval@lumen-homehealth.example",
+    "name": "Wendell Sandoval",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-095",
+    "accountKey": "lumen-homehealth",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ximena.bautista@lumen-homehealth.example",
+    "name": "Ximena Bautista",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-096",
+    "accountKey": "mapleton-movers",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@mapleton-movers.example",
+    "name": "Mapleton Movers support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-097",
+    "accountKey": "mapleton-movers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "olu.sandoval@mapleton-movers.example",
+    "name": "Olu Sandoval",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-098",
+    "accountKey": "mapleton-movers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tomasz.petrakis@mapleton-movers.example",
+    "name": "Tomasz Petrakis",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-099",
+    "accountKey": "meridian-care",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@meridian-care.example",
+    "name": "Meridian Care Homes support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-100",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "emeka.delacroix@meridian-care.example",
+    "name": "Emeka Delacroix",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-101",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.fontaine@meridian-care.example",
+    "name": "Esteban Fontaine",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-102",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "farah.haddad@crewday.example",
+    "name": "Farah Haddad",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-103",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "felipe.albrecht@meridian-care.example",
+    "name": "Felipe Albrecht",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-104",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "gemma.vasquez@meridian-care.example",
+    "name": "Gemma Vasquez",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-105",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.fontaine@meridian-care.example",
+    "name": "Ines Fontaine",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-106",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.kuznetsova@crewday.example",
+    "name": "Jana Kuznetsova",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-107",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lucia.obi@meridian-care.example",
+    "name": "Lucia Obi",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-108",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mareike.whitlock@meridian-care.example",
+    "name": "Mareike Whitlock",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-109",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wendell.galloway@meridian-care.example",
+    "name": "Wendell Galloway",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-110",
+    "accountKey": "meridian-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "zara.whitlock@meridian-care.example",
+    "name": "Zara Whitlock",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-111",
+    "accountKey": "metro-transit-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kalani.albrecht@crewday.example",
+    "name": "Kalani Albrecht",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-112",
+    "accountKey": "metro-transit-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.carvalho@crewday.example",
+    "name": "Ngozi Carvalho",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-113",
+    "accountKey": "nimbus-carwash",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "wanjiru.brannigan@nimbus-carwash.example",
+    "name": "Wanjiru Brannigan",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-114",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "amara.achebe@northgate-security.example",
+    "name": "Amara Achebe",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-115",
+    "accountKey": "northgate-security",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@northgate-security.example",
+    "name": "Northgate Security Services support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-116",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.grabowski@northgate-security.example",
+    "name": "Jana Grabowski",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-117",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.fontaine@northgate-security.example",
+    "name": "Leila Fontaine",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-118",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "marisol.yilmaz@crewday.example",
+    "name": "Marisol Yilmaz",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-119",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "oksana.ueda@northgate-security.example",
+    "name": "Oksana Ueda",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-120",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rohan.lindqvist@northgate-security.example",
+    "name": "Rohan Lindqvist",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-121",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "saoirse.mbeki@northgate-security.example",
+    "name": "Saoirse Mbeki",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-122",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tomasz.desai@northgate-security.example",
+    "name": "Tomasz Desai",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-123",
+    "accountKey": "northgate-security",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "valeria.engstrom@northgate-security.example",
+    "name": "Valeria Engstrom",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-124",
+    "accountKey": "oakmoor-clinics",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "alejandro.nakashima@oakmoor-clinics.example",
+    "name": "Alejandro Nakashima",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-125",
+    "accountKey": "oakmoor-clinics",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@oakmoor-clinics.example",
+    "name": "Oakmoor Clinics support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-126",
+    "accountKey": "oakmoor-clinics",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "hana.esposito@crewday.example",
+    "name": "Hana Esposito",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-127",
+    "accountKey": "oakmoor-clinics",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.nguyen@oakmoor-clinics.example",
+    "name": "Jana Nguyen",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-128",
+    "accountKey": "oakmoor-clinics",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.sandoval@oakmoor-clinics.example",
+    "name": "Rafael Sandoval",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-129",
+    "accountKey": "pallet-ridge",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@pallet-ridge.example",
+    "name": "Pallet Ridge Distribution support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-130",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.brannigan@pallet-ridge.example",
+    "name": "Dalia Brannigan",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-131",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "pilar.bautista@pallet-ridge.example",
+    "name": "Pilar Bautista",
+    "role": "ops director (escalation)"
+  },
+  {
+    "key": "t-p-132",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.mendoza@crewday.example",
+    "name": "Quinn Mendoza",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-133",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.fontaine@pallet-ridge.example",
+    "name": "Sanjay Fontaine",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-134",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "thanh.petrakis@pallet-ridge.example",
+    "name": "Thanh Petrakis",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-135",
+    "accountKey": "pallet-ridge",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tomasz.wojcik@pallet-ridge.example",
+    "name": "Tomasz Wojcik",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-136",
+    "accountKey": "peak-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "beatriz.wojcik@peak-patrol.example",
+    "name": "Beatriz Wojcik",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-137",
+    "accountKey": "peak-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rosa.kowalczyk@peak-patrol.example",
+    "name": "Rosa Kowalczyk",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-138",
+    "accountKey": "polar-parcel",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@polar-parcel.example",
+    "name": "Polar Parcel support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-139",
+    "accountKey": "polar-parcel",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dmitri.engstrom@polar-parcel.example",
+    "name": "Dmitri Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-140",
+    "accountKey": "polar-parcel",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jana.bellamy@polar-parcel.example",
+    "name": "Jana Bellamy",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-141",
+    "accountKey": "polar-parcel",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kenji.dabrowski@polar-parcel.example",
+    "name": "Kenji Dabrowski",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-142",
+    "accountKey": "polar-parcel",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.eklund@polar-parcel.example",
+    "name": "Lorenzo Eklund",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-143",
+    "accountKey": "polar-parcel",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mareike.brannigan@polar-parcel.example",
+    "name": "Mareike Brannigan",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-144",
+    "accountKey": "quayside-cold",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@quayside-cold.example",
+    "name": "Quayside Cold Storage support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-145",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.nguyen@quayside-cold.example",
+    "name": "Dalia Nguyen",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-146",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.engstrom@quayside-cold.example",
+    "name": "Harper Engstrom",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-147",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.villanueva@crewday.example",
+    "name": "Harper Villanueva",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-148",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.valdivia@quayside-cold.example",
+    "name": "Jalen Valdivia",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-149",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "vivian.mendoza@quayside-cold.example",
+    "name": "Vivian Mendoza",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-150",
+    "accountKey": "quayside-cold",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yusuf.bautista@quayside-cold.example",
+    "name": "Yusuf Bautista",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-151",
+    "accountKey": "quickstep-couriers",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@quickstep-couriers.example",
+    "name": "Quickstep Couriers support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-152",
+    "accountKey": "quickstep-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "teodoro.okonkwo@quickstep-couriers.example",
+    "name": "Teodoro Okonkwo",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-153",
+    "accountKey": "redline-depots",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bea.zielinski@redline-depots.example",
+    "name": "Bea Zielinski",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-154",
+    "accountKey": "redline-depots",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@redline-depots.example",
+    "name": "Redline Depots support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-155",
+    "accountKey": "redline-depots",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "quinn.tran@redline-depots.example",
+    "name": "Quinn Tran",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-156",
+    "accountKey": "redline-depots",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sanjay.gutierrez@crewday.example",
+    "name": "Sanjay Gutierrez",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-157",
+    "accountKey": "rowan-cleaning",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@rowan-cleaning.example",
+    "name": "Rowan Cleaning Co support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-158",
+    "accountKey": "rowan-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "leila.xiong@rowan-cleaning.example",
+    "name": "Leila Xiong",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-159",
+    "accountKey": "rowan-cleaning",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tamar.engstrom@rowan-cleaning.example",
+    "name": "Tamar Engstrom",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-160",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@sentinel-patrol.example",
+    "name": "Sentinel Patrol Group support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-161",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dara.eklund@sentinel-patrol.example",
+    "name": "Dara Eklund",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-162",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "esteban.mbeki@sentinel-patrol.example",
+    "name": "Esteban Mbeki",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-163",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ines.chau@crewday.example",
+    "name": "Ines Chau",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-164",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lars.carvalho@sentinel-patrol.example",
+    "name": "Lars Carvalho",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-165",
+    "accountKey": "sentinel-patrol",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lars.montoya@sentinel-patrol.example",
+    "name": "Lars Montoya",
+    "role": "frontline staff (terse)"
+  },
+  {
+    "key": "t-p-166",
+    "accountKey": "sixth-street-pharmacy",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.haddad@sixth-street-pharmacy.example",
+    "name": "Jalen Haddad",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-167",
+    "accountKey": "sixth-street-pharmacy",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nikhil.delacroix@sixth-street-pharmacy.example",
+    "name": "Nikhil Delacroix",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-168",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "amara.quintero@sparkline-facilities.example",
+    "name": "Amara Quintero",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-169",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "chidi.obi@sparkline-facilities.example",
+    "name": "Chidi Obi",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-170",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@sparkline-facilities.example",
+    "name": "Sparkline Facility Services support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-171",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ngozi.brannigan@sparkline-facilities.example",
+    "name": "Ngozi Brannigan",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-172",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.reyes@sparkline-facilities.example",
+    "name": "Paulo Reyes",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-173",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rafael.quintero@sparkline-facilities.example",
+    "name": "Rafael Quintero",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-174",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tamar.sato@sparkline-facilities.example",
+    "name": "Tamar Sato",
+    "role": "ops admin"
+  },
+  {
+    "key": "t-p-175",
+    "accountKey": "sparkline-facilities",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "ximena.santana@crewday.example",
+    "name": "Ximena Santana",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-176",
+    "accountKey": "stonebridge-storage",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "aisha.nakashima@stonebridge-storage.example",
+    "name": "Aisha Nakashima",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-177",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "bea.kaur@crewday.example",
+    "name": "Bea Kaur",
+    "role": "CSM filing for account"
+  },
+  {
+    "key": "t-p-178",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "camila.petrakis@tallyho-couriers.example",
+    "name": "Camila Petrakis",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-179",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@tallyho-couriers.example",
+    "name": "Tallyho Couriers support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-180",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "dalia.yilmaz@tallyho-couriers.example",
+    "name": "Dalia Yilmaz",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-181",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.petrakis@tallyho-couriers.example",
+    "name": "Harper Petrakis",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-182",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "kenji.sandoval@tallyho-couriers.example",
+    "name": "Kenji Sandoval",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-183",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "paulo.bellamy@tallyho-couriers.example",
+    "name": "Paulo Bellamy",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-184",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rania.halvorsen@tallyho-couriers.example",
+    "name": "Rania Halvorsen",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-185",
+    "accountKey": "tallyho-couriers",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "zara.abara@tallyho-couriers.example",
+    "name": "Zara Abara",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-186",
+    "accountKey": "tidewell-laundry",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "anh.zielinski@tidewell-laundry.example",
+    "name": "Anh Zielinski",
+    "role": "IT or security"
+  },
+  {
+    "key": "t-p-187",
+    "accountKey": "tidewell-laundry",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@tidewell-laundry.example",
+    "name": "Tidewell Commercial Laundry support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-188",
+    "accountKey": "tidewell-laundry",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "harper.osei@tidewell-laundry.example",
+    "name": "Harper Osei",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-189",
+    "accountKey": "tidewell-laundry",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "mei.delacroix@tidewell-laundry.example",
+    "name": "Mei Delacroix",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-190",
+    "accountKey": "tinker-toolhire",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "callum.xiong@tinker-toolhire.example",
+    "name": "Callum Xiong",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-191",
+    "accountKey": "tinker-toolhire",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "jalen.desai@tinker-toolhire.example",
+    "name": "Jalen Desai",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-192",
+    "accountKey": "tinker-toolhire",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "nadia.esposito@tinker-toolhire.example",
+    "name": "Nadia Esposito",
+    "role": "HR or payroll"
+  },
+  {
+    "key": "t-p-193",
+    "accountKey": "tinker-toolhire",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "rohan.jovanovic@tinker-toolhire.example",
+    "name": "Rohan Jovanovic",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-194",
+    "accountKey": "vantor-health",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "linh.ibarra@crewday.example",
+    "name": "Linh Ibarra",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-195",
+    "accountKey": "vantor-health",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "sione.halvorsen@crewday.example",
+    "name": "Sione Halvorsen",
+    "role": "sales rep filing for prospect"
+  },
+  {
+    "key": "t-p-196",
+    "accountKey": "vinecrest-care",
+    "actorKind": "agent",
+    "channel": "mcp",
+    "email": "copilot@vinecrest-care.example",
+    "name": "Vinecrest Care support copilot",
+    "role": "support copilot"
+  },
+  {
+    "key": "t-p-197",
+    "accountKey": "vinecrest-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "emeka.ramos@vinecrest-care.example",
+    "name": "Emeka Ramos",
+    "role": "shift manager"
+  },
+  {
+    "key": "t-p-198",
+    "accountKey": "vinecrest-care",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "yusuf.reyes@vinecrest-care.example",
+    "name": "Yusuf Reyes",
+    "role": "frontline staff (non-native English)"
+  },
+  {
+    "key": "t-p-199",
+    "accountKey": "willow-daycare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "lorenzo.zielinski@willow-daycare.example",
+    "name": "Lorenzo Zielinski",
+    "role": "care or field coordinator"
+  },
+  {
+    "key": "t-p-200",
+    "accountKey": "willow-daycare",
+    "actorKind": "human",
+    "channel": "web",
+    "email": "tamar.yilmaz@willow-daycare.example",
+    "name": "Tamar Yilmaz",
+    "role": "ops admin"
+  }
+]

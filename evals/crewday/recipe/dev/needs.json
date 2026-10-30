@@ -1,0 +1,3271 @@
+[
+  {
+    "key": "fair-workweek-advance-posting",
+    "themeKey": "compliance",
+    "statement": "Retail store managers in fair-workweek cities need to post rotas two weeks ahead and see which later edits trigger predictability pay so that the company pays the premiums it owes and stops collecting city fines",
+    "who": "Retail store managers in fair-workweek cities",
+    "problem": "Rotas are published a few days ahead and edited freely, and nobody can tell which edits inside the notice window owe a premium.",
+    "outcome": "the company pays the premiums it owes and stops collecting city fines",
+    "solutions": [
+      "14-day advance posting",
+      "Predictability pay calculator",
+      "Change-window warnings"
+    ],
+    "scenarios": [
+      "Our Chicago stores got a letter from the city: we owe back pay for every shift we moved inside the window last year.",
+      "I publish on Thursday for next Monday because that's when the truck schedule lands. Apparently that's illegal in Seattle.",
+      "Legal sent a memo with a table of premiums per city and asked managers to 'just track it'. In a spreadsheet. For 60 stores.",
+      "When I drag a shift on a Tuesday I have no idea whether that costs us an extra hour of pay or not.",
+      "NYC inspector asked for proof of when each schedule went out. We had screenshots on someone's phone."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 13
+    },
+    "truePriority": 1,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "kingsway", "fairway", "mainstreet", "quill"]
+  },
+  {
+    "key": "predictive-schedule-change-consent",
+    "themeKey": "compliance",
+    "statement": "Retail store managers in predictive-scheduling cities need to capture each employee's written agreement to a late shift change so that voluntary swaps and pickups are exempt from premium pay and the store can prove it",
+    "who": "Retail store managers in predictive-scheduling cities",
+    "problem": "Late changes the employee asked for are exempt from premiums only with written consent, and today consent is a verbal yes on the sales floor.",
+    "outcome": "voluntary swaps and pickups are exempt from premium pay and the store can prove it",
+    "solutions": ["SMS notifications", "Change consent log"],
+    "scenarios": [
+      "Jess asked to come in later on Saturday, I said fine, and now payroll paid her a premium because there's no record she asked.",
+      "We need the worker to reply YES to a text when we move them, and keep that reply for three years.",
+      "Our lawyer says a thumbs-up emoji in WhatsApp won't hold up with the Philadelphia office.",
+      "Half my team doesn't open the app. A text they can answer is the only thing that works."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7,
+      "startMonth": 2
+    },
+    "truePriority": 6,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "trap": {
+      "group": "d-ss-sms",
+      "kind": "shared_solution"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "fairway", "kingsway", "quill"]
+  },
+  {
+    "key": "access-to-hours-offer",
+    "themeKey": "compliance",
+    "statement": "Retail district managers in access-to-hours cities need to offer extra hours to current part-timers and log who accepted before hiring anyone new so that new hires never trigger an access-to-hours violation",
+    "who": "Retail district managers in access-to-hours cities",
+    "problem": "City ordinances require offering additional hours to existing part-timers first, and the offer and replies are not recorded anywhere.",
+    "outcome": "new hires never trigger an access-to-hours violation",
+    "solutions": ["Additional hours offer", "Offer log"],
+    "scenarios": [
+      "We hired four seasonal people in San Jose and HR found out we were supposed to ask our part-timers first. In writing.",
+      "My part-timers keep saying they want more hours and I keep hiring. The ordinance says I can't do that without asking them.",
+      "I need a record that I posted the extra 12 hours to my team for 72 hours before I made an offer to a new person.",
+      "Our seasonal ramp starts in October and legal wants a paper trail per store this year."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 6,
+      "startMonth": 2
+    },
+    "truePriority": 13,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "kingsway", "fairway"]
+  },
+  {
+    "key": "minor-hours-school-week",
+    "themeKey": "compliance",
+    "statement": "Store managers who employ minors need to stop under-18s being rostered beyond legal hours on school nights and school weeks so that the business avoids child-labour fines",
+    "who": "Store managers who employ minors",
+    "problem": "The rota lets managers schedule 16-year-olds until close on a school night, and the hour limits differ by state and by school calendar.",
+    "outcome": "the business avoids child-labour fines",
+    "solutions": ["Minor labour rules", "Age-based scheduling limits"],
+    "scenarios": [
+      "A 15-year-old cashier closed at 10:30 on a Tuesday. The state labor department fined us $11,000.",
+      "During term, teens can do 3 hours on a weekday and 18 a week here; in summer it's totally different. Nobody remembers that.",
+      "Our cinema runs late shows and we hire lots of high-schoolers. I check birthdays by hand every week.",
+      "District manager wants a red warning when someone under 16 is on past 7pm.",
+      "We got audited after a parent complained. The schedule tool happily let us do it."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 5,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "trap": {
+      "group": "d-nn-age-limits",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "fairway", "sunbeam", "kettle", "corner-crust"]
+  },
+  {
+    "key": "alcohol-service-age-block",
+    "themeKey": "compliance",
+    "statement": "Restaurant and venue managers need to keep servers under the legal drinking-service age off bar and bottle-service shifts so that the venue's liquor licence is never put at risk",
+    "who": "Restaurant and venue managers",
+    "problem": "Any server can be placed on a bar shift, including ones too young to pour alcohol in that state.",
+    "outcome": "the venue's liquor licence is never put at risk",
+    "solutions": ["Age-based scheduling limits", "Role eligibility rules"],
+    "scenarios": [
+      "A 19-year-old got put on the patio bar at the stadium. The licence inspector happened to be there.",
+      "In our state you have to be 21 to pour. The tool doesn't know who is 20.",
+      "We run a bowling alley with a bar; teenagers work lanes but must never be on the bar rota.",
+      "I need the bartender role greyed out for anyone who can't legally serve."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 59,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-nn-age-limits",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "two-rivers", "lucky-lane", "blue-anchor"]
+  },
+  {
+    "key": "food-handler-card-expiry",
+    "themeKey": "compliance",
+    "statement": "Restaurant kitchen managers need to block cooks and prep staff from being scheduled when their food-handler card has lapsed so that health inspections never cite an uncertified worker",
+    "who": "Restaurant kitchen managers",
+    "problem": "Food-handler and allergen certificates expire on different dates and are tracked on paper in the office.",
+    "outcome": "health inspections never cite an uncertified worker",
+    "solutions": ["Certification tracking", "Expiry alerts", "Credential checks before scheduling"],
+    "scenarios": [
+      "Health inspector asked for cards on Friday night. Two line cooks had expired ones and we got written up.",
+      "We keep the certificates in a binder by the walk-in. Nobody checks dates until the inspector does.",
+      "I'd love a warning 30 days before someone's ServSafe runs out, and a hard stop after.",
+      "The county gave us a corrective notice; next time it's a fine and a re-inspection fee."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 16,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "grandview", "kettle", "urban-sprout"]
+  },
+  {
+    "key": "pharmacist-coverage-rule",
+    "themeKey": "compliance",
+    "statement": "Pharmacy district managers need to guarantee a licensed pharmacist is rostered for every hour the pharmacy counter is open so that a store never dispenses illegally or has to close the counter",
+    "who": "Pharmacy district managers",
+    "problem": "The rota treats pharmacists like any other role, so gaps in licensed coverage only show up when a store calls in a panic.",
+    "outcome": "a store never dispenses illegally or has to close the counter",
+    "solutions": ["Required role coverage", "Licence-based coverage rules"],
+    "scenarios": [
+      "Store 214 opened the counter at 8 and the RPh wasn't due until 9. That's a board-of-pharmacy issue.",
+      "When a pharmacist calls out, the techs can't legally do anything. I need to see those holes a week out.",
+      "We have floaters covering four stores. I can't tell which counter is uncovered on Saturday afternoon.",
+      "The state board asked us for a year of coverage records after an incident."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 15,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["northpoint", "fairway"]
+  },
+  {
+    "key": "pharmacy-technician-ratio",
+    "themeKey": "compliance",
+    "statement": "Pharmacy managers need to keep the number of technicians per on-duty pharmacist within the state ratio so that busy hours don't break board-of-pharmacy rules",
+    "who": "Pharmacy managers",
+    "problem": "Managers add technicians at peak hours without seeing whether the ratio to pharmacists on duty is exceeded.",
+    "outcome": "busy hours don't break board-of-pharmacy rules",
+    "solutions": ["Staffing ratio rules"],
+    "scenarios": [
+      "Our state allows 1 RPh to 4 techs. At the 5pm rush I had 6 techs and one pharmacist on the floor.",
+      "Flu-shot season means more techs on the schedule. Nobody counts against the pharmacist hours.",
+      "The inspector's checklist literally has this ratio on it and we fail it on Mondays."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 3
+    },
+    "truePriority": 43,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["northpoint"]
+  },
+  {
+    "key": "labor-inspection-records-pack",
+    "themeKey": "compliance",
+    "statement": "HR compliance leads at multi-state chains need to produce several years of rotas, punches, and premium payments for one location on request so that a labour investigation closes on time without penalties for missing records",
+    "who": "HR compliance leads at multi-state chains",
+    "problem": "Records an investigator asks for live in separate exports, old rotas are overwritten, and assembling them takes weeks.",
+    "outcome": "a labour investigation closes on time without penalties for missing records",
+    "solutions": ["Compliance records export", "Records retention"],
+    "scenarios": [
+      "The city gave us 30 days to hand over three years of schedules and timecards for the Brooklyn store. We're on day 22.",
+      "We had to pay a contractor to stitch exports together because old schedules weren't kept.",
+      "Investigator wanted proof of each premium paid against each schedule change. We couldn't line them up.",
+      "Our outside counsel bills by the hour while our admins pull CSVs one week at a time."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 8,
+      "startMonth": 3,
+      "peakMonth": 4
+    },
+    "truePriority": 9,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "saltmarsh", "mainstreet", "kingsway"]
+  },
+  {
+    "key": "heat-advisory-breaks",
+    "themeKey": "compliance",
+    "statement": "Outdoor venue and yard supervisors need to add mandatory cool-down breaks to rotas on days with a heat advisory so that outdoor workers stay safe and the operation meets heat-illness rules",
+    "who": "Outdoor venue and yard supervisors",
+    "problem": "On extreme-heat days the schedule doesn't change, and breaks in shade are left to whoever remembers.",
+    "outcome": "outdoor workers stay safe and the operation meets heat-illness rules",
+    "solutions": ["Weather-based break rules", "Heat advisory alerts"],
+    "scenarios": [
+      "It was 104 at the ballpark and the parking crew went three hours without water. One guy collapsed.",
+      "Cal/OSHA requires the cool-down periods once it hits 95. Our garden centre yard team works in full sun.",
+      "I'd like the app to push a break to everyone outdoors when the forecast crosses a threshold.",
+      "Inspectors ask for a log of breaks taken on hot days and we have nothing."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 6,
+      "peakMonth": 6
+    },
+    "truePriority": 51,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "verdant", "cobalt-parking", "swiftbay"]
+  },
+  {
+    "key": "tip-credit-side-work",
+    "themeKey": "compliance",
+    "statement": "Restaurant payroll admins need to track how much of a tipped server's time goes to non-tipped side work so that the tip credit is not lost under the 80/20 rule",
+    "who": "Restaurant payroll admins",
+    "problem": "Servers roll silverware and clean before and after service, and nothing records how long that work takes compared with serving.",
+    "outcome": "the tip credit is not lost under the 80/20 rule",
+    "solutions": ["Task time tracking", "Tip credit compliance report"],
+    "scenarios": [
+      "We got sued by servers who said they spent 40% of their shift doing prep. We had no data to argue back.",
+      "Openers spend the first hour on sidework. That hour can't be at tipped wage if it's over 30 minutes straight.",
+      "I want staff to switch to a 'prep' activity on the clock so the hours are split.",
+      "The DOL rule changed and our lawyer wants weekly proof by employee."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 10,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "blue-anchor", "mango-tree", "harvest-table"]
+  },
+  {
+    "key": "hotel-workload-ordinance",
+    "themeKey": "compliance",
+    "statement": "Hotel housekeeping directors in cities with workload ordinances need to cap the square footage each room attendant is assigned in a day so that the hotel complies with the ordinance and avoids overtime pay penalties",
+    "who": "Hotel housekeeping directors in cities with workload ordinances",
+    "problem": "New city ordinances limit the area a room attendant cleans per shift, and assignments are built without any size data.",
+    "outcome": "the hotel complies with the ordinance and avoids overtime pay penalties",
+    "solutions": ["Workload limits", "Room size data"],
+    "scenarios": [
+      "Since the LA rule kicked in, anyone given more than 3,500 sq ft gets double pay for the whole day.",
+      "Suites count as three rooms of floor area. Our board sheet doesn't know that.",
+      "The union steward checks assignment sheets every morning. We've had two grievances this month.",
+      "We need a warning before the floor supervisor hands out the board, not after payroll."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 6,
+      "startMonth": 3
+    },
+    "truePriority": 18,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "aurora", "lanternhouse"]
+  },
+  {
+    "key": "accommodation-schedule-limits",
+    "themeKey": "compliance",
+    "statement": "HR business partners need to record approved work restrictions for an employee and have them enforced on the rota so that managers don't schedule against a medical or religious accommodation",
+    "who": "HR business partners",
+    "problem": "Approved restrictions (no shifts after 8pm, no Saturdays, no lifting stations) live in HR files the scheduling manager never sees.",
+    "outcome": "managers don't schedule against a medical or religious accommodation",
+    "solutions": ["Accommodation rules", "Employee scheduling restrictions"],
+    "scenarios": [
+      "We approved a cashier's request to avoid night shifts after surgery. Her manager scheduled her to close twice.",
+      "An employee observes the Sabbath; it's in her HR file, but the store manager didn't know.",
+      "EEOC charge filed last month. Counsel asked how managers are told about accommodations. They aren't.",
+      "I want HR to set the rule once and the rota to refuse anything that breaks it."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 6,
+      "startMonth": 6,
+      "peakMonth": 7
+    },
+    "truePriority": 30,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "northpoint", "larkspur"]
+  },
+  {
+    "key": "new-hire-paperwork",
+    "themeKey": "compliance",
+    "statement": "Small business owners need to have new hires complete tax forms, I-9, and direct-deposit details in the app before day one so that onboarding is paperless",
+    "who": "Small business owners",
+    "problem": "New hires fill in paper forms on their first shift and owners re-key them into payroll.",
+    "outcome": "onboarding is paperless",
+    "solutions": ["Digital onboarding", "I-9 and W-4 forms", "E-signature"],
+    "scenarios": [
+      "First shift is always 40 minutes of paperwork in the back office. Could the app do that before they arrive?",
+      "Our competitor's app collects the bank details and ID photos. We still photocopy driver's licences.",
+      "I lost a W-4 last month and had to chase the kid for a week.",
+      "Every summer we hire 30 lifeguards and drown in forms."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "truePriority": 115,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": [
+      "little-fig",
+      "rosie-diner",
+      "high-tide",
+      "corner-crust",
+      "bayside-scoops",
+      "cedar-hollow"
+    ]
+  },
+  {
+    "key": "bilingual-schedule-posting",
+    "themeKey": "compliance",
+    "statement": "Store managers in Quebec need to post rotas and shift notices in French so that the stores meet French-language workplace law",
+    "who": "Store managers in Quebec",
+    "problem": "Schedules, notifications, and shift notes appear in English only, which Quebec's language law does not allow for workplace documents.",
+    "outcome": "the stores meet French-language workplace law",
+    "solutions": ["French-language schedules", "App localisation"],
+    "scenarios": [
+      "The OQLF sent us a notice because our posted schedule printout was English only.",
+      "Our Montreal staff can switch their phone to French but the shifts still say 'Morning cashier'.",
+      "We're opening 12 stores in Quebec next year and legal flagged this as a blocker."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 4,
+      "startMonth": 6
+    },
+    "truePriority": 55,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 9
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "kingsway"]
+  },
+  {
+    "key": "no-overlap-separation-rules",
+    "themeKey": "compliance",
+    "statement": "HR investigators need to keep two named employees from being rostered on the same shift while a complaint is open so that an employee who reported harassment is never put back next to the person they reported",
+    "who": "HR investigators",
+    "problem": "Separation agreements are handled by email to the manager, who forgets them when building the next week.",
+    "outcome": "an employee who reported harassment is never put back next to the person they reported",
+    "solutions": ["Do-not-pair rules"],
+    "scenarios": [
+      "We promised a housekeeper she would never be on the same floor shift as her supervisor while we investigated. She was, twice.",
+      "There's a protective order between two employees and our scheduler had no idea.",
+      "Manager changed stores and the new manager didn't get the note about the two of them.",
+      "I want a rule like 'these two people never overlap' that HR owns and managers can't see the reason for."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 5,
+      "startMonth": 8,
+      "peakMonth": 8
+    },
+    "truePriority": 53,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "metro-fitness", "larkspur"]
+  },
+  {
+    "key": "workplace-notices-in-app",
+    "themeKey": "compliance",
+    "statement": "Retail operations managers need to deliver required labour-law notices to staff electronically and record that they were seen so that remote and part-time workers get notices that the law says must be posted",
+    "who": "Retail operations managers",
+    "problem": "Required notices are posters in the break room; part-timers and floaters who never see the wall have no record of receiving them.",
+    "outcome": "remote and part-time workers get notices that the law says must be posted",
+    "solutions": ["Digital workplace notices", "Read receipts"],
+    "scenarios": [
+      "The new paid leave notice has to reach every employee within 30 days. Our floaters never go in the back room.",
+      "Poster compliance company sends us laminated sheets for 40 stores. Half end up behind a shelf.",
+      "Lawyer asked how we know employees saw the fair-workweek notice. We don't."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 4,
+      "startMonth": 5
+    },
+    "truePriority": 82,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["mainstreet", "quill", "verdant"]
+  },
+  {
+    "key": "illness-exclusion-food-workers",
+    "themeKey": "compliance",
+    "statement": "Restaurant general managers need to keep staff who report vomiting or diarrhoea off the rota for the required symptom-free period so that one sick cook doesn't start a norovirus outbreak",
+    "who": "Restaurant general managers",
+    "problem": "Sick staff return on their next scheduled shift, or swap into another one, before the exclusion period ends.",
+    "outcome": "one sick cook doesn't start a norovirus outbreak",
+    "solutions": ["Illness exclusion hold", "Return-to-work rules"],
+    "scenarios": [
+      "One prep cook came back after 12 hours. Within a week 30 guests and half the kitchen were sick.",
+      "The food code says 48 hours symptom-free. The kid picked up a shift through the app the next morning.",
+      "Health department traced the outbreak to us and asked how we excluded ill workers. We didn't, really.",
+      "When someone calls out sick to the GM, I want the system to lock them out for two days."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 7,
+      "startMonth": 1,
+      "peakMonth": 2
+    },
+    "truePriority": 28,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "kettle", "urban-sprout", "silver-spoon"]
+  },
+  {
+    "key": "good-faith-hours-estimate",
+    "themeKey": "compliance",
+    "statement": "HR teams at retail chains need to give each new hire a written estimate of expected weekly hours and compare it with what they actually work so that the company meets good-faith-estimate rules in the cities that require them",
+    "who": "HR teams at retail chains",
+    "problem": "Several cities require a written estimate of hours at hire, and nothing ties the estimate to the hours later scheduled.",
+    "outcome": "the company meets good-faith-estimate rules in the cities that require them",
+    "solutions": ["Good-faith estimate letters", "Estimate vs actual report"],
+    "scenarios": [
+      "Philadelphia wants a written estimate at hire. Our offer letters say 'part-time, hours vary'.",
+      "We promised 25 hours in the offer and the store gave him 9. He filed a complaint.",
+      "I need to see, per employee, the number we gave them versus the average they're getting.",
+      "Los Angeles is adding the same rule next spring."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 5,
+      "startMonth": 4
+    },
+    "truePriority": 23,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "kingsway", "quill"]
+  },
+  {
+    "key": "student-visa-hours-cap",
+    "themeKey": "compliance",
+    "statement": "Hotel HR managers who employ international students need to cap each visa-holding student's weekly hours during term time so that the hotel keeps its sponsor licence and the student keeps their visa",
+    "who": "Hotel HR managers who employ international students",
+    "problem": "International students may work only limited hours during term, and nothing stops managers giving them extra shifts.",
+    "outcome": "the hotel keeps its sponsor licence and the student keeps their visa",
+    "solutions": ["Weekly hour caps", "Term-time rules"],
+    "scenarios": [
+      "A girl from our exchange program did 31 hours in October. Immigration said that could cost her the permit and us our licence.",
+      "Term dates differ by university. I keep a list on my desk and check it every Friday.",
+      "The ski season overlaps with semester start and the lodges always over-schedule the exchange students.",
+      "Our compliance audit flagged it as a high risk last year."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 24,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "tessera", "lanternhouse", "ridgeline"]
+  },
+  {
+    "key": "lactation-break-tracking",
+    "themeKey": "compliance",
+    "statement": "HR managers at restaurant and retail groups need to schedule and record lactation breaks for returning parents so that nursing employees get the breaks the law guarantees and the company can show it",
+    "who": "HR managers at restaurant and retail groups",
+    "problem": "Lactation breaks are arranged informally, collide with rush periods, and aren't recorded.",
+    "outcome": "nursing employees get the breaks the law guarantees and the company can show it",
+    "solutions": ["Lactation break scheduling", "Private break tracking"],
+    "scenarios": [
+      "A returning mum at our Midtown store said her manager kept skipping her pumping breaks at lunch rush.",
+      "The PUMP Act means we need reasonable break time and somewhere private. We need to show it happened.",
+      "I'd like to mark someone as needing two extra 20-minute breaks and have the rota plan around it."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 4,
+      "startMonth": 5
+    },
+    "truePriority": 48,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "larkspur", "pepperwood"]
+  },
+  {
+    "key": "meal-period-waivers",
+    "themeKey": "compliance",
+    "statement": "California restaurant managers need to keep signed meal-period waivers on file and check them against each shift's length so that shifts without a meal break don't turn into premium-pay penalties",
+    "who": "California restaurant managers",
+    "problem": "Waivers are signed on paper at hire, some are revoked, and nobody checks whether a 5.5-hour shift without a break is covered.",
+    "outcome": "shifts without a meal break don't turn into premium-pay penalties",
+    "solutions": ["Meal waiver tracking", "Shift length warnings"],
+    "scenarios": [
+      "Servers who sign the waiver can skip lunch on a 6-hour shift. We have no idea who signed and who didn't.",
+      "A class action in our area was entirely about missing meal breaks; we want to be ready.",
+      "Someone revoked her waiver by email and the manager kept scheduling her for 5h50.",
+      "I want the rota to flag any 5-to-6-hour shift where the person has no waiver on file."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 21,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "blue-anchor", "grandview"]
+  },
+  {
+    "key": "accountant-payroll-csv",
+    "themeKey": "payroll-exports",
+    "statement": "Small restaurant owners who use an outside accountant need to hand their accountant each pay period's hours in the accountant's own column layout so that payroll gets keyed without retyping or calls back and forth",
+    "who": "Small restaurant owners who use an outside accountant",
+    "problem": "The standard export has the wrong columns and order for the bookkeeper, so owners rebuild it in a spreadsheet every two weeks.",
+    "outcome": "payroll gets keyed without retyping or calls back and forth",
+    "solutions": ["Payroll CSV export", "Custom export columns"],
+    "scenarios": [
+      "Every other Sunday night I copy-paste hours into my bookkeeper's spreadsheet. Takes 90 minutes.",
+      "My CPA wants employee number, regular, OT, tips, in that order. The download gives me something else.",
+      "I'd pay extra for a file my accountant can open without calling me.",
+      "Download has names as 'Last, First' and my accountant's sheet uses first names. Every. Time."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "truePriority": 68,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-ss-payroll-csv",
+      "kind": "shared_solution"
+    },
+    "inBacklog": true,
+    "requesterAccounts": [
+      "rosie-diner",
+      "little-fig",
+      "mango-tree",
+      "corner-crust",
+      "two-rivers",
+      "juniper"
+    ]
+  },
+  {
+    "key": "union-audit-hours-csv",
+    "themeKey": "payroll-exports",
+    "statement": "Unionised hotel HR teams need to give the union a per-member file of hours, premiums, and seniority dates each quarter so that contract audits and grievances are settled from the same numbers",
+    "who": "Unionised hotel HR teams",
+    "problem": "Collective agreements give the union audit rights, and the hotel builds the audit file by hand from timesheets and payroll.",
+    "outcome": "contract audits and grievances are settled from the same numbers",
+    "solutions": ["Payroll CSV export", "Union hours report"],
+    "scenarios": [
+      "Local 11 asked for every member's hours and premiums for Q2. Our HR coordinator spent two weeks on it.",
+      "The steward disputes our numbers because her spreadsheet and ours don't match.",
+      "Benefits trust contributions are based on hours worked per member. The auditor wants that by month.",
+      "Grievance hearing next week; I need overtime offered vs worked for 40 banquet servers."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 4,
+      "startMonth": 2
+    },
+    "truePriority": 12,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "trap": {
+      "group": "d-ss-payroll-csv",
+      "kind": "shared_solution"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "grandview"]
+  },
+  {
+    "key": "paychex-flex-export",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll admins at mid-sized operators on Paychex need to send approved hours and pay codes straight to Paychex Flex so that payroll closes without manual file uploads and re-keyed codes",
+    "who": "Payroll admins at mid-sized operators on Paychex",
+    "problem": "Admins download a file, fix pay codes, and upload it to Paychex each period, and mistakes surface on pay day.",
+    "outcome": "payroll closes without manual file uploads and re-keyed codes",
+    "solutions": ["Paychex Flex integration", "Pay code mapping"],
+    "scenarios": [
+      "Every Monday I download, rename columns, and upload to Paychex. Last week I uploaded the wrong week.",
+      "Our cinemas have 9 pay codes and Paychex rejects anything that doesn't match exactly.",
+      "Other tools have a button that sends hours to Paychex. Why don't we?",
+      "Our CFO wants zero manual steps between approved timesheets and payroll."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "truePriority": 35,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["lanternhouse", "sunbeam", "verdant", "blue-anchor", "metro-fitness"]
+  },
+  {
+    "key": "dayforce-pay-codes",
+    "themeKey": "payroll-exports",
+    "statement": "Retail payroll teams on Dayforce need to deliver hours and premiums to Dayforce with the correct earning codes per store so that payroll for hundreds of stores closes on Monday without corrections",
+    "who": "Retail payroll teams on Dayforce",
+    "problem": "The Dayforce feed sends premiums as regular hours and can't map per-store earning codes, so payroll corrects thousands of lines.",
+    "outcome": "payroll for hundreds of stores closes on Monday without corrections",
+    "solutions": ["Dayforce integration", "Pay code mapping"],
+    "scenarios": [
+      "Predictability premiums land in Dayforce as REG. Payroll fixes 2,000 lines by hand every cycle.",
+      "Our Canadian stores have different earning codes. The feed only knows one mapping.",
+      "This is the one thing our CFO raises at every QBR. If it isn't fixed by renewal we're evaluating others.",
+      "Kingsway's evaluation team asked for a live demo of the Dayforce sync. We had nothing to show."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 2,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "kingsway"]
+  },
+  {
+    "key": "gusto-sync",
+    "themeKey": "payroll-exports",
+    "statement": "Café and salon owners on Gusto need to push hours and tips into Gusto automatically so that running payroll is a click, not an evening",
+    "who": "Café and salon owners on Gusto",
+    "problem": "Owners on Gusto export hours, then type them into Gusto employee by employee.",
+    "outcome": "running payroll is a click, not an evening",
+    "solutions": ["Gusto integration"],
+    "scenarios": [
+      "Add Gusto please. I type 14 people's hours in by hand every Friday.",
+      "Gusto is what every small shop uses. Your competitor has a sync.",
+      "I nearly switched last month. The only thing keeping me is the rota, but the double entry kills me.",
+      "If hours went to Gusto I'd upgrade tomorrow."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 16
+    },
+    "truePriority": 73,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["kettle", "urban-sprout", "polished-nail", "two-rivers", "silver-spoon"]
+  },
+  {
+    "key": "split-shift-spread-premium",
+    "themeKey": "payroll-exports",
+    "statement": "Restaurant payroll admins in California and New York need to have split-shift and spread-of-hours premiums calculated from worked time so that servers who work lunch and dinner get the extra hour of pay the law requires",
+    "who": "Restaurant payroll admins in California and New York",
+    "problem": "Premiums for split shifts and long workdays are calculated by hand after export, and they're often missed.",
+    "outcome": "servers who work lunch and dinner get the extra hour of pay the law requires",
+    "solutions": ["Split-shift premium rule", "Spread-of-hours rule"],
+    "scenarios": [
+      "A server worked 11 to 3 and 5 to 11. New York says that's an extra hour at minimum wage. We never paid it.",
+      "Our payroll person keeps a list of who worked doubles and adds the extra hour manually. She misses some.",
+      "Wage claim settled last year for $60k over this exact thing.",
+      "Split shifts are how restaurants work. The premium has to be automatic."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 7,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "blue-anchor", "harvest-table"]
+  },
+  {
+    "key": "daily-overtime-rules",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll admins at multi-state operators need to apply daily overtime, double time, and seventh-consecutive-day rules where state law requires them so that California and Colorado staff are paid correctly without manual fixes",
+    "who": "Payroll admins at multi-state operators",
+    "problem": "Pay rules only know weekly overtime, so daily and seventh-day overtime are added by hand per state.",
+    "outcome": "California and Colorado staff are paid correctly without manual fixes",
+    "solutions": ["Daily overtime rules", "Seventh-day rule", "State pay rule packs"],
+    "scenarios": [
+      "A cook did a 13-hour double on Saturday. In California that's 4 hours of double time. We paid it as regular.",
+      "Our Denver and LA venues follow different law than our Texas ones and the system treats them all alike.",
+      "Payroll spends a day each cycle re-checking every shift over 8 hours.",
+      "Labor commissioner claim from a former barback: seventh day in a row, no premium."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 3,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "copperleaf", "grandview", "pepperwood"]
+  },
+  {
+    "key": "tip-handling",
+    "themeKey": "payroll-exports",
+    "statement": "Restaurant managers need to handle tips inside Crewday so that servers and back-of-house staff get their tips right every pay period",
+    "who": "Restaurant managers",
+    "problem": "Tips are handled outside Crewday with spreadsheets and envelopes, and nobody trusts the numbers.",
+    "outcome": "servers and back-of-house staff get their tips right every pay period",
+    "solutions": ["Tip management", "Tip pooling"],
+    "scenarios": [
+      "Can you guys do tips? It's the worst part of my week.",
+      "Our tip spreadsheet has 14 tabs and only one person understands it.",
+      "Staff complain every Friday that tips are wrong and I can't prove they're right.",
+      "Every other restaurant tool has a tips feature. We're still using envelopes."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 46,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "trap": {
+      "group": "d-split-tips",
+      "kind": "split"
+    },
+    "splitInto": ["tip-pool-hours-export", "tip-payout-in-app"],
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "rosie-diner", "two-rivers"]
+  },
+  {
+    "key": "tip-pool-hours-export",
+    "themeKey": "payroll-exports",
+    "statement": "Restaurant payroll admins need to export each pay period's hours by role and outlet in the shape the tip-pool calculation needs so that pooled tips are split by hours worked without anyone re-keying timesheets",
+    "who": "Restaurant payroll admins",
+    "problem": "Tip-pool shares depend on hours per eligible role, and the hours come out of Crewday in a form the tip sheet can't use.",
+    "outcome": "pooled tips are split by hours worked without anyone re-keying timesheets",
+    "solutions": ["Tip pool hours report", "Tip management"],
+    "scenarios": [
+      "Our pool splits by hours: servers 1 point, bussers 0.5. I need hours per role, not per person.",
+      "The barback worked half the night in the kitchen. Only bar hours count for the bar pool.",
+      "Payroll provider calculates the payout; it just needs a clean file of who worked which position.",
+      "A server sued a competitor over pool shares. Our lawyer wants hours to come straight from punches."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 8,
+      "startMonth": 5
+    },
+    "truePriority": 8,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "trap": {
+      "group": "d-split-tips",
+      "kind": "split"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "blue-anchor", "harvest-table"]
+  },
+  {
+    "key": "tip-payout-in-app",
+    "themeKey": "payroll-exports",
+    "statement": "Servers and bartenders need to get their card tips paid out to a debit card at the end of each shift so that they leave with their tip money instead of waiting for payday",
+    "who": "Servers and bartenders",
+    "problem": "Card tips only arrive with the paycheck, and staff want them the same night.",
+    "outcome": "they leave with their tip money instead of waiting for payday",
+    "solutions": ["Instant tip payout", "Tip management"],
+    "scenarios": [
+      "Other restaurants pay tips nightly to a card. We have to wait two weeks.",
+      "I made $240 in tips Friday and I need it for rent Monday.",
+      "The bar down the street hires our people away because they get paid tips every night.",
+      "can the app just send my tips to my cash app after close"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 14,
+      "startMonth": 6
+    },
+    "truePriority": 116,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 9
+    },
+    "trap": {
+      "group": "d-split-tips",
+      "kind": "split"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["rosie-diner", "mango-tree", "corner-crust", "urban-sprout", "little-fig"]
+  },
+  {
+    "key": "room-credit-pay",
+    "themeKey": "payroll-exports",
+    "statement": "Hotel payroll teams need to pay room attendants for the room credits they clean as well as their hours so that piece-rate bonuses are correct and arrive with regular pay",
+    "who": "Hotel payroll teams",
+    "problem": "Room-credit incentives are calculated from paper sheets and added to payroll separately from hours.",
+    "outcome": "piece-rate bonuses are correct and arrive with regular pay",
+    "solutions": ["Room credit pay", "Piece-rate pay rules"],
+    "scenarios": [
+      "Attendants get $4 for every credit over 14. Supervisors tally it from paper boards on Mondays.",
+      "A suite is 2 credits, a checkout 1.5, a stayover 1. Payroll gets a photo of a whiteboard.",
+      "The union contract says the incentive must be on the same check. We're always a week late.",
+      "Housekeepers dispute their counts every week and I can't show them anything."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 6,
+      "startMonth": 6
+    },
+    "truePriority": 19,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "trap": {
+      "group": "d-split-housekeeping",
+      "kind": "split"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "tessera", "aurora"]
+  },
+  {
+    "key": "blended-overtime-rate",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll admins need to calculate overtime at the weighted average rate for staff who work two jobs at different rates so that multi-role employees are paid overtime correctly",
+    "who": "Payroll admins",
+    "problem": "Overtime is calculated at the rate of whatever job the person worked last, which underpays or overpays people who switch roles.",
+    "outcome": "multi-role employees are paid overtime correctly",
+    "solutions": ["Weighted average overtime", "Multi-rate pay rules"],
+    "scenarios": [
+      "A bartender also works banquets at a lower rate. In a 48-hour week his OT has to be the blended rate.",
+      "We got a DOL letter about regular-rate violations for staff who cover two departments.",
+      "Payroll calculates the weighted rate in Excel for 120 people each week.",
+      "Grocery clerks who also cover the deli earn two wages and their time-and-a-half is always wrong."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 14,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "harborline", "fairway"]
+  },
+  {
+    "key": "location-minimum-wage-table",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll managers at multi-city chains need to keep each location's local minimum wage current and flag pay rates that fall below it so that nobody is ever paid under a city's minimum after an increase",
+    "who": "Payroll managers at multi-city chains",
+    "problem": "City and county minimum wages change on different dates, and rates are updated by hand per employee.",
+    "outcome": "nobody is ever paid under a city's minimum after an increase",
+    "solutions": ["Local minimum wage table", "Rate floor alerts"],
+    "scenarios": [
+      "July 1 increases hit 14 of our cities. We missed two and had to pay back wages plus penalties.",
+      "Our Emeryville store has a different minimum than the Oakland one ten minutes away.",
+      "I keep a spreadsheet of 60 jurisdictions and their effective dates.",
+      "Teen trainees are on a training rate that's now under the new city floor. No one caught it."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 9,
+      "peakMonth": 5
+    },
+    "truePriority": 4,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "saltmarsh", "mainstreet", "fairway"]
+  },
+  {
+    "key": "export-preview-validation",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll coordinators need to see every problem in the payroll file before sending it so that the provider import doesn't fail at midnight before pay day",
+    "who": "Payroll coordinators",
+    "problem": "Missing employee IDs, unmapped pay codes, and unapproved timesheets only show up when the provider rejects the import.",
+    "outcome": "the provider import doesn't fail at midnight before pay day",
+    "solutions": ["Export validation", "Pre-export checklist"],
+    "scenarios": [
+      "The import bounced at 11pm because one new hire had no payroll ID. Payroll was late for 300 people.",
+      "I want a list of what's wrong before I click export, not an error code from the provider.",
+      "Last cycle three people had unapproved hours and got nothing on their check.",
+      "We had a bad export in March and the CEO asked for a checklist so it never happens again."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 8,
+      "startMonth": 2,
+      "peakMonth": 3
+    },
+    "truePriority": 25,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["lanternhouse", "sunbeam", "verdant", "northpoint"]
+  },
+  {
+    "key": "work-location-tax-export",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll teams at chains with stores across state lines need to include the work location of each shift in the payroll file so that local and state taxes are withheld for where people actually worked",
+    "who": "Payroll teams at chains with stores across state lines",
+    "problem": "Staff who cover stores in two cities or states are taxed only for their home store.",
+    "outcome": "local and state taxes are withheld for where people actually worked",
+    "solutions": ["Work location in export", "Multi-jurisdiction hours"],
+    "scenarios": [
+      "Our Kansas City people cross the state line to cover the Missouri store. Taxes are wrong for both.",
+      "Philadelphia wage tax applies to hours worked in the city. We had no breakdown.",
+      "A W-2 correction for 40 employees cost us a month of payroll time.",
+      "The payroll provider can handle it if we just send the location per line."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 20,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "mainstreet", "kingsway", "swiftbay"]
+  },
+  {
+    "key": "workday-payroll-export",
+    "themeKey": "payroll-exports",
+    "statement": "Hospitality groups on Workday need to feed approved hours and premiums into Workday Payroll so that properties run payroll centrally without spreadsheets in between",
+    "who": "Hospitality groups on Workday",
+    "problem": "Workday customers export hours to spreadsheets and load them through EIBs every cycle.",
+    "outcome": "properties run payroll centrally without spreadsheets in between",
+    "solutions": ["Workday integration", "Workday time import"],
+    "scenarios": [
+      "Aurora's procurement says Workday payroll compatibility is a must-have in the RFP.",
+      "We use EIB uploads every two weeks for 18 properties. One typo and the whole load fails.",
+      "Our corporate team moved to Workday this year and the properties are still on CSVs."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 5,
+      "startMonth": 3
+    },
+    "truePriority": 27,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["aurora", "harborline"]
+  },
+  {
+    "key": "contractor-hours-export",
+    "themeKey": "payroll-exports",
+    "statement": "Event caterers who use contract staff need to export contractors' hours separately from employees' for invoicing so that 1099 workers are paid from invoices, not run through payroll",
+    "who": "Event caterers who use contract staff",
+    "problem": "Contractors are scheduled like employees, and their hours end up mixed into the payroll file.",
+    "outcome": "1099 workers are paid from invoices, not run through payroll",
+    "solutions": ["Contractor hours report", "Worker type filter"],
+    "scenarios": [
+      "Half our wedding crew are freelancers. They shouldn't be in the payroll file at all.",
+      "Each freelance chef sends an invoice and I check it against their shifts by hand.",
+      "Campground summer helpers are freelance; I have to delete them from every file I download."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "truePriority": 99,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["silver-spoon", "grandview", "cedar-hollow"]
+  },
+  {
+    "key": "bonus-reimbursement-lines",
+    "themeKey": "payroll-exports",
+    "statement": "Operations managers need to add one-off bonuses and reimbursements to an employee's pay period before export so that extras reach payroll in the same file as hours",
+    "who": "Operations managers",
+    "problem": "Spot bonuses, mileage, and uniform reimbursements are emailed to payroll separately and often missed.",
+    "outcome": "extras reach payroll in the same file as hours",
+    "solutions": ["Additional earnings lines", "Manual adjustments"],
+    "scenarios": [
+      "I gave the closing crew a $50 bonus for the inventory night. It never made it to payroll.",
+      "Drivers buy their own fuel sometimes. I email payroll a list and pray.",
+      "Trainers get a $100 stipend per new hire they train; I want to add it right on the timesheet."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 76,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "metro-fitness", "swiftbay"]
+  },
+  {
+    "key": "reporting-time-pay",
+    "themeKey": "payroll-exports",
+    "statement": "Venue and restaurant managers need to send staff home early and have reporting-time pay calculated automatically so that workers get the minimum hours owed when a shift is cut short",
+    "who": "Venue and restaurant managers",
+    "problem": "When managers send people home on a slow night or a rained-out game, the minimum-pay rule is applied by hand or not at all.",
+    "outcome": "workers get the minimum hours owed when a shift is cut short",
+    "solutions": ["Reporting-time pay rule", "Early dismissal pay"],
+    "scenarios": [
+      "Rain delay cancelled the game after 40 minutes. The concession crew is owed half their scheduled shift in California.",
+      "Slow Tuesday, I cut three servers after an hour. Payroll paid them for an hour.",
+      "Ski lifts closed for wind at 10am. 60 people sent home and nobody knew what to pay them.",
+      "We settled a claim over exactly this. Lawyer says it must be automatic now."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 17,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "ridgeline", "saltmarsh"]
+  },
+  {
+    "key": "staff-meal-credits",
+    "themeKey": "payroll-exports",
+    "statement": "Restaurant payroll admins need to apply staff meal credits to the right employees and shifts so that meal deductions are legal and appear correctly on pay",
+    "who": "Restaurant payroll admins",
+    "problem": "Meal credits are deducted as a flat amount per period whether or not the person ate or worked a qualifying shift.",
+    "outcome": "meal deductions are legal and appear correctly on pay",
+    "solutions": ["Meal credit deductions"],
+    "scenarios": [
+      "We deduct $3 per shift for family meal. Some states say you can't if they didn't eat.",
+      "A server complained she was charged for meals on days she was off.",
+      "Our Florida and New York stores have different meal credit rules and we do both by hand."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 61,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "blue-anchor", "mango-tree"]
+  },
+  {
+    "key": "holiday-pay-eligibility",
+    "themeKey": "payroll-exports",
+    "statement": "Retail payroll teams need to apply holiday-pay eligibility rules automatically so that only staff who qualify get holiday pay, and all of them do",
+    "who": "Retail payroll teams",
+    "problem": "Holiday pay depends on working the scheduled shifts before and after the holiday, which payroll checks by hand.",
+    "outcome": "only staff who qualify get holiday pay, and all of them do",
+    "solutions": ["Holiday pay rules", "Eligibility checks"],
+    "scenarios": [
+      "Thanksgiving pay requires working the day before and after. Payroll checks 4,000 people manually.",
+      "Someone called out the day after Christmas and still got holiday pay. Another person was denied by mistake.",
+      "Every December we spend three days just on holiday eligibility."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 7,
+      "peakMonth": 10
+    },
+    "truePriority": 39,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "fairway", "mainstreet"]
+  },
+  {
+    "key": "payroll-id-mapping",
+    "themeKey": "payroll-exports",
+    "statement": "Payroll admins need to keep each employee's payroll ID separate from their Crewday ID so that rehires and transfers land on the right payroll record",
+    "who": "Payroll admins",
+    "problem": "Crewday uses its own employee number in exports, so rehired or transferred staff land on the wrong record in the payroll system.",
+    "outcome": "rehires and transfers land on the right payroll record",
+    "solutions": ["Payroll ID field", "External employee IDs"],
+    "scenarios": [
+      "A rehire got paid under her old terminated record and the bank rejected the deposit.",
+      "When people transfer between our gyms, they get a new Crewday number but keep their payroll one.",
+      "Last cycle, two Daniel Kims got merged in the export. One was paid twice.",
+      "Paychex uses a 6-digit ID, you use 8, and the export just sends yours."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 6,
+      "startMonth": 1,
+      "peakMonth": 1
+    },
+    "truePriority": 31,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["sunbeam", "lanternhouse", "metro-fitness", "northpoint"]
+  },
+  {
+    "key": "tablet-clock-in-no-phones",
+    "themeKey": "time-attendance",
+    "statement": "Retail store managers whose staff can't carry phones on the floor need to let staff clock in and out on one shared device at the entrance so that hours are captured without personal phones",
+    "who": "Retail store managers whose staff can't carry phones on the floor",
+    "problem": "Clocking in requires the employee's own phone, but many stores ban phones on the sales floor and some staff don't have smartphones.",
+    "outcome": "hours are captured without personal phones",
+    "solutions": ["Shared kiosk tablet", "PIN clock-in"],
+    "scenarios": [
+      "Loss prevention says mobiles stay in lockers. So people punch in at the locker and walk 5 minutes to the registers.",
+      "Two of my older cashiers have flip phones. I clock them in from my own account.",
+      "Could we put one iPad by the back door and everyone punches in there?",
+      "Grocery stores everywhere have a wall clock. We're asking teenagers to use their data plan to start work."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 47,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "trap": {
+      "group": "d-ss-kiosk",
+      "kind": "shared_solution"
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "fairway", "mainstreet", "quill"]
+  },
+  {
+    "key": "overnight-shift-day-attribution",
+    "themeKey": "time-attendance",
+    "statement": "Payroll admins at late-night venues need to have hours from shifts that cross midnight counted to the correct workday and workweek so that overtime and premiums for overnight workers are calculated correctly",
+    "who": "Payroll admins at late-night venues",
+    "problem": "Shifts that start before and end after midnight are split or assigned to the wrong day, which breaks weekly overtime and daily rules.",
+    "outcome": "overtime and premiums for overnight workers are calculated correctly",
+    "solutions": ["Overnight shift handling", "Workday boundary setting"],
+    "scenarios": [
+      "Every week I close the bar on Saturday, my overtime is wrong.",
+      "Night audit guys say their checks are short and HR can't explain it.",
+      "Hours look fine on the schedule, then the timesheet shows a 2-hour shift on Sunday that nobody worked.",
+      "My paycheck is always weird the week after I do a Sunday close.",
+      "The bowling alley crew who lock up at 1am keep getting docked a break they didn't take."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 11,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 5
+    },
+    "trap": {
+      "group": "d-sym-midnight",
+      "kind": "symptom_only"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["saltmarsh", "grandview", "harborline", "two-rivers", "lucky-lane"]
+  },
+  {
+    "key": "tip-declaration-at-clock-out",
+    "themeKey": "time-attendance",
+    "statement": "Servers and bartenders need to declare their cash tips when they clock out so that tip income is reported correctly to payroll and the IRS",
+    "who": "Servers and bartenders",
+    "problem": "Cash tips are written on a paper sheet at close and typed into payroll days later, if at all.",
+    "outcome": "tip income is reported correctly to payroll and the IRS",
+    "solutions": ["Cash tip declaration", "Clock-out prompts"],
+    "scenarios": [
+      "We use a paper log for cash tips. Half of it is illegible by Monday.",
+      "The IRS 8% rule means we need what they actually received in cash each night.",
+      "When I punch out it should just ask 'how much cash did you take home'.",
+      "Our accountant says under-reported tips are the biggest audit risk we have."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 33,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["saltmarsh", "pepperwood", "rosie-diner", "two-rivers"]
+  },
+  {
+    "key": "employee-weekly-hours-confirm",
+    "themeKey": "time-attendance",
+    "statement": "Hourly employees need to confirm their own weekly hours before the pay period closes so that pay disputes are raised and fixed before pay day",
+    "who": "Hourly employees",
+    "problem": "Employees first see their hours on the paycheck, after it's too late to correct them.",
+    "outcome": "pay disputes are raised and fixed before pay day",
+    "solutions": ["Employee timesheet sign-off", "Hours confirmation"],
+    "scenarios": [
+      "My check was short 4 hours and the manager said payroll already closed. Wait two weeks.",
+      "I want to tick a box on Sunday that says 'yes, those are my hours'.",
+      "Our warehouse leads get 20 pay complaints every Friday morning.",
+      "HR wants employees to attest their time is accurate. California lawyers recommend it."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 44,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "swiftbay", "larkspur"]
+  },
+  {
+    "key": "pto-balance-visibility",
+    "themeKey": "time-attendance",
+    "statement": "Hourly staff need to see their paid-time-off balance before asking for a day off so that they don't request leave they haven't earned",
+    "who": "Hourly staff",
+    "problem": "Balances live in payroll, so staff ask for days off and managers approve without knowing whether it's paid.",
+    "outcome": "they don't request leave they haven't earned",
+    "solutions": ["PTO balance display"],
+    "scenarios": [
+      "how many vacation days do i have left?? have to email HR every time",
+      "I approved a week off then found out she only had two days banked.",
+      "Staff keep calling our office to ask about sick hours. It's a full-time job in January.",
+      "Every other app my friends use at work shows the balance."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "truePriority": 86,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": [
+      "lanternhouse",
+      "metro-fitness",
+      "quill",
+      "verdant",
+      "polished-nail",
+      "evergreen"
+    ]
+  },
+  {
+    "key": "event-clock-in-billing",
+    "themeKey": "time-attendance",
+    "statement": "Banquet and catering captains need to have staff clock in against the specific event they are working so that labour can be billed to each event's client accurately",
+    "who": "Banquet and catering captains",
+    "problem": "Event staff clock in generically, so labour hours per function are estimated afterwards for client invoices.",
+    "outcome": "labour can be billed to each event's client accurately",
+    "solutions": ["Clock in by event", "Event labour report"],
+    "scenarios": [
+      "We bill the bride's family for 22 server hours. The real number is a guess from the BEO.",
+      "Two weddings in two ballrooms, same staff floating. Which event gets which hours?",
+      "The convention client disputed our labour line and we had nothing but a schedule.",
+      "I want staff to pick 'Smith wedding' when they punch in."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 63,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "grandview", "silver-spoon", "aurora"]
+  },
+  {
+    "key": "donning-time-clock-in",
+    "themeKey": "time-attendance",
+    "statement": "Venue operations managers need to let staff clock in where they change into uniform rather than at their station so that time spent putting on required uniforms and gear is paid",
+    "who": "Venue operations managers",
+    "problem": "Staff clock in only once they reach their post, so the walk and uniform change before it are unpaid.",
+    "outcome": "time spent putting on required uniforms and gear is paid",
+    "solutions": ["Clock-in location rules", "Pre-shift time capture"],
+    "scenarios": [
+      "A class action against a stadium operator in our state was all about uniform-change time. Legal wants us fixed by summer.",
+      "Concession workers change in the locker room, then walk 10 minutes to the stand before they can punch.",
+      "Our parcel sorters put on safety vests and boots before getting to the belt. That's work time.",
+      "The kiosk is at the stand. It needs to be at the staff entrance."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 6,
+      "startMonth": 4,
+      "peakMonth": 5
+    },
+    "truePriority": 29,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "harborline", "swiftbay"]
+  },
+  {
+    "key": "department-timesheet-approval",
+    "themeKey": "time-attendance",
+    "statement": "Hotel department heads need to approve only their own department's timesheets so that the general manager isn't the bottleneck before payroll",
+    "who": "Hotel department heads",
+    "problem": "Timesheet approval is all-or-nothing per property, so the GM approves 300 timesheets across every department each week.",
+    "outcome": "the general manager isn't the bottleneck before payroll",
+    "solutions": ["Approval by department", "Delegated approvals"],
+    "scenarios": [
+      "Our GM spends Monday morning approving housekeeping, kitchen, and front desk hours he knows nothing about.",
+      "The executive chef should sign off kitchen time. He can't see it.",
+      "If the GM is on vacation, payroll is late at the whole property.",
+      "We want each head of department to own their own approvals, with HR seeing all."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 41,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["harborline", "tessera", "lanternhouse", "aurora"]
+  },
+  {
+    "key": "late-clock-out-approval",
+    "themeKey": "time-attendance",
+    "statement": "Restaurant managers need to approve any clock-out that runs past the scheduled end so that unplanned overtime stays under control",
+    "who": "Restaurant managers",
+    "problem": "Staff stay after close finishing side work, and the extra time only shows up as overtime on the next labour report.",
+    "outcome": "unplanned overtime stays under control",
+    "solutions": ["Late clock-out approval", "Overtime alerts"],
+    "scenarios": [
+      "Servers hang around for 45 minutes after close and the labour report explodes.",
+      "I want them to need my OK to punch out more than 15 minutes late.",
+      "A busser was clocked in until 2am because he forgot. Nobody stopped it.",
+      "We had 30 hours of overtime last week and none of it was approved."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 57,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "blue-anchor", "kettle", "mango-tree"]
+  },
+  {
+    "key": "timesheet-pdf-for-staff",
+    "themeKey": "time-attendance",
+    "statement": "Hourly employees need to download a printable record of their hours worked so that they can prove employment and income for loans, rentals, or visas",
+    "who": "Hourly employees",
+    "problem": "Staff ask managers to print or sign hour summaries for landlords and banks.",
+    "outcome": "they can prove employment and income for loans, rentals, or visas",
+    "solutions": ["Timesheet PDF download"],
+    "scenarios": [
+      "My landlord needs proof of hours for the last 3 months. Manager says she can't print it.",
+      "Need hours record for my visa renewal, please",
+      "Mortgage broker wants a letter with my average weekly hours."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 112,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["metro-fitness", "evergreen", "patchwork"]
+  },
+  {
+    "key": "aca-hours-tracking",
+    "themeKey": "time-attendance",
+    "statement": "HR teams with many part-time staff need to track each part-timer's average weekly hours across the measurement period so that they know who becomes benefits-eligible before the deadline",
+    "who": "HR teams with many part-time staff",
+    "problem": "Average hours over a look-back period are calculated by hand from payroll exports once a year.",
+    "outcome": "they know who becomes benefits-eligible before the deadline",
+    "solutions": ["ACA hours report", "Look-back measurement"],
+    "scenarios": [
+      "We got an IRS penalty letter: 60 part-timers averaged over 30 hours and weren't offered coverage.",
+      "Benefits enrolment is in November. I need to know in September who's trending over.",
+      "Our broker asks for a 12-month average per employee and I build it in Excel.",
+      "Managers want to see if giving someone a few extra shifts tips them over."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 37,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "fairway", "kingsway"]
+  },
+  {
+    "key": "training-hours-tracking",
+    "themeKey": "time-attendance",
+    "statement": "Training managers need to record shadow and training shifts separately from productive hours so that training cost is visible and certifications show who completed training",
+    "who": "Training managers",
+    "problem": "Training shifts look like regular shifts, so training costs and completion are invisible.",
+    "outcome": "training cost is visible and certifications show who completed training",
+    "solutions": ["Training shift type", "Training hours report"],
+    "scenarios": [
+      "New hires do three shadow shifts at a lower rate. They show up as regular hours.",
+      "Our franchise owners want to know how much we spend getting each cook up to speed.",
+      "I can't prove someone finished the four required bar training shifts."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 84,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "metro-fitness", "sunbeam"]
+  },
+  {
+    "key": "sleep-time-24h-shifts",
+    "themeKey": "time-attendance",
+    "statement": "Senior living administrators need to record 24-hour live-in shifts with the agreed sleep period excluded so that hours and pay follow sleep-time rules for live-in caregivers",
+    "who": "Senior living administrators",
+    "problem": "Live-in caregivers' 24-hour shifts are recorded as 24 worked hours, or edited by hand to remove sleep time.",
+    "outcome": "hours and pay follow sleep-time rules for live-in caregivers",
+    "solutions": ["Sleep period rules", "24-hour shift type"],
+    "scenarios": [
+      "Our live-in aides work 24h but 8 are sleep time unless they get woken up. Timesheets show 24 hours.",
+      "If someone is woken at 3am for a resident, that interruption counts. We track it on paper.",
+      "Payroll manually subtracts 8 hours from every live-in shift.",
+      "Meadowbrook's demo team asked how we handle sleep-ins. We didn't have an answer."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 3
+    },
+    "truePriority": 50,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["larkspur", "meadowbrook"]
+  },
+  {
+    "key": "stand-assignment-at-clock-in",
+    "themeKey": "time-attendance",
+    "statement": "Stadium concession supervisors need to assign each arriving worker to a stand as they clock in, based on the event's staffing plan so that stands open on time on game day",
+    "who": "Stadium concession supervisors",
+    "problem": "Workers are assigned to stands by shouting in the tunnel after they clock in, and some stands open understaffed.",
+    "outcome": "stands open on time on game day",
+    "solutions": ["Station assignment at clock-in"],
+    "scenarios": [
+      "300 people arrive in 40 minutes before gates. We hand out stand numbers from a clipboard.",
+      "Stand 112 opened with one person because nobody told the others where to go.",
+      "When they punch in the kiosk should say 'go to stand 214, beer'."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 6,
+      "peakMonth": 8
+    },
+    "truePriority": 77,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview"]
+  },
+  {
+    "key": "approval-deadline-reminders",
+    "themeKey": "time-attendance",
+    "statement": "Payroll teams need to remind and escalate when managers haven't approved timesheets before the cutoff so that payroll runs on time",
+    "who": "Payroll teams",
+    "problem": "Managers forget to approve, and payroll chases them by phone on cutoff day.",
+    "outcome": "payroll runs on time",
+    "solutions": ["Approval reminders", "Escalation to area manager"],
+    "scenarios": [
+      "Every Monday at 10 I'm calling 12 managers to approve. Some are on vacation.",
+      "If a manager hasn't approved by Sunday night, tell their boss.",
+      "Last payroll, one store wasn't approved and 25 people got nothing."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 49,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["lanternhouse", "sunbeam", "verdant", "metro-fitness"]
+  },
+  {
+    "key": "time-off-partial-days",
+    "themeKey": "time-attendance",
+    "statement": "Hourly employees need to request a few hours off instead of a whole day so that a doctor's appointment doesn't cost a full shift",
+    "who": "Hourly employees",
+    "problem": "Time-off requests are whole days only, so staff swap or call out for short absences.",
+    "outcome": "a doctor's appointment doesn't cost a full shift",
+    "solutions": ["Partial-day time off"],
+    "scenarios": [
+      "I just need to leave at 2 for my kid's school thing. The app only lets me take the whole day.",
+      "Dentist at 9am, I could still work 11 to close.",
+      "Managers end up editing shifts by hand for every 'can I come in late' request."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 93,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["quill", "kettle", "polished-nail", "northshore-yoga"]
+  },
+  {
+    "key": "absence-type-codes",
+    "themeKey": "time-attendance",
+    "statement": "HR coordinators need to record why someone missed a shift using standard absence types so that protected absences like jury duty or bereavement are never counted against an employee",
+    "who": "HR coordinators",
+    "problem": "Missed shifts are all marked as absences, so protected leave shows up in attendance reviews.",
+    "outcome": "protected absences like jury duty or bereavement are never counted against an employee",
+    "solutions": ["Absence reason codes"],
+    "scenarios": [
+      "A cashier got a written warning for absences that were jury duty.",
+      "Bereavement days show as no-shows in the report the district manager uses.",
+      "We need codes: sick, family leave, jury, bereavement, unexcused."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "truePriority": 89,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["mainstreet", "larkspur", "verdant"]
+  },
+  {
+    "key": "owner-weekly-hours-email",
+    "themeKey": "time-attendance",
+    "statement": "Small business owners need to get a weekly email summary of hours worked and labour cost so that they keep an eye on wages without logging in",
+    "who": "Small business owners",
+    "problem": "Owners have to open reports to see last week's hours and cost.",
+    "outcome": "they keep an eye on wages without logging in",
+    "solutions": ["Weekly summary email"],
+    "scenarios": [
+      "I'm not in the shop every day. A Monday email with last week's hours would be perfect.",
+      "Just send me total hours and cost per person, I don't need the whole dashboard.",
+      "My old system emailed me this and I miss it."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 110,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["little-fig", "juniper", "bayside-scoops", "high-tide"]
+  },
+  {
+    "key": "student-availability-term",
+    "themeKey": "scheduling",
+    "statement": "Managers who employ students need to have availability that changes with term dates and exam periods so that rotas don't clash with classes or exams",
+    "who": "Managers who employ students",
+    "problem": "Availability is one weekly pattern, so students resubmit it every term and managers miss exam weeks.",
+    "outcome": "rotas don't clash with classes or exams",
+    "solutions": ["Date-ranged availability", "Availability templates"],
+    "scenarios": [
+      "Half my team are university kids. In December they can only do weekends, in January it's all different.",
+      "A student missed her final because I scheduled her. She'd told me, but it wasn't in the system.",
+      "Each semester I re-enter 25 availabilities from screenshots of their timetables.",
+      "Summer break means they want 40 hours; in term they can do 12."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 74,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-nn-availability",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["sunbeam", "quill", "kettle", "ridgeline", "urban-sprout"]
+  },
+  {
+    "key": "parent-availability-school",
+    "themeKey": "scheduling",
+    "statement": "Working parents on hourly teams need to set availability that follows the school calendar and pickup times so that they aren't rostered when they have to collect their children",
+    "who": "Working parents on hourly teams",
+    "problem": "Availability can't express 'not between 3 and 4 on school days', so parents decline shifts or arrange swaps every week.",
+    "outcome": "they aren't rostered when they have to collect their children",
+    "solutions": ["Date-ranged availability", "Recurring unavailability"],
+    "scenarios": [
+      "School starts in August and suddenly I can't work past 2:45. I have to tell my manager every single week.",
+      "My kids have half-days on Wednesdays. Is there a way to say that once?",
+      "During summer I can work any time; during the school year never after 3.",
+      "I keep getting scheduled at pickup time and have to find a swap."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 6,
+      "startMonth": 7
+    },
+    "truePriority": 78,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 10
+    },
+    "trap": {
+      "group": "d-nn-availability",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["kettle", "verdant", "polished-nail", "metro-fitness"]
+  },
+  {
+    "key": "back-of-house-shift-board",
+    "themeKey": "scheduling",
+    "statement": "Kitchen teams need to see today's line-up and station assignments on a screen in the kitchen so that everyone knows where they are working without phones",
+    "who": "Kitchen teams",
+    "problem": "Cooks can't use phones on the line, and the printed rota on the wall is out of date by lunch.",
+    "outcome": "everyone knows where they are working without phones",
+    "solutions": ["Shared kiosk tablet", "Wall display mode"],
+    "scenarios": [
+      "Line cooks aren't allowed phones in the kitchen. The paper schedule on the wall is from Monday.",
+      "We want a TV by the pass showing who's on grill, fry, and expo today.",
+      "When someone swaps, the kitchen finds out when the wrong person walks in."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 103,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-ss-kiosk",
+      "kind": "shared_solution"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "saltmarsh", "mango-tree"]
+  },
+  {
+    "key": "cross-location-employee-conflicts",
+    "themeKey": "scheduling",
+    "statement": "Managers at multi-location businesses need to see shifts an employee already has at other locations when building their own rota so that people who work at two sites aren't double-booked",
+    "who": "Managers at multi-location businesses",
+    "problem": "Each location's rota only shows its own shifts, so staff who work at two locations get overlapping assignments.",
+    "outcome": "people who work at two sites aren't double-booked",
+    "solutions": ["Cross-location schedule view", "Conflict warnings"],
+    "scenarios": [
+      "Kayla got scheduled at two places at once again.",
+      "People keep no-showing at our second store and say they were 'at the other one'.",
+      "Why does the app let me pick someone who's already working? It never warns me.",
+      "One of my trainers was on at both gyms Saturday morning.",
+      "The new pharmacy tech said she couldn't come, she was booked across town."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 36,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "trap": {
+      "group": "d-sym-double-booked",
+      "kind": "symptom_only"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "fairway", "metro-fitness", "northpoint"]
+  },
+  {
+    "key": "time-off-routing",
+    "themeKey": "scheduling",
+    "statement": "Hourly staff need to have time-off requests reach whichever manager builds their rota so that requests are answered before the schedule is published",
+    "who": "Hourly staff",
+    "problem": "Requests go to the location's primary manager by default, not the shift lead who actually writes the rota.",
+    "outcome": "requests are answered before the schedule is published",
+    "solutions": ["Approval routing rules"],
+    "scenarios": [
+      "nobody ever answers my time off request",
+      "I asked for my birthday off three weeks ago. Still pending. Got scheduled anyway.",
+      "The requests tab is full of stuff I didn't know was waiting.",
+      "Is the time off button broken? My manager says she never sees anything."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 11
+    },
+    "truePriority": 70,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-sym-time-off",
+      "kind": "symptom_only"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["sunbeam", "kettle", "lanternhouse", "quill", "evergreen"]
+  },
+  {
+    "key": "housekeeping-room-staffing",
+    "themeKey": "scheduling",
+    "statement": "Hotel housekeeping managers need to make the rota and pay reflect the rooms each attendant cleans so that housekeeping labour follows occupancy and attendants are paid fairly",
+    "who": "Hotel housekeeping managers",
+    "problem": "The scheduling tool knows hours, not rooms, so housekeeping staffing and pay are worked out on paper.",
+    "outcome": "housekeeping labour follows occupancy and attendants are paid fairly",
+    "solutions": ["Housekeeping module", "Room-based staffing"],
+    "scenarios": [
+      "Housekeeping is half our hourly staff and the tool doesn't understand rooms at all.",
+      "Can Crewday do housekeeping properly? We do it on whiteboards.",
+      "Our executive housekeeper keeps a separate spreadsheet for everything.",
+      "We'd move all properties onto Crewday if it worked for housekeeping."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 42,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 2
+    },
+    "trap": {
+      "group": "d-split-housekeeping",
+      "kind": "split"
+    },
+    "splitInto": ["occupancy-housekeeping-rota", "room-credit-pay"],
+    "inBacklog": true,
+    "requesterAccounts": ["harborline", "tessera", "lanternhouse"]
+  },
+  {
+    "key": "holiday-rota-from-last-year",
+    "themeKey": "scheduling",
+    "statement": "Store managers need to start the holiday-season rota from last year's version so that peak planning doesn't start from scratch every November",
+    "who": "Store managers",
+    "problem": "Last year's peak rotas can't be reused, so managers rebuild extended hours and extra staffing from memory.",
+    "outcome": "peak planning doesn't start from scratch every November",
+    "solutions": ["Copy schedule from date", "Seasonal templates"],
+    "scenarios": [
+      "Black Friday week is the same every year. Why am I building it from a blank page?",
+      "I want to pull up last December's schedule and change the names.",
+      "Our district has 30 stores doing extended hours. Each manager rebuilds it by hand."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 12,
+      "peakMonth": 9
+    },
+    "truePriority": 79,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "mainstreet", "quill", "patchwork", "verdant"]
+  },
+  {
+    "key": "split-shift-building",
+    "themeKey": "scheduling",
+    "statement": "Restaurant managers need to build a split shift as one assignment with an unpaid gap so that lunch-and-dinner workers show up correctly on the rota and in labour reports",
+    "who": "Restaurant managers",
+    "problem": "Split shifts have to be entered as two separate shifts, which clutters the rota and confuses staff and reports.",
+    "outcome": "lunch-and-dinner workers show up correctly on the rota and in labour reports",
+    "solutions": ["Split shift type"],
+    "scenarios": [
+      "My servers do 11-2 and 5-10. On the schedule they look like two different people worked.",
+      "Staff think they're working twice and ask which one is right.",
+      "Labour reports count two shifts and two breaks for one person."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 88,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "blue-anchor", "mango-tree"]
+  },
+  {
+    "key": "labour-percent-live",
+    "themeKey": "scheduling",
+    "statement": "Restaurant general managers need to watch labour cost as a share of sales during service so that they cut or call in staff while there's still time to change the night",
+    "who": "Restaurant general managers",
+    "problem": "Labour percentage is only known the next morning, after the money is spent.",
+    "outcome": "they cut or call in staff while there's still time to change the night",
+    "solutions": ["Live labour cost", "Labour vs sales dashboard"],
+    "scenarios": [
+      "By the time I see last night's labour at 34% it's too late. I need to know at 8pm.",
+      "When it's dead on a Tuesday I want a number telling me to cut a server.",
+      "Our POS knows sales, Crewday knows who's on. Put them together on my phone.",
+      "Owner keeps asking why labour is over. I never see it until the weekly report."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "truePriority": 64,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-nn-labour-cost",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["pepperwood", "blue-anchor", "two-rivers", "mango-tree", "kettle"]
+  },
+  {
+    "key": "district-labour-budget",
+    "themeKey": "scheduling",
+    "statement": "District managers at retail chains need to compare each store's scheduled labour hours against its weekly budget before rotas go out so that store managers are held to the budget and overspend is caught early",
+    "who": "District managers at retail chains",
+    "problem": "Budgets live in finance spreadsheets, and district managers find overspend only after the week ends.",
+    "outcome": "store managers are held to the budget and overspend is caught early",
+    "solutions": ["Labour budget tracking", "Schedule review against budget"],
+    "scenarios": [
+      "I have 14 stores and I find out Monday that 4 of them blew their hours.",
+      "Finance gives me a budget per store per week. Store managers never see it while scheduling.",
+      "Before a rota goes out I want a red flag if it's over the allocated hours.",
+      "Our VP asked why Q3 payroll was 6% over plan. No one could answer by store."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 40,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "trap": {
+      "group": "d-nn-labour-cost",
+      "kind": "near_neighbour"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "fairway", "kingsway", "northpoint"]
+  },
+  {
+    "key": "seasonal-rehire",
+    "themeKey": "scheduling",
+    "statement": "Seasonal resort and campground managers need to bring back last season's staff with their history and settings intact so that the start of the season isn't a week of data entry",
+    "who": "Seasonal resort and campground managers",
+    "problem": "Seasonal staff are archived at the end of the season and recreated from scratch the next year.",
+    "outcome": "the start of the season isn't a week of data entry",
+    "solutions": ["Seasonal reactivation", "Bulk rehire"],
+    "scenarios": [
+      "We bring back 200 lift operators every November. I recreate every profile.",
+      "Returning staff lose their certifications and seniority in the system.",
+      "Could I just tick a list of last year's people and send them an invite?"
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 5,
+      "peakMonth": 9
+    },
+    "truePriority": 85,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["ridgeline", "cedar-hollow", "grandview"]
+  },
+  {
+    "key": "shift-handover-notes",
+    "themeKey": "scheduling",
+    "statement": "Shift managers need to leave notes for the incoming shift attached to the day so that the next manager knows what happened without a phone call",
+    "who": "Shift managers",
+    "problem": "Handover happens in a paper logbook or group text, and things get lost between shifts.",
+    "outcome": "the next manager knows what happened without a phone call",
+    "solutions": ["Manager log book", "Shift notes"],
+    "scenarios": [
+      "The walk-in compressor was making noise. Morning manager never knew because the note was in a notebook.",
+      "We use a group text and it's 200 messages a day.",
+      "I want a log per day that the next manager has to read when they start.",
+      "Our old system had a manager log. That's the one thing I miss."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "truePriority": 108,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "lanternhouse", "sunbeam", "metro-fitness", "two-rivers"]
+  },
+  {
+    "key": "rotating-patterns",
+    "themeKey": "scheduling",
+    "statement": "Managers of round-the-clock operations need to set rotating patterns like four-on four-off that repeat automatically so that rotas for 24/7 teams aren't rebuilt every month",
+    "who": "Managers of round-the-clock operations",
+    "problem": "Rotations have to be entered week by week, which is error-prone for 24/7 operations.",
+    "outcome": "rotas for 24/7 teams aren't rebuilt every month",
+    "solutions": ["Rotation patterns", "Recurring shifts"],
+    "scenarios": [
+      "Our depot runs 4 on 4 off, days then nights. I build it manually every month.",
+      "Night audit has a 2-2-3 pattern. One mistake and someone works 6 nights in a row.",
+      "I want to enter the pattern once with a start date and be done."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 71,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["swiftbay", "larkspur", "grandview", "cobalt-parking"]
+  },
+  {
+    "key": "availability-approval",
+    "themeKey": "scheduling",
+    "statement": "Store managers need to review availability changes before they take effect so that staff can't wipe out weekend coverage overnight",
+    "who": "Store managers",
+    "problem": "Availability changes apply immediately, and managers discover them when the auto-fill leaves gaps.",
+    "outcome": "staff can't wipe out weekend coverage overnight",
+    "solutions": ["Availability approval workflow"],
+    "scenarios": [
+      "Three people changed to 'no weekends' the same day. I found out when I built Saturday.",
+      "Availability changes should need a manager's OK with at least two weeks' notice.",
+      "Someone set themselves unavailable for the whole of December the day after I posted the holiday rota."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 91,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["quill", "sunbeam", "kettle", "mainstreet"]
+  },
+  {
+    "key": "minimum-coverage-per-department",
+    "themeKey": "scheduling",
+    "statement": "Store managers need to define minimum staffing per department per hour and see where the rota falls short so that registers and counters are never left empty",
+    "who": "Store managers",
+    "problem": "Managers eyeball coverage across departments and miss gaps like one cashier at 5pm.",
+    "outcome": "registers and counters are never left empty",
+    "solutions": ["Coverage rules", "Understaffing warnings"],
+    "scenarios": [
+      "I need 2 cashiers from 4 to 7, always. Last Thursday there was one and a 20-minute line.",
+      "Deli has to have someone until close. Twice it was empty at 8pm.",
+      "Show me in red where I'm below my minimum, per department."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 65,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fairway", "mainstreet", "verdant", "quill"]
+  },
+  {
+    "key": "district-schedule-review",
+    "themeKey": "scheduling",
+    "statement": "District managers need to review and approve store rotas before they're published so that mistakes and overspend are caught before staff see the rota",
+    "who": "District managers",
+    "problem": "Store managers publish directly, and district managers only see the rota after staff do.",
+    "outcome": "mistakes and overspend are caught before staff see the rota",
+    "solutions": ["Schedule approval before publish"],
+    "scenarios": [
+      "A new manager published a schedule with nobody opening on Monday. I saw it Sunday night.",
+      "I want to approve every store's rota for the first 3 months a manager is in the job.",
+      "Our franchise agreement requires regional sign-off on schedules."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 5
+    },
+    "truePriority": 69,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["fairway", "mainstreet", "verdant"]
+  },
+  {
+    "key": "time-off-calendar",
+    "themeKey": "scheduling",
+    "statement": "Managers need to see all approved and pending leave in one calendar so that they don't approve a third person off on the same weekend",
+    "who": "Managers",
+    "problem": "Leave is visible only one request at a time, so overlaps are discovered when building the rota.",
+    "outcome": "they don't approve a third person off on the same weekend",
+    "solutions": ["Team time-off calendar"],
+    "scenarios": [
+      "I said yes to three people for the same Saturday because I can't see who else is off.",
+      "Need one calendar of who's away in July. Right now I scroll through requests.",
+      "Our front office manager keeps a wall calendar to cross-check the app."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 95,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["lanternhouse", "kettle", "verdant", "northshore-yoga", "evergreen"]
+  },
+  {
+    "key": "daypart-templates",
+    "themeKey": "scheduling",
+    "statement": "Restaurant managers need to define breakfast, lunch, and dinner dayparts with standard shift times so that rotas are faster to build and consistent across locations",
+    "who": "Restaurant managers",
+    "problem": "Every shift is typed with custom times, so the same 'lunch' shift exists in ten variants.",
+    "outcome": "rotas are faster to build and consistent across locations",
+    "solutions": ["Daypart templates", "Shift templates"],
+    "scenarios": [
+      "Lunch is 10:30 to 3 everywhere. I type it 40 times a week.",
+      "Our reports can't group by morning vs evening service because every start time is different.",
+      "Pick 'dinner server' and the times should fill in."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 105,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "urban-sprout", "mango-tree"]
+  },
+  {
+    "key": "custom-shift-colours",
+    "themeKey": "scheduling",
+    "statement": "Managers need to choose their own colours for roles and shift types on the rota so that the schedule is easier to scan at a glance",
+    "who": "Managers",
+    "problem": "Role colours are fixed by Crewday and several look alike.",
+    "outcome": "the schedule is easier to scan at a glance",
+    "solutions": ["Custom colours", "Schedule themes"],
+    "scenarios": [
+      "Can we pick colours? Bartender and server are both blue-ish.",
+      "We'd love our brand colours on the printed schedule.",
+      "Purple for openers, orange for closers. That's how we've always done it on paper.",
+      "Make the schedule prettier please, it looks like a spreadsheet."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 13
+    },
+    "truePriority": 118,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["polished-nail", "northshore-yoga", "juniper", "high-tide", "little-fig"]
+  },
+  {
+    "key": "room-assignment-board",
+    "themeKey": "scheduling",
+    "statement": "Executive housekeepers need to assign specific rooms to attendants and track clean, dirty, and inspected status live so that the front desk knows which rooms are ready",
+    "who": "Executive housekeepers",
+    "problem": "Room status is tracked on a whiteboard and by radio, separately from the staff rota.",
+    "outcome": "the front desk knows which rooms are ready",
+    "solutions": ["Room status board", "Housekeeping module"],
+    "scenarios": [
+      "Front desk calls housekeeping every 10 minutes asking if 412 is ready.",
+      "I want a board with every room, who has it, and whether it's inspected.",
+      "Our PMS has room status but it's terrible on phones; could you do it?"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 114,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "lanternhouse", "tessera"]
+  },
+  {
+    "key": "menu-prep-lists",
+    "themeKey": "scheduling",
+    "statement": "Kitchen managers need to generate daily prep lists and recipes for each station so that cooks prepare the right quantities for the day",
+    "who": "Kitchen managers",
+    "problem": "Prep lists are handwritten each morning from the sales forecast and recipe binders.",
+    "outcome": "cooks prepare the right quantities for the day",
+    "solutions": ["Prep list module", "Recipe management"],
+    "scenarios": [
+      "You already know how many covers we'll do. Can you also tell my cooks how much to prep?",
+      "We keep recipes in a binder that's falling apart.",
+      "Prep lists on the kitchen screen next to the schedule would be amazing."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 117,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["pepperwood", "urban-sprout", "rosie-diner", "mango-tree"]
+  },
+  {
+    "key": "performance-review-notes",
+    "themeKey": "scheduling",
+    "statement": "Store managers need to keep performance notes and run reviews for hourly staff so that reviews are based on more than memory",
+    "who": "Store managers",
+    "problem": "Notes on attendance and performance live in notebooks, and reviews are written from memory.",
+    "outcome": "reviews are based on more than memory",
+    "solutions": ["Performance reviews", "Employee notes"],
+    "scenarios": [
+      "I'd love to jot 'great with customers' on someone's profile and pull it up at review time.",
+      "We do 6-month reviews for raises and I have nothing written down.",
+      "Could the app do review forms? We're on paper."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 119,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["mainstreet", "metro-fitness", "quill", "patchwork"]
+  },
+  {
+    "key": "manager-bulk-edit-shifts",
+    "themeKey": "scheduling",
+    "statement": "Store managers need to change many shifts at once so that a store-wide change of opening time takes a minute, not an evening",
+    "who": "Store managers",
+    "problem": "Every shift has to be edited one by one, even when the whole store's hours change.",
+    "outcome": "a store-wide change of opening time takes a minute, not an evening",
+    "solutions": ["Bulk edit", "Multi-select shifts"],
+    "scenarios": [
+      "The mall moved opening to 10. I edited 64 shifts one by one.",
+      "Let me select all Tuesday shifts and push them 30 minutes later.",
+      "Snowstorm closure: I deleted the whole day shift by shift."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 87,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["quill", "mainstreet", "patchwork", "sunbeam"]
+  },
+  {
+    "key": "location-hours-calendar",
+    "themeKey": "scheduling",
+    "statement": "Multi-site operators need to set each location's opening hours by season and holiday so that rotas and coverage checks follow the hours the site is actually open",
+    "who": "Multi-site operators",
+    "problem": "Opening hours are one fixed setting, so seasonal and holiday hours are worked around by hand.",
+    "outcome": "rotas and coverage checks follow the hours the site is actually open",
+    "solutions": ["Location hours calendar", "Holiday hours"],
+    "scenarios": [
+      "Garden centres open until 9 in spring and 5 in winter. The system thinks it's always spring.",
+      "Christmas Eve we close at 3; the coverage view still wants people until 9.",
+      "Beach shops close weekdays in the off-season."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 5,
+      "peakMonth": 10
+    },
+    "truePriority": 102,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["verdant", "high-tide", "bayside-scoops"]
+  },
+  {
+    "key": "coverage-heatmap",
+    "themeKey": "scheduling",
+    "statement": "Shift managers need to see at a glance which hours of the week are over- or under-staffed so that they fix gaps before publishing",
+    "who": "Shift managers",
+    "problem": "The rota is a list of shifts, so busy hours with thin staffing are hard to spot.",
+    "outcome": "they fix gaps before publishing",
+    "solutions": ["Coverage heatmap", "Staffing graph"],
+    "scenarios": [
+      "I can't tell that Thursday 6 to 8 is thin until I'm standing in it.",
+      "Something visual, like green and red blocks per hour, would save me so much time.",
+      "We're overstaffed at 3pm and short at 6pm and I only notice on the floor."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 83,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["sunbeam", "metro-fitness", "fairway", "kettle"]
+  },
+  {
+    "key": "wedding-season-crew",
+    "themeKey": "scheduling",
+    "statement": "Catering event managers need to staff weekend events from a pool of on-call workers who confirm each booking so that every wedding has its crew confirmed days ahead",
+    "who": "Catering event managers",
+    "problem": "Event crews are assembled by text message, and confirmations are tracked in a notebook.",
+    "outcome": "every wedding has its crew confirmed days ahead",
+    "solutions": ["Event staffing pool", "Shift confirmation"],
+    "scenarios": [
+      "June has 14 weddings. I text 40 people and track who said yes in my notes app.",
+      "Two servers didn't show for the Lakeview reception because they never actually said yes.",
+      "I'd love to post an event and have people claim spots until it's full."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 6,
+      "peakMonth": 5
+    },
+    "truePriority": 97,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["silver-spoon", "harvest-table", "grandview"]
+  },
+  {
+    "key": "self-scheduling-windows",
+    "themeKey": "scheduling",
+    "statement": "Managers of flexible teams need to open a window where staff pick their own shifts within limits so that rotas reflect preferences without the manager negotiating each shift",
+    "who": "Managers of flexible teams",
+    "problem": "Managers assign every shift and then field change requests from people who wanted different ones.",
+    "outcome": "rotas reflect preferences without the manager negotiating each shift",
+    "solutions": ["Self-scheduling", "Shift picking window"],
+    "scenarios": [
+      "Our yoga instructors want to choose classes. I spend two days juggling preferences.",
+      "Let staff grab shifts for next month from Monday to Wednesday, then I fill gaps.",
+      "Our parking attendants trade everything anyway; just let them pick."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 8,
+      "startMonth": 4
+    },
+    "truePriority": 96,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 7
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["northshore-yoga", "cobalt-parking", "metro-fitness"]
+  },
+  {
+    "key": "occupancy-housekeeping-rota",
+    "themeKey": "integrations",
+    "statement": "Hotel housekeeping managers need to size each day's housekeeping rota from the occupancy forecast in the property management system so that the right number of room attendants come in for checkouts and stayovers",
+    "who": "Hotel housekeeping managers",
+    "problem": "Housekeeping is scheduled from a fixed template, while the departures and arrivals that drive the work sit in the PMS.",
+    "outcome": "the right number of room attendants come in for checkouts and stayovers",
+    "solutions": ["Opera PMS integration", "Occupancy-based staffing"],
+    "scenarios": [
+      "Sunday we had 280 checkouts and nine attendants. Tuesday we had 40 and fourteen people standing around.",
+      "Opera knows tomorrow's departures. I print the report and count on my fingers how many people to call in.",
+      "Our corporate standard is 16 rooms per attendant. I want the system to do that math from the forecast.",
+      "Aurora's ops team asked if we can read Opera Cloud before they'll sign."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 7,
+      "startMonth": 5
+    },
+    "truePriority": 22,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "trap": {
+      "group": "d-split-housekeeping",
+      "kind": "split"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "tessera", "aurora"]
+  },
+  {
+    "key": "pos-sales-forecast",
+    "themeKey": "integrations",
+    "statement": "Restaurant and retail managers need to get suggested staffing levels per hour from their point-of-sale sales history so that they schedule to expected demand instead of habit",
+    "who": "Restaurant and retail managers",
+    "problem": "Managers guess next week's staffing from memory, while the POS holds the sales history that predicts it.",
+    "outcome": "they schedule to expected demand instead of habit",
+    "solutions": ["Toast integration", "Square integration", "Sales forecast"],
+    "scenarios": [
+      "Toast knows we do $9k on Friday dinners. I still schedule the same 8 servers every night.",
+      "Our competitor's tool pulls Lightspeed sales and tells you how many people per hour. Any plans?",
+      "Owner says labour is always heavy on Mondays. If I could see projected sales by hour I'd fix it.",
+      "I'd like the system to say 'you need 3 cashiers at noon' based on last year's same week."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 15
+    },
+    "truePriority": 62,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": [
+      "pepperwood",
+      "kettle",
+      "urban-sprout",
+      "quill",
+      "patchwork",
+      "blue-anchor"
+    ]
+  },
+  {
+    "key": "toast-punch-sync",
+    "themeKey": "integrations",
+    "statement": "Restaurant managers on Toast need to bring the clock-ins staff make on the Toast terminal into Crewday timesheets so that hours aren't recorded twice and don't disagree",
+    "who": "Restaurant managers on Toast",
+    "problem": "Staff punch in on the POS terminal because it's at hand, and managers copy those punches into Crewday.",
+    "outcome": "hours aren't recorded twice and don't disagree",
+    "solutions": ["Toast integration", "POS punch import"],
+    "scenarios": [
+      "My servers clock in on Toast because they have to log in to it anyway. Then I type it into Crewday.",
+      "Toast shows 32 hours, Crewday shows 30. Which one does payroll believe?",
+      "Turn off Crewday's clock and read Toast's. That's all we need.",
+      "We're switching POS to Toast at all 8 locations next month. Please tell me it'll talk to you."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 12
+    },
+    "truePriority": 52,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["pepperwood", "blue-anchor", "kettle", "rosie-diner", "two-rivers"]
+  },
+  {
+    "key": "square-team-sync",
+    "themeKey": "integrations",
+    "statement": "Café owners on Square need to keep their Square team members and Crewday staff list in sync so that new hires and leavers only need to be entered once",
+    "who": "Café owners on Square",
+    "problem": "Owners add and remove staff in Square and Crewday separately, and the lists drift apart.",
+    "outcome": "new hires and leavers only need to be entered once",
+    "solutions": ["Square integration", "Employee sync"],
+    "scenarios": [
+      "I hired two baristas this week and had to add them to Square and then here.",
+      "Someone I let go in March could still see the schedule because I forgot to remove her here.",
+      "Square has everyone's name, phone, and wage already."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 100,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["little-fig", "bayside-scoops", "juniper", "kettle"]
+  },
+  {
+    "key": "event-calendar-staffing",
+    "themeKey": "integrations",
+    "statement": "Venue operations managers need to pull the events calendar and expected attendance into Crewday so that staffing for each event is planned from the crowd that's coming",
+    "who": "Venue operations managers",
+    "problem": "Event dates and ticket counts are re-typed from the ticketing system into the rota every week.",
+    "outcome": "staffing for each event is planned from the crowd that's coming",
+    "solutions": ["Ticketing integration", "Event calendar import"],
+    "scenarios": [
+      "We have 81 home games and 40 concerts. Every one is typed in by hand.",
+      "A sold-out show and a half-empty one get the same staffing because nobody checks ticket sales.",
+      "Ticketmaster has the attendance forecast; we just need it next to the schedule."
+    ],
+    "arrival": {
+      "curve": "seasonal",
+      "weight": 6,
+      "peakMonth": 8
+    },
+    "truePriority": 66,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["grandview", "sunbeam", "lucky-lane"]
+  },
+  {
+    "key": "bulk-api-endpoints",
+    "themeKey": "integrations",
+    "statement": "Enterprise integration engineers need to load and update tens of thousands of employee records in one call so that the nightly HR sync finishes before stores open",
+    "who": "Enterprise integration engineers",
+    "problem": "The API updates one employee per request and rate limits stop large syncs halfway.",
+    "outcome": "the nightly HR sync finishes before stores open",
+    "solutions": ["Bulk API", "Higher rate limits"],
+    "scenarios": [
+      "Our nightly sync of 22,000 employees hit the rate limit at 4am and half the stores opened with stale data.",
+      "One request per employee is not how anyone integrates at our size.",
+      "Kingsway's IT team asked for bulk endpoints in the technical review.",
+      "We had to build retry logic with sleeps. It takes six hours."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 6,
+      "startMonth": 3,
+      "peakMonth": 4
+    },
+    "truePriority": 34,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "kingsway", "fairway"]
+  },
+  {
+    "key": "lms-certification-sync",
+    "themeKey": "integrations",
+    "statement": "Training managers need to have course completions from the learning system update staff certifications in Crewday so that credential status used for scheduling is always current",
+    "who": "Training managers",
+    "problem": "Certifications are entered by hand after training, so the rota uses outdated credential data.",
+    "outcome": "credential status used for scheduling is always current",
+    "solutions": ["LMS integration", "Certification import"],
+    "scenarios": [
+      "Staff finish the alcohol course in our LMS and I have to upload the certificate to Crewday too.",
+      "We have 900 people doing annual allergen training. Nobody re-enters 900 dates.",
+      "Our LMS has an API. Could it just tell you who passed?"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 5,
+      "startMonth": 4
+    },
+    "truePriority": 54,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 7
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["saltmarsh", "grandview", "northpoint"]
+  },
+  {
+    "key": "background-check-sync",
+    "themeKey": "integrations",
+    "statement": "Healthcare staffing coordinators need to see each worker's background-check result in Crewday before booking them so that nobody is placed with patients before clearance",
+    "who": "Healthcare staffing coordinators",
+    "problem": "Background checks run in a separate vendor portal and coordinators check it by hand before each placement.",
+    "outcome": "nobody is placed with patients before clearance",
+    "solutions": ["Checkr integration", "Screening status sync"],
+    "scenarios": [
+      "A nurse aide worked two shifts before her check came back with a flag. The facility found out first.",
+      "Meadowbrook's RFP asks whether booking is blocked until screening clears.",
+      "I have Checkr in one tab and the schedule in another, 200 times a week.",
+      "Clearance expires after a year at some facilities. Nobody tracks that."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 6,
+      "startMonth": 3
+    },
+    "truePriority": 26,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["meadowbrook", "larkspur", "northpoint"]
+  },
+  {
+    "key": "power-bi-connector",
+    "themeKey": "integrations",
+    "statement": "Operations analysts need to pull scheduled and worked hours into Power BI so that labour shows up next to sales in the leadership dashboards",
+    "who": "Operations analysts",
+    "problem": "Analysts download CSV reports weekly and paste them into BI models.",
+    "outcome": "labour shows up next to sales in the leadership dashboards",
+    "solutions": ["Power BI connector", "Reporting API"],
+    "scenarios": [
+      "Every Monday I export 4 reports and paste them into our Power BI model.",
+      "The exec team wants worked time next to revenue by location, by day.",
+      "Do you have an OData feed or anything like that?"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 80,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fairway", "sunbeam", "metro-fitness", "lanternhouse"]
+  },
+  {
+    "key": "siem-audit-stream",
+    "themeKey": "integrations",
+    "statement": "Security teams need to stream Crewday admin and pay-rate change events into their SIEM so that suspicious access is investigated with the rest of their logs",
+    "who": "Security teams",
+    "problem": "Admin activity can only be viewed inside Crewday, so security can't correlate it or alert on it.",
+    "outcome": "suspicious access is investigated with the rest of their logs",
+    "solutions": ["Splunk integration", "Audit log streaming"],
+    "scenarios": [
+      "Someone changed a manager's pay rate at 2am. Our SOC had no visibility.",
+      "Our security policy requires every SaaS with payroll data to send logs to Splunk.",
+      "The annual security review flagged Crewday as the only HR-adjacent app without log export."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "truePriority": 45,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["copperleaf", "northpoint"]
+  },
+  {
+    "key": "manager-mfa",
+    "themeKey": "integrations",
+    "statement": "IT administrators need to require a second factor for managers and admins who can change pay data so that a stolen password can't redirect wages",
+    "who": "IT administrators",
+    "problem": "Manager accounts sign in with a password only, and a phished manager can edit pay rates and timesheets.",
+    "outcome": "a stolen password can't redirect wages",
+    "solutions": ["Multi-factor authentication", "Authenticator app support"],
+    "scenarios": [
+      "A manager clicked a phishing link and someone added hours to three ex-employees.",
+      "Our cyber insurer asked whether every system touching payroll has MFA. Crewday doesn't.",
+      "Admins and managers should need a code. Frontline staff, maybe not.",
+      "After the incident at Saltmarsh our board wants this fixed in weeks, not months."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 6,
+      "startMonth": 5,
+      "peakMonth": 6
+    },
+    "truePriority": 38,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "saltmarsh", "copperleaf"]
+  },
+  {
+    "key": "sandbox-environment",
+    "themeKey": "integrations",
+    "statement": "Enterprise IT and ops admins need to try configuration and integration changes in a separate test environment so that a bad change never reaches hundreds of stores",
+    "who": "Enterprise IT and ops admins",
+    "problem": "Every config change is made directly in production, so mistakes hit all locations at once.",
+    "outcome": "a bad change never reaches hundreds of stores",
+    "solutions": ["Sandbox account", "Staging environment"],
+    "scenarios": [
+      "We changed an overtime rule and it applied to 380 stores instantly. It was wrong.",
+      "I need somewhere to test our HR sync without creating fake employees in production.",
+      "Our change management process requires testing before go-live."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 4
+    },
+    "truePriority": 56,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "kingsway", "northpoint"]
+  },
+  {
+    "key": "banquet-beo-staffing",
+    "themeKey": "integrations",
+    "statement": "Banquet managers need to turn banquet event orders from their sales system into staffing requirements so that each function gets the right number of servers and captains",
+    "who": "Banquet managers",
+    "problem": "Event orders live in the catering sales system and are re-read and re-typed into the rota.",
+    "outcome": "each function gets the right number of servers and captains",
+    "solutions": ["Tripleseat integration", "Delphi integration"],
+    "scenarios": [
+      "Every BEO gets printed and I count guests to figure out how many servers.",
+      "A 300-guest plated dinner needs 20 waiters. That math could come straight from the BEO.",
+      "Sales changed the guest count from 150 to 220 on Thursday and I never heard about it."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 60,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "aurora", "silver-spoon"]
+  },
+  {
+    "key": "quickbooks-labour-cost",
+    "themeKey": "integrations",
+    "statement": "Small business owners need to send labour cost into QuickBooks so that the monthly P&L includes wages without manual journals",
+    "who": "Small business owners",
+    "problem": "Owners total wages from Crewday reports and enter them in QuickBooks by hand.",
+    "outcome": "the monthly P&L includes wages without manual journals",
+    "solutions": ["QuickBooks integration"],
+    "scenarios": [
+      "My bookkeeper asks for total wages by week every month. I add them up on a calculator.",
+      "QuickBooks connector please! I'm sure lots of small shops want this.",
+      "My P&L is always a month behind because labour goes in late."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 90,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["juniper", "two-rivers", "polished-nail", "high-tide"]
+  },
+  {
+    "key": "bamboohr-time-off-sync",
+    "themeKey": "integrations",
+    "statement": "HR teams on BambooHR need to have leave approved in BambooHR appear in Crewday automatically so that nobody on approved leave is scheduled",
+    "who": "HR teams on BambooHR",
+    "problem": "Leave is approved in the HR system but managers schedule in Crewday, which doesn't know about it.",
+    "outcome": "nobody on approved leave is scheduled",
+    "solutions": ["BambooHR integration", "Time-off sync"],
+    "scenarios": [
+      "HR signed off two weeks of parental time in Bamboo. The store put her on the next Saturday.",
+      "We have two places to request time off and staff use both.",
+      "Bamboo is our source of truth for leave. Crewday should read it."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 67,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["metro-fitness", "verdant", "lanternhouse"]
+  },
+  {
+    "key": "public-schedule-api-read",
+    "themeKey": "integrations",
+    "statement": "In-house developers need to read published rotas through an API so that they can show who's working in their own tools",
+    "who": "In-house developers",
+    "problem": "There's no supported way to read the published rota, so developers scrape exports.",
+    "outcome": "they can show who's working in their own tools",
+    "solutions": ["Schedule API", "Webhooks"],
+    "scenarios": [
+      "We want the front desk screen to show today's duty manager. No API for shifts.",
+      "Our intranet shows 'who's on today' and someone updates it by hand.",
+      "I scrape the CSV export at 6am. It breaks whenever you change a column."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 5,
+      "startMonth": 6
+    },
+    "truePriority": 75,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 9
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["tessera", "sunbeam", "cobalt-parking"]
+  },
+  {
+    "key": "sunday-publish-load",
+    "themeKey": "mobile",
+    "statement": "Frontline staff at large chains need to open the newly published weekly rota on their phone as soon as it is released so that they can plan their week and swap early",
+    "who": "Frontline staff at large chains",
+    "problem": "Most chains publish on Sunday evening, and the spike in app traffic makes the rota time out or show the old week for hours.",
+    "outcome": "they can plan their week and swap early",
+    "solutions": ["Schedule loading performance", "Offline schedule cache"],
+    "scenarios": [
+      "the app is useless on Sundays",
+      "Every Sunday night it spins forever and then says 'something went wrong'.",
+      "My manager says the schedule is up. I see last week until like midnight.",
+      "Sunday 7pm the app just crashes. Monday morning it's fine.",
+      "Store got 40 calls Sunday asking 'am I working Tuesday?'. That's my evening gone."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 14
+    },
+    "truePriority": 32,
+    "strategyDecision": {
+      "status": "planned",
+      "byMonth": 8
+    },
+    "trap": {
+      "group": "d-sym-sunday",
+      "kind": "symptom_only"
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["copperleaf", "fairway", "mainstreet", "sunbeam", "quill"]
+  },
+  {
+    "key": "sms-schedule-changes",
+    "themeKey": "mobile",
+    "statement": "Hourly staff without smartphones need to receive changes to their shifts by text message so that they don't miss a shift that was moved or added",
+    "who": "Hourly staff without smartphones",
+    "problem": "Changes are sent as app notifications only, which never reach workers without the app or a smartphone.",
+    "outcome": "they don't miss a shift that was moved or added",
+    "solutions": ["SMS notifications", "Text alerts"],
+    "scenarios": [
+      "My dishwasher has a flip phone. He missed a moved shift and got a warning.",
+      "Half my older staff never installed the app. They hear about changes from coworkers.",
+      "Texts would just work. Everybody reads texts.",
+      "We tape the schedule to the door because nobody gets the alerts."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 9
+    },
+    "truePriority": 81,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "trap": {
+      "group": "d-ss-sms",
+      "kind": "shared_solution"
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["fairway", "corner-crust", "rosie-diner", "evergreen", "lanternhouse"]
+  },
+  {
+    "key": "kudos-wall",
+    "themeKey": "mobile",
+    "statement": "Frontline teams need to post shout-outs and kudos to colleagues in the app so that good work is recognised and morale goes up",
+    "who": "Frontline teams",
+    "problem": "Recognition happens on a cork board or not at all.",
+    "outcome": "good work is recognised and morale goes up",
+    "solutions": ["Kudos feed", "Recognition badges"],
+    "scenarios": [
+      "Can we have a place to say thank you to coworkers? Like a wall?",
+      "Our old app had stars you could give people. Staff loved it.",
+      "Morale is low after the holidays. Little shout-outs would help.",
+      "Let managers give a 'star of the week' badge in the app!"
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 15
+    },
+    "truePriority": 120,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["kettle", "urban-sprout", "northshore-yoga", "metro-fitness", "patchwork"]
+  },
+  {
+    "key": "app-languages",
+    "themeKey": "mobile",
+    "statement": "Frontline staff who don't read English well need to use the app in Spanish, Haitian Creole, Vietnamese, and other languages so that they understand their shifts and requests without help",
+    "who": "Frontline staff who don't read English well",
+    "problem": "The app is English-only, so many staff rely on coworkers to translate shift details and requests.",
+    "outcome": "they understand their shifts and requests without help",
+    "solutions": ["App translations", "Spanish language support"],
+    "scenarios": [
+      "la aplicacion solo en ingles, no entiendo los cambios de turno",
+      "Half my housekeeping team is Haitian. Their kids read the app for them.",
+      "Our kitchen staff ask me every week what the notification said.",
+      "A Spanish version is the number one thing my staff ask for."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 11
+    },
+    "truePriority": 72,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["harborline", "saltmarsh", "evergreen", "lanternhouse", "mango-tree"]
+  },
+  {
+    "key": "watch-glance",
+    "themeKey": "mobile",
+    "statement": "Frontline staff need to see their next shift on a smartwatch so that they can check without pulling out a phone on the floor",
+    "who": "Frontline staff",
+    "problem": "Checking the next shift requires unlocking a phone, which many floors don't allow.",
+    "outcome": "they can check without pulling out a phone on the floor",
+    "solutions": ["Apple Watch app", "Wear OS app"],
+    "scenarios": [
+      "Apple Watch complication with my next shift would be sick.",
+      "Phones aren't allowed on the floor but watches are.",
+      "Just the time and location of my next shift on my wrist please."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 113,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["metro-fitness", "northshore-yoga", "high-tide"]
+  },
+  {
+    "key": "ipad-rota-builder",
+    "themeKey": "mobile",
+    "statement": "Store managers who work from a tablet need to build and edit the full rota on an iPad so that they can schedule from the back office without a computer",
+    "who": "Store managers who work from a tablet",
+    "problem": "The rota builder is desktop-only, and the tablet browser view is cramped and drag-and-drop doesn't work.",
+    "outcome": "they can schedule from the back office without a computer",
+    "solutions": ["iPad app", "Tablet scheduling"],
+    "scenarios": [
+      "The only computer in the store is the POS. I schedule on my iPad and drag-and-drop doesn't work.",
+      "Can the manager app do the full week view? I do it at home on my tablet.",
+      "Pinch zoom on the browser is not a scheduling tool."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 92,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["quill", "kettle", "patchwork", "verdant"]
+  },
+  {
+    "key": "low-data-mode",
+    "themeKey": "mobile",
+    "statement": "Frontline staff on prepaid plans need to use the app without burning through mobile data so that checking a shift doesn't cost them money",
+    "who": "Frontline staff on prepaid plans",
+    "problem": "The app downloads large images and full schedules every launch, which eats limited prepaid data.",
+    "outcome": "checking a shift doesn't cost them money",
+    "solutions": ["Low data mode", "Lighter app"],
+    "scenarios": [
+      "The app used 600MB last month. I have a 2GB plan.",
+      "I only open it on the store wifi because it eats my data.",
+      "Why does it download everyone's photos just to show me my shift?"
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 5,
+      "startMonth": 6
+    },
+    "truePriority": 107,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 9
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["evergreen", "corner-crust", "patchwork"]
+  },
+  {
+    "key": "home-screen-widget",
+    "themeKey": "mobile",
+    "statement": "Frontline staff need to see their next shift on the phone's home screen so that they don't have to open the app to check when they work",
+    "who": "Frontline staff",
+    "problem": "Staff open the app and wait for it to load just to see one time and place.",
+    "outcome": "they don't have to open the app to check when they work",
+    "solutions": ["Home screen widget"],
+    "scenarios": [
+      "widget pls!! just next shift time",
+      "Every app has widgets now. I want to glance at my lock screen.",
+      "My calendar app has a widget, the schedule app should too."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 10
+    },
+    "truePriority": 111,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["kettle", "urban-sprout", "high-tide", "metro-fitness", "bayside-scoops"]
+  },
+  {
+    "key": "quiet-hours",
+    "themeKey": "mobile",
+    "statement": "Off-duty staff need to set hours when the app won't send them non-urgent alerts so that they aren't woken by shift offers at night",
+    "who": "Off-duty staff",
+    "problem": "Open-shift offers and reminders arrive at any hour, including the middle of the night.",
+    "outcome": "they aren't woken by shift offers at night",
+    "solutions": ["Notification quiet hours", "Do not disturb"],
+    "scenarios": [
+      "Got a ping at 2am asking if I want a shift tomorrow. I work nights, I sleep in the day!",
+      "Turning off notifications means I miss real changes. I just want silence while I sleep.",
+      "Our managers post open shifts at midnight and everyone gets buzzed."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 8
+    },
+    "truePriority": 101,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": true,
+    "requesterAccounts": ["sunbeam", "grandview", "lanternhouse", "swiftbay"]
+  },
+  {
+    "key": "mac-desktop-app",
+    "themeKey": "mobile",
+    "statement": "Office-based managers need to use Crewday as a native desktop app so that it lives in their dock instead of a browser tab",
+    "who": "Office-based managers",
+    "problem": "Crewday runs only in the browser on desktop.",
+    "outcome": "it lives in their dock instead of a browser tab",
+    "solutions": ["Mac desktop app", "Windows desktop app"],
+    "scenarios": [
+      "Is there a Mac app? I keep losing the tab.",
+      "Desktop notifications from a real app would be nice.",
+      "All our other tools have a desktop version."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 121,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["tessera", "northshore-yoga", "juniper"]
+  },
+  {
+    "key": "break-timer",
+    "themeKey": "mobile",
+    "statement": "Frontline staff need to see how much of their break is left on their phone so that they return on time without watching the clock",
+    "who": "Frontline staff",
+    "problem": "Staff guess when their break ends and come back early or late.",
+    "outcome": "they return on time without watching the clock",
+    "solutions": ["Break countdown"],
+    "scenarios": [
+      "A countdown when I'm on break would be so useful.",
+      "I always come back 5 minutes late because I lose track.",
+      "Buzz me 2 minutes before break ends please."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 7
+    },
+    "truePriority": 109,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["kettle", "quill", "mango-tree"]
+  },
+  {
+    "key": "open-shift-push-by-role",
+    "themeKey": "mobile",
+    "statement": "Frontline staff need to get open-shift alerts only for roles they're trained for so that they stop ignoring notifications that don't apply to them",
+    "who": "Frontline staff",
+    "problem": "Open shift alerts go to every employee at the location, whatever their role.",
+    "outcome": "they stop ignoring notifications that don't apply to them",
+    "solutions": ["Targeted open-shift notifications"],
+    "scenarios": [
+      "I'm a host. Why do I get pinged for line cook shifts?",
+      "People mute the app because 90% of the open shift pings aren't for them.",
+      "Bartender shift posted, all 60 staff notified. Only 6 of us can bartend."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 104,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["pepperwood", "grandview", "saltmarsh"]
+  },
+  {
+    "key": "two-employers-one-app",
+    "themeKey": "mobile",
+    "statement": "Workers with two jobs need to see shifts from two employers who both use Crewday in one login so that they don't double-book themselves between jobs",
+    "who": "Workers with two jobs",
+    "problem": "Each employer is a separate account, so workers log out and in to compare schedules.",
+    "outcome": "they don't double-book themselves between jobs",
+    "solutions": ["Multi-employer accounts", "Account switcher"],
+    "scenarios": [
+      "I work at a café and a gym, both on Crewday. I have to log out and back in to check.",
+      "I double-booked myself because I couldn't see both schedules at once.",
+      "Same email, two companies. The app only lets me have one."
+    ],
+    "arrival": {
+      "curve": "late",
+      "weight": 9,
+      "startMonth": 5
+    },
+    "truePriority": 94,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 8
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["metro-fitness", "kettle", "little-fig", "northshore-yoga"]
+  },
+  {
+    "key": "manager-who-is-on-now",
+    "themeKey": "mobile",
+    "statement": "Shift managers on the floor need to see who is clocked in right now and who is late from their phone so that they can react without walking to the back office",
+    "who": "Shift managers on the floor",
+    "problem": "Live attendance is only visible on the desktop dashboard.",
+    "outcome": "they can react without walking to the back office",
+    "solutions": ["Live attendance view", "Manager app"],
+    "scenarios": [
+      "I'm on the floor and want to know if my opener actually clocked in.",
+      "Running between two buildings, I can't check the office computer.",
+      "Red dot next to anyone who's 10 minutes late. That's all."
+    ],
+    "arrival": {
+      "curve": "steady",
+      "weight": 6
+    },
+    "truePriority": 106,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 3
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "grandview", "fairway"]
+  },
+  {
+    "key": "location-off-the-clock",
+    "themeKey": "mobile",
+    "statement": "Hourly staff need to be sure the app doesn't use their location when they're not working so that their privacy outside work is protected",
+    "who": "Hourly staff",
+    "problem": "The app asks for 'always' location access for clock-in geofencing, and staff fear they are tracked off the clock.",
+    "outcome": "their privacy outside work is protected",
+    "solutions": ["Location only while clocked in", "Privacy controls"],
+    "scenarios": [
+      "There was a news story about scheduling apps tracking workers at home. My team uninstalled the app.",
+      "Why does it want my location 'always'? I only need it to clock in.",
+      "Our union rep says the company is spying on us through the app.",
+      "We need something to show staff that location is off when they're off."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 8,
+      "startMonth": 7,
+      "peakMonth": 7
+    },
+    "truePriority": 58,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 10
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["harborline", "swiftbay", "evergreen", "copperleaf"]
+  },
+  {
+    "key": "open-shift-claim-status",
+    "themeKey": "mobile",
+    "statement": "Frontline staff need to know whether an open shift they claimed was confirmed so that they don't show up for a shift that went to someone else, or skip one that's theirs",
+    "who": "Frontline staff",
+    "problem": "Claimed shifts sit as pending with no notification when a manager approves or gives them to someone else.",
+    "outcome": "they don't show up for a shift that went to someone else, or skip one that's theirs",
+    "solutions": ["Claim confirmation notifications"],
+    "scenarios": [
+      "I claimed Saturday, came in, and someone else was already there.",
+      "It says pending for three days. Do I go in or not?",
+      "Tell me yes or no when I grab an open shift."
+    ],
+    "arrival": {
+      "curve": "burst",
+      "weight": 7,
+      "startMonth": 9,
+      "peakMonth": 9
+    },
+    "truePriority": 98,
+    "strategyDecision": {
+      "status": "declined",
+      "byMonth": 11
+    },
+    "inBacklog": false,
+    "requesterAccounts": ["sunbeam", "fairway", "pepperwood", "evergreen"]
+  }
+]

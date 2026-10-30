@@ -1,0 +1,56 @@
+[
+  {
+    "key": "fx-harbor",
+    "name": "Harbor Freight Logistics",
+    "domain": "harborfreight.example",
+    "plan": "Enterprise",
+    "arrCents": 24000000,
+    "openDealCents": 6000000,
+    "churnRisk": false
+  },
+  {
+    "key": "fx-northgate",
+    "name": "Northgate Retail Group",
+    "domain": "northgate.example",
+    "plan": "Enterprise",
+    "arrCents": 18000000,
+    "openDealCents": 0,
+    "churnRisk": true
+  },
+  {
+    "key": "fx-pinecrest",
+    "name": "Pinecrest Clinics",
+    "domain": "pinecrest.example",
+    "plan": "Growth",
+    "arrCents": 4800000,
+    "openDealCents": 2400000,
+    "churnRisk": false
+  },
+  {
+    "key": "fx-summit",
+    "name": "Summit Guarding",
+    "domain": "summitguard.example",
+    "plan": "Growth",
+    "arrCents": 3600000,
+    "openDealCents": 0,
+    "churnRisk": false
+  },
+  {
+    "key": "fx-bluebird",
+    "name": "Bluebird Cafes",
+    "domain": "bluebird.example",
+    "plan": "Starter",
+    "arrCents": 600000,
+    "openDealCents": 0,
+    "churnRisk": false
+  },
+  {
+    "key": "fx-lakeside",
+    "name": "Lakeside Hotels",
+    "domain": "lakeside.example",
+    "plan": "Starter",
+    "arrCents": 0,
+    "openDealCents": 3000000,
+    "churnRisk": false
+  }
+]

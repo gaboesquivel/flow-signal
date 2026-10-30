@@ -1,0 +1,20 @@
+[
+  {
+    "key": "scheduling",
+    "name": "Scheduling",
+    "description": "Building, publishing, and changing shift schedules, and filling gaps in them.",
+    "strategicWeight": 0.9
+  },
+  {
+    "key": "time-attendance",
+    "name": "Time and attendance",
+    "description": "Clocking in and out, breaks, overtime, and proof of where and when people worked.",
+    "strategicWeight": 0.7
+  },
+  {
+    "key": "payroll-exports",
+    "name": "Payroll and exports",
+    "description": "Getting approved hours out of Crewday and into payroll, accounting, and audit records.",
+    "strategicWeight": 0.4
+  }
+]
