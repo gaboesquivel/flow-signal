@@ -63,14 +63,14 @@ evals/crewday/
 
 Crewday is one Signal workspace, matching PRODUCT.md's single organization. Both worlds follow the same recipe and have the same shape. They share no needs, accounts, or personas, so neither world's labels can leak into the other. Target sizes per world:
 
-| Element          | v1 size | Notes                                                                                                                                                                                                         |
-| ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Accounts         | ~40     | Starter, Growth, and Enterprise, with ARR and open deals in a realistic long tail (a few accounts hold most revenue); some churn-risk and some in-flight deals                                                |
-| Personas         | ~200    | Ops admins, shift managers, frontline staff, HR and payroll, IT and security, and CSMs and sales reps filing for an account; some file through a support copilot over public MCP                               |
-| Themes           | 6       | For example Scheduling, Time and attendance, Payroll and exports, Compliance, Integrations, Mobile                                                                                                           |
-| Migrated backlog | ~40     | Needs that exist at day 0, imported as Crewday's old spreadsheet would have them: inconsistent wording, solution-named titles, and about 8 duplicate pairs                                                    |
-| Needs            | ~120    | Includes the backlog's true needs; hand-written in "who needs to do what so that outcome" form, each with an arrival curve (steady, bursty after an incident, seasonal, late-emerging) and a true priority   |
-| Signals          | ~1,500  | 12 months after adoption; each carries its hidden labels                                                                                                                                                      |
+| Element          | v1 size | Notes                                                                                                                                                                                                      |
+| ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accounts         | ~40     | Starter, Growth, and Enterprise, with ARR and open deals in a realistic long tail (a few accounts hold most revenue); some churn-risk and some in-flight deals                                             |
+| Personas         | ~200    | Ops admins, shift managers, frontline staff, HR and payroll, IT and security, and CSMs and sales reps filing for an account; some file through a support copilot over public MCP                           |
+| Themes           | 6       | For example Scheduling, Time and attendance, Payroll and exports, Compliance, Integrations, Mobile                                                                                                         |
+| Migrated backlog | ~40     | Needs that exist at day 0, imported as Crewday's old spreadsheet would have them: inconsistent wording, solution-named titles, and about 8 duplicate pairs                                                 |
+| Needs            | ~120    | Includes the backlog's true needs; hand-written in "who needs to do what so that outcome" form, each with an arrival curve (steady, bursty after an incident, seasonal, late-emerging) and a true priority |
+| Signals          | ~1,500  | 12 months after adoption; each carries its hidden labels                                                                                                                                                   |
 
 **Starting state.** The run begins by loading the migrated backlog through operations as approved needs, duplicates included, then turns on Signal. This reflects how a real customer adopts the product and gives both arms the same messy start. Merging the backlog's duplicates is part of the PM's work.
 
@@ -109,14 +109,15 @@ A discrete-event engine replays a world in timestamp order, in simulated time, t
 - **Budget.** The PM has `pm_actions` per week (default 60). Every PM operation call costs one action, and so does reading one raw signal. Organizing actions (reads, manual merges, splits) and deciding actions (brief review, publish) are counted separately. Counting actions instead of minutes keeps the latency result from resting on invented time costs.
 - **Triage:** `list_suggestions`, then `resolve_suggestion`, judged only by ground truth:
 
-  | Suggestion          | Accept when                                                           | Edit when                          |
-  | ------------------- | --------------------------------------------------------------------- | ---------------------------------- |
-  | Draft need          | its statement's nearest need in the world recipe is the signal's true need | it names the right need's solution but the wrong who or why |
-  | Merge               | both needs share a true need                                          | (never edited)                     |
-  | Theme               | it equals the true theme                                              | (never edited)                     |
-  | Priority score      | it is within one point of the true priority                           | it is two points off               |
+  | Suggestion     | Accept when                                                                | Edit when                                                   |
+  | -------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+  | Draft need     | its statement's nearest need in the world recipe is the signal's true need | it names the right need's solution but the wrong who or why |
+  | Merge          | both needs share a true need                                               | (never edited)                                              |
+  | Theme          | it equals the true theme                                                   | (never edited)                                              |
+  | Priority score | it is within one point of the true priority                                | it is two points off                                        |
 
   Everything else is rejected. Noise: `p_pm_error` (default 0.05) flips the verdict. "Nearest need in the recipe" is an embedding lookup against hand-written statements, not a judgment by a grading model. The need-statement rubric stays a separately reported metric.
+
 - **Manual dedup:** while budget remains, the PM reads raw signals and finds duplicates the AI did not propose with probability `p_manual_find` per read, then merges them with `merge_needs`. This is the only dedup path in the vote-board arm, and it covers the backlog's duplicates in both arms.
 - **Decisions:** a need becomes ready when its consolidated supporters, weighted by account ARR, cross the policy's readiness line. A ready need is decided when the PM has budget for a brief (drafted with `draft_decision_brief` and reviewed, or written by hand in the vote-board arm). The verdict follows the decision Crewday's strategy implies, with `p_pm_error` noise. In the Signal arm the PM sees Signal's priority score and suggested direction. In the board arm the PM sees vote counts, so a fragmented need looks smaller than it is. The same rules apply to both arms, so the differences come only from consolidation, the information shown, and the actions saved.
 
@@ -143,21 +144,21 @@ Per arm and per world, with 95% bootstrap confidence intervals (resampling needs
 
 **Business outcomes (headline)**
 
-| Metric                      | Definition                                                                                                                                                                       |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| True prevention rate        | Signals whose true need already existed and that ended attached to it (at submission or through a later merge) ÷ all such signals. Includes duplicates nobody merged           |
-| Decision quality            | Published decisions that match the strategy-implied decision ÷ published decisions                                                                                              |
-| Revenue coverage            | ARR of requesting accounts on needs that got a correct decision within 60 days of becoming ready ÷ ARR of requesting accounts on all needs that became ready                     |
-| Close-the-loop rate         | Signals whose submitter can see a published decision through `get_my_signals` ÷ signals on decided true needs (merged duplicates count only if their signals moved)             |
-| PM organizing share         | Organizing actions ÷ all PM actions                                                                                                                                              |
+| Metric               | Definition                                                                                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| True prevention rate | Signals whose true need already existed and that ended attached to it (at submission or through a later merge) ÷ all such signals. Includes duplicates nobody merged |
+| Decision quality     | Published decisions that match the strategy-implied decision ÷ published decisions                                                                                   |
+| Revenue coverage     | ARR of requesting accounts on needs that got a correct decision within 60 days of becoming ready ÷ ARR of requesting accounts on all needs that became ready         |
+| Close-the-loop rate  | Signals whose submitter can see a published decision through `get_my_signals` ÷ signals on decided true needs (merged duplicates count only if their signals moved)  |
+| PM organizing share  | Organizing actions ÷ all PM actions                                                                                                                                  |
 
 **PRODUCT.md metrics**
 
-| Metric                | Source                                                                                                                                                   |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prevention rate       | `get_metrics`, cross-checked by recomputing from `events`; reported by quarter, since early quarters are low while the catalog fills                    |
-| Decision latency      | `get_metrics`; plus needs left undecided at year end. _Depends on the PM policy's readiness line and budget; read it as relative to the board_          |
-| Suggestion acceptance | `get_metrics` by suggestion type (Signal arm only); plus **acceptance precision**: accepted suggestions that ground truth says are correct ÷ accepted  |
+| Metric                | Source                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prevention rate       | `get_metrics`, cross-checked by recomputing from `events`; reported by quarter, since early quarters are low while the catalog fills                  |
+| Decision latency      | `get_metrics`; plus needs left undecided at year end. _Depends on the PM policy's readiness line and budget; read it as relative to the board_        |
+| Suggestion acceptance | `get_metrics` by suggestion type (Signal arm only); plus **acceptance precision**: accepted suggestions that ground truth says are correct ÷ accepted |
 
 **Diagnostics and guardrails**
 
@@ -240,7 +241,7 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 
 ## Tasks
 
-- [ ] 01: World format and fixture world
+- [x] 01: World format and fixture world
 - [ ] 02: Generate the Crewday worlds
 - [ ] 03: Simulation engine, policies, arms, and scorer (offline)
 - [ ] 04: Signal vs. vote board on Crewday (the lift run)
