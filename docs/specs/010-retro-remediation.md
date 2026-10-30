@@ -267,7 +267,7 @@ Then, from a terminal, run `claude auto-mode critique`. After that, remove `ANTH
 - [x] 06: Docs match what shipped
 - [x] 07: Prompt-log hook
 - [x] 09: Neon preview branches deleted on PR close
-- [ ] 08: Repository hygiene _(runs after this PR merges)_
+- [x] 08: Repository hygiene _(done 2026-10-30: listed worktrees and branches gone; primary checkout tracks origin/main detached because `main` is checked out in a session worktree)_
 
 ## Out of Scope
 
