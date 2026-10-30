@@ -1,6 +1,6 @@
 # 004 — Crewday outcome eval: prove Signal moves the core metrics against a vote board
 
-Status: accepted (2026-10-30). Amended by [007](./007-decision-direction.md) (adds a `follows_signal` PM policy beside the oracle PM; no change to existing runs).
+Status: accepted (2026-10-30). Amended by [007](./007-decision-direction.md) (adds a `follows_signal` PM policy beside the oracle PM; no change to existing runs). Amended by [010](./010-retro-remediation.md) (worlds as shipped: ~600 signals, review deferred; `pnpm eval:crewday` runs on demand, outside `pnpm eval`).
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Metrics, Riskiest assumptions. Builds on [spec 001](./001-signal-mvp.md) (operation registry, event log, `get_metrics`, matching eval). Agent outcome runs on the same worlds: [spec 005](./005-agent-outcome-eval.md) (candidate).
 Decisions: [0004 Simulated customer world with scripted behaviour as the outcome eval](../decisions/0004-simulated-world-outcome-eval.md) (Accepted).

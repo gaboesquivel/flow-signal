@@ -1,6 +1,6 @@
 # 010 — Retro remediation: Gateway-only models, an agent environment that runs itself, cheap checks, docs that match what shipped
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Metrics, Riskiest assumptions, Kill criterion. Builds on [spec 001](./001-signal-mvp.md) (model routing, CI policy), [spec 004](./004-crewday-outcome-eval.md) (Crewday worlds and `pnpm eval:crewday`), [spec 007](./007-decision-direction.md) (decision model), and decisions [0007](../decisions/0007-decision-model-on-gateway-credentials.md) and [0008](../decisions/0008-decision-model-sonnet.md).
 
