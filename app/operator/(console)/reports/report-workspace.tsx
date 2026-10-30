@@ -228,10 +228,15 @@ function ReportHeader({
       ) : (
         <label className="min-w-0">
           <span className="sr-only">Report title</span>
-          <input
-            className="w-full border-0 bg-transparent p-0 font-serif text-3xl font-medium tracking-tight outline-none focus-visible:underline sm:text-4xl"
+          {/* A textarea that sizes to its content, so long titles wrap on narrow screens. */}
+          <textarea
+            className="field-sizing-content w-full resize-none border-0 bg-transparent p-0 font-serif text-3xl font-medium tracking-tight outline-none focus-visible:underline sm:text-4xl"
             maxLength={120}
-            onChange={(event) => onTitle(event.target.value)}
+            onChange={(event) => onTitle(event.target.value.replaceAll("\n", " "))}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.preventDefault();
+            }}
+            rows={1}
             value={title}
           />
         </label>
