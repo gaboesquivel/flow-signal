@@ -13,7 +13,8 @@ import type { SignalQueryable } from "./db";
  * - `need.created`: `needId`, at the need's first signal (also for a need created by a split).
  * - `need.merged`: `needId` (the need merged away), payload `{ mergeId, intoNeedId }`.
  * - `merge.undone`: `needId` (the need restored), payload `{ mergeId }` of the merge it reverts.
- * - `decision.published`: `needId`; the actor is the publisher (human vs. agent).
+ * - `decision.published`: `needId`, payload `{ decisionId, status, recommendedStatus, briefSuggestionId }`
+ *   (the need's latest accepted or edited brief, or nulls; spec 007); the actor is the publisher.
  * - `suggestion.created`: `suggestionId`, payload `{ kind }`.
  * - `need.ready`: `needId`, payload `{ arrCents, supporters, strategyVersion }`; once per need (spec 007).
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
