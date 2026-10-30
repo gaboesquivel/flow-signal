@@ -28,6 +28,7 @@ const links = [
   { href: "/operator/decide", label: "Decide" },
   { href: "/operator/criteria", label: "Criteria" },
   { href: "/operator/metrics", label: "Metrics" },
+  { href: "/operator/reports", label: "Reports" },
   { href: "/operator/chat", label: "Chat" },
 ] as const;
 

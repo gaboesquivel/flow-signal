@@ -26,7 +26,11 @@ const nextConfig: NextConfig = {
     "/mcp": ["./mcp-app/dist/genui-preview.html"],
   },
   redirects() {
-    return [{ destination: "/dev", permanent: false, source: "/developers" }];
+    return [
+      { destination: "/dev", permanent: false, source: "/developers" },
+      // Spec 013: the GenUI playground became PM Reports.
+      { destination: "/operator/reports", permanent: true, source: "/genui" },
+    ];
   },
   rewrites() {
     return {

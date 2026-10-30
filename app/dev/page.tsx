@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Link from "next/link";
 
 import { resolveSiteOriginFromHeaderList } from "@/lib/site-url";
 
@@ -21,11 +20,6 @@ export default async function DevPage() {
         </p>
       </header>
       <ul className="space-y-3 text-sm">
-        <li>
-          <Link className="text-primary underline" href="/genui">
-            GenUI playground
-          </Link>
-        </li>
         <li>
           <a className="text-primary underline" href={`${origin}/llms.txt`}>
             llms.txt

@@ -6,12 +6,12 @@ Initialized from [`flow-next`](https://github.com/gaboesquivel/flow-next) at com
 
 ## Runtime surfaces
 
-| Surface          | Path                                                                         | Notes                                                           |
-| ---------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Public board     | `/`, `/needs/[id]`, `/submit`, `/my/[token]`                                 | Lean Ledger UI ([spec 006](./docs/specs/006-lean-ledger-ui.md)) |
-| GenUI playground | `/genui`                                                                     | OpenUI compose + preview                                        |
-| Public MCP       | `/api/mcp`, `/.well-known/mcp.json`                                          | Streamable HTTP                                                 |
-| Operator         | `/operator/{triage,needs,decide,criteria,metrics,chat}`, `/api/mcp/operator` | PM console; protected; fail closed without secret               |
+| Surface        | Path                                                                                 | Notes                                                                               |
+| -------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Public board   | `/`, `/needs/[id]`, `/submit`, `/my/[token]`                                         | Lean Ledger UI ([spec 006](./docs/specs/006-lean-ledger-ui.md))                     |
+| Public MCP     | `/api/mcp`, `/.well-known/mcp.json`                                                  | Streamable HTTP                                                                     |
+| Operator       | `/operator/{triage,needs,decide,criteria,metrics,reports,chat}`, `/api/mcp/operator` | PM console; protected; fail closed without secret                                   |
+| Shared reports | `/r/[token]`                                                                         | Read-only report snapshot; token-gated ([spec 013](./docs/specs/013-pm-reports.md)) |
 
 Cross-template interoperability details live in `docs/INTEROP.md` from the template (upstream template names may appear there by design).
 
@@ -27,7 +27,7 @@ Neon Postgres with pgvector, through Drizzle (`lib/db/schema.ts`) and the Neon s
 
 ## Signal operations
 
-Every capability is one operation in `lib/signal/operations/`, exposed through thin adapters as REST routes, MCP tools (public or Operator), and Eve agent tools; the UI uses the generated typed client. A parity test suite keeps the surfaces consistent ([spec 001](./docs/specs/001-signal-mvp.md)). Operator-only reads for the console: `list_operator_needs` (every live need with demand, money, score, and pending suggestions) and `check_public_text` (flags names, accounts, and emails before anything is published) ([spec 006](./docs/specs/006-lean-ledger-ui.md)).
+Every capability is one operation in `lib/signal/operations/`, exposed through thin adapters as REST routes, MCP tools (public or Operator), and Eve agent tools; the UI uses the generated typed client. A parity test suite keeps the surfaces consistent ([spec 001](./docs/specs/001-signal-mvp.md)). PM Reports ([spec 013](./docs/specs/013-pm-reports.md), [decision 0010](./docs/decisions/0010-reports-as-typed-specs-over-named-datasets.md)): a report is a typed spec (`domain/report-spec.ts`) whose blocks reference columns of named datasets (`domain/report-datasets.ts`, `get_report_dataset`); `generate_report` plans and composes it with the reasoner, saved reports re-run their dataset queries with no model call, and `share_report` snapshots one behind `/r/<token>`. `/genui` redirects to `/operator/reports`; `lib/genui` stays for the public `compose_ui` MCP tool and the MCP app. Operator-only reads for the console: `list_operator_needs` (every live need with demand, money, score, and pending suggestions) and `check_public_text` (flags names, accounts, and emails before anything is published) ([spec 006](./docs/specs/006-lean-ledger-ui.md)).
 
 My signals: signals point to a shared tracking link (`tracking_links`), so a submitter's next submissions join the link they hold; legacy per-signal tokens are adopted on first use ([decision 0005](./docs/decisions/0005-my-signals-link-carries-forward.md)).
 
