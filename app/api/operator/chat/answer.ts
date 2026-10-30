@@ -40,7 +40,8 @@ You are answering a product manager in Signal's console. Answer from tool result
 
 let instructions: Promise<string> | null = null;
 
-const agentInstructions = () => {
+/** The Operator agent's own instructions (`agents/operator/agent/instructions.md`), read once. */
+export const agentInstructions = () => {
   instructions ??= readFile(
     path.join(process.cwd(), "agents", "operator", "agent", "instructions.md"),
     "utf-8",
