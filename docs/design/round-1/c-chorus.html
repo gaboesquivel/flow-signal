@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal — Chorus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="tokens"></style>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:#EFE9E0;color:#1F2A27;font-family:"Figtree",system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","Figtree",sans-serif;margin:0;letter-spacing:-0.01em}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+.i-sm{width:14px;height:14px}
+.i-lg{width:20px;height:20px}
+
+/* ---------- presentation page ---------- */
+.doc{max-width:1400px;margin:0 auto;padding:40px 16px 80px}
+.doc-head{display:grid;gap:20px;grid-template-columns:1fr;margin-bottom:48px}
+@media (min-width:900px){.doc-head{grid-template-columns:1.1fr 1fr}}
+.doc-head h1{font-size:44px;line-height:1.05;letter-spacing:-0.025em}
+.doc-head .kicker{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#1E5A50}
+.doc-head .idea{font-size:19px;color:#3B4440;margin-top:12px;max-width:52ch}
+.doc-notes{display:grid;gap:12px}
+.doc-note{background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:14px 16px}
+.doc-note h4{font-size:14px;margin-bottom:4px}
+.doc-note p,.doc-note li{font-size:14px;color:#3B4440}
+.doc-note ul{margin:0;padding-left:18px}
+.sec{margin:64px 0 0}
+.sec > h2{font-size:28px;margin-bottom:4px}
+.sec > p.sub{color:#4B5450;margin-bottom:20px;max-width:80ch}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.fig{margin:0;min-width:0;max-width:100%}
+.fig figcaption{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5C6560;margin:0 0 8px 2px}
+.scroller{overflow-x:auto;max-width:100%;border-radius:18px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 12px 40px -18px rgba(60,40,20,.35)}
+.fig.ph .scroller{overflow:visible}
+.frame{width:1280px;container-type:inline-size;border-radius:18px;overflow:hidden;background:var(--background);color:var(--foreground);border:1px solid var(--border)}
+.frame.phone{width:390px;border-radius:32px;border-width:6px;border-color:#2A2520;box-shadow:0 12px 40px -18px rgba(60,40,20,.45);overflow:clip}
+.chrome{display:flex;align-items:center;gap:10px;height:36px;padding:0 14px;background:var(--muted);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted-foreground)}
+.chrome .dots{display:flex;gap:6px}.chrome .dots span{width:10px;height:10px;border-radius:50%;background:var(--input)}
+.chrome .url{flex:1;max-width:420px;margin:0 auto;background:var(--background);border-radius:8px;padding:3px 10px;text-align:center}
+.statusbar{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 22px;font-size:12px;font-weight:600;background:var(--background)}
+
+/* ---------- app (inside frames) ---------- */
+.app{font-family:"Figtree",system-ui,sans-serif;font-size:15px;background:var(--background);color:var(--foreground)}
+.muted{color:var(--muted-foreground)}
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;border:1px solid transparent;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;background:none}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:var(--card);border-color:var(--input);color:var(--foreground)}
+.btn-ghost{color:var(--muted-foreground)}
+.btn-sm{height:32px;padding:0 10px;font-size:13px;border-radius:9px}
+.btn:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+
+.topbar{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--background)}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--foreground)}
+.brand svg{width:26px;height:26px}
+.wordmark{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.03em}
+.topnav{display:flex;gap:4px;margin-right:auto}
+.topnav a{padding:6px 10px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted-foreground);text-decoration:none}
+.topnav a.on{color:var(--foreground);background:var(--muted)}
+.topbar .btn .lbl-long{display:none}
+@container (min-width:720px){
+  .topbar{padding:14px 40px}
+  .topbar .btn .lbl-long{display:inline}.topbar .btn .lbl-short{display:none}
+}
+
+.page{padding:24px 16px 40px}
+@container (min-width:720px){.page{padding:40px 40px 56px;max-width:1200px;margin:0 auto}}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--coral)}
+.intro h1{font-size:28px;line-height:1.12;margin:6px 0 8px;letter-spacing:-0.02em}
+.lede{color:var(--muted-foreground);font-size:15px;max-width:60ch}
+@container (min-width:720px){.intro h1{font-size:40px}.lede{font-size:17px}}
+
+.filters{display:grid;gap:12px;margin:24px 0 8px}
+.search{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--input);background:var(--card);color:var(--muted-foreground)}
+.search input{border:0;outline:0;background:none;flex:1;min-width:0;color:var(--foreground)}
+.search input::placeholder{color:var(--muted-foreground)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:13px;font-weight:600;white-space:nowrap;color:var(--foreground)}
+.chip.on{background:var(--foreground);color:var(--background);border-color:var(--foreground)}
+.chips-label{font-size:12px;font-weight:700;color:var(--muted-foreground);margin-right:4px;text-transform:uppercase;letter-spacing:.06em}
+@container (min-width:720px){.filters{grid-template-columns:320px 1fr;align-items:center}.filters .themes{grid-column:1/-1}.chips{flex-wrap:wrap}}
+.result-line{font-size:13px;color:var(--muted-foreground);margin:16px 0 12px}
+
+.needs-grid{display:grid;gap:14px}
+@container (min-width:720px){.needs-grid{grid-template-columns:1fr 1fr;gap:18px}}
+.need{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.need-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.theme-tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--muted-foreground)}
+.need-title{font-size:18px;line-height:1.3;font-weight:600}
+.need-title a{color:inherit;text-decoration:none}
+.ideas{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.ideas-label{display:inline-flex;gap:4px;align-items:center;color:var(--muted-foreground);font-weight:600;margin-right:2px}
+.idea{padding:2px 9px;border-radius:7px;background:var(--muted);font-weight:500}
+.summary{font-size:14px;color:var(--foreground);padding:10px 12px;border-radius:10px;background:var(--muted)}
+.summary .k{display:block;font-size:12px;font-weight:700;color:var(--muted-foreground);margin-bottom:2px}
+.decision{font-size:14px;padding:10px 12px;border-radius:10px;border-left:3px solid var(--st);background:var(--st-bg)}
+.decision .k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--st);margin-bottom:2px}
+.need-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:12px;border-top:1px dashed var(--border)}
+
+/* status pill */
+.pill{--st:var(--status-new);--st-bg:var(--status-new-bg);display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px 0 8px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--st);background:var(--st-bg);white-space:nowrap}
+.st-new{--st:var(--status-new);--st-bg:var(--status-new-bg)}
+.st-open{--st:var(--status-open);--st-bg:var(--status-open-bg)}
+.st-planned{--st:var(--status-planned);--st-bg:var(--status-planned-bg)}
+.st-progress{--st:var(--status-progress);--st-bg:var(--status-progress-bg)}
+.st-shipped{--st:var(--status-shipped);--st-bg:var(--status-shipped-bg)}
+.st-declined{--st:var(--status-declined);--st-bg:var(--status-declined-bg)}
+
+/* voices + chorus */
+.voices{display:inline-flex;align-items:center;gap:8px;font-size:14px}
+.avs{display:inline-flex}
+.av{width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-size:10.5px;font-weight:700;border:2px solid var(--card);margin-left:-6px;letter-spacing:0}
+.av:first-child{margin-left:0}
+.av.a1{background:var(--accent);color:var(--accent-foreground)}
+.av.a2{background:var(--secondary);color:var(--secondary-foreground)}
+.av.a3{background:var(--status-new-bg);color:var(--status-new)}
+.av.a4{background:var(--muted);color:var(--foreground)}
+.av.more{background:var(--foreground);color:var(--background)}
+.av .i{width:13px;height:13px}
+.count b{font-weight:700}
+.demand{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.chorus{display:inline-flex;flex-wrap:wrap;gap:3px;max-width:62px}
+.chorus i{width:7px;height:7px;border-radius:50%;background:var(--d);display:block}
+.chorus i:nth-child(3n+2){transform:translateY(1px)}
+.d-high{--d:var(--demand-high)}.d-medium{--d:var(--demand-medium)}.d-low{--d:var(--demand-low)}
+.dlabel{display:inline-flex;align-items:center;gap:5px}
+.dlabel::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--d)}
+
+/* ---------- AI treatment ---------- */
+.ai-panel{background:var(--ai-surface);border:1px solid var(--ai-border);border-radius:14px;padding:16px;color:var(--ai-foreground)}
+.ai-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ai);letter-spacing:.01em}
+.ai-label svg.mk{width:16px;height:16px}
+.ai-text{color:var(--ai-foreground)}
+.fact{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--foreground)}
+.chip-state{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.cs-confirmed{background:var(--accent);color:var(--accent-foreground)}
+.cs-edited{background:var(--secondary);color:var(--secondary-foreground)}
+.cs-rejected{background:var(--muted);color:var(--muted-foreground)}
+.cs-ai{background:var(--ai-surface);color:var(--ai);border:1px solid var(--ai-border)}
+
+/* quotes (customer voice) */
+.quote{position:relative;background:var(--quote-surface);border-radius:4px 16px 16px 16px;padding:12px 14px 12px 40px;color:var(--foreground)}
+.quote .qm{position:absolute;left:12px;top:12px;color:var(--coral);width:18px;height:18px}
+.quote p{font-size:16px;line-height:1.45;font-weight:500}
+.quote .by{font-size:12.5px;color:var(--muted-foreground);margin-top:6px}
+
+/* ---------- submit ---------- */
+.back{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;color:var(--muted-foreground);text-decoration:none;margin-bottom:12px}
+.submit-grid{display:grid;gap:18px;margin-top:22px;grid-template-areas:"need" "panel" "contact" "actions"}
+@container (min-width:720px){.submit-grid{grid-template-columns:1fr 480px;column-gap:32px;grid-template-areas:"need panel" "contact panel" "actions panel" ". panel";grid-template-rows:auto auto auto 1fr;align-items:start}}
+.ga-need{grid-area:need}.ga-panel{grid-area:panel}.ga-contact{grid-area:contact}.ga-actions{grid-area:actions}
+.field label,.flabel{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+.textarea{width:100%;min-height:132px;border:1.5px solid var(--ring);border-radius:12px;background:var(--card);padding:12px 14px;font-size:17px;line-height:1.5;resize:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--ring) 18%,transparent)}
+.input{width:100%;height:42px;border:1px solid var(--input);border-radius:10px;background:var(--card);padding:0 12px}
+.hint{font-size:13px;color:var(--muted-foreground);margin-top:6px;display:flex;gap:6px;align-items:center}
+.contact{display:grid;gap:14px}
+@container (min-width:720px){.contact{grid-template-columns:1fr 1fr}.contact .full{grid-column:1/-1}}
+.seg{display:inline-flex;border:1px solid var(--input);border-radius:10px;padding:3px;background:var(--card);gap:3px}
+.seg span{padding:6px 16px;border-radius:7px;font-size:14px;font-weight:600;color:var(--muted-foreground)}
+.seg span.on{background:var(--foreground);color:var(--background)}
+.actions{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.actions .btn{height:46px;font-size:15px}
+@container (min-width:720px){.actions{align-items:flex-start}.actions .btn{padding:0 22px}}
+.note{font-size:13px;color:var(--muted-foreground);display:flex;gap:6px;align-items:center}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ai);font-weight:600}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ai);box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 22%,transparent)}
+.panel-title{font-size:20px;margin:10px 0 10px;color:var(--foreground)}
+.restate{font-size:15px;padding:10px 12px;border-radius:10px;border:1px dashed var(--ai-border);margin-bottom:14px}
+.restate .k{font-weight:700;color:var(--ai)}
+.matches{display:grid;gap:10px}
+.match{display:grid;grid-template-columns:22px 1fr;gap:10px;background:var(--card);color:var(--foreground);border:1px solid var(--border);border-radius:12px;padding:12px}
+.match.sel{border:2px solid var(--primary);padding:11px}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--input);margin-top:2px;display:grid;place-items:center}
+.match.sel .radio{border-color:var(--primary)}
+.match.sel .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--primary)}
+.match-title{font-weight:600;font-size:15px;line-height:1.35}
+.match-meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:8px 0;font-size:13px}
+.why{font-size:13.5px;background:var(--ai-surface);border-radius:8px;padding:8px 10px;color:var(--ai-foreground)}
+.why .k{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--ai);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.why .k svg{width:13px;height:13px}
+.match.none{background:transparent;border-style:dashed}
+.sel-tag{font-size:12px;font-weight:700;color:var(--primary);display:inline-flex;gap:4px;align-items:center}
+
+/* ---------- operator ---------- */
+.op{display:block}
+.sidenav{display:none}
+.op-top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--sidebar)}
+.op-top .ttl{font-family:"Bricolage Grotesque";font-weight:700;font-size:17px;margin-right:auto}
+.op-main{padding:20px 16px 24px;min-width:0}
+.op-head h1{font-size:28px}
+.op-head p{color:var(--muted-foreground);margin-top:4px}
+.op-head .chips{margin-top:14px}
+.queue{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
+.sugg{background:var(--ai-surface);border:1px solid var(--ai-border);border-radius:14px;overflow:hidden}
+.sugg-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px 0}
+.kind{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--foreground)}
+.conf{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--ai)}
+.sugg-body{padding:12px 16px 14px;display:grid;gap:12px;color:var(--ai-foreground)}
+.sugg-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--ai-border);background:color-mix(in srgb,var(--ai-surface) 60%,var(--card));flex-wrap:wrap}
+.sugg-actions .spacer{flex:1}
+.sugg-actions .when{font-size:12px;color:var(--muted-foreground);align-self:center}
+.merge{display:grid;gap:8px}
+.merge .arrow{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ai);padding-left:14px}
+.fact .sig{font-size:12.5px;color:var(--muted-foreground);margin-top:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fact .t{font-weight:600;line-height:1.35}
+.reason{font-size:14.5px}
+.reason .k{font-weight:700;color:var(--ai)}
+.who{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--foreground);flex-wrap:wrap}
+.who .av{margin:0;border-color:var(--ai-surface);width:30px;height:30px}
+.tagline{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:2px 9px;border-radius:7px;background:var(--card);border:1px solid var(--border);color:var(--foreground);font-weight:600}
+.draft{font-family:"Bricolage Grotesque";font-size:18px;font-weight:600;line-height:1.3;color:var(--foreground)}
+.sublabel{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ai);display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.sublabel.human{color:var(--coral)}
+.crit{display:grid;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--foreground);overflow:hidden}
+.crit-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:10px 14px;border-top:1px solid var(--border);align-items:center}
+.crit-row:first-child{border-top:0}
+.crit-row .n{font-weight:700;font-size:14px}
+.crit-row .n small{font-weight:500;color:var(--muted-foreground);font-size:12px}
+.crit-row .ev{grid-column:1/-1;font-size:13px;color:var(--muted-foreground)}
+.crit-row.ai .n::after{content:"";}
+.meter{display:inline-flex;gap:3px;align-items:center}
+.meter i{width:10px;height:10px;border-radius:3px;background:var(--muted);border:1px solid var(--input)}
+.meter i.f{background:var(--ai);border-color:var(--ai)}
+.crit-row.pm .meter i.f{background:var(--primary);border-color:var(--primary)}
+.score{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.score s{color:var(--muted-foreground);font-weight:500}
+.crit-row.pm{background:color-mix(in srgb,var(--accent) 55%,var(--card))}
+.override{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.overall{display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.overall .big{font-family:"Bricolage Grotesque";font-size:34px;font-weight:700;color:var(--foreground);line-height:1}
+.overall .big small{font-size:15px;color:var(--muted-foreground);font-weight:600}
+.check-line{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--status-shipped)}
+.pubsum{font-size:16px;line-height:1.45;color:var(--foreground);background:var(--card);border:1px dashed var(--ai-border);border-radius:12px;padding:12px 14px}
+.resolved{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--foreground)}
+.resolved .what{font-weight:600;font-size:14px;margin-right:auto;display:flex;gap:8px;align-items:center}
+.resolved .what .i{color:var(--status-shipped)}
+.resolved .meta{font-size:13px;color:var(--muted-foreground)}
+.undo{font-size:13px;font-weight:600;color:var(--muted-foreground);display:inline-flex;gap:4px;align-items:center}
+.tabbar{display:grid;grid-template-columns:repeat(5,1fr);background:var(--sidebar);border-top:1px solid var(--sidebar-border);padding:6px 4px 14px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted-foreground);text-decoration:none;position:relative;padding:4px 0}
+.tabbar a.on{color:var(--sidebar-primary)}
+.tabbar .badge{position:absolute;top:0;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--coral-solid);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 5px}
+.opheader-sec{display:none}
+@container (min-width:720px){
+  .op{display:grid;grid-template-columns:232px 1fr;min-height:1000px}
+  .op-top,.tabbar{display:none}
+  .sidenav{display:flex;flex-direction:column;gap:4px;background:var(--sidebar);color:var(--sidebar-foreground);border-right:1px solid var(--sidebar-border);padding:18px 14px}
+  .sidenav .brand{padding:4px 8px 18px}
+  .sidenav a.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-weight:600;font-size:14px;color:var(--sidebar-foreground);text-decoration:none}
+  .sidenav a.nav.on{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground);box-shadow:inset 3px 0 0 var(--sidebar-primary)}
+  .sidenav .badge{margin-left:auto;min-width:22px;height:20px;border-radius:10px;background:var(--coral-solid);color:#fff;font-size:12px;display:grid;place-items:center;padding:0 6px}
+  .sidenav .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;font-size:13px}
+  .sidenav .me .av{margin:0;border-color:var(--sidebar)}
+  .op-main{padding:32px 40px 48px;max-width:960px}
+  .op-head h1{font-size:34px}
+  .sugg-head{padding:16px 20px 0}.sugg-body{padding:14px 20px 16px}.sugg-actions{padding:12px 20px}
+  .crit-row{grid-template-columns:150px 1fr auto auto;}
+  .crit-row .ev{grid-column:auto}
+  .override{grid-column:2/-1}
+  .merge{grid-template-columns:1fr auto 1fr;align-items:center}
+  .merge .arrow{flex-direction:column;padding:0}
+}
+
+/* ---------- identity sheet ---------- */
+.idsheet{display:grid;gap:24px;grid-template-columns:1fr}
+@media (min-width:1000px){.idsheet{grid-template-columns:1fr 1fr}}
+.idpanel{border-radius:18px;border:1px solid var(--border);background:var(--background);color:var(--foreground);overflow:hidden}
+.idpanel .topbar{border-radius:0}
+.idbody{padding:20px;display:grid;gap:22px}
+.marks{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.marks figure{margin:0;display:grid;gap:6px;justify-items:center;font-size:12px;color:var(--muted-foreground)}
+.tabmock{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:7px 14px;font-size:13px}
+.wm-big{display:flex;align-items:center;gap:12px}
+.wm-big svg{width:48px;height:48px}
+.wm-big .wordmark{font-size:44px}
+.legend{display:grid;gap:10px}
+.legend h4{font-size:13px;color:var(--muted-foreground);font-family:"Figtree";text-transform:uppercase;letter-spacing:.06em}
+.legend .rowx{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.state-demo{display:grid;gap:8px}
+.state-demo > div{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;padding:10px 12px;border-radius:12px}
+.sd-ai{background:var(--ai-surface);border:1px solid var(--ai-border);color:var(--ai-foreground)}
+.sd-ok{background:var(--card);border:1px solid var(--border)}
+.sd-rej{color:var(--muted-foreground);border:1px dashed var(--border);font-size:13px!important;padding:6px 12px!important}
+.sd-rej s{opacity:.8}
+
+/* ---------- token table ---------- */
+.tok{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;font-size:13px}
+.tok th,.tok td{padding:7px 12px;border-bottom:1px solid #EEE7DC;text-align:left;vertical-align:middle}
+.tok th{background:#F5EFE6;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.tok code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.sw{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.15);vertical-align:middle;margin-right:8px}
+.tok-wrap{overflow-x:auto;border-radius:14px;border:1px solid #E6DED2}
+.tok td.grp{background:#FBF7F1;font-weight:700;color:#1E5A50}
+</style>
+</head>
+<body>
+
+<!-- Lucide icons (inline sprite) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+    <symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-calendar-check" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></symbol>
+    <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-git-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+    <symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+    <symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+    <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+    <symbol id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></symbol>
+    <!-- Signal mark: three voices overlapping into one shared centre -->
+    <symbol id="mark" viewBox="0 0 32 32">
+      <circle cx="11.5" cy="12" r="8" fill="var(--mark-a)" fill-opacity=".9"/>
+      <circle cx="20.5" cy="12" r="8" fill="var(--mark-b)" fill-opacity=".85"/>
+      <circle cx="16" cy="19.8" r="8" fill="var(--mark-c)" fill-opacity=".85"/>
+      <circle cx="16" cy="14.8" r="3" fill="var(--mark-dot)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="doc">
+  <header class="doc-head">
+    <div>
+      <div class="kicker">Design round 1 · Direction C</div>
+      <h1>Chorus</h1>
+      <p class="idea">Many voices becoming one clear need. People and their own words are the hero; Signal is the quiet assistant that listens and suggests.</p>
+    </div>
+    <div class="doc-notes">
+      <div class="doc-note"><h4>How it serves the brief</h4>
+        <ul>
+          <li><b>AI proposes, people decide:</b> every suggestion sits in one honey-tinted panel labelled “Suggested by Signal”. Accepting turns it into a plain white card with “Confirmed by you”; edits add “Edited”; rejects collapse to a muted struck line.</li>
+          <li><b>Customers' words are kept:</b> verbatim quotes are coral-edged speech blocks, never tinted as AI.</li>
+          <li><b>Demand at a glance:</b> a person count with an avatar stack, plus a “chorus” of one dot per supporter and a written band label. Status pills always carry an icon and a word.</li>
+        </ul>
+      </div>
+      <div class="doc-note"><h4>Risks</h4>
+        <ul>
+          <li>Honey AI tint could be read as “warning” by some PMs. Mitigated by the label, the mark and no warning icon, but worth testing.</li>
+          <li>The chorus dots stop scaling past ~30 supporters; they'd need a cap (“30+”) and must never stand in for the number.</li>
+          <li>The warmth can feel soft in a dense daily console. The operator view keeps type smaller and rows tighter to compensate.</li>
+          <li>The public board shows anonymous avatars, never initials, so supporters can't be identified.</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec" id="identity">
+    <h2>Identity sheet</h2>
+    <p class="sub">The mark shows three voices overlapping into one shared centre, the need. Shown at 64, 32 and 16 px, with a favicon in a browser tab, on light and dark. Below it: the AI state language, the status pills and the demand bands.</p>
+    <div class="idsheet" id="idsheet"></div>
+  </section>
+
+  <section class="sec">
+    <h2>1a · Public board <span style="font-weight:500;color:#5C6560;font-size:18px">/</span></h2>
+    <p class="sub">Calm and welcoming for someone visiting once. Public fields only: no submitter names or verbatim text, and avatars are anonymous.</p>
+    <div data-screen="board"></div>
+  </section>
+
+  <section class="sec">
+    <h2>1b · Submit with live duplicate check <span style="font-weight:500;color:#5C6560;font-size:18px">/submit</span></h2>
+    <p class="sub">The person's words stay in their box. Signal's restatement and match reasons sit in the AI panel, in its own quieter voice. On a phone the panel moves directly below the textarea.</p>
+    <div data-screen="submit"></div>
+  </section>
+
+  <section class="sec">
+    <h2>2 · Operator triage <span style="font-weight:500;color:#5C6560;font-size:18px">/operator/triage</span></h2>
+    <p class="sub">Each pending suggestion is a tinted panel. Facts it points to (existing needs, a customer quote, a PM override) are white cards inside it. The resolved item at the bottom shows how a suggestion looks once a person has confirmed it.</p>
+    <div data-screen="triage"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Tokens</h2>
+    <p class="sub">shadcn token names, scoped under <code>.theme-light</code> / <code>.theme-dark</code>. Radius 14px for cards (<code>--radius: 0.875rem</code>). Fonts: <b>Bricolage Grotesque</b> 600–700 for headings and the wordmark, <b>Figtree</b> 400–700 for the UI. No mono.</p>
+    <div class="tok-wrap"><table class="tok" id="tok"></table></div>
+  </section>
+</div>
+
+<script>
+/* ===================== TOKENS (single source) ===================== */
+const T = [
+ ['shadcn'],
+ ['background','#FBF7F1','#1A1714'],
+ ['foreground','#1F2A27','#F1E9DE'],
+ ['card','#FFFFFF','#24201B'],
+ ['card-foreground','#1F2A27','#F1E9DE'],
+ ['popover','#FFFFFF','#24201B'],
+ ['popover-foreground','#1F2A27','#F1E9DE'],
+ ['primary','#1E5A50','#7CC7B4'],
+ ['primary-foreground','#FFFFFF','#0F211D'],
+ ['secondary','#F6E3D8','#3A2820'],
+ ['secondary-foreground','#7A321F','#F4BBA3'],
+ ['muted','#F2ECE3','#2C2620'],
+ ['muted-foreground','#5A635E','#B5AA9C'],
+ ['accent','#E1EFE9','#1F3530'],
+ ['accent-foreground','#174A41','#A9DCCD'],
+ ['destructive','#B42318','#F08A7E'],
+ ['border','#E6DED2','#3A3229'],
+ ['input','#CFC3B2','#52473C'],
+ ['ring','#1E5A50','#7CC7B4'],
+ ['chart-1','#1E5A50','#7CC7B4'],
+ ['chart-2','#C2553A','#EE9A80'],
+ ['chart-3','#B07D22','#E3B866'],
+ ['chart-4','#4F6B8A','#9DB6D3'],
+ ['chart-5','#7A6A58','#C9B8A3'],
+ ['sidebar','#F5EFE6','#201C18'],
+ ['sidebar-foreground','#1F2A27','#F1E9DE'],
+ ['sidebar-primary','#1E5A50','#7CC7B4'],
+ ['sidebar-primary-foreground','#FFFFFF','#0F211D'],
+ ['sidebar-accent','#E8DFD1','#302922'],
+ ['sidebar-accent-foreground','#1F2A27','#F1E9DE'],
+ ['sidebar-border','#E6DED2','#3A3229'],
+ ['sidebar-ring','#1E5A50','#7CC7B4'],
+ ['Voice & AI'],
+ ['coral','#B0452B','#EE9A80'],
+ ['coral-solid','#B0452B','#B0452B'],
+ ['quote-surface','#FBEAE2','#33241E'],
+ ['ai','#7A5410','#E6C077'],
+ ['ai-foreground','#3D2C0A','#F3E4C2'],
+ ['ai-surface','#FCF3E0','#2A2316'],
+ ['ai-border','#E8D09A','#54451F'],
+ ['Status (text / tint)'],
+ ['status-new','#475467','#B9C4D2'],['status-new-bg','#EDEFF3','#272B31'],
+ ['status-open','#1B6656','#86D3BF'],['status-open-bg','#E0F0EA','#1B302B'],
+ ['status-planned','#5B3F8C','#CBB6EE'],['status-planned-bg','#EFE9F7','#2C2538'],
+ ['status-progress','#1F5BA8','#9EC2F2'],['status-progress-bg','#E5EEF9','#1E2837'],
+ ['status-shipped','#2B6B2E','#9BD69E'],['status-shipped-bg','#E4F1E4','#1D2E1F'],
+ ['status-declined','#8A3B2A','#E6A898'],['status-declined-bg','#F6E6E0','#33231F'],
+ ['Demand bands'],
+ ['demand-high','#B0452B','#EE9A80'],
+ ['demand-medium','#C0714F','#C98A6E'],
+ ['demand-low','#8C857C','#8A8176'],
+ ['Mark'],
+ ['mark-a','#1E5A50','#7CC7B4'],
+ ['mark-b','#D0603F','#EE9A80'],
+ ['mark-c','#D9A441','#E3B866'],
+ ['mark-dot','#1F2A27','#F1E9DE'],
+ ['mark-ring','#FBF7F1','#1A1714'],
+];
+(function(){
+  const vars = i => T.filter(r=>r.length>1).map(r=>`--${r[0]}:${r[i]};`).join('');
+  document.getElementById('tokens').textContent =
+    `.theme-light{${vars(1)}--radius:0.875rem;color-scheme:light}.theme-dark{${vars(2)}--radius:0.875rem;color-scheme:dark}`;
+  const tb = document.getElementById('tok');
+  tb.innerHTML = `<thead><tr><th>Token</th><th>Light</th><th>Dark</th></tr></thead><tbody>` +
+    T.map(r=> r.length===1 ? `<tr><td class="grp" colspan="3">${r[0]}</td></tr>` :
+     `<tr><td><code>--${r[0]}</code></td><td><span class="sw" style="background:${r[1]}"></span><code>${r[1]}</code></td><td><span class="sw" style="background:${r[2]}"></span><code>${r[2]}</code></td></tr>`).join('') +
+    `<tr><td class="grp" colspan="3">Type</td></tr>
+     <tr><td><code>--font-heading</code></td><td colspan="2">"Bricolage Grotesque", 600/700, tracking −0.01 to −0.03em</td></tr>
+     <tr><td><code>--font-sans</code></td><td colspan="2">"Figtree", 400/500/600/700, 15px base</td></tr>
+     <tr><td><code>--radius</code></td><td colspan="2">0.875rem (14px cards, 10px controls, pills fully round)</td></tr></tbody>`;
+})();
+
+/* ===================== HELPERS ===================== */
+const ic = (n,c='') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const mark = (s=26,c='') => `<svg class="mk ${c}" width="${s}" height="${s}" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg>`;
+const ST = {new:['New','inbox'],open:['Open','circle'],planned:['Planned','calendar-check'],progress:['In progress','timer'],shipped:['Shipped','circle-check'],declined:['Declined','circle-x']};
+const pill = s => `<span class="pill st-${s}">${ic(ST[s][1],'i-sm')}${ST[s][0]}</span>`;
+const cap = s => s[0].toUpperCase()+s.slice(1);
+const chorus = (n,d) => `<span class="demand d-${d}"><span class="chorus" aria-hidden="true">${'<i></i>'.repeat(Math.min(n,24))}</span><span class="dlabel">${cap(d)} demand</span></span>`;
+const anonAvs = n => { const k=Math.min(n,3); let h=''; for(let j=0;j<k;j++) h+=`<span class="av a${j+1}">${ic('user')}</span>`; if(n>3) h+=`<span class="av more">+${n-3}</span>`; return `<span class="avs" aria-hidden="true">${h}</span>`; };
+const initAvs = (list,n) => `<span class="avs" aria-hidden="true">${list.map((x,j)=>`<span class="av a${(j%4)+1}">${x}</span>`).join('')}${n>list.length?`<span class="av more">+${n-list.length}</span>`:''}</span>`;
+const voices = (n,avs) => `<span class="voices">${avs||anonAvs(n)}<span class="count"><b>${n}</b> ${n===1?'person':'people'}</span></span>`;
+const brand = () => `<a class="brand" href="#">${mark(26)}<span class="wordmark">Signal</span></a>`;
+const signalLabel = (txt='Suggested by Signal') => `<span class="ai-label">${mark(16)}${txt}</span>`;
+
+const needs = [
+ {id:1,s:'Executives need to share dashboard snapshots outside the product so that board meetings use current numbers',th:'Reporting',st:'open',n:11,d:'high',ideas:['PDF export','Scheduled email digest'],sum:'Leaders want current dashboard numbers in board and leadership meetings without rebuilding slides by hand.'},
+ {id:2,s:'Managers need to receive key dashboards on a schedule so that they act on numbers without logging in',th:'Reporting',st:'planned',n:12,d:'high',ideas:['Scheduled email digest'],dec:['planned','Sep 30','Scheduled delivery is planned for the next quarter, starting with weekly email.']},
+ {id:3,s:'Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale',th:'Integrations',st:'progress',n:12,d:'high',ideas:['Salesforce connector','HubSpot connector'],dec:['progress','Oct 10','A two-way CRM sync is in progress; beta opens next month.']},
+ {id:4,s:'Operations teams need threshold alerts in their team chat so that they react before customers notice',th:'Integrations',st:'open',n:9,d:'medium',ideas:['Slack integration','Microsoft Teams integration']},
+ {id:5,s:'Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change',th:'Reporting',st:'shipped',n:10,d:'medium',ideas:[],dec:['shipped','Oct 18','Two-level grouping shipped in the 4.2 release.']},
+ {id:6,s:'Compliance teams need to archive monthly reports so that audits have a fixed record',th:'Reporting',st:'new',n:1,d:'low',ideas:['PDF export']},
+];
+
+const needCard = nd => `<article class="need">
+  <div class="need-meta"><span class="theme-tag">${ic('tag','i-sm')}${nd.th}</span>${pill(nd.st)}</div>
+  <h3 class="need-title"><a href="#">${nd.s}</a></h3>
+  ${nd.ideas.length?`<div class="ideas"><span class="ideas-label">${ic('lightbulb','i-sm')}Proposed</span>${nd.ideas.map(x=>`<span class="idea">${x}</span>`).join('')}</div>`:''}
+  ${nd.sum?`<div class="summary"><span class="k">Summary</span>${nd.sum}</div>`:''}
+  ${nd.dec?`<div class="decision st-${nd.dec[0]}"><span class="k">${ic('flag','i-sm')}Decision · ${ST[nd.dec[0]][0]} · ${nd.dec[1]}</span>${nd.dec[2]}</div>`:''}
+  <footer class="need-foot">${voices(nd.n)}${chorus(nd.n,nd.d)}</footer>
+</article>`;
+
+const topbar = active => `<header class="topbar">${brand()}<nav class="topnav"><a href="#" class="${active==='board'?'on':''}">Board</a></nav>
+  <a class="btn btn-primary" href="#">${ic('plus')}<span class="lbl-long">Submit a request</span><span class="lbl-short">Submit a request</span></a></header>`;
+
+/* ===================== SCREENS ===================== */
+const statusChips = `<div class="chips" role="group" aria-label="Status"><span class="chip on">All</span>${Object.keys(ST).map(k=>`<span class="chip">${ic(ST[k][1],'i-sm')}${ST[k][0]}</span>`).join('')}</div>`;
+const themeChips = `<div class="chips themes" role="group" aria-label="Theme"><span class="chips-label">Theme</span>${['Reporting','Integrations','Administration and security','Collaboration'].map(x=>`<span class="chip">${x}</span>`).join('')}</div>`;
+
+const screens = {
+board: () => `<div class="app">${topbar('board')}<main class="page">
+  <section class="intro"><div class="eyebrow">Public board</div><h1>What would make this better for you?</h1>
+  <p class="lede">Every need here is built from what customers told us, in their own words. Add your voice to one, or tell us something new.</p></section>
+  <div class="filters"><label class="search">${ic('search')}<input placeholder="Search needs" aria-label="Search needs"></label>${statusChips}${themeChips}</div>
+  <p class="result-line">6 needs · most voices first</p>
+  <div class="needs-grid">${needs.map(needCard).join('')}</div>
+</main></div>`,
+
+submit: () => { const n1=needs[0], n6=needs[5]; return `<div class="app">${topbar('submit')}<main class="page">
+  <a class="back" href="#">${ic('chevron-left','i-sm')}Board</a>
+  <section class="intro"><h1>Tell us what you need</h1><p class="lede">Say it however it comes to you. We'll check whether others have asked for the same thing, so your voice joins theirs.</p></section>
+  <div class="submit-grid">
+    <div class="field ga-need"><label for="need">What do you need?</label>
+      <textarea id="need" class="textarea">Our CFO wants a PDF of the revenue dashboard every month for the board pack.</textarea></div>
+    <aside class="ai-panel ga-panel" aria-live="polite">
+      <div class="panel-head">${signalLabel()}<span class="live">Updates while you type</span></div>
+      <h2 class="panel-title">Looks like these needs</h2>
+      <p class="restate"><span class="k">The underlying need:</span> Finance leaders need to share current dashboard numbers in the board pack.</p>
+      <div class="matches" role="radiogroup" aria-label="Matching needs">
+        <div class="match sel" role="radio" aria-checked="true"><span class="radio"></span><div>
+          <div class="match-title">${n1.s}</div>
+          <div class="match-meta">${pill('open')}${voices(11)}${chorus(11,'high')}</div>
+          <div class="why"><span class="k">${mark(13)}Why it matches</span>Same problem: getting current dashboard numbers into board meetings. You asked for a PDF; others asked for PDF or email.</div>
+        </div></div>
+        <div class="match" role="radio" aria-checked="false"><span class="radio"></span><div>
+          <div class="match-title">${n6.s}</div>
+          <div class="match-meta">${pill('new')}${voices(1)}${chorus(1,'low')}</div>
+          <div class="why"><span class="k">${mark(13)}Why it matches</span>Also asks for PDF export, but to keep a fixed audit record, not to share current numbers.</div>
+        </div></div>
+        <div class="match none" role="radio" aria-checked="false"><span class="radio"></span><div style="font-size:14.5px"><b>None of these</b> — submit it as a new need. It shows as <b>New</b> on the board.</div></div>
+      </div>
+    </aside>
+    <div class="contact ga-contact">
+      <div class="field"><label>Email</label><input class="input" value="dana@acme.example"></div>
+      <div class="field"><label>Company</label><input class="input" value="Acme"></div>
+      <div class="field full"><span class="flabel">Urgency</span><div class="seg" role="radiogroup"><span>Low</span><span class="on">Medium</span><span>High</span></div></div>
+    </div>
+    <div class="actions ga-actions">
+      <button class="btn btn-primary">${ic('user-check')}Add my voice</button>
+      <p class="note">${ic('quote','i-sm')}Your words are kept and shown to the product team.</p>
+    </div>
+  </div>
+</main></div>`; },
+
+triage: () => `<div class="app op">
+  <aside class="sidenav">${brand()}
+    <a class="nav on" href="#">${ic('list-checks')}Triage<span class="badge">5</span></a>
+    <a class="nav" href="#">${ic('layers')}Needs</a>
+    <a class="nav" href="#">${ic('sliders')}Criteria</a>
+    <a class="nav" href="#">${ic('chart-line')}Metrics</a>
+    <a class="nav" href="#">${ic('message-circle')}Chat</a>
+    <div class="me"><span class="av a1">MC</span><div><b>Maya Chen</b><div class="muted">Product manager</div></div></div>
+  </aside>
+  <div>
+  <div class="op-top">${mark(24)}<span class="ttl">Triage</span><span class="av a1" style="margin:0">MC</span></div>
+  <main class="op-main">
+    <header class="op-head"><h1>Triage</h1><p>Signal suggests; you decide. Nothing changes until you accept.</p>
+      <div class="chips"><span class="chip on">All · 5</span><span class="chip">${ic('git-merge','i-sm')}Merges</span><span class="chip">${ic('file-text','i-sm')}Drafts</span><span class="chip">${ic('gauge','i-sm')}Scores</span><span class="chip">${ic('globe','i-sm')}Summaries</span></div>
+    </header>
+    <ol class="queue">
+      <li class="sugg">
+        <div class="sugg-head"><span class="kind">${ic('git-merge')}Merge suggestion</span>${signalLabel()}</div>
+        <div class="sugg-body">
+          <div class="merge">
+            <div class="fact"><div class="t">Board members need to see dashboards without an account</div><div class="sig">${initAvs(['LB','OS'],2)}2 signals</div></div>
+            <div class="arrow">${ic('arrow-right')}<span>merge into</span></div>
+            <div class="fact"><div class="t">${needs[0].s}</div><div class="sig">${initAvs(['RK','MT','JO'],11)}11 signals ${pill('open')}</div></div>
+          </div>
+          <p class="reason"><span class="k">Why:</span> Both describe sharing current dashboard numbers with people outside the product.</p>
+          <span class="conf">${ic('gauge','i-sm')}Confidence: High</span>
+        </div>
+        <div class="sugg-actions"><button class="btn btn-primary btn-sm">${ic('check','i-sm')}Accept</button><button class="btn btn-outline btn-sm">${ic('pencil','i-sm')}Edit</button><button class="btn btn-ghost btn-sm">${ic('x','i-sm')}Reject</button></div>
+      </li>
+
+      <li class="sugg">
+        <div class="sugg-head"><span class="kind">${ic('file-text')}Draft need</span>${signalLabel()}</div>
+        <div class="sugg-body">
+          <div class="who"><span class="av a2">DA</span><span><b>Dana</b> · Acme · Enterprise · $480k ARR</span><span class="muted">· new signal, 4 min ago</span></div>
+          <div><div class="sublabel human">${ic('quote','i-sm')}In Dana's words</div>
+            <div class="quote">${ic('quote','qm')}<p>Our CFO wants a PDF of the revenue dashboard every month for the board pack.</p><div class="by">Verbatim · public form · Urgency: Medium</div></div></div>
+          <div><div class="sublabel">${mark(13)}Signal's draft statement</div>
+            <p class="draft">Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px"><span class="ai-text">Suggested theme</span><span class="tagline">${ic('tag','i-sm')}Reporting</span></div>
+        </div>
+        <div class="sugg-actions"><button class="btn btn-primary btn-sm">${ic('check','i-sm')}Accept</button><button class="btn btn-outline btn-sm">${ic('pencil','i-sm')}Edit</button><button class="btn btn-ghost btn-sm">${ic('x','i-sm')}Reject</button></div>
+      </li>
+
+      <li class="sugg">
+        <div class="sugg-head"><span class="kind">${ic('gauge')}Priority score</span>${signalLabel()}</div>
+        <div class="sugg-body">
+          <div class="fact"><div class="t">${needs[3].s}</div><div class="sig">${initAvs(['PV','HS','KW'],9)}9 people ${pill('open')}</div></div>
+          <div class="crit">
+            <div class="crit-row"><span class="n">Demand</span><span class="ev">9 people across 5 accounts</span><span class="meter">${'<i class="f"></i>'.repeat(4)}<i></i></span><span class="score">4/5</span></div>
+            <div class="crit-row"><span class="n">Business value</span><span class="ev">$132k ARR, no open deals</span><span class="meter">${'<i class="f"></i>'.repeat(3)}<i></i><i></i></span><span class="score">3/5</span></div>
+            <div class="crit-row pm"><span class="n">Strategic fit</span><span class="ev">Integrations, weight 0.7</span><span class="meter">${'<i class="f"></i>'.repeat(4)}<i></i></span><span class="score"><s>AI 3</s>${ic('arrow-right','i-sm')}PM 4</span>
+              <div class="override"><span class="chip-state cs-confirmed">${ic('user-check','i-sm')}Confirmed by you</span><span class="chip-state cs-edited">${ic('pencil','i-sm')}Edited</span><span>“Ops is a Q1 focus”</span></div></div>
+            <div class="crit-row"><span class="n">Effort <small>(lower = harder)</small></span><span class="ev">Two chat platforms</span><span class="meter">${'<i class="f"></i>'.repeat(2)}<i></i><i></i><i></i></span><span class="score">2/5</span></div>
+          </div>
+          <div class="overall"><span class="ai-text" style="font-weight:600">Overall score</span><span class="big">3.1 <small>/ 5</small></span></div>
+        </div>
+        <div class="sugg-actions"><button class="btn btn-primary btn-sm">${ic('check','i-sm')}Accept</button><button class="btn btn-outline btn-sm">${ic('pencil','i-sm')}Edit</button><button class="btn btn-ghost btn-sm">${ic('x','i-sm')}Reject</button></div>
+      </li>
+
+      <li class="sugg">
+        <div class="sugg-head"><span class="kind">${ic('globe')}Public summary</span>${signalLabel()}</div>
+        <div class="sugg-body">
+          <div class="fact"><div class="t">${needs[5].s}</div><div class="sig">${initAvs(['EV'],1)}1 person ${pill('new')}</div></div>
+          <div><div class="sublabel">${mark(13)}Proposed public summary</div>
+            <p class="pubsum">Compliance teams keep immutable monthly copies of reports for auditors.</p></div>
+          <p class="check-line">${ic('shield-check')}No names, emails, or companies found.</p>
+        </div>
+        <div class="sugg-actions"><button class="btn btn-primary btn-sm">${ic('check','i-sm')}Accept</button><button class="btn btn-outline btn-sm">${ic('pencil','i-sm')}Edit</button><button class="btn btn-ghost btn-sm">${ic('x','i-sm')}Reject</button></div>
+      </li>
+
+      <li class="resolved">
+        <span class="what">${ic('circle-check')}Theme ‘Reporting’ accepted</span>
+        <span class="chip-state cs-confirmed">${ic('user-check','i-sm')}Confirmed by you</span>
+        <span class="chip-state cs-edited">${ic('pencil','i-sm')}Edited</span>
+        <span class="meta">edited by you · 2h ago</span>
+        <span class="undo">${ic('undo','i-sm')}Undo</span>
+      </li>
+    </ol>
+  </main>
+  <nav class="tabbar">
+    <a class="on" href="#">${ic('list-checks','i-lg')}Triage<span class="badge">5</span></a>
+    <a href="#">${ic('layers','i-lg')}Needs</a>
+    <a href="#">${ic('sliders','i-lg')}Criteria</a>
+    <a href="#">${ic('chart-line','i-lg')}Metrics</a>
+    <a href="#">${ic('message-circle','i-lg')}Chat</a>
+  </nav>
+  </div>
+</div>`
+};
+
+const URL = {board:'signal.acme.example', submit:'signal.acme.example/submit', triage:'signal.acme.example/operator/triage'};
+
+/* ===================== FRAMES ===================== */
+document.querySelectorAll('[data-screen]').forEach(host=>{
+  const k = host.dataset.screen, html = screens[k]();
+  const desk = th => `<figure class="fig"><figcaption>Desktop · 1280 · ${th}</figcaption><div class="scroller"><div class="frame theme-${th.toLowerCase()}"><div class="chrome"><span class="dots"><span></span><span></span><span></span></span><span class="url">${URL[k]}</span></div>${html}</div></div></figure>`;
+  const phone = th => `<figure class="fig ph"><figcaption>Phone · 390 · ${th}</figcaption><div class="scroller"><div class="frame phone theme-${th.toLowerCase()}"><div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>${html}</div></div></figure>`;
+  host.innerHTML = `<div class="row" style="flex-direction:column">${desk('Light')}${desk('Dark')}</div><div class="row" style="margin-top:28px">${phone('Light')}${phone('Dark')}</div>`;
+});
+
+/* ===================== IDENTITY ===================== */
+const idPanel = th => `<div class="idpanel theme-${th}">
+  <header class="topbar">${brand()}<nav class="topnav"><a class="on" href="#">Board</a></nav><a class="btn btn-primary btn-sm" href="#">${ic('plus','i-sm')}Submit a request</a></header>
+  <div class="idbody">
+    <div class="wm-big">${mark(48)}<span class="wordmark">Signal</span></div>
+    <div class="marks">
+      <figure>${mark(64)}<figcaption>64 px</figcaption></figure>
+      <figure>${mark(32)}<figcaption>32 px</figcaption></figure>
+      <figure>${mark(16)}<figcaption>16 px</figcaption></figure>
+      <figure><span class="tabmock">${mark(16)}Signal — Board</span><figcaption>favicon in tab</figcaption></figure>
+    </div>
+    <div class="legend"><h4>AI proposes, people decide</h4>
+      <div class="state-demo">
+        <div class="sd-ai">${signalLabel()}<span>Theme: <b>Reporting</b></span><span style="margin-left:auto" class="chip-state cs-ai">Pending</span></div>
+        <div class="sd-ok"><span>Theme: <b>Reporting</b></span><span class="chip-state cs-confirmed">${ic('user-check','i-sm')}Confirmed by you</span></div>
+        <div class="sd-ok"><span>Theme: <b>Reporting</b></span><span class="chip-state cs-confirmed">${ic('user-check','i-sm')}Confirmed by you</span><span class="chip-state cs-edited">${ic('pencil','i-sm')}Edited</span></div>
+        <div class="sd-rej">${ic('x','i-sm')}<s>Suggested theme “Collaboration”</s> · rejected by you</div>
+      </div>
+    </div>
+    <div class="legend"><h4>Status</h4><div class="rowx">${Object.keys(ST).map(pill).join('')}</div></div>
+    <div class="legend"><h4>Demand</h4><div class="rowx" style="gap:18px">${voices(11)}${chorus(11,'high')}</div><div class="rowx" style="gap:18px">${voices(9)}${chorus(9,'medium')}</div><div class="rowx" style="gap:18px">${voices(1)}${chorus(1,'low')}</div></div>
+    <div class="legend"><h4>Customer voice</h4><div class="quote">${ic('quote','qm')}<p>Our CFO wants a PDF of the revenue dashboard every month for the board pack.</p><div class="by">Dana · Acme</div></div></div>
+  </div></div>`;
+document.getElementById('idsheet').innerHTML = idPanel('light') + idPanel('dark');
+</script>
+</body>
+</html>

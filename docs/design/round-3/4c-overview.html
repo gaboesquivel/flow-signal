@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal · Board, criteria, metrics, chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Page (documentation chrome, not product) ===================== */
+:root{
+  --page-bg:#e6e5dd; --page-fg:#1e2320; --page-muted:#565d58; --page-rule:#c9c7bb; --page-card:#f4f3ed;
+  --font-serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+}
+:root[data-theme="dark"]{--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page-bg);color:var(--page-fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:40px 16px 96px}
+.doc-head{max-width:860px;margin-bottom:48px}
+.doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-muted)}
+.doc-head h1{font-family:var(--font-serif);font-weight:500;font-size:44px;line-height:1.1;margin:8px 0 12px;letter-spacing:-.01em}
+.doc-head .idea{font-family:var(--font-serif);font-size:21px;line-height:1.45;margin:0 0 20px}
+.doc-head dl{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;margin:0;border-top:1px solid var(--page-rule);padding-top:16px}
+.doc-head dt{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--page-muted);padding-top:3px}
+.doc-head dd{margin:0}
+@media (max-width:600px){.doc-head h1{font-size:34px}.doc-head dl{grid-template-columns:1fr;gap:2px}.doc-head dd{margin-bottom:10px}}
+.section{margin-top:72px}
+.section > h2{font-family:var(--font-serif);font-weight:500;font-size:28px;margin:0 0 4px;letter-spacing:-.005em}
+.section > p.sub{color:var(--page-muted);margin:0 0 20px;max-width:760px}
+.section h3.step{font-family:var(--font-serif);font-weight:500;font-size:20px;margin:40px 0 4px}
+.section p.stepnote{color:var(--page-muted);margin:0 0 16px;max-width:760px;font-size:14px}
+.flabel{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 8px;letter-spacing:.02em}
+.row-desk{display:flex;flex-direction:column;gap:28px}
+.scroller{overflow-x:auto;max-width:100%;padding-bottom:6px}
+.row-phone{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px;align-items:flex-start}
+.row-phone .scroller{flex:0 1 auto}
+
+/* ===================== Theme tokens (copied from round-1 Ledger) ===================== */
+.theme-light{
+  --radius:0.375rem;
+  --background:#f7f7f2; --foreground:#1e2320;
+  --card:#fbfbf7; --card-foreground:#1e2320;
+  --popover:#ffffff; --popover-foreground:#1e2320;
+  --primary:#4a42a0; --primary-foreground:#ffffff;
+  --secondary:#ebeae2; --secondary-foreground:#1e2320;
+  --muted:#eeede6; --muted-foreground:#5b635d;
+  --accent:#ebe9f5; --accent-foreground:#3d3689;
+  --destructive:#a3261b;
+  --border:#dad8cc; --input:#8b928c; --ring:#4a42a0;
+  --chart-1:#4a42a0; --chart-2:#2f7391; --chart-3:#5d8466; --chart-4:#b08a3e; --chart-5:#8d5f91;
+  --sidebar:#f1f0e9; --sidebar-foreground:#1e2320; --sidebar-primary:#4a42a0; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#e6e4f2; --sidebar-accent-foreground:#3d3689; --sidebar-border:#dad8cc; --sidebar-ring:#4a42a0;
+  --rule-strong:#1e2320;
+  --ai:#8f89bb; --ai-foreground:#534e78; --ai-surface:#f1f0f6;
+  --quote-rule:#1e2320;
+  --status-new:#5b635d; --status-open:#23698a; --status-planned:#4a42a0; --status-progress:#8a5700; --status-shipped:#2c6a37; --status-declined:#a3261b;
+  --demand-high:#1e2320; --demand-medium:#5b635d; --demand-low:#a7aca5;
+  --positive:#2c6a37;
+}
+.theme-dark{
+  --radius:0.375rem;
+  --background:#141614; --foreground:#e8e7de;
+  --card:#1a1c1a; --card-foreground:#e8e7de;
+  --popover:#1f211e; --popover-foreground:#e8e7de;
+  --primary:#aaa4f2; --primary-foreground:#15122b;
+  --secondary:#252823; --secondary-foreground:#e8e7de;
+  --muted:#222520; --muted-foreground:#a2a9a3;
+  --accent:#29273f; --accent-foreground:#d2ceff;
+  --destructive:#f0897c;
+  --border:#33362f; --input:#6f766f; --ring:#aaa4f2;
+  --chart-1:#aaa4f2; --chart-2:#6fb4d2; --chart-3:#8fbf98; --chart-4:#dcb766; --chart-5:#c99acb;
+  --sidebar:#181a17; --sidebar-foreground:#e8e7de; --sidebar-primary:#aaa4f2; --sidebar-primary-foreground:#15122b;
+  --sidebar-accent:#26243a; --sidebar-accent-foreground:#d2ceff; --sidebar-border:#2e312b; --sidebar-ring:#aaa4f2;
+  --rule-strong:#e8e7de;
+  --ai:#7a75a6; --ai-foreground:#c0bbe0; --ai-surface:#1d1c26;
+  --quote-rule:#e8e7de;
+  --status-new:#a2a9a3; --status-open:#7cc0de; --status-planned:#b3adf6; --status-progress:#e2b35a; --status-shipped:#8ccf96; --status-declined:#f0897c;
+  --demand-high:#e8e7de; --demand-medium:#a2a9a3; --demand-low:#4e534d;
+  --positive:#8ccf96;
+}
+
+/* ===================== Frames ===================== */
+.frame{container-type:inline-size;container-name:frame;background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;border:1px solid var(--page-rule);border-radius:12px;overflow:hidden;flex:none}
+.frame.desk{width:1280px}
+.frame.phone{width:390px}
+
+/* ===================== Primitives (Ledger) ===================== */
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.mark{color:var(--foreground);flex:none}
+.serif{font-family:var(--font-serif)}
+.mono{font-family:var(--font-mono)}
+.k{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border-radius:var(--radius);font:500 14px/1 var(--font-ui);border:1px solid transparent;cursor:pointer;white-space:nowrap;background:none;color:inherit}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:transparent;color:var(--foreground);border-color:var(--input)}
+.btn-ghost{background:transparent;color:var(--foreground)}
+.btn.sm{height:32px;padding:0 12px;font-size:13px}
+.btn.sm svg.i{width:14px;height:14px}
+.btn-text{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font:500 14px/1.4 var(--font-ui);color:var(--foreground);text-decoration:underline;text-decoration-color:var(--input);text-underline-offset:4px;cursor:pointer}
+.quiet{color:var(--muted-foreground)}
+kbd{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);border:1px solid var(--border);border-radius:3px;padding:0 4px;line-height:16px;display:inline-block;min-width:16px;text-align:center}
+.btn-primary kbd{color:var(--primary-foreground);border-color:color-mix(in srgb,var(--primary-foreground) 45%,transparent)}
+
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--foreground);white-space:nowrap}
+.status svg{width:11px;height:11px;flex:none}
+.s-new svg{color:var(--status-new)} .s-open svg{color:var(--status-open)} .s-planned svg{color:var(--status-planned)}
+.s-progress svg{color:var(--status-progress)} .s-shipped svg{color:var(--status-shipped)} .s-declined svg{color:var(--status-declined)}
+
+/* AI: pencil vs ink */
+.plabel{font-family:var(--font-serif);font-style:italic;font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--ai-foreground);display:inline-flex;align-items:center;gap:6px}
+.plabel svg.i{width:12px;height:12px;stroke-width:1.75}
+.ilabel{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--foreground);display:inline-flex;align-items:center;gap:6px}
+.ilabel svg.i{width:12px;height:12px;stroke-width:2.25}
+.pencil{border-left:1.5px dashed var(--ai);padding:1px 0 1px 14px;color:var(--ai-foreground)}
+.pencil p{margin:4px 0 0}
+.ink{border-left:1.5px solid var(--rule-strong);padding:1px 0 1px 14px;color:var(--foreground)}
+.ink p{margin:4px 0 0}
+.edited{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--muted-foreground)}
+.quote{margin:0;border-left:3px solid var(--quote-rule);padding:2px 0 2px 16px;font-family:var(--font-serif);font-style:italic;font-size:17px;line-height:1.45;color:var(--foreground)}
+.quote cite{display:block;font-style:normal;font-family:var(--font-ui);font-size:12px;color:var(--muted-foreground);margin-top:6px}
+
+/* ===================== App chrome ===================== */
+.topbar{display:flex;align-items:center;gap:28px;height:60px;padding:0 40px;border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:9px;color:var(--foreground);text-decoration:none}
+.wordmark{font-family:var(--font-serif);font-weight:600;font-size:22px;letter-spacing:-.01em;line-height:1}
+.topnav{display:flex;gap:22px;flex:1;min-width:0}
+.topnav a{color:var(--muted-foreground);text-decoration:none;font-weight:500;padding:19px 0 17px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+.topnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+.topnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+.role{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.h1{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.lede{font-family:var(--font-serif);font-size:18px;color:var(--muted-foreground);margin:8px 0 0;line-height:1.45}
+/* Copied from 3-compare: inputs, seg, none-yet, loading, read, tools/search/filter */
+.input,.textarea{border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground)}
+.input{min-height:44px;display:flex;align-items:center;padding:0 14px}
+.seg{display:inline-grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden;width:300px}
+.seg span{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500;border-left:1px solid var(--input)}
+.seg span:first-child{border-left:0}
+.seg span.on{background:var(--foreground);color:var(--background)}
+.read{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;margin-top:40px}
+.read > div > .k{display:block;margin-bottom:14px}
+.none-yet{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground);margin:0 0 20px}
+.loadline{height:2px;background:var(--border);overflow:hidden;margin:18px 0 0;max-width:240px}
+.loadline i{display:block;height:100%;width:35%;background:var(--primary);animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){.loadline i{animation:none;width:60%}}
+.tools{display:flex;gap:16px;align-items:center;margin-top:32px}
+.search{display:flex;align-items:center;gap:10px;flex:1;max-width:400px;height:42px;padding:0 12px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--muted-foreground)}
+.filter{display:inline-flex;align-items:center;gap:6px;color:var(--muted-foreground);font-weight:500;font-size:14px}
+.filter b{color:var(--foreground);font-weight:500}
+.filter svg.i{width:14px;height:14px}
+.tools .cnt{margin-left:auto;font-size:13px;color:var(--muted-foreground)}
+
+/* ===================== Operator ===================== */
+.wrap{max-width:1000px;margin:0 auto;padding:40px 0 64px}
+.ophead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.hints{font-size:12px;color:var(--muted-foreground);display:flex;gap:14px;align-items:center}
+.hints span{display:inline-flex;gap:5px;align-items:center}
+.qlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-strong)}
+.qrow{display:grid;grid-template-columns:132px minmax(0,1fr) auto 16px;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.qkind{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:500;color:var(--muted-foreground);white-space:nowrap}
+.qkind svg.i{width:15px;height:15px}
+.qtext{font-family:var(--font-serif);font-size:16px;color:var(--ai-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:1.5px dashed var(--ai);padding-left:12px;line-height:1.4}
+.qtext .ref{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-right:6px}
+.qmeta{font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.qrow > svg.i{color:var(--muted-foreground);width:16px;height:16px}
+.qrow.open{border-bottom:0}
+.qrow.open .qkind{color:var(--foreground)}
+.qbody{padding:8px 0 32px 150px;border-bottom:1px solid var(--border)}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:20px;align-items:start}
+.cmp .arrow{color:var(--muted-foreground);padding-top:28px;display:flex;justify-content:center}
+.cmp .k{display:block;margin-bottom:10px}
+.cmp .ns{font-size:19px}
+.cmp .quote{font-size:16px;margin-top:14px}
+.why{margin-top:24px;max-width:620px}
+.why p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.why .conf{display:block;font-size:13px;margin-top:6px}
+.acts{display:flex;gap:8px;align-items:center;margin-top:24px}
+.qrow.resolved .qtext{border-left:1.5px solid var(--input);color:var(--muted-foreground);font-family:var(--font-ui);font-size:14px}
+.qrow.resolved .qkind svg.i{color:var(--muted-foreground)}
+
+/* Needs table */
+.ntable{width:100%;border-collapse:collapse;font-size:14px}
+.ntable th{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+.ntable th.r,.ntable td.r{text-align:right}
+.ntable th .sort{color:var(--foreground)}
+.ntable td{padding:15px 12px 15px 0;border-bottom:1px solid var(--border);vertical-align:baseline}
+.ntable td.sc{font-family:var(--font-mono);font-size:16px;font-weight:500;width:72px}
+.ntable td.st{font-family:var(--font-serif);font-size:16px;line-height:1.4;max-width:420px}
+.ntable td.num{font-family:var(--font-mono);font-size:13px;text-align:right;white-space:nowrap}
+.ntable td.th{color:var(--muted-foreground);white-space:nowrap}
+.ntable td.pend{width:96px;text-align:right;padding-right:0}
+.pmark{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:12px;color:var(--ai-foreground)}
+.pmark i{width:9px;height:9px;border:1.5px dashed var(--ai);border-radius:50%;display:block}
+.ntable tr.open td{border-bottom:0}
+.ntable tr.exp td{padding:0 0 32px 0;border-bottom:1px solid var(--border)}
+.expgrid{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.expgrid .quote{margin-bottom:18px}
+.expgrid .k{display:block;margin-bottom:12px}
+.score{display:grid;grid-template-columns:134px 78px 40px minmax(0,1fr);column-gap:0;align-items:baseline;font-size:13px}
+.score > div{padding:8px 0;border-top:1px solid var(--border)}
+.score > div:nth-child(-n+4){border-top:0;padding-top:0}
+.score .crit{font-weight:500;font-size:14px}
+.spips{display:inline-flex;gap:3px;vertical-align:middle}
+.spips i{width:8px;height:8px;border:1px solid var(--input);display:block}
+.spips i.f{background:var(--foreground);border-color:var(--foreground)}
+.sval{font-family:var(--font-mono);font-weight:500}
+.sreason{color:var(--muted-foreground)}
+.overall{display:flex;align-items:baseline;gap:12px;margin-top:4px;padding-top:10px;border-top:1px solid var(--rule-strong)}
+.overall .mono{font-size:24px;font-weight:500;letter-spacing:-.02em}
+.overall .sub{font-size:13px;color:var(--muted-foreground)}
+
+.mnav{display:none}
+
+/* ===================== 4c additions (prototype chrome) ===================== */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px;margin:0 0 20px;max-width:1280px}
+.flow button{text-align:left;background:none;border:0;border-top:2px solid var(--page-rule);padding:8px 0 0;font:500 12px/1.4 var(--font-ui);color:var(--page-muted);cursor:pointer}
+.flow button .n{font-family:var(--font-mono);margin-right:5px}
+.flow button.done{border-top-color:var(--page-muted)}
+.flow button.cur{border-top-color:var(--page-fg);color:var(--page-fg)}
+.flow button:focus-visible{outline:2px solid var(--page-fg);outline-offset:3px}
+.doc-head ol{margin:0;padding-left:18px}
+.doc-head ul{margin:0;padding-left:18px}
+.doc-head li{margin-bottom:4px}
+.doc-head code{font-family:var(--font-mono);font-size:13px}
+
+/* ===================== 4c additions (product) ===================== */
+.frame :focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.frame a{color:inherit}
+.topnav a,.mnav a{cursor:pointer}
+.wrap.wide{max-width:1200px;padding-left:40px;padding-right:40px}
+.ophead .search{width:280px;flex:none}
+.search input{flex:1;min-width:0;border:0;background:none;outline:none;font:inherit;color:var(--foreground);height:100%}
+.search input::placeholder{color:var(--muted-foreground)}
+.search:focus-within{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.filter{position:relative;cursor:pointer}
+.filter select{field-sizing:content;appearance:none;-webkit-appearance:none;background:none;border:0;padding:0 18px 0 0;margin-right:-18px;font:500 14px/1.4 var(--font-ui);color:var(--foreground);cursor:pointer;position:relative;z-index:1}
+.filter select:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.tools.needs-tools{margin:0 0 20px}
+.reweighed{font-size:13px;color:var(--muted-foreground);margin:6px 0 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.reweighed .mono{color:var(--foreground)}
+.reweighed .btn-text{font-size:13px}
+
+.ntable th button.sortb{all:unset;cursor:pointer;display:inline-flex;gap:4px}
+.ntable th button.sortb:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.ntable tbody tr.nrow{cursor:pointer}
+.ntable tbody tr.nrow:hover td{background:color-mix(in srgb,var(--muted) 70%,transparent)}
+.ntable tbody tr.nrow:focus-visible{outline:2px solid var(--ring);outline-offset:-2px}
+.ntable td.th{white-space:normal;max-width:150px}
+.ntable .lbl{display:none}
+.ntable tr.hl td{background:var(--accent);transition:background 1.2s ease}
+.ntable tr.hl.fade td{background:transparent}
+.ntable tr.empty td{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground);padding:28px 0}
+.accline{font-size:13px;color:var(--muted-foreground);margin:2px 0 0;line-height:1.6}
+.accline b{font-weight:500;color:var(--foreground)}
+.expside .ink{margin-top:22px}
+.expfoot{display:flex;gap:16px;align-items:center;margin-top:22px;flex-wrap:wrap}
+a.btn{text-decoration:none}
+
+/* Criteria */
+.crit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px}
+.blockk{display:block;margin-bottom:12px}
+.wlist,.plist,.mx,.clist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-strong)}
+.wrow{display:grid;grid-template-columns:minmax(0,1fr) 150px 48px;gap:8px 20px;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
+.wname{font-weight:500}
+.wdesc{display:block;font-size:13px;color:var(--muted-foreground)}
+.wrow input[type=range]{width:100%;accent-color:var(--primary);margin:0}
+.wval{font-family:var(--font-mono);font-size:16px;font-weight:500;text-align:right}
+.wval.chg{color:var(--primary)}
+.wsum{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:14px 0 0;font-size:13px;color:var(--muted-foreground)}
+.wsum .mono{font-size:16px;color:var(--foreground);font-weight:500;margin-left:6px}
+.wsum.bad .mono,.wsum.bad .msg{color:var(--destructive)}
+.cacts{display:flex;gap:20px;align-items:center;margin-top:22px;flex-wrap:wrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-text:disabled{opacity:.45;cursor:not-allowed}
+.savedline{margin-top:28px}
+.savedline .ink p{font-family:var(--font-serif);font-size:16px}
+.savedline .btn-text{font-size:13px;margin-top:8px}
+.prow{display:grid;grid-template-columns:20px minmax(0,1fr) auto 36px;gap:12px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--border)}
+.prow .rk{font-family:var(--font-mono);font-size:13px;color:var(--muted-foreground)}
+.prow .pst{font-family:var(--font-serif);font-size:16px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prow .psc{font-family:var(--font-mono);font-size:14px;font-weight:500;white-space:nowrap}
+.prow .psc .was{color:var(--muted-foreground);font-weight:400;font-size:12px;margin-right:6px}
+.prow .mv{font-family:var(--font-mono);font-size:12px;text-align:right;color:var(--muted-foreground)}
+.prow .mv.up{color:var(--positive)}
+.prow .mv.down{color:var(--destructive)}
+.prow.moved .pst{color:var(--foreground)}
+.pnote{font-size:13px;color:var(--muted-foreground);margin:12px 0 24px}
+.explain p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.explain.idle{border-left:1.5px solid var(--border);padding-left:14px;color:var(--muted-foreground);font-size:14px}
+
+/* Metrics */
+.seg.win{width:auto;grid-template-columns:repeat(2,auto)}
+.seg.win button{height:34px;padding:0 14px;display:flex;align-items:center;font:500 13px/1 var(--font-ui);border:0;border-left:1px solid var(--input);background:none;color:var(--foreground);cursor:pointer}
+.seg.win button:first-child{border-left:0}
+.seg.win button.on{background:var(--foreground);color:var(--background)}
+.met{display:grid;grid-template-columns:minmax(0,1fr) 190px 300px;gap:10px 36px;align-items:baseline;padding:26px 0;border-bottom:1px solid var(--border)}
+.met h3{font-family:var(--font-serif);font-weight:500;font-size:20px;line-height:1.3;margin:0}
+.met .def{margin:4px 0 0;color:var(--muted-foreground);font-size:13px;max-width:440px}
+.met .bt{margin:10px 0 0;font-size:12px;color:var(--muted-foreground)}
+.met .bt b{font-weight:500;color:var(--foreground)}
+.met .bt i{font-family:var(--font-serif);font-size:13px}
+.big{font-family:var(--font-mono);font-size:44px;font-weight:500;letter-spacing:-.03em;line-height:1;white-space:nowrap}
+.big small{font-size:17px;color:var(--muted-foreground);letter-spacing:0;margin-left:3px;font-weight:400}
+.big.na{color:var(--muted-foreground)}
+.of{display:block;font-size:12px;color:var(--muted-foreground);margin-top:10px}
+.met.sm .big{font-size:30px}
+.split{display:grid;grid-template-columns:64px minmax(0,1fr);gap:6px 12px;font-size:13px;margin:0}
+.split dt{color:var(--muted-foreground)}
+.split dd{margin:0;font-family:var(--font-mono);font-size:13px}
+.split dd .quiet{font-family:var(--font-ui)}
+.kinds{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+.kinds th{font-weight:600;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:right;padding:0 0 4px;border-bottom:1px solid var(--border)}
+.kinds th:first-child{text-align:left}
+.kinds td{padding:4px 0;text-align:right;font-family:var(--font-mono);border-bottom:1px solid var(--border)}
+.kinds td:first-child{text-align:left;font-family:var(--font-ui);color:var(--muted-foreground)}
+.mgroup{display:block;margin:44px 0 12px}
+.sup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-top:1px solid var(--rule-strong);padding-top:18px}
+.sup .v{font-family:var(--font-mono);font-size:24px;font-weight:500;letter-spacing:-.02em;display:block;margin-top:2px}
+.sup .d{font-size:12px;color:var(--muted-foreground);display:block;margin-top:4px}
+.unsup{font-size:13px;color:var(--muted-foreground);margin:28px 0 0}
+
+/* Chat */
+.chat{max-width:760px;margin:0 auto;padding:40px 0 64px}
+.thread{margin-top:8px}
+.turn{padding:22px 0;border-bottom:1px solid var(--border)}
+.turn:first-child{border-top:1px solid var(--rule-strong)}
+.qline{font-family:var(--font-serif);font-size:22px;line-height:1.35;margin:6px 0 0}
+.ans .pencil p{font-family:var(--font-serif);font-size:17px;line-height:1.55;margin:8px 0 0}
+.cite{font:inherit;color:inherit;background:none;border:0;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--ai);text-decoration-thickness:1px;text-underline-offset:3px}
+.cite:hover{text-decoration-color:currentColor}
+.acct{font-family:var(--font-ui);font-size:.88em;font-weight:500;color:var(--foreground)}
+.clist{margin-top:10px}
+.crow{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--border)}
+.crow .cite{font-family:var(--font-serif);font-size:16px;line-height:1.4;text-decoration-color:var(--border)}
+.crow .cmeta{grid-column:2 / -1;font-size:12px;color:var(--muted-foreground)}
+.crow .ct{font-family:var(--font-mono);font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.srcline{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);margin:14px 0 0;line-height:1.6}
+.ask{display:flex;gap:10px;align-items:center;margin-top:28px}
+.ask .search{flex:1;max-width:none;height:44px}
+.try{font-size:13px;color:var(--muted-foreground);margin:14px 0 0;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.try .btn-text{font-size:13px}
+.k.inl{display:block;margin:22px 0 0}
+
+/* ===================== Phone (container ≤ 640) ===================== */
+@container frame (max-width:640px){
+  /* from 3-compare */
+  .topbar{padding:0 16px;gap:14px;height:56px}
+  .topbar.op .topnav,.topbar.op .role{display:none}
+  .wordmark{font-size:20px}
+  .mnav{display:flex;gap:18px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .mnav a{color:var(--muted-foreground);font-weight:500;padding:12px 0 10px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline;text-decoration:none}
+  .mnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+  .mnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+  .h1{font-size:28px}
+  .lede{font-size:16px}
+  .wrap,.chat,.wrap.wide{padding:24px 16px 40px}
+  .ophead{flex-direction:column;align-items:stretch;gap:12px}
+  .hints{display:none}
+  .tools{flex-wrap:wrap;margin-top:22px}
+  .search{max-width:none;flex-basis:100%}
+  /* 4c */
+  .ophead .search{width:auto}
+  .tools.needs-tools{gap:10px 18px}
+  .tools .cnt{margin-left:0}
+  .ntable,.ntable tbody{display:block;width:100%}
+  .ntable thead{display:none}
+  .ntable tr.nrow{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--border)}
+  .ntable tr.nrow.open{border-bottom:0}
+  .ntable tr.nrow td{padding:0;border:0;background:none}
+  .ntable tr.nrow td.st{flex-basis:100%;order:-1;max-width:none;font-size:17px}
+  .ntable tr.nrow td.th,.ntable tr.nrow td.acc,.ntable tr.nrow td.arr{display:none}
+  .ntable td.sc{width:auto;font-size:14px}
+  .ntable td.num{font-size:13px}
+  .ntable .lbl{display:inline;font-family:var(--font-ui);color:var(--muted-foreground)}
+  .ntable td.pend{width:auto;margin-left:auto}
+  .ntable tr.exp{display:block}
+  .ntable tr.exp td{display:block;padding:0 0 24px}
+  .expgrid{grid-template-columns:minmax(0,1fr);gap:22px}
+  .expgrid > div:first-child{display:none}
+  .score{grid-template-columns:104px 56px 28px minmax(0,1fr)}
+  .crit-grid{grid-template-columns:minmax(0,1fr);gap:36px}
+  .wrow{grid-template-columns:minmax(0,1fr) 48px}
+  .wrow input[type=range]{grid-column:1 / -1;grid-row:2}
+  .met{grid-template-columns:minmax(0,1fr);gap:14px}
+  .big{font-size:38px}
+  .sup{grid-template-columns:minmax(0,1fr)}
+  .crow{grid-template-columns:minmax(0,1fr) auto}
+  .crow .status{grid-column:1}
+  .crow .ct{grid-column:2;grid-row:1;text-align:right}
+  .crow .cite{grid-column:1 / -1}
+  .crow .cmeta{grid-column:1 / -1}
+  .ask .btn{padding:0 14px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 32 32">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M2 6.5h7.5L18 16"/>
+        <path d="M2 25.5h7.5L18 16"/>
+        <path d="M2 16h28"/>
+      </g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/><path d="M16 13h-2"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="st-new" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="st-open" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.2" fill="currentColor"/></symbol>
+    <symbol id="st-planned" viewBox="0 0 12 12"><path d="M6 .8 11.2 6 6 11.2.8 6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="st-progress" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="st-shipped" viewBox="0 0 12 12"><rect x=".6" y=".6" width="10.8" height="10.8" rx="2" fill="currentColor"/><path d="m3.2 6.1 1.9 1.9 3.8-4" fill="none" stroke="var(--background)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="st-declined" viewBox="0 0 12 12"><rect x="1.2" y="1.2" width="9.6" height="9.6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.6 3.6l4.8 4.8M8.4 3.6 3.6 8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="doc-head">
+  <div class="eyebrow">Signal · Design round 3 · Prototype 4c · Compare direction</div>
+  <h1>Board, criteria, metrics, chat</h1>
+  <p class="idea">The PM's overview. What is most worth doing, how "worth" is weighed, whether Signal is working, and one question answered from the data. Everything below is clickable.</p>
+  <dl>
+    <dt>Steps</dt>
+    <dd><ol>
+      <li><b>Needs board.</b> 23 needs in a ruled table, sorted by priority. A dashed circle marks needs with suggestions pending in Triage.</li>
+      <li><b>Filter and sort.</b> Filter by theme and status, search the statements, and sort by priority, people, accounts or ARR (click a column header).</li>
+      <li><b>Open a row.</b> The row opens inline. It shows the two most urgent verbatim signals with person, account, plan, ARR and urgency, the score breakdown at the current weights, and the decision if there is one.</li>
+      <li><b>Criteria.</b> Move the four weights. The preview re-ranks the scored needs live and a pencil note explains what moved. Save stays disabled until the weights sum to 1.00, the same rule <code>set_criteria</code> enforces.</li>
+      <li><b>Save.</b> The weights turn to ink and the Needs board re-ranks. Undo restores the previous weights.</li>
+      <li><b>Metrics.</b> Shows the three MVP metrics as big numbers, with people and agents counted apart. Baselines are unknown. Below them come the guardrails and the supporting counts. You can switch between 28 days (the API default) and 90 days (the length of the seed).</li>
+      <li><b>Chat.</b> The Operator asks "What are enterprise accounts blocked on?". The answer comes back as pencil prose, and each need it mentions is a link. The cited needs follow as a ruled list. Clicking one opens it on the Needs board.</li>
+    </ol></dd>
+    <dt>Operations</dt>
+    <dd><code>get_demand_summary</code>, <code>search_needs</code>, <code>list_suggestions</code>, <code>get_need_detail</code> (board and open row) · <code>get_criteria</code>, <code>set_criteria</code> (criteria, and Undo as a second <code>set_criteria</code>) · <code>get_metrics</code> with <code>from</code>/<code>to</code> · <code>get_demand_summary</code> with <code>accountId</code> (chat).</dd>
+    <dt>Not in API</dt>
+    <dd><ul>
+      <li><b>One operator list of needs.</b> No single operation returns every need with its score, accounts, ARR and pending count. The board combines <code>get_demand_summary</code> (live needs only, and it reports ARR plus open deals together), <code>search_needs</code> (shipped and declined needs) and <code>list_suggestions</code> (pending markers). The open row is one <code>get_need_detail</code> call.</li>
+      <li><b>Bulk criterion scores for the live preview.</b> Re-ranking before Save needs each need's per-criterion scores. Today that means one <code>get_need_detail</code> per scored need, and the arithmetic runs in the client.</li>
+      <li><b>AI explanation of ranking impact.</b> <code>get_criteria</code> and <code>set_criteria</code> return only weights. The pencil "What changes" note has no operation behind it.</li>
+      <li><b>False-match rate.</b> <code>get_metrics</code> does not compute it. The page shows rejected merge suggestions (from <code>suggestionAcceptance.byKind</code>) as the nearest count and labels it as a stand-in.</li>
+      <li><b>Filter demand by plan.</b> <code>get_demand_summary</code> filters only by <code>accountId</code> or <code>themeId</code>. For "enterprise", the chat calls it once for each Enterprise account (Acme, Northwind Traders, Globex) and merges the results.</li>
+    </ul></dd>
+    <dt>Risks</dt>
+    <dd>Only 4 of 23 needs have scores in the seed, so a board "sorted by priority" is mostly sorted by supporters. The criteria preview can only move those four. In the seed, prevention rate is close to 100% by construction (every supporter after a need's first joins it at submission). On real data the number will be much lower. Chat prose is AI and stays in pencil, and nothing in it is confirmed. The needs table on a phone drops the theme, accounts and ARR columns.</dd>
+    <dt>Content</dt>
+    <dd>All needs, accounts, plans, ARR, asks, scores, decisions and suggestions come from the demo seed (<code>demo-data.ts</code> and <code>demo-workspace.ts</code>). People's names and urgencies come from the seed's fixed faker run. Metrics were computed from the seed's event log using <code>get_metrics</code>' rules. Invented: the prose in the chat answer, the pencil explanations on Criteria, the short need names used in that prose, and the example weights in step 4.</dd>
+  </dl>
+</header>
+
+<section class="section" style="margin-top:0">
+  <h2>The flow</h2>
+  <p class="sub">The strip jumps to each state, and you can also click through inside the frame. State is real: filters, sorting, the open row, weights, saves and the chat all change what renders.</p>
+  <nav class="flow" id="flow" aria-label="Flow steps"></nav>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light · interactive</p><div class="frame desk theme-light" id="f-main"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Key screen · dark</h2>
+  <p class="sub">The Needs board with Scheduled delivery open, the one need that has a score, a decision and Enterprise supporters.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · dark</p><div class="frame desk theme-dark" id="f-dark"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Key screen · phone</h2>
+  <p class="sub">On a phone each row stacks: the statement, then score, status and people. Accounts and ARR show when a row is open; theme is left out.</p>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" id="f-phone"></div></div></div>
+</section>
+
+</div>
+
+<script>
+/* ===================== Seed data (generated from lib/signal/seed at 2026-10-30) ===================== */
+const ACCOUNTS={"acme":{"n":"Acme","plan":"Enterprise","arr":480000,"deal":120000},"northwind":{"n":"Northwind Traders","plan":"Enterprise","arr":360000,"deal":0},"globex":{"n":"Globex","plan":"Enterprise","arr":290000,"deal":80000},"initech":{"n":"Initech","plan":"Growth","arr":96000,"deal":24000},"brightline":{"n":"Brightline Health","plan":"Growth","arr":72000,"deal":0},"harbor":{"n":"Harbor Logistics","plan":"Growth","arr":60000,"deal":30000},"pinecone":{"n":"Pinecone Cafe Group","plan":"Starter","arr":12000,"deal":0},"lumen":{"n":"Lumen Studio","plan":"Starter","arr":9000,"deal":6000}};
+const NEEDS=[
+{"k":"n1","st":"Executives need to share dashboard snapshots outside the product so that board meetings use current numbers","th":"reporting","s":"open","p":11,"a":["initech","pinecone","brightline","globex","harbor","acme","lumen","northwind"],"sc":null,"pend":[],"r":3,"pv":6,"age":84,"dec":null,"sol":["PDF export","Scheduled email digest"],"top":[{"q":"Our exec team wants the KPI dashboard as a PDF they can drop into the board deck.","who":"Dawson","acct":"harbor","u":"high","uc":"monthly board deck","ag":0},{"q":"Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.","who":"Obie","acct":null,"u":"high","uc":null,"ag":0}]},
+{"k":"n2","st":"Compliance teams need to archive monthly reports so that audits have a fixed record","th":"reporting","s":"open","p":6,"a":["lumen","brightline","harbor","initech"],"sc":null,"pend":["public_summary"],"r":1,"pv":4,"age":70,"dec":null,"sol":["PDF export","Report snapshots with retention"],"top":[{"q":"We need a frozen copy of each month's report stored for seven years.","who":"Lynda","acct":"brightline","u":"high","uc":"financial audit evidence","ag":0},{"q":"Auditors ask for the monthly compliance report exactly as it was at month end. Please add PDF export.","who":"Leticia","acct":"harbor","u":"high","uc":"regulator request","ag":0}]},
+{"k":"scheduled-delivery","st":"Managers need to receive key dashboards on a schedule so that they act on numbers without logging in","th":"reporting","s":"planned","p":12,"a":["harbor","lumen","pinecone","brightline","acme","initech","globex","northwind"],"sc":{"business_value":4,"demand":4,"effort":3,"strategic_fit":5},"pend":[],"r":3,"pv":3,"age":88,"dec":"Scheduled delivery is planned for the next quarter, starting with weekly email.","sol":["Scheduled email digest"],"top":[{"q":"Let me get the sales dashboard in my inbox every Monday at 8am.","who":"Armando","acct":"northwind","u":"high","uc":null,"ag":0},{"q":"Our regional managers never log in. Emailing them the numbers weekly would fix that.","who":"Miranda","acct":"pinecone","u":"high","uc":"Monday sales review","ag":0}]},
+{"k":"pivot","st":"Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change","th":"reporting","s":"shipped","p":10,"a":["lumen","initech","harbor","pinecone","northwind"],"sc":null,"pend":[],"r":3,"pv":6,"age":75,"dec":"Two-level grouping shipped in the 4.2 release.","sol":["Pivot tables","Multi-dimension grouping"],"top":[{"q":"Pivoting by two fields is impossible today; we export to Excel to do it.","who":"Armando","acct":"northwind","u":"high","uc":"product mix review","ag":0},{"q":"We need to see revenue split by region and product on one chart.","who":"Bridget","acct":"lumen","u":"high","uc":null,"ag":0}]},
+{"k":"annotations","st":"Analysts need to explain changes directly on charts so that teammates understand why numbers moved","th":"collaboration","s":"open","p":6,"a":["pinecone","globex","acme","northwind"],"sc":null,"pend":[],"r":3,"pv":3,"age":40,"dec":null,"sol":["Chart annotations"],"top":[{"q":"When a number jumps I want to leave a note on the chart explaining why.","who":"Cassandra","acct":"globex","u":"high","uc":"incident explanations","ag":0},{"q":"Comments on data points so the team knows the spike was a promo.","who":"Aletha","acct":"acme","u":"medium","uc":null,"ag":0}]},
+{"k":"crm-sync","st":"Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale","th":"integrations","s":"in_progress","p":12,"a":["northwind","harbor","brightline","globex","lumen","initech"],"sc":{"business_value":5,"demand":4,"effort":2,"strategic_fit":4},"pend":[],"r":3,"pv":4,"age":86,"dec":"A two-way CRM sync is in progress; beta opens next month.","sol":["Salesforce connector","HubSpot connector"],"top":[{"q":"Push new deals from Salesforce into the dashboard automatically.","who":"Breana","acct":"globex","u":"high","uc":"pipeline review","ag":0},{"q":"Our support copilot keeps asking for live opportunity data from the CRM.","who":"Garrick","acct":"brightline","u":"high","uc":null,"ag":0}]},
+{"k":"chat-alerts","st":"Operations teams need threshold alerts in their team chat so that they react before customers notice","th":"integrations","s":"open","p":11,"a":["initech","pinecone","lumen","northwind","acme","brightline","globex","harbor"],"sc":null,"pend":[],"r":1,"pv":6,"age":65,"dec":null,"sol":["Slack integration","Microsoft Teams integration"],"top":[{"q":"Send a Slack message to #ops when inventory drops below the threshold.","who":"Lewis","acct":"initech","u":"high","uc":"low inventory","ag":0},{"q":"Alerts should go where the team already talks, which is Slack or Teams.","who":"Kathryne","acct":"pinecone","u":"high","uc":"SLA breach","ag":0}]},
+{"k":"webhooks","st":"Developers need to be notified when data changes so that their systems stay in sync without polling","th":"integrations","s":"open","p":10,"a":["acme","pinecone","initech","globex","brightline","northwind","lumen"],"sc":null,"pend":[],"r":6,"pv":4,"age":58,"dec":null,"sol":["Webhooks"],"top":[{"q":"We poll the API every minute. Event webhooks would be much better.","who":"Ramiro","acct":"brightline","u":"high","uc":"ERP sync","ag":0},{"q":"Notify our ERP when an order record is updated.","who":"Darrell","acct":"lumen","u":"high","uc":null,"ag":1}]},
+{"k":"warehouse","st":"Data teams need to query their warehouse directly so that dashboards use one source of truth","th":"integrations","s":"open","p":8,"a":["harbor","brightline","initech"],"sc":{"business_value":4,"demand":3,"effort":2,"strategic_fit":4},"pend":[],"r":2,"pv":3,"age":80,"dec":null,"sol":["Snowflake connector","BigQuery connector"],"top":[{"q":"Our Snowflake warehouse is the source of truth. Query it directly please.","who":"Lucille","acct":"harbor","u":"high","uc":"finance reporting","ag":0},{"q":"Uploading CSV extracts from BigQuery every day is error prone.","who":"Lewis","acct":"initech","u":"medium","uc":null,"ag":0}]},
+{"k":"sso","st":"IT admins need to control sign-in through their identity provider so that access follows company policy","th":"admin","s":"shipped","p":8,"a":["pinecone","acme","initech","brightline"],"sc":null,"pend":[],"r":1,"pv":0,"age":89,"dec":"SAML SSO shipped for Enterprise plans.","sol":["SAML SSO","Okta integration"],"top":[{"q":"IT requires all tools to use Okta single sign-on before we can roll out further.","who":"Dolores","acct":"initech","u":"high","uc":"procurement requirement","ag":0},{"q":"We need SAML SSO for procurement to approve the renewal.","who":"Ramiro","acct":"brightline","u":"high","uc":"procurement requirement","ag":0}]},
+{"k":"permissions","st":"Admins need to limit who can see each dashboard so that sensitive numbers stay with the right people","th":"admin","s":"open","p":8,"a":["acme","brightline","pinecone","initech","lumen"],"sc":{"business_value":4,"demand":3,"effort":3,"strategic_fit":3},"pend":[],"r":4,"pv":2,"age":62,"dec":null,"sol":["Role-based access control","Folder permissions"],"top":[{"q":"Finance dashboards must be hidden from the rest of the company.","who":"Joseph","acct":"acme","u":"high","uc":null,"ag":0},{"q":"Contractors should only see the dashboards for their project.","who":"Ricardo","acct":"initech","u":"high","uc":"finance data","ag":1}]},
+{"k":"audit-log","st":"Security teams need a record of who accessed and changed reports so that they can answer audit questions","th":"admin","s":"open","p":6,"a":["pinecone","globex","lumen","harbor","initech"],"sc":null,"pend":[],"r":4,"pv":2,"age":55,"dec":null,"sol":["Audit log export"],"top":[{"q":"Security wants a log of who viewed or exported which report.","who":"Jackson","acct":"harbor","u":"high","uc":null,"ag":0},{"q":"For our ISO audit we must show who changed dashboard definitions.","who":"Amalia","acct":"initech","u":"medium","uc":null,"ag":1}]},
+{"k":"provisioning","st":"IT admins need accounts created and removed automatically so that leavers lose access the same day","th":"admin","s":"open","p":4,"a":["initech","acme"],"sc":null,"pend":[],"r":3,"pv":1,"age":35,"dec":null,"sol":["SCIM provisioning"],"top":[{"q":"Create users automatically when they join in Azure AD and remove them when they leave.","who":"Leah","acct":null,"u":"high","uc":"onboarding","ag":0}]},
+{"k":"co-editing","st":"Teams need to edit dashboards together without overwriting work so that building reports is not serialized","th":"collaboration","s":"open","p":6,"a":["harbor","northwind","pinecone"],"sc":null,"pend":[],"r":3,"pv":3,"age":50,"dec":null,"sol":["Real-time co-editing"],"top":[{"q":"Let me see who else is editing the dashboard right now.","who":"Rogelio","acct":"pinecone","u":"high","uc":"team workshops","ag":0},{"q":"Two people editing the same dashboard overwrite each other.","who":"Yasmine","acct":"northwind","u":"medium","uc":"quarter-end crunch","ag":0}]},
+{"k":"mentions","st":"Analysts need to pull a colleague into a specific chart so that questions get answered in context","th":"collaboration","s":"open","p":4,"a":["pinecone","brightline","initech"],"sc":null,"pend":[],"r":3,"pv":1,"age":30,"dec":null,"sol":["@mentions"],"top":[{"q":"Mention a colleague on a chart and have them get notified.","who":"Kathryne","acct":"pinecone","u":"high","uc":"review requests","ag":0}]},
+{"k":"dark-mode","st":"Operators need a low-glare display so that they can watch dashboards on wall screens all day","th":"reporting","s":"declined","p":5,"a":["globex","northwind","initech"],"sc":null,"pend":[],"r":2,"pv":1,"age":72,"dec":"Not planned: we are focusing on accessibility contrast first.","sol":["Dark theme"],"top":[{"q":"Dark mode for the dashboard would be easier on the eyes in our ops room.","who":"Armando","acct":"northwind","u":"high","uc":"ops room wall screen","ag":1}]},
+{"k":"mobile","st":"Field managers need to read dashboards on their phones so that they decide on the spot","th":"reporting","s":"open","p":6,"a":["globex","northwind","lumen"],"sc":null,"pend":[],"r":3,"pv":3,"age":45,"dec":null,"sol":["Responsive dashboards","Mobile app"],"top":[{"q":"Our field team checks numbers on phones and the charts are unreadable.","who":"Jeanne","acct":"globex","u":"high","uc":"store visits","ag":0},{"q":"Please make dashboards work on an iPad for store managers.","who":"Percy","acct":"lumen","u":"medium","uc":"store visits","ag":0}]},
+{"k":"metric-layer","st":"Analysts need one shared definition per metric so that every dashboard reports the same number","th":"reporting","s":"open","p":5,"a":["lumen","globex","acme","northwind"],"sc":null,"pend":[],"r":5,"pv":0,"age":28,"dec":null,"sol":["Semantic layer"],"top":[{"q":"Let me define a metric once and reuse it everywhere so numbers match.","who":"Wanda","acct":"acme","u":"medium","uc":"revenue definition disputes","ag":0}]},
+{"k":"sheets","st":"Small teams need spreadsheet data to refresh automatically so that dashboards stay current without uploads","th":"integrations","s":"open","p":4,"a":["initech","lumen","harbor"],"sc":null,"pend":[],"r":4,"pv":0,"age":24,"dec":null,"sol":["Google Sheets connector"],"top":[{"q":"Upload a spreadsheet and have it refresh from Google Sheets daily.","who":"Amalia","acct":"initech","u":"medium","uc":null,"ag":1}]},
+{"k":"freshness","st":"Report readers need to know when data is stale so that they don't decide on yesterday's numbers","th":"reporting","s":"open","p":4,"a":["harbor","initech","acme","lumen"],"sc":null,"pend":[],"r":4,"pv":0,"age":18,"dec":null,"sol":["Data freshness indicator"],"top":[{"q":"When the data is late, tell us before the morning meeting instead of showing yesterday's numbers.","who":"Bennett","acct":"lumen","u":"high","uc":"morning stand-up","ag":1}]},
+{"k":"embed","st":"Product teams need to show live charts inside their own app so that customers see their usage","th":"integrations","s":"draft","p":2,"a":["acme","northwind"],"sc":null,"pend":["draft_need","theme"],"r":2,"pv":0,"age":9,"dec":null,"sol":["Embeddable charts"],"top":[{"q":"Let us embed a live chart in our customer portal.","who":"Bertha","acct":"acme","u":"medium","uc":"customer usage portal","ag":0}]},
+{"k":"localization","st":"International teams need dashboards in their language so that local managers read them without help","th":"reporting","s":"draft","p":1,"a":["lumen"],"sc":null,"pend":["draft_need"],"r":1,"pv":0,"age":6,"dec":null,"sol":["Dashboard translations"],"top":[{"q":"Translate the dashboard labels into German and French for our EU offices.","who":"Emanuel","acct":"lumen","u":"medium","uc":"EU offices","ag":0}]},
+{"k":"support-lookup","st":"Support agents need to see a customer's open requests while replying so that they set honest expectations","th":"collaboration","s":"draft","p":1,"a":["globex"],"sc":null,"pend":["draft_need"],"r":1,"pv":0,"age":3,"dec":null,"sol":["Support sidebar app"],"top":[{"q":"Our support copilot wants to look up a customer's open requests before replying.","who":"Cassandra","acct":"globex","u":"medium","uc":"support replies","ag":0}]}
+];
+
+/* ===================== Constants ===================== */
+var CRIT=[
+  {key:'demand',name:'Demand',desc:'Supporters, weighted by account.'},
+  {key:'business_value',name:'Business value',desc:'Revenue of requesting accounts and open deals.'},
+  {key:'strategic_fit',name:'Strategic fit',desc:'Match to PM-set themes.'},
+  {key:'effort',name:'Effort',desc:'Rough effort estimate (5 = small).'}
+];
+var SEED_W={demand:0.35,business_value:0.3,strategic_fit:0.2,effort:0.15};
+var THEMES={reporting:'Reporting',integrations:'Integrations',admin:'Administration and security',collaboration:'Collaboration'};
+var STATUS={draft:['Draft','s-new','st-new'],open:['Open','s-open','st-open'],planned:['Planned','s-planned','st-planned'],in_progress:['In progress','s-progress','st-progress'],shipped:['Shipped','s-shipped','st-shipped'],declined:['Declined','s-declined','st-declined']};
+var LIVE={draft:1,open:1,planned:1,in_progress:1};
+var SHORT={'scheduled-delivery':'Scheduled delivery','crm-sync':'CRM sync','warehouse':'Warehouse queries','permissions':'Dashboard permissions',
+  n1:'Dashboard snapshots','chat-alerts':'Chat alerts','webhooks':'Change webhooks','metric-layer':'Shared metric definitions','annotations':'Chart annotations'};
+var KIND={merge:'Merge',priority:'Priority',public_summary:'Public summary',decision_brief:'Decision brief',draft_need:'Draft need',theme:'Theme'};
+var CANNED='What are enterprise accounts blocked on?';
+var TRIAGE_N=NEEDS.reduce(function(s,n){return s+n.pend.length;},0);
+var BYKEY={}; NEEDS.forEach(function(n){BYKEY[n.k]=n;});
+
+/* get_metrics, computed from the seed's event log with the operation's rules (to = 2026-10-30) */
+var METRICS={
+  90:{from:'Aug 1',prev:{all:[125,127],human:[98,100],agent:[27,27]},
+      lat:{all:[58,5],human:[58,5],agent:[null,0],open:[12,58]},
+      acc:{all:[12,1,1],human:[12,1,1],agent:[0,0,0],kinds:[['merge',2,0,1],['priority',4,0,0],['public_summary',1,1,0],['decision_brief',5,0,0]]},
+      unmerge:[0,2],rejectedMerges:1,ctx:{all:[111,150],human:[86,118],agent:[25,32]},triage:[24,14],load:[19,14,5]},
+  28:{from:'Oct 2',prev:{all:[53,53],human:[42,42],agent:[11,11]},
+      lat:{all:[63,3],human:[63,3],agent:[null,0],open:[12,58]},
+      acc:{all:[3,0,0],human:[3,0,0],agent:[0,0,0],kinds:[['decision_brief',3,0,0]]},
+      unmerge:[0,0],rejectedMerges:0,ctx:{all:[42,58],human:[35,45],agent:[7,13]},triage:[18,3],load:[7,3,5]}
+};
+
+/* ===================== Helpers ===================== */
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function r2(x){return Math.round(x*100)/100;}
+function f2(x){return (Math.round(x*100)/100).toFixed(2);}
+function icon(id,cls){return '<svg class="'+(cls||'i')+'"><use href="#'+id+'"/></svg>';}
+function money(d){return d>=1e6?'$'+(d/1e6).toFixed(2)+'M':'$'+Math.round(d/1000)+'k';}
+function arrOf(n){return n.a.reduce(function(s,k){return s+ACCOUNTS[k].arr;},0);}
+function dealsOf(n){return n.a.reduce(function(s,k){return s+ACCOUNTS[k].deal;},0);}
+function scoreOf(n,w){if(!n.sc) return null; var s=0; CRIT.forEach(function(c){s+=n.sc[c.key]*w[c.key];}); return r2(s);}
+function statusHtml(s){var t=STATUS[s];return '<span class="status '+t[1]+'"><svg><use href="#'+t[2]+'"/></svg>'+t[0]+'</span>';}
+function trend(n){if(n.r>n.pv*1.2&&n.r>0) return 'rising'; if(n.r<n.pv*0.8) return 'falling'; return 'steady';}
+function pct(a,b){return b?Math.round(a/b*100):null;}
+function sumW(w){return r2(w.demand+w.business_value+w.strategic_fit+w.effort);}
+function sameW(a,b){return CRIT.every(function(c){return r2(a[c.key])===r2(b[c.key]);});}
+function wList(w){return CRIT.map(function(c){return c.name.toLowerCase()+' '+f2(w[c.key]);}).join(', ');}
+function rankScored(w){
+  return NEEDS.filter(function(n){return n.sc;}).map(function(n){return {n:n,s:scoreOf(n,w)};})
+    .sort(function(a,b){return b.s-a.s||b.n.p-a.n.p||(a.n.k<b.n.k?-1:1);});
+}
+
+/* ===================== Views ===================== */
+function shell(app){
+  var items=[['triage','Triage <span class="n">'+TRIAGE_N+'</span>'],['needs','Needs'],['criteria','Criteria'],['metrics','Metrics'],['chat','Chat']];
+  var links=items.map(function(it){
+    if(it[0]==='triage') return '<a href="4a-triage.html" title="Triage is prototype 4a">'+it[1]+'</a>';
+    var on=app.tab===it[0];
+    return '<a href="#'+it[0]+'" data-nav="'+it[0]+'"'+(on?' class="active" aria-current="page"':'')+'>'+it[1]+'</a>';
+  }).join('');
+  return '<header class="topbar op"><span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>'+
+    '<nav class="topnav">'+links+'</nav><span class="role">Operator</span></header><nav class="mnav">'+links+'</nav>';
+}
+
+function filtered(app){
+  var q=app.q.trim().toLowerCase();
+  var list=NEEDS.filter(function(n){
+    if(app.theme!=='all'&&n.th!==app.theme) return false;
+    if(app.status==='live'&&!LIVE[n.s]) return false;
+    if(app.status!=='all'&&app.status!=='live'&&n.s!==app.status) return false;
+    if(q&&n.st.toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  var k=app.sort.k,d=app.sort.d;
+  var val=function(n){return k==='priority'?scoreOf(n,app.saved):k==='people'?n.p:k==='accounts'?n.a.length:arrOf(n);};
+  list.sort(function(a,b){
+    var va=val(a),vb=val(b);
+    if(va===null&&vb!==null) return 1; if(vb===null&&va!==null) return -1;
+    if(va!==null&&va!==vb) return d<0?vb-va:va-vb;
+    return b.p-a.p||(a.k<b.k?-1:1);
+  });
+  return list;
+}
+
+function sortTh(app,key,label,right){
+  var on=app.sort.k===key;
+  var txt=on?'<span class="sort">'+label+' '+(app.sort.d<0?'↓':'↑')+'</span>':label;
+  return '<th'+(right?' class="r"':'')+' aria-sort="'+(on?(app.sort.d<0?'descending':'ascending'):'none')+'"><button class="sortb" data-sort="'+key+'">'+txt+'</button></th>';
+}
+
+function quote(t){
+  var A=t.acct?ACCOUNTS[t.acct]:null;
+  var who=t.who+' · '+(A?A.n+' · '+A.plan+' · '+money(A.arr)+' ARR':'Prospect, no account')+' · '+t.u.charAt(0).toUpperCase()+t.u.slice(1)+(t.uc?' · '+t.uc:'')+(t.ag?' · via agent':'');
+  return '<blockquote class="quote">“'+esc(t.q)+'”<cite>'+esc(who)+'</cite></blockquote>';
+}
+
+function expansion(app,n){
+  var accs=n.a.map(function(k){return ACCOUNTS[k];}).sort(function(x,y){return y.arr-x.arr;});
+  var left='<div><span class="k">Top signals · verbatim</span>'+n.top.map(quote).join('')+
+    '<p class="accline"><b>'+n.p+' people · '+accs.length+' account'+(accs.length===1?'':'s')+'</b> · '+accs.map(function(a){return esc(a.n)+' <span class="quiet">('+a.plan+')</span>';}).join(', ')+
+    '<br>ARR '+money(arrOf(n))+' · open deals '+money(dealsOf(n))+' · '+n.r+' new in the last 30 days</p></div>';
+  var right='<div class="expside"><span class="k">Score</span>';
+  if(n.sc){
+    var w=app.saved;
+    right+='<div class="score">'+CRIT.map(function(c){
+      var s=n.sc[c.key],p='';for(var i=0;i<5;i++) p+='<i'+(i<s?' class="f"':'')+'></i>';
+      return '<div class="crit">'+c.name+'</div><div><span class="spips">'+p+'</span></div><div class="sval">'+s+'</div><div class="sreason">× '+f2(w[c.key])+' = '+f2(s*w[c.key])+'</div>';
+    }).join('')+'</div><div class="overall"><span class="mono">'+f2(scoreOf(n,w))+'</span><span class="sub">AI scores, accepted in Triage · effort 5 = small</span></div>';
+  } else {
+    right+='<p class="none-yet">No priority score yet. A score arrives as a priority suggestion in Triage.</p>';
+  }
+  if(n.dec) right+='<div class="ink"><span class="ilabel">Decision · '+STATUS[n.s][0]+'</span><p>'+esc(n.dec)+'</p></div>';
+  right+='<div class="expfoot"><a class="btn btn-outline sm" href="4b-decide.html" title="Need detail is prototype 4b">Open need'+icon('i-arrow-r')+'</a>';
+  if(n.pend.length) right+='<span class="pmark"><i></i>'+n.pend.map(function(k){return KIND[k];}).join(', ')+' pending</span><a class="btn-text" style="font-size:13px" href="4a-triage.html">Review in Triage</a>';
+  right+='</div></div>';
+  return '<div class="expgrid"><div></div>'+left+right+'</div>';
+}
+
+function tableHtml(app){
+  var list=filtered(app);
+  var head='<thead><tr>'+sortTh(app,'priority','Priority')+'<th>Need</th><th>Theme</th><th>Status</th>'+sortTh(app,'people','People',1)+sortTh(app,'accounts','Accounts',1)+sortTh(app,'arr','ARR',1)+'<th><span class="lbl">Pending</span></th></tr></thead>';
+  var body=list.map(function(n){
+    var s=scoreOf(n,app.saved),open=app.open===n.k;
+    var pend=n.pend.length?'<span class="pmark" title="'+n.pend.map(function(k){return KIND[k];}).join(', ')+' pending"><i></i>'+n.pend.length+' pending</span>':(open?icon('i-chev-d'):'');
+    var row='<tr class="nrow'+(open?' open':'')+(app.hl===n.k?' hl':'')+'" data-row="'+n.k+'" tabindex="0" aria-expanded="'+open+'">'+
+      '<td class="sc'+(s===null?' quiet':'')+'" title="'+(s===null?'Not scored':'Priority score')+'">'+(s===null?'—':f2(s))+'</td>'+
+      '<td class="st">'+esc(n.st)+'</td><td class="th">'+THEMES[n.th]+'</td><td>'+statusHtml(n.s)+'</td>'+
+      '<td class="num">'+n.p+'<span class="lbl"> '+(n.p===1?'person':'people')+'</span></td><td class="num acc">'+n.a.length+'</td><td class="num arr">'+money(arrOf(n))+'</td>'+
+      '<td class="pend">'+pend+'</td></tr>';
+    if(open) row+='<tr class="exp"><td colspan="8">'+expansion(app,n)+'</td></tr>';
+    return row;
+  }).join('');
+  if(!list.length) body='<tr class="empty"><td colspan="8">No needs match these filters.</td></tr>';
+  return head+'<tbody>'+body+'</tbody>';
+}
+
+function needsCount(app){
+  var n=filtered(app).length, sortName={priority:'priority',people:'people',accounts:'accounts',arr:'ARR'}[app.sort.k];
+  return (n===NEEDS.length?n+' needs':n+' of '+NEEDS.length+' needs')+' · sorted by '+sortName;
+}
+
+function needsView(app){
+  var opt=function(v,l,cur){return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+l+'</option>';};
+  var themeSel=opt('all','All',app.theme)+Object.keys(THEMES).map(function(k){return opt(k,THEMES[k],app.theme);}).join('');
+  var statSel=opt('all','All',app.status)+opt('live','Live',app.status)+Object.keys(STATUS).map(function(k){return opt(k,STATUS[k][0],app.status);}).join('');
+  var rew=app.justSaved?'<p class="reweighed">'+icon('i-check')+'<span>Re-ranked with the weights you saved: <span class="mono">'+wList(app.saved)+'</span></span><button class="btn-text" data-act="undo">'+icon('i-undo')+'Undo</button></p>':'';
+  return '<main class="wrap wide"><div class="ophead"><div><h1 class="h1">Needs</h1><p class="lede" style="font-size:16px" data-count>'+needsCount(app)+'</p>'+rew+'</div>'+
+    '<label class="search">'+icon('i-search')+'<input type="search" data-f="q" placeholder="Search needs" aria-label="Search needs" value="'+esc(app.q)+'"></label></div>'+
+    '<div class="tools needs-tools"><label class="filter">Theme: <select data-f="theme" aria-label="Theme">'+themeSel+'</select>'+icon('i-chev-d')+'</label>'+
+    '<label class="filter">Status: <select data-f="status" aria-label="Status">'+statSel+'</select>'+icon('i-chev-d')+'</label>'+
+    '<span class="cnt"><span class="pmark"><i></i>pending in Triage</span></span></div>'+
+    '<table class="ntable" data-table>'+tableHtml(app)+'</table></main>';
+}
+
+function criteriaView(app){
+  var rows=CRIT.map(function(c){
+    return '<li class="wrow"><div><span class="wname">'+c.name+'</span><span class="wdesc">'+c.desc+'</span></div>'+
+      '<input type="range" min="0" max="1" step="0.05" value="'+app.draft[c.key]+'" data-w="'+c.key+'" aria-label="'+c.name+' weight">'+
+      '<span class="wval" data-wv="'+c.key+'"></span></li>';
+  }).join('');
+  var unscored=NEEDS.filter(function(n){return !n.sc;}).length;
+  return '<main class="wrap wide"><div class="ophead"><div><h1 class="h1">Criteria</h1><p class="lede" style="font-size:16px">How priority is weighed. A need\'s score is the weighted sum of its 0–5 criterion scores.</p></div></div>'+
+    '<div class="crit-grid"><div><span class="k blockk">Weights</span><ol class="wlist">'+rows+'</ol>'+
+    '<div class="wsum" data-sum><span class="msg" data-msg></span><span><span>Total</span><span class="mono" data-total></span></span></div>'+
+    '<div class="cacts"><button class="btn btn-primary" data-act="save">Save weights</button><button class="btn-text" data-act="balance">Balance the others</button><button class="btn-text" data-act="reset">Reset</button></div>'+
+    '<div class="savedline" data-saved></div></div>'+
+    '<div><span class="k blockk">Preview · scored needs</span><ol class="plist" data-preview></ol>'+
+    '<p class="pnote">The other '+unscored+' needs have no scores yet, so they rank below these by supporters and do not move.</p>'+
+    '<div data-explain></div></div></div></main>';
+}
+
+function updateCriteria(app){
+  var root=app.root, d=app.draft, s=app.saved, total=sumW(d), valid=Math.abs(total-1)<1e-6, changed=!sameW(d,s);
+  CRIT.forEach(function(c){
+    var el=root.querySelector('[data-wv="'+c.key+'"]'); el.textContent=f2(d[c.key]); el.classList.toggle('chg',r2(d[c.key])!==r2(s[c.key]));
+    var inp=root.querySelector('[data-w="'+c.key+'"]'); if(Math.abs(+inp.value-d[c.key])>1e-9) inp.value=d[c.key];
+  });
+  root.querySelector('[data-total]').textContent=f2(total);
+  root.querySelector('[data-sum]').classList.toggle('bad',!valid);
+  root.querySelector('[data-msg]').textContent=valid?(changed?'Not saved yet':'Saved weights'):'Weights must add up to 1.00';
+  root.querySelector('[data-act="save"]').disabled=!valid||!changed;
+  root.querySelector('[data-act="reset"]').disabled=!changed;
+  root.querySelector('[data-act="balance"]').disabled=valid;
+  var before=rankScored(s), after=rankScored(d);
+  var oldRank={},oldScore={}; before.forEach(function(x,i){oldRank[x.n.k]=i;oldScore[x.n.k]=x.s;});
+  root.querySelector('[data-preview]').innerHTML=after.map(function(x,i){
+    var mv=oldRank[x.n.k]-i, sc=x.s!==oldScore[x.n.k]?'<span class="was">'+f2(oldScore[x.n.k])+' →</span>'+f2(x.s):f2(x.s);
+    return '<li class="prow'+(mv?' moved':'')+'"><span class="rk">'+(i+1)+'</span><span class="pst" title="'+esc(x.n.st)+'">'+esc(x.n.st)+'</span><span class="psc">'+sc+'</span>'+
+      '<span class="mv'+(mv>0?' up':mv<0?' down':'')+'">'+(mv>0?'↑'+mv:mv<0?'↓'+(-mv):'—')+'</span></li>';
+  }).join('');
+  root.querySelector('[data-explain]').innerHTML=explain(d,s,before,after,valid,changed);
+  var sv=root.querySelector('[data-saved]');
+  if(app.justSaved){
+    sv.innerHTML='<div class="ink"><span class="ilabel">'+icon('i-check')+'Saved · just now</span><p>'+esc(app.savedMsg)+'</p></div>'+
+      '<p style="margin:10px 0 0;display:flex;gap:18px"><button class="btn-text" data-act="undo">'+icon('i-undo')+'Undo</button><button class="btn-text" data-nav="needs">See the Needs board'+icon('i-arrow-r')+'</button></p>';
+  } else if(app.undone){
+    sv.innerHTML='<p class="quiet" style="margin:0;font-size:13px">Previous weights restored.</p>';
+  } else sv.innerHTML='';
+}
+
+function explain(d,s,before,after,valid,changed){
+  if(!changed) return '<div class="explain idle">Move a weight to see how the ranking shifts before you save.</div>';
+  var moves=[], oldRank={}; before.forEach(function(x,i){oldRank[x.n.k]=i;});
+  after.forEach(function(a,i){
+    after.forEach(function(b,j){
+      if(i<j&&oldRank[a.n.k]>oldRank[b.n.k]){
+        var best=null,bv=0;
+        CRIT.forEach(function(c){var v=(a.n.sc[c.key]-b.n.sc[c.key])*(d[c.key]-s[c.key]); if(v>bv){bv=v;best=c;}});
+        if(best){
+          var dir=d[best.key]>s[best.key]?'now weighs more':'now weighs less';
+          moves.push(SHORT[a.n.k]+' passes '+SHORT[b.n.k]+'. It scores '+a.n.sc[best.key]+' on '+best.name.toLowerCase()+' against '+b.n.sc[best.key]+', and '+best.name.toLowerCase()+' '+dir+' ('+f2(s[best.key])+' → '+f2(d[best.key])+').');
+        } else moves.push(SHORT[a.n.k]+' passes '+SHORT[b.n.k]+'.');
+      }
+    });
+  });
+  var maxShift=0, bs={}; before.forEach(function(x){bs[x.n.k]=x.s;});
+  after.forEach(function(x){maxShift=Math.max(maxShift,Math.abs(x.s-bs[x.n.k]));});
+  var body=moves.length?moves.map(function(m){return '<p>'+esc(m)+'</p>';}).join(''):'<p>The order stays the same. Scores move by at most '+f2(maxShift)+'.</p>';
+  if(!valid) body+='<p>The weights add up to '+f2(sumW(d))+', so this preview overstates every score. Balance them before saving.</p>';
+  return '<div class="pencil explain"><span class="plabel">'+icon('i-pencil')+'What changes</span>'+body+'</div>';
+}
+
+function pctBig(a,b){var p=pct(a,b);return p===null?'<span class="big na">—</span>':'<span class="big">'+p+'<small>%</small></span>';}
+function splitRate(pair,unit){return pair[1]?pct(pair[0],pair[1])+'% · '+pair[0]+' of '+pair[1]:'<span class="quiet">none in window</span>';}
+
+function metricsView(app){
+  var M=METRICS[app.win];
+  var accAll=M.acc.all, accN=accAll[0]+accAll[1]+accAll[2];
+  var kinds='<table class="kinds"><thead><tr><th>Kind</th><th>As-is</th><th>Edited</th><th>Rejected</th></tr></thead><tbody>'+
+    M.acc.kinds.map(function(k){return '<tr><td>'+KIND[k[0]]+'</td><td>'+k[1]+'</td><td>'+k[2]+'</td><td>'+k[3]+'</td></tr>';}).join('')+'</tbody></table>';
+  var lat=function(x){return x[1]?x[0]+' d · '+x[1]+' decision'+(x[1]===1?'':'s'):'<span class="quiet">no decisions</span>';};
+  var accSplit=function(x){var t=x[0]+x[1]+x[2];return t?pct(x[0],t)+'% · '+x[0]+' of '+t:'<span class="quiet">none resolved</span>';};
+  var seg='<div class="seg win" role="group" aria-label="Window">'+[28,90].map(function(w){return '<button data-win="'+w+'" class="'+(app.win===w?'on':'')+'" aria-pressed="'+(app.win===w)+'">'+w+' days</button>';}).join('')+'</div>';
+  return '<main class="wrap wide"><div class="ophead"><div><h1 class="h1">Metrics</h1><p class="lede" style="font-size:16px">'+M.from+' – Oct 30 · from Signal\'s event log · people and agents counted apart</p></div>'+seg+'</div>'+
+  '<span class="k blockk">MVP metrics</span><ol class="mx">'+
+  '<li class="met"><div><h3>Prevention rate</h3><p class="def">Signals that joined an existing need when submitted, out of those plus signals whose new draft was later merged.</p>'+
+    '<p class="bt">Baseline <b>unknown</b> · target <b>≥ 50%</b>, a hypothesis<br><i>In the demo seed every supporter after the first joins at submission, so this runs near 100%.</i></p></div>'+
+    '<div>'+pctBig(M.prev.all[0],M.prev.all[1])+'<span class="of">'+M.prev.all[0]+' of '+M.prev.all[1]+' signals</span></div>'+
+    '<dl class="split"><dt>People</dt><dd>'+splitRate(M.prev.human)+'</dd><dt>Agents</dt><dd>'+splitRate(M.prev.agent)+'</dd></dl></li>'+
+  '<li class="met"><div><h3>Decision latency</h3><p class="def">Median days from a need\'s first signal to its first published decision.</p>'+
+    '<p class="bt">Baseline <b>unknown</b> (seeded history only) · target <b>half the baseline</b>, a hypothesis</p></div>'+
+    '<div>'+(M.lat.all[1]?'<span class="big">'+M.lat.all[0]+'<small>days</small></span>':'<span class="big na">—</span>')+'<span class="of">median of '+M.lat.all[1]+' decisions<br>'+M.lat.open[0]+' needs undecided past 30 days, median age '+M.lat.open[1]+' d</span></div>'+
+    '<dl class="split"><dt>People</dt><dd>'+lat(M.lat.human)+'</dd><dt>Agents</dt><dd>'+lat(M.lat.agent)+'</dd></dl></li>'+
+  '<li class="met"><div><h3>Suggestion acceptance</h3><p class="def">AI suggestions accepted as-is, out of all accepted, edited and rejected.</p>'+
+    '<p class="bt">Baseline <b>unknown</b> · target <b>≥ 70%</b> as-is, a hypothesis. High acceptance with rising unmerges means rubber-stamping.</p></div>'+
+    '<div>'+pctBig(accAll[0],accN)+'<span class="of">'+accAll[0]+' as-is · '+accAll[1]+' edited · '+accAll[2]+' rejected</span></div>'+
+    '<div><dl class="split"><dt>People</dt><dd>'+accSplit(M.acc.human)+'</dd><dt>Agents</dt><dd>'+accSplit(M.acc.agent)+'</dd></dl>'+kinds+'</div></li>'+
+  '</ol>'+
+  '<span class="k mgroup">Guardrails</span><ol class="mx">'+
+  '<li class="met sm"><div><h3>Unmerge rate</h3><p class="def">Merges in the window that were later undone.</p><p class="bt">Target <b>&lt; 5%</b> · kill signal above <b>10%</b></p></div>'+
+    '<div>'+(M.unmerge[1]?pctBig(M.unmerge[0],M.unmerge[1]):'<span class="big na">—</span>')+'<span class="of">'+(M.unmerge[1]?M.unmerge[0]+' of '+M.unmerge[1]+' merges undone':'no merges in window')+'</span></div>'+
+    '<dl class="split"><dt>People</dt><dd>'+(M.unmerge[1]?M.unmerge[0]+' of '+M.unmerge[1]+' undone':'<span class="quiet">none</span>')+'</dd><dt>Agents</dt><dd><span class="quiet">none</span></dd></dl></li>'+
+  '<li class="met sm"><div><h3>False matches</h3><p class="def">Merge suggestions a PM rejected. This stands in for a false-match rate, which is not measured yet.</p></div>'+
+    '<div><span class="big">'+M.rejectedMerges+'</span><span class="of">rejected merge suggestion'+(M.rejectedMerges===1?'':'s')+'</span></div>'+
+    '<dl class="split"><dt>People</dt><dd>'+M.rejectedMerges+' rejected</dd><dt>Agents</dt><dd><span class="quiet">none</span></dd></dl></li>'+
+  '</ol>'+
+  '<span class="k mgroup">Supporting</span><div class="sup">'+
+    '<div><span class="k">Context rate</span><span class="v">'+pct(M.ctx.all[0],M.ctx.all[1])+'%</span><span class="d">Signals with the person\'s own use case · people '+pct(M.ctx.human[0],M.ctx.human[1])+'%, agents '+pct(M.ctx.agent[0],M.ctx.agent[1])+'%</span></div>'+
+    '<div><span class="k">Time to triage</span><span class="v">'+M.triage[0]+' h</span><span class="d">Median from suggestion to first resolution · '+M.triage[1]+' resolved</span></div>'+
+    '<div><span class="k">Review load</span><span class="v">'+M.load[2]+' pending</span><span class="d">'+M.load[0]+' suggestions created, '+M.load[1]+' resolved in the window</span></div>'+
+  '</div><p class="unsup">Not computed yet: close-the-loop rate. It needs an event that records a submitter being told the outcome.</p></main>';
+}
+
+function citeBtn(k,text){return '<button class="cite" data-cite="'+k+'">'+esc(text)+'</button>';}
+function acct(name){return '<span class="acct">'+esc(name)+'</span>';}
+
+function answerHtml(){
+  var ENT=['acme','northwind','globex'];
+  var cited=['n1','chat-alerts','webhooks','metric-layer','annotations','scheduled-delivery','crm-sync','permissions'];
+  var p1='All three Enterprise accounts, '+acct('Acme')+', '+acct('Northwind Traders')+' and '+acct('Globex')+', are waiting on five open needs with no decision yet. The broadest are '+
+    citeBtn('n1','board-ready dashboard snapshots')+' (11 people) and '+citeBtn('chat-alerts','threshold alerts in team chat')+' (11 people), though both are cooling. '+
+    citeBtn('webhooks','Change webhooks')+' (10 people) and '+citeBtn('metric-layer','shared metric definitions')+' (5 people) are rising, with most of their supporters arriving in the last 30 days. '+
+    citeBtn('annotations','Chart annotations')+' (6 people) is the fifth.';
+  var p2='Two of their asks are already moving: '+citeBtn('scheduled-delivery','scheduled delivery')+' is planned and '+citeBtn('crm-sync','CRM sync')+' is in progress. '+
+    acct('Acme')+' alone is behind '+citeBtn('permissions','dashboard permissions')+', the only waiting need of theirs with a score (3.30).';
+  var rows=cited.map(function(k){
+    var n=BYKEY[k], ents=n.a.filter(function(a){return ENT.indexOf(a)>=0;}).map(function(a){return ACCOUNTS[a].n;}).sort();
+    return '<li class="crow">'+statusHtml(n.s)+citeBtn(k,n.st)+'<span class="ct">'+n.p+' people</span>'+
+      '<span class="cmeta">'+ents.join(', ')+' · value '+money(arrOf(n)+dealsOf(n))+' · '+trend(n)+(n.sc?' · score '+f2(scoreOf(n,SEED_W)):'')+'</span></li>';
+  }).join('');
+  return '<div class="turn ans"><div class="pencil"><span class="plabel">'+icon('i-pencil')+'Answer · AI, not reviewed</span><p>'+p1+'</p><p>'+p2+'</p></div>'+
+    '<span class="k inl">Cited needs · '+cited.length+'</span><ol class="clist">'+rows+'</ol>'+
+    '<p class="srcline">get_demand_summary × 3 · accountId = Acme, Northwind Traders, Globex · since Aug 1 · live needs by priority, then supporters · value = ARR + open deals of all requesting accounts</p></div>';
+}
+
+function chatView(app){
+  var c=app.chat, turns='';
+  c.turns.forEach(function(t){
+    turns+='<div class="turn"><span class="k">You asked</span><p class="qline">'+esc(t.q)+'</p></div>';
+    if(t.state==='loading') turns+='<div class="turn"><span class="plabel">'+icon('i-pencil')+'Reading demand for Enterprise accounts…</span><div class="loadline" role="progressbar" aria-label="Reading demand"><i></i></div></div>';
+    else if(t.state==='answered') turns+=answerHtml();
+    else if(t.state==='other') turns+='<div class="turn"><p class="none-yet" style="margin:0">This prototype answers only the sample question.</p></div>';
+  });
+  var idle=!c.turns.length;
+  return '<main class="chat"><div class="ophead"><div><h1 class="h1">Chat</h1><p class="lede" style="font-size:16px">Ask about demand. Answers cite needs and accounts from this workspace.</p></div></div>'+
+    (turns?'<div class="thread">'+turns+'</div>':'')+
+    '<form class="ask" data-ask><label class="search">'+icon('i-search')+'<input data-f="ask" aria-label="Ask a question" placeholder="Ask about needs, accounts or demand" value="'+esc(c.input)+'" autocomplete="off"></label>'+
+    '<button class="btn btn-primary" type="submit">Ask'+icon('i-arrow-r')+'</button></form>'+
+    (idle?'<p class="try">Try <button class="btn-text" data-act="canned">'+CANNED+'</button></p>':'')+'</main>';
+}
+
+/* ===================== App ===================== */
+function render(app){
+  var v=app.tab==='needs'?needsView(app):app.tab==='criteria'?criteriaView(app):app.tab==='metrics'?metricsView(app):chatView(app);
+  app.root.innerHTML=shell(app)+v;
+  if(app.tab==='criteria') updateCriteria(app);
+  if(app.onChange) app.onChange(app);
+}
+function refreshTable(app){
+  app.root.querySelector('[data-table]').innerHTML=tableHtml(app);
+  app.root.querySelector('[data-count]').textContent=needsCount(app);
+  if(app.onChange) app.onChange(app);
+}
+function balance(app){
+  var d=app.draft, fixed=app.lastW||'demand', others=CRIT.map(function(c){return c.key;}).filter(function(k){return k!==fixed;});
+  var rest=r2(1-d[fixed]), S=others.reduce(function(s,k){return s+d[k];},0);
+  others.forEach(function(k){d[k]=S>0?Math.round(d[k]*rest/S*20)/20:Math.round(rest/others.length*20)/20;});
+  var diff=r2(1-sumW(d));
+  if(diff!==0){var big=others.slice().sort(function(a,b){return d[b]-d[a];})[0]; d[big]=r2(Math.max(0,d[big]+diff));}
+}
+function save(app){
+  var before=rankScored(app.saved), after=rankScored(app.draft);
+  app.prevSaved=Object.assign({},app.saved); app.saved=Object.assign({},app.draft); app.justSaved=true; app.undone=false;
+  app.savedMsg=before[0].n.k!==after[0].n.k?'Needs re-ranked. '+SHORT[after[0].n.k]+' is now first.':'Needs re-ranked with '+wList(app.saved)+'.';
+}
+function undo(app){
+  if(!app.prevSaved) return;
+  app.saved=Object.assign({},app.prevSaved); app.draft=Object.assign({},app.prevSaved); app.prevSaved=null; app.justSaved=false; app.undone=true;
+}
+function ask(app,q){
+  q=(q||'').trim(); if(!q) return;
+  var canned=q.toLowerCase().replace(/[?.!\s]+$/,'')===CANNED.toLowerCase().replace(/\?$/,'');
+  var t={q:q,state:canned?'loading':'other'}; app.chat.turns.push(t); app.chat.input=''; render(app);
+  if(canned){ setTimeout(function(){ t.state='answered'; if(app.tab==='chat') render(app); }, app.instant?0:900); }
+}
+function openFromChat(app,k){
+  app.tab='needs'; app.theme='all'; app.status='all'; app.q=''; app.sort={k:'priority',d:-1}; app.open=k; app.hl=k; app.fromChat=true;
+  render(app);
+  var row=app.root.querySelector('[data-row="'+k+'"]');
+  if(row&&!app.instant) row.scrollIntoView({block:'center',behavior:'smooth'});
+  setTimeout(function(){ var r=app.root.querySelector('tr.hl'); if(r) r.classList.add('fade'); app.hl=null; }, 1600);
+}
+
+function mount(root,init){
+  var app=Object.assign({root:root,tab:'needs',theme:'all',status:'all',q:'',sort:{k:'priority',d:-1},open:null,hl:null,
+    saved:Object.assign({},SEED_W),draft:Object.assign({},SEED_W),prevSaved:null,justSaved:false,undone:false,savedMsg:'',lastW:null,
+    win:90,chat:{input:'',turns:[]},fromChat:false},init||{});
+  root.addEventListener('click',function(e){
+    var t=e.target.closest('[data-nav],[data-sort],[data-act],[data-win],[data-cite],[data-row]'); if(!t||!root.contains(t)) return;
+    if(t.dataset.nav){ e.preventDefault(); app.tab=t.dataset.nav; app.fromChat=false; if(app.tab!=='criteria') app.undone=false; render(app); return; }
+    if(t.dataset.sort){ var k=t.dataset.sort; app.sort=app.sort.k===k?{k:k,d:-app.sort.d}:{k:k,d:-1}; refreshTable(app); return; }
+    if(t.dataset.win){ app.win=+t.dataset.win; render(app); return; }
+    if(t.dataset.cite){ openFromChat(app,t.dataset.cite); return; }
+    if(t.dataset.act){
+      var a=t.dataset.act;
+      if(a==='save'){ save(app); render(app); }
+      else if(a==='undo'){ undo(app); render(app); }
+      else if(a==='reset'){ app.draft=Object.assign({},app.saved); app.justSaved=false; updateCriteria(app); }
+      else if(a==='balance'){ balance(app); updateCriteria(app); }
+      else if(a==='canned'){ app.chat.input=CANNED; render(app); var i=root.querySelector('[data-f="ask"]'); if(i&&!app.instant) i.focus(); }
+      return;
+    }
+    if(t.dataset.row){
+      if(e.target.closest('a,button,select,input')) return;
+      var key=t.dataset.row; app.open=app.open===key?null:key; app.fromChat=false; refreshTable(app);
+    }
+  });
+  root.addEventListener('keydown',function(e){
+    var r=e.target.closest&&e.target.closest('tr[data-row]');
+    if(r&&e.target===r&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); var key=r.dataset.row; app.open=app.open===key?null:key; refreshTable(app); var nr=root.querySelector('[data-row="'+key+'"]'); if(nr) nr.focus(); }
+  });
+  root.addEventListener('input',function(e){
+    var t=e.target;
+    if(t.dataset.f==='q'){ app.q=t.value; refreshTable(app); }
+    else if(t.dataset.f==='ask'){ app.chat.input=t.value; }
+    else if(t.dataset.w){ app.draft[t.dataset.w]=r2(+t.value); app.lastW=t.dataset.w; app.justSaved=false; app.undone=false; updateCriteria(app); }
+  });
+  root.addEventListener('change',function(e){
+    var t=e.target;
+    if(t.dataset.f==='theme'||t.dataset.f==='status'){ app[t.dataset.f]=t.value; app.fromChat=false; refreshTable(app); }
+  });
+  root.addEventListener('submit',function(e){ e.preventDefault(); ask(app,app.chat.input); });
+  render(app);
+  return app;
+}
+
+/* ===================== Step strip ===================== */
+var STEPS=[
+  {label:'Needs board',go:function(a){reset(a);}},
+  {label:'Filter and sort',go:function(a){reset(a);a.theme='integrations';a.status='live';a.sort={k:'people',d:-1};}},
+  {label:'Open a row',go:function(a){reset(a);a.open='scheduled-delivery';}},
+  {label:'Adjust weights',go:function(a){reset(a);a.tab='criteria';a.draft={demand:0.3,business_value:0.4,strategic_fit:0.1,effort:0.2};a.lastW='business_value';}},
+  {label:'Save, re-rank',go:function(a){reset(a);a.tab='criteria';a.draft={demand:0.3,business_value:0.4,strategic_fit:0.1,effort:0.2};save(a);}},
+  {label:'Metrics',go:function(a){reset(a);a.tab='metrics';a.win=90;}},
+  {label:'Ask in chat',go:function(a){reset(a);a.tab='chat';a.chat={input:CANNED,turns:[]};}},
+  {label:'Answer',go:function(a){reset(a);a.tab='chat';a.chat={input:'',turns:[{q:CANNED,state:'answered'}]};}},
+  {label:'Cited need',go:function(a){reset(a);a.chat={input:'',turns:[{q:CANNED,state:'answered'}]};a.tab='needs';a.open='n1';a.fromChat=true;}}
+];
+function reset(a){
+  a.tab='needs';a.theme='all';a.status='all';a.q='';a.sort={k:'priority',d:-1};a.open=null;a.hl=null;a.fromChat=false;
+  a.saved=Object.assign({},SEED_W);a.draft=Object.assign({},SEED_W);a.prevSaved=null;a.justSaved=false;a.undone=false;a.lastW=null;
+  a.win=90;a.chat={input:'',turns:[]};
+}
+function currentStep(a){
+  if(a.tab==='needs'){ if(a.fromChat) return 8; if(a.open) return 2; if(a.theme!=='all'||a.status!=='all'||a.q||a.sort.k!=='priority') return 1; return 0; }
+  if(a.tab==='criteria') return a.justSaved?4:3;
+  if(a.tab==='metrics') return 5;
+  if(a.tab==='chat') return a.chat.turns.some(function(t){return t.state==='answered';})?7:6;
+  return 0;
+}
+var flow=document.getElementById('flow');
+flow.innerHTML=STEPS.map(function(s,i){return '<button data-step="'+i+'"><span class="n">'+(i+1)+'</span>'+s.label+'</button>';}).join('');
+var main=mount(document.getElementById('f-main'),{onChange:function(a){
+  var cur=currentStep(a);
+  flow.querySelectorAll('button').forEach(function(b,i){b.classList.toggle('cur',i===cur);b.classList.toggle('done',i<cur);b.setAttribute('aria-current',i===cur?'step':'false');});
+}});
+flow.addEventListener('click',function(e){
+  var b=e.target.closest('[data-step]'); if(!b) return;
+  STEPS[+b.dataset.step].go(main); render(main);
+});
+mount(document.getElementById('f-dark'),{open:'scheduled-delivery'});
+mount(document.getElementById('f-phone'),{});
+</script>
+</body>
+</html>

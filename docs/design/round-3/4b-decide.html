@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal · Decide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Page (documentation chrome, not product) ===================== */
+:root{
+  --page-bg:#e6e5dd; --page-fg:#1e2320; --page-muted:#565d58; --page-rule:#c9c7bb; --page-card:#f4f3ed;
+  --font-serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+}
+:root[data-theme="dark"]{--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page-bg);color:var(--page-fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:40px 16px 96px}
+.doc-head{max-width:860px;margin-bottom:48px}
+.doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-muted)}
+.doc-head h1{font-family:var(--font-serif);font-weight:500;font-size:44px;line-height:1.1;margin:8px 0 12px;letter-spacing:-.01em}
+.doc-head .idea{font-family:var(--font-serif);font-size:21px;line-height:1.45;margin:0 0 20px}
+.doc-head dl{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;margin:0;border-top:1px solid var(--page-rule);padding-top:16px}
+.doc-head dt{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--page-muted);padding-top:3px}
+.doc-head dd{margin:0}
+@media (max-width:600px){.doc-head h1{font-size:34px}.doc-head dl{grid-template-columns:1fr;gap:2px}.doc-head dd{margin-bottom:10px}}
+.section{margin-top:72px}
+.section > h2{font-family:var(--font-serif);font-weight:500;font-size:28px;margin:0 0 4px;letter-spacing:-.005em}
+.section > p.sub{color:var(--page-muted);margin:0 0 20px;max-width:760px}
+.section h3.step{font-family:var(--font-serif);font-weight:500;font-size:20px;margin:40px 0 4px}
+.section p.stepnote{color:var(--page-muted);margin:0 0 16px;max-width:760px;font-size:14px}
+.flabel{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 8px;letter-spacing:.02em}
+.row-desk{display:flex;flex-direction:column;gap:28px}
+.scroller{overflow-x:auto;max-width:100%;padding-bottom:6px}
+.row-phone{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px;align-items:flex-start}
+.row-phone .scroller{flex:0 1 auto}
+
+/* ===================== Theme tokens (copied from round-1 Ledger) ===================== */
+.theme-light{
+  --radius:0.375rem;
+  --background:#f7f7f2; --foreground:#1e2320;
+  --card:#fbfbf7; --card-foreground:#1e2320;
+  --popover:#ffffff; --popover-foreground:#1e2320;
+  --primary:#4a42a0; --primary-foreground:#ffffff;
+  --secondary:#ebeae2; --secondary-foreground:#1e2320;
+  --muted:#eeede6; --muted-foreground:#5b635d;
+  --accent:#ebe9f5; --accent-foreground:#3d3689;
+  --destructive:#a3261b;
+  --border:#dad8cc; --input:#8b928c; --ring:#4a42a0;
+  --chart-1:#4a42a0; --chart-2:#2f7391; --chart-3:#5d8466; --chart-4:#b08a3e; --chart-5:#8d5f91;
+  --sidebar:#f1f0e9; --sidebar-foreground:#1e2320; --sidebar-primary:#4a42a0; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#e6e4f2; --sidebar-accent-foreground:#3d3689; --sidebar-border:#dad8cc; --sidebar-ring:#4a42a0;
+  --rule-strong:#1e2320;
+  --ai:#8f89bb; --ai-foreground:#534e78; --ai-surface:#f1f0f6;
+  --quote-rule:#1e2320;
+  --status-new:#5b635d; --status-open:#23698a; --status-planned:#4a42a0; --status-progress:#8a5700; --status-shipped:#2c6a37; --status-declined:#a3261b;
+  --demand-high:#1e2320; --demand-medium:#5b635d; --demand-low:#a7aca5;
+  --positive:#2c6a37;
+}
+.theme-dark{
+  --radius:0.375rem;
+  --background:#141614; --foreground:#e8e7de;
+  --card:#1a1c1a; --card-foreground:#e8e7de;
+  --popover:#1f211e; --popover-foreground:#e8e7de;
+  --primary:#aaa4f2; --primary-foreground:#15122b;
+  --secondary:#252823; --secondary-foreground:#e8e7de;
+  --muted:#222520; --muted-foreground:#a2a9a3;
+  --accent:#29273f; --accent-foreground:#d2ceff;
+  --destructive:#f0897c;
+  --border:#33362f; --input:#6f766f; --ring:#aaa4f2;
+  --chart-1:#aaa4f2; --chart-2:#6fb4d2; --chart-3:#8fbf98; --chart-4:#dcb766; --chart-5:#c99acb;
+  --sidebar:#181a17; --sidebar-foreground:#e8e7de; --sidebar-primary:#aaa4f2; --sidebar-primary-foreground:#15122b;
+  --sidebar-accent:#26243a; --sidebar-accent-foreground:#d2ceff; --sidebar-border:#2e312b; --sidebar-ring:#aaa4f2;
+  --rule-strong:#e8e7de;
+  --ai:#7a75a6; --ai-foreground:#c0bbe0; --ai-surface:#1d1c26;
+  --quote-rule:#e8e7de;
+  --status-new:#a2a9a3; --status-open:#7cc0de; --status-planned:#b3adf6; --status-progress:#e2b35a; --status-shipped:#8ccf96; --status-declined:#f0897c;
+  --demand-high:#e8e7de; --demand-medium:#a2a9a3; --demand-low:#4e534d;
+  --positive:#8ccf96;
+}
+
+/* ===================== Frames ===================== */
+.frame{container-type:inline-size;container-name:frame;background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;border:1px solid var(--page-rule);border-radius:12px;overflow:hidden;flex:none}
+.frame.desk{width:1280px}
+.frame.phone{width:390px}
+
+/* ===================== Primitives (Ledger) ===================== */
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.mark{color:var(--foreground);flex:none}
+.serif{font-family:var(--font-serif)}
+.mono{font-family:var(--font-mono)}
+.k{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border-radius:var(--radius);font:500 14px/1 var(--font-ui);border:1px solid transparent;cursor:pointer;white-space:nowrap;background:none;color:inherit}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:transparent;color:var(--foreground);border-color:var(--input)}
+.btn-ghost{background:transparent;color:var(--foreground)}
+.btn.sm{height:32px;padding:0 12px;font-size:13px}
+.btn.sm svg.i{width:14px;height:14px}
+.btn-text{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font:500 14px/1.4 var(--font-ui);color:var(--foreground);text-decoration:underline;text-decoration-color:var(--input);text-underline-offset:4px;cursor:pointer}
+.quiet{color:var(--muted-foreground)}
+kbd{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);border:1px solid var(--border);border-radius:3px;padding:0 4px;line-height:16px;display:inline-block;min-width:16px;text-align:center}
+.btn-primary kbd{color:var(--primary-foreground);border-color:color-mix(in srgb,var(--primary-foreground) 45%,transparent)}
+
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--foreground);white-space:nowrap}
+.status svg{width:11px;height:11px;flex:none}
+.s-new svg{color:var(--status-new)} .s-open svg{color:var(--status-open)} .s-planned svg{color:var(--status-planned)}
+.s-progress svg{color:var(--status-progress)} .s-shipped svg{color:var(--status-shipped)} .s-declined svg{color:var(--status-declined)}
+
+/* AI: pencil vs ink */
+.plabel{font-family:var(--font-serif);font-style:italic;font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--ai-foreground);display:inline-flex;align-items:center;gap:6px}
+.plabel svg.i{width:12px;height:12px;stroke-width:1.75}
+.ilabel{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--foreground);display:inline-flex;align-items:center;gap:6px}
+.ilabel svg.i{width:12px;height:12px;stroke-width:2.25}
+.pencil{border-left:1.5px dashed var(--ai);padding:1px 0 1px 14px;color:var(--ai-foreground)}
+.pencil p{margin:4px 0 0}
+.ink{border-left:1.5px solid var(--rule-strong);padding:1px 0 1px 14px;color:var(--foreground)}
+.ink p{margin:4px 0 0}
+.edited{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--muted-foreground)}
+.quote{margin:0;border-left:3px solid var(--quote-rule);padding:2px 0 2px 16px;font-family:var(--font-serif);font-style:italic;font-size:17px;line-height:1.45;color:var(--foreground)}
+.quote cite{display:block;font-style:normal;font-family:var(--font-ui);font-size:12px;color:var(--muted-foreground);margin-top:6px}
+
+/* ===================== App chrome ===================== */
+.topbar{display:flex;align-items:center;gap:28px;height:60px;padding:0 40px;border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:9px;color:var(--foreground);text-decoration:none}
+.wordmark{font-family:var(--font-serif);font-weight:600;font-size:22px;letter-spacing:-.01em;line-height:1}
+.topnav{display:flex;gap:22px;flex:1;min-width:0}
+.topnav a{color:var(--muted-foreground);text-decoration:none;font-weight:500;padding:19px 0 17px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+.topnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+.topnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+.role{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.h1{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.lede{font-family:var(--font-serif);font-size:18px;color:var(--muted-foreground);margin:8px 0 0;line-height:1.45}
+
+/* ===================== Submit wizard ===================== */
+.col{max-width:720px;margin:0 auto;padding:40px 0 64px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:56px}
+.steps span{border-top:2px solid var(--border);padding-top:8px;font-size:12px;color:var(--muted-foreground)}
+.steps span.done{border-top-color:var(--foreground)}
+.steps span.cur{border-top-color:var(--primary);color:var(--foreground);font-weight:500}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.field > label{font-weight:500;font-size:14px}
+.field .opt{font-weight:400;color:var(--muted-foreground)}
+.input,.textarea{border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground)}
+.input{min-height:44px;display:flex;align-items:center;padding:0 14px}
+.input.big{font-family:var(--font-serif);font-size:20px;min-height:52px}
+.textarea{padding:14px 16px;font-family:var(--font-serif);font-size:18px;line-height:1.5;min-height:150px}
+.textarea.focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.ph{color:var(--muted-foreground)}
+.caret{display:inline-block;width:1.5px;height:20px;background:var(--foreground);vertical-align:-3px;margin-left:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.seg{display:inline-grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden;width:300px}
+.seg span{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500;border-left:1px solid var(--input)}
+.seg span:first-child{border-left:0}
+.seg span.on{background:var(--foreground);color:var(--background)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:40px}
+.foot .note{margin:0;font-size:13px;color:var(--muted-foreground);display:flex;gap:8px;align-items:center}
+.foot .note svg.i{width:14px;height:14px}
+
+/* Step 2: compare */
+.q-title{font-family:var(--font-serif);font-weight:500;font-size:30px;line-height:1.2;margin:0}
+.q-sub{color:var(--muted-foreground);margin:6px 0 0}
+.mlist{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.mrow{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.mrow .radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--input);display:grid;place-items:center}
+.mrow.sel .radio{border-color:var(--primary)}
+.mrow.sel .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.mrow .st{font-family:var(--font-serif);font-size:16px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted-foreground)}
+.mrow.sel .st{color:var(--foreground)}
+.mrow .ct{font-family:var(--font-mono);font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.read{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;margin-top:40px}
+.read > div > .k{display:block;margin-bottom:14px}
+.yt{font-family:var(--font-serif);font-weight:500;font-size:20px;line-height:1.35;margin:0 0 8px}
+.yb{font-family:var(--font-serif);font-size:17px;line-height:1.5;margin:0 0 24px}
+.ns{font-family:var(--font-serif);font-size:20px;line-height:1.35;margin:0 0 10px}
+.nmeta{display:flex;gap:16px;align-items:center;font-size:13px;color:var(--muted-foreground);margin-bottom:22px}
+.nmeta .mono{color:var(--foreground);font-weight:500}
+.read .ink,.read .pencil{margin-bottom:20px}
+.read .ink p,.read .pencil p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.nopanel{display:none}
+.nopanel.on{display:block}
+.none-yet{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground);margin:0 0 20px}
+.also{font-size:13px;color:var(--ai-foreground);margin:0}
+.also .btn-text{font-size:13px;color:var(--ai-foreground);text-decoration-color:var(--ai)}
+.loading{padding:40px 0 64px}
+.loadline{height:2px;background:var(--border);overflow:hidden;margin:18px 0 0;max-width:240px}
+.loadline i{display:block;height:100%;width:35%;background:var(--primary);animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){.loadline i{animation:none;width:60%}}
+
+/* Step 3/4 */
+.lands{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 20px;align-items:baseline;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border)}
+.lands .k{grid-column:1 / -1}
+.lands .ns{margin:0}
+.done-title{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.2;margin:0 0 10px}
+.done-to{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:6px 0 10px}
+.linkrow{display:flex;gap:10px;align-items:center}
+.linkrow .input{flex:1;min-width:0;font-family:var(--font-mono);font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:42px}
+
+/* ===================== Public board ===================== */
+.board{max-width:880px;margin:0 auto;padding:48px 0 64px}
+.tools{display:flex;gap:16px;align-items:center;margin-top:32px}
+.search{display:flex;align-items:center;gap:10px;flex:1;max-width:400px;height:42px;padding:0 12px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--muted-foreground)}
+.filter{display:inline-flex;align-items:center;gap:6px;color:var(--muted-foreground);font-weight:500;font-size:14px}
+.filter b{color:var(--foreground);font-weight:500}
+.filter svg.i{width:14px;height:14px}
+.tools .cnt{margin-left:auto;font-size:13px;color:var(--muted-foreground)}
+.blist{list-style:none;margin:24px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.brow{display:grid;grid-template-columns:minmax(0,1fr) 120px 84px;gap:24px;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--border)}
+.brow .stmt{font-family:var(--font-serif);font-size:19px;line-height:1.4;margin:0;text-wrap:pretty}
+.brow .ppl{text-align:right;font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.brow .ppl .mono{font-size:17px;font-weight:500;color:var(--foreground);margin-right:4px}
+
+/* ===================== Operator ===================== */
+.wrap{max-width:1000px;margin:0 auto;padding:40px 0 64px}
+.ophead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.hints{font-size:12px;color:var(--muted-foreground);display:flex;gap:14px;align-items:center}
+.hints span{display:inline-flex;gap:5px;align-items:center}
+.qlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-strong)}
+.qrow{display:grid;grid-template-columns:132px minmax(0,1fr) auto 16px;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.qkind{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:500;color:var(--muted-foreground);white-space:nowrap}
+.qkind svg.i{width:15px;height:15px}
+.qtext{font-family:var(--font-serif);font-size:16px;color:var(--ai-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:1.5px dashed var(--ai);padding-left:12px;line-height:1.4}
+.qtext .ref{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-right:6px}
+.qmeta{font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.qrow > svg.i{color:var(--muted-foreground);width:16px;height:16px}
+.qrow.open{border-bottom:0}
+.qrow.open .qkind{color:var(--foreground)}
+.qbody{padding:8px 0 32px 150px;border-bottom:1px solid var(--border)}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:20px;align-items:start}
+.cmp .arrow{color:var(--muted-foreground);padding-top:28px;display:flex;justify-content:center}
+.cmp .k{display:block;margin-bottom:10px}
+.cmp .ns{font-size:19px}
+.cmp .quote{font-size:16px;margin-top:14px}
+.why{margin-top:24px;max-width:620px}
+.why p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.why .conf{display:block;font-size:13px;margin-top:6px}
+.acts{display:flex;gap:8px;align-items:center;margin-top:24px}
+.qrow.resolved .qtext{border-left:1.5px solid var(--input);color:var(--muted-foreground);font-family:var(--font-ui);font-size:14px}
+.qrow.resolved .qkind svg.i{color:var(--muted-foreground)}
+
+/* Needs table */
+.ntable{width:100%;border-collapse:collapse;font-size:14px}
+.ntable th{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+.ntable th.r,.ntable td.r{text-align:right}
+.ntable th .sort{color:var(--foreground)}
+.ntable td{padding:15px 12px 15px 0;border-bottom:1px solid var(--border);vertical-align:baseline}
+.ntable td.sc{font-family:var(--font-mono);font-size:16px;font-weight:500;width:72px}
+.ntable td.st{font-family:var(--font-serif);font-size:16px;line-height:1.4;max-width:420px}
+.ntable td.num{font-family:var(--font-mono);font-size:13px;text-align:right;white-space:nowrap}
+.ntable td.th{color:var(--muted-foreground);white-space:nowrap}
+.ntable td.pend{width:96px;text-align:right;padding-right:0}
+.pmark{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:12px;color:var(--ai-foreground)}
+.pmark i{width:9px;height:9px;border:1.5px dashed var(--ai);border-radius:50%;display:block}
+.ntable tr.open td{border-bottom:0}
+.ntable tr.exp td{padding:0 0 32px 0;border-bottom:1px solid var(--border)}
+.expgrid{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.expgrid .quote{margin-bottom:18px}
+.expgrid .k{display:block;margin-bottom:12px}
+.score{display:grid;grid-template-columns:134px 78px 40px minmax(0,1fr);column-gap:0;align-items:baseline;font-size:13px}
+.score > div{padding:8px 0;border-top:1px solid var(--border)}
+.score > div:nth-child(-n+4){border-top:0;padding-top:0}
+.score .crit{font-weight:500;font-size:14px}
+.spips{display:inline-flex;gap:3px;vertical-align:middle}
+.spips i{width:8px;height:8px;border:1px solid var(--input);display:block}
+.spips i.f{background:var(--foreground);border-color:var(--foreground)}
+.sval{font-family:var(--font-mono);font-weight:500}
+.sreason{color:var(--muted-foreground)}
+.overall{display:flex;align-items:baseline;gap:12px;margin-top:4px;padding-top:10px;border-top:1px solid var(--rule-strong)}
+.overall .mono{font-size:24px;font-weight:500;letter-spacing:-.02em}
+.overall .sub{font-size:13px;color:var(--muted-foreground)}
+
+.mnav{display:none}
+
+/* ===================== Phone (container ≤ 640) ===================== */
+@container frame (max-width:640px){
+  .topbar{padding:0 16px;gap:14px;height:56px}
+  .topbar.op .topnav,.topbar.op .role{display:none}
+  .topbar .btn{height:36px;padding:0 12px;font-size:13px;gap:6px}
+  .topbar .btn svg.i{width:14px;height:14px}
+  .wordmark{font-size:20px}
+  .topnav a{padding:17px 0 15px}
+  .mnav{display:flex;gap:18px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .mnav a{color:var(--muted-foreground);font-weight:500;padding:12px 0 10px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+  .mnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+  .mnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+  .h1{font-size:28px}
+  .lede{font-size:16px}
+  .col,.board,.wrap{padding:24px 16px 40px}
+  .steps{margin-bottom:32px}
+  .q-title{font-size:25px}
+  .textarea{font-size:17px;min-height:170px}
+  .input.big{font-size:18px}
+  .two{grid-template-columns:1fr;gap:0}
+  .seg{width:100%}
+  .foot{flex-direction:column-reverse;align-items:stretch;gap:18px;margin-top:28px}
+  .foot .btn{width:100%}
+  .foot .btn-text{justify-content:center}
+  .foot .note{justify-content:center;text-align:center}
+  .mrow{align-items:start}
+  .mrow .radio{margin-top:3px}
+  .mrow .st{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .read{grid-template-columns:1fr;gap:32px;margin-top:28px}
+  .read .theirs{order:-1}
+  .read .yours{border-top:1px solid var(--border);padding-top:28px}
+  .lands{grid-template-columns:1fr}
+  .done-title{font-size:28px}
+  .tools{flex-wrap:wrap;margin-top:22px}
+  .search{max-width:none;flex-basis:100%}
+  .brow{grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:18px 0}
+  .brow .stmt{grid-column:1 / -1;font-size:18px}
+  .brow .ppl{text-align:right}
+  .ophead{flex-direction:column;align-items:flex-start;gap:6px}
+  .hints{display:none}
+  .qrow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px 0;align-items:start}
+  .qkind{grid-column:1}
+  .qmeta{grid-column:2;grid-row:1;text-align:right}
+  .qtext{grid-column:1 / -1;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .qrow > svg.i{display:none}
+  .qbody{padding:4px 0 28px}
+  .cmp{grid-template-columns:1fr;gap:12px}
+  .cmp .arrow{padding:0;justify-content:flex-start}
+  .cmp .arrow svg{transform:rotate(90deg)}
+  .acts .btn-primary{flex:1}
+  .acts kbd{display:none}
+}
+
+/* ===================== 4b · Need → decide → publish (new for this flow) ===================== */
+/* Prototype chrome (page, not product) */
+.proto{margin-top:8px}
+.strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.strip button{font:500 13px/1 var(--font-ui);color:var(--page-fg);background:var(--page-card);border:1px solid var(--page-rule);border-radius:999px;padding:8px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
+.strip button .n{font-family:var(--font-mono);font-size:11px;color:var(--page-muted)}
+.strip button.on{background:var(--page-fg);color:var(--page-bg);border-color:var(--page-fg)}
+.strip button.on .n{color:var(--page-bg)}
+.strip .reset{background:none;border-color:transparent;color:var(--page-muted);text-decoration:underline;text-underline-offset:4px}
+.apilog{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 12px;min-height:18px}
+.apilog b{color:var(--page-fg);font-weight:500}
+.doc-head ol.flow{margin:0;padding-left:20px}
+.doc-head ol.flow li{margin:0 0 2px}
+.doc-head code{font-family:var(--font-mono);font-size:13px}
+
+/* Shared layout */
+.dwrap{max-width:1200px;margin:0 auto;padding:32px 40px 64px}
+.back{margin-bottom:22px;font-size:13px}
+.back svg.i{width:14px;height:14px}
+.nhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end;padding-bottom:24px;border-bottom:1px solid var(--rule-strong)}
+.nstmt{font-family:var(--font-serif);font-weight:500;font-size:30px;line-height:1.25;letter-spacing:-.01em;margin:8px 0 14px;text-wrap:pretty;max-width:860px}
+.nhead .nmeta{flex-wrap:wrap;gap:6px 18px;margin:0}
+.nhead .nmeta .sep{color:var(--border)}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px;margin-top:32px}
+.sec{margin-bottom:40px}
+.sec > .k,.sec > .khead{display:block;margin-bottom:14px}
+.khead{display:flex !important;justify-content:space-between;align-items:baseline;gap:12px}
+
+/* Needs table: clickable row */
+.ntable tr.go{cursor:pointer}
+.ntable tr.go:hover td{background:color-mix(in srgb,var(--accent) 45%,transparent)}
+.ntable td.sc.pen{color:var(--ai-foreground)}
+.tfoot{font-size:13px;color:var(--muted-foreground);margin:14px 0 0}
+
+/* Signals, verbatim */
+.sigs{list-style:none;margin:0;padding:0}
+.sigs li{margin:0 0 22px}
+.sigs .quote{font-size:16px}
+.sigs .quote b{font-style:normal;font-family:var(--font-ui);font-weight:500;font-size:13px;display:block;margin-bottom:2px;color:var(--foreground)}
+.sigs cite span{display:block}
+
+/* Priority: pending AI suggestion (pencil) → resolved (ink) */
+.prio .score{margin-top:12px}
+.prio.pencil .spips i.f{background:var(--ai);border-color:var(--ai)}
+.prio.pencil .overall{border-top-color:var(--ai)}
+.prio .sreason .btn-text{font-size:12px;margin-left:6px;color:var(--muted-foreground);text-decoration-color:var(--border)}
+.prio .sval .by{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:12px;color:var(--muted-foreground);margin-left:3px}
+.prio .w{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);display:block}
+.ovr{grid-column:1 / -1;padding:14px 0 16px !important;border-top:1px solid var(--border)}
+.ovr .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--foreground)}
+.pick{display:inline-flex;border:1px solid var(--input);border-radius:var(--radius);overflow:hidden}
+.pick button{width:34px;height:32px;border:0;border-left:1px solid var(--input);background:none;font:500 13px/1 var(--font-mono);color:var(--foreground);cursor:pointer}
+.pick button:first-child{border-left:0}
+.pick button.on{background:var(--foreground);color:var(--background)}
+.tinput{width:100%;min-height:38px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground);font:14px/1.4 var(--font-ui);padding:8px 10px}
+.tinput:focus,.ta:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.ferr{font-size:12px;color:var(--destructive);margin:6px 0 0}
+.sacts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.sacts .quiet{font-size:13px}
+
+/* Ruled small lists */
+.rlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-strong)}
+.rlist li{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.rlist li .quiet{font-size:13px;white-space:nowrap}
+.mini{width:100%;border-collapse:collapse;font-size:13px}
+.mini th{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 10px 8px 0;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+.mini td{padding:8px 10px 8px 0;border-bottom:1px solid var(--border);vertical-align:baseline}
+.mini .r{text-align:right;padding-right:0}
+.mini td.num{font-family:var(--font-mono);font-size:12px;white-space:nowrap}
+.mhist{font-size:14px}
+.mhist .what{font-family:var(--font-serif);font-size:15px;line-height:1.4}
+.mhist .rej{font-size:12px;color:var(--muted-foreground);white-space:nowrap}
+
+/* Decide: brief beside the decision */
+.dcols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:56px;margin-top:32px;align-items:start}
+.brief h4{font:600 11px/1.2 var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);margin:22px 0 8px}
+.brief p{font-family:var(--font-serif);font-size:16px;line-height:1.55;margin:8px 0 0}
+.brief ul{margin:0;padding-left:18px;font-size:14px;line-height:1.5}
+.brief li{margin:5px 0}
+.brief code{font-family:var(--font-mono);font-size:12px}
+.brief strong{font-weight:600}
+.pencil.brief{color:var(--ai-foreground)}
+.pencil.brief strong{color:var(--ai-foreground)}
+.ta{width:100%;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground);padding:14px 16px;resize:vertical;display:block}
+.ta.md{font:13px/1.65 var(--font-mono);min-height:560px}
+.ta.note{font:17px/1.5 var(--font-serif);min-height:140px}
+.waiting{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground);margin:0;font-size:16px;line-height:1.5}
+.dec .field{margin-bottom:24px}
+.dec .field > label{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.seg4{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden}
+.seg4 button{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font:500 13px/1 var(--font-ui);border:0;border-left:1px solid var(--input);background:none;color:var(--foreground);cursor:pointer;white-space:nowrap;padding:0 6px}
+.seg4 button:first-child{border-left:0}
+.seg4 button svg{width:11px;height:11px;flex:none}
+.seg4 button.on{background:var(--foreground);color:var(--background)}
+.seg4 button.on svg{color:var(--background) !important}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted-foreground);margin:10px 0 0}
+.check svg.i{width:14px;height:14px;margin-top:2px}
+.check.warn{color:var(--destructive)}
+.cnt{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);font-weight:400}
+.dfoot{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:8px}
+.dfoot .note{margin:0;font-size:13px;color:var(--muted-foreground)}
+
+/* Published + My signals preview */
+.pubwrap{max-width:880px;margin:0 auto;padding:40px 0 64px}
+.pubwrap .done-title{margin-bottom:6px}
+.pubwrap .ns{margin:14px 0 8px}
+.pubwrap .ink{margin:16px 0 0}
+.pubwrap .ink p{font-family:var(--font-serif);font-size:17px;line-height:1.5}
+.pubfacts{list-style:none;margin:24px 0 0;padding:0;border-top:1px solid var(--border)}
+.pubfacts li{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.pubfacts svg.i{width:14px;height:14px;color:var(--positive);position:relative;top:2px}
+.prevhead{margin-top:48px}
+.prevhead p{margin:4px 0 0;font-size:13px;color:var(--muted-foreground)}
+.myprev{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:14px;background:var(--background)}
+.mycol{max-width:720px;margin:0 auto;padding:36px 0 40px}
+.mycol .h1{font-size:30px}
+.mylist{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.mylist > li{padding:24px 0;border-bottom:1px solid var(--border)}
+.mylist .when{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.mylist .upd{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--primary)}
+.mylist .quote{font-size:16px;margin-top:10px}
+.mylist .to{font-size:13px;color:var(--muted-foreground);margin:18px 0 2px}
+.mylist .ns{font-size:18px;margin:0 0 8px}
+.mylist .nmeta{margin-bottom:12px}
+.mylist .ink,.mylist .pencil{margin-top:4px}
+.mylist .ink p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.mylist .earlier{font-size:13px;color:var(--muted-foreground);margin:8px 0 0}
+.mylist .none-yet{margin:0}
+
+/* Phone (container ≤ 640) for 4b components */
+@container frame (max-width:640px){
+  .dwrap{padding:20px 16px 40px}
+  .pubwrap{padding:24px 16px 40px}
+  .nhead{grid-template-columns:1fr;gap:18px}
+  .nhead .btn{width:100%}
+  .nstmt{font-size:23px}
+  .dgrid,.dcols{grid-template-columns:1fr;gap:32px}
+  .score{grid-template-columns:104px 64px 30px minmax(0,1fr)}
+  .seg4{grid-template-columns:repeat(2,1fr)}
+  .seg4 button:nth-child(3){border-left:0}
+  .seg4 button:nth-child(n+3){border-top:1px solid var(--input)}
+  .ta.md{min-height:360px}
+  .dfoot .btn{width:100%}
+  .pubwrap .done-title{font-size:28px}
+  .mycol{padding:24px 16px 32px}
+  .mycol .h1{font-size:26px}
+  .myprev .topbar .topnav{display:none}
+  .sacts .btn{flex:1}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 32 32">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M2 6.5h7.5L18 16"/>
+        <path d="M2 25.5h7.5L18 16"/>
+        <path d="M2 16h28"/>
+      </g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/><path d="M16 13h-2"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="st-new" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="st-open" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.2" fill="currentColor"/></symbol>
+    <symbol id="st-planned" viewBox="0 0 12 12"><path d="M6 .8 11.2 6 6 11.2.8 6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="st-progress" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="st-shipped" viewBox="0 0 12 12"><rect x=".6" y=".6" width="10.8" height="10.8" rx="2" fill="currentColor"/><path d="m3.2 6.1 1.9 1.9 3.8-4" fill="none" stroke="var(--background)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="st-declined" viewBox="0 0 12 12"><rect x="1.2" y="1.2" width="9.6" height="9.6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.6 3.6l4.8 4.8M8.4 3.6 3.6 8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="doc-head">
+  <div class="eyebrow">Signal · Design round 3 · Prototype 4b · Compare direction</div>
+  <h1>Need → decide → publish</h1>
+  <p class="idea">A PM opens the most-wanted need, reads every signal, corrects one AI score, has AI draft a decision brief, edits it, and publishes a status and a note. Every supporter sees that note on their own private page.</p>
+  <dl>
+    <dt>Steps</dt>
+    <dd><ol class="flow">
+      <li>Needs: open the top need (seed <code>n1</code>, executives sharing dashboard snapshots).</li>
+      <li>Need detail: statement, public summary, proposed solutions, all 11 signals word for word with person, account, plan, ARR, use case and urgency, accounts, and merge history.</li>
+      <li>Priority: the AI's per-criterion scores are in pencil until the PM resolves them. The PM overrides Effort 3 → 2 and adds a note. The suggestion resolves, turns to ink, and the score goes from 4.2 to 4.1.</li>
+      <li>Draft decision brief: a short loading line, then a pencil brief covering demand, accounts and value, options, and a recommendation.</li>
+      <li>Edit the brief's markdown, then <em>Accept with edits</em>. It turns to ink and shows "edited by you".</li>
+      <li>Decide: pick a status (Planned / In progress / Shipped / Declined) and write the public note. Both are prefilled from the brief in pencil, and a client-side check looks for names and revenue.</li>
+      <li>Publish. The confirmation previews one supporter's My signals page, with Lynda's three signals grouped on one private page.</li>
+    </ol></dd>
+    <dt>API</dt>
+    <dd><code>get_need_detail</code> → <code>resolve_suggestion</code> (priority, <code>edit: {scores:{effort:2}, reasons:{effort}}</code>) → <code>draft_decision_brief</code> (a pending <code>decision_brief</code> suggestion) → <code>resolve_suggestion</code> (<code>edit: {markdown}</code>) → <code>publish_decision {id, status, note}</code> → <code>get_my_signals</code>. The Triage count in the top bar follows the pending suggestions. The line above the frame names each call as it happens.</dd>
+    <dt>Not in API</dt>
+    <dd>(1) <b>Grouping one person's signals on one My signals page.</b> <code>get_my_signals</code> reads one tracking token, and tokens are issued per submission, so today Lynda would have three separate links. (2) <b>Previewing a supporter's page from the console.</b> The Operator has no way to read My signals by person, so the preview is assembled from <code>get_need_detail</code> and public data. (3) <b>The "no names, people, revenue" check on the note</b> is client-side only. <code>publish_decision</code> asks for this in its description but does not enforce it. (4) <b>Overriding a score after the priority suggestion is resolved</b> is not offered, because it would need a new <code>priority</code> suggestion and no operation creates one on demand.</dd>
+    <dt>Seed data</dt>
+    <dd>All 11 signals, people, accounts, ARR, open deals, use cases, urgency, dates, the public summary, the proposed solutions, the rejected n2 → n1 merge, and Lynda Skiles's other two signals come from <code>seedDemoWorkspace</code>, run with seed 20261030 and today's date (Oct 30). The Needs table uses seed numbers, so it does not match round 2: n1 has 8 accounts and $1.38M ARR, not 4 and $1.07M.</dd>
+    <dt>Invented</dt>
+    <dd>The seed has no scores for n1, so its pending AI <code>priority</code> suggestion is invented: Demand 5, Business value 4, Fit 4, Effort 3, with reasons, giving 4.2 under the seeded weights. The PM's override note and brief edit are also invented. The brief's AI prose (summary, option rationales, recommended note) is invented, but its facts lines are derived from the seed. The seed has no accepted merge into n1, so <b>Undo merge is not exercised here</b>. Only the rejected merge suggestion appears, and accepted merges would get an Undo control in the same list. If 4a's triage merge targets n1, that row and its Undo belong here.</dd>
+    <dt>Risks</dt>
+    <dd>Eleven quotes make a long page. That is intentional, because the PM should read them, but a need with 60 signals will need grouping by ask. Prefilling the note from the brief invites publishing AI words unread; the pencil marking until the note is touched is the only guard. On phone the brief's markdown editor is usable, but it is not pleasant to use.</dd>
+  </dl>
+</header>
+
+<section class="section proto">
+  <h2>Clickable prototype</h2>
+  <p class="sub">Every control in the light desktop frame works. Use the step strip to jump to a state. Jumping replays the actions before it.</p>
+  <nav class="strip" id="strip" aria-label="Jump to step"></nav>
+  <p class="apilog" id="apilog" aria-live="polite"></p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · light · interactive</p><div class="frame desk theme-light" id="app"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Key screen · Decide</h2>
+  <p class="sub">The accepted brief and the decision side by side. This is a static snapshot of step 6.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · dark · static</p><div class="frame desk theme-dark" data-snap="6"></div></div></div>
+  <div class="row-phone">
+    <div class="scroller"><p class="flabel">Phone 390 · light · Decide</p><div class="frame phone theme-light" data-snap="6"></div></div>
+    <div class="scroller"><p class="flabel">Phone 390 · light · Published + My signals</p><div class="frame phone theme-light" data-snap="7"></div></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ===================== Seed data (seedDemoWorkspace, seed 20261030, today Oct 30) ===================== */
+var N1 = {
+  statement: "Executives need to share dashboard snapshots outside the product so that board meetings use current numbers",
+  theme: "Reporting",
+  summary: "Leaders want current dashboard numbers in board and leadership meetings without rebuilding slides by hand.",
+  solutions: ["PDF export", "Scheduled email digest"],
+  firstSignal: "Aug 7"
+};
+// Every n1 signal, newest first. ARR/deal in $k.
+var SIGNALS = [
+  {name:"Cory Walker", email:"cory.walker41@northwind.example", acct:"Northwind Traders", plan:"Enterprise", arr:360, title:"Share dashboard snapshot with leadership", body:"Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.", urg:"Medium", use:"quarterly business review", date:"Oct 21", via:"web"},
+  {name:"Clinton D'Amore", email:"clinton.damore42@globex.example", acct:"Globex", plan:"Enterprise", arr:290, title:"Export dashboards to PDF", body:"Our exec team wants the KPI dashboard as a PDF they can drop into the board deck.", urg:"Medium", use:"quarterly business review", date:"Oct 8", via:"web"},
+  {name:"Troy Gislason", email:"troy.gislason39@lumen.example", acct:"Lumen Studio", plan:"Starter", arr:9, title:"Send dashboards to people without logins", body:"Board members don't have accounts. We need to send them the current numbers somehow.", urg:"Medium", use:"monthly board deck", date:"Oct 7", via:"mcp"},
+  {name:"Delores Hagenes", email:"delores.hagenes32@acme.example", acct:"Acme", plan:"Enterprise", arr:480, title:"Share dashboard snapshot with leadership", body:"Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.", urg:"Medium", use:"investor update", date:"Sep 22", via:"web"},
+  {name:"Dawson Fadel", email:"dawson.fadel21@harbor.example", acct:"Harbor Logistics", plan:"Growth", arr:60, title:"Export dashboards to PDF", body:"Our exec team wants the KPI dashboard as a PDF they can drop into the board deck.", urg:"High", use:"monthly board deck", date:"Sep 16", via:"web"},
+  {name:"Douglas Lindgren", email:"douglas.lindgren38@pinecone-cafe.example", acct:"Pinecone Cafe Group", plan:"Starter", arr:12, title:"Send dashboards to people without logins", body:"Board members don't have accounts. We need to send them the current numbers somehow.", urg:"Low", use:"investor update", date:"Sep 13", via:"mcp"},
+  {name:"Obie Rutherford", email:"obie.rutherford69@prospect.example", acct:null, plan:null, arr:null, title:"Share dashboard snapshot with leadership", body:"Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.", urg:"High", use:null, date:"Sep 6", via:"web"},
+  {name:"Regina Klocko", email:"regina.klocko58@globex.example", acct:"Globex", plan:"Enterprise", arr:290, title:"Export dashboards to PDF", body:"Our exec team wants the KPI dashboard as a PDF they can drop into the board deck.", urg:"Medium", use:"investor update", date:"Sep 1", via:"web"},
+  {name:"Lynda Skiles", email:"lynda.skiles52@brightline.example", acct:"Brightline Health", plan:"Growth", arr:72, title:"Send dashboards to people without logins", body:"Board members don't have accounts. We need to send them the current numbers somehow.", urg:"Medium", use:"monthly board deck", date:"Aug 31", via:"web"},
+  {name:"Rogelio Becker", email:"rogelio.becker22@pinecone-cafe.example", acct:"Pinecone Cafe Group", plan:"Starter", arr:12, title:"Share dashboard snapshot with leadership", body:"Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.", urg:"Medium", use:"investor update", date:"Aug 25", via:"web"},
+  {name:"Ricardo Balistreri", email:"ricardo.balistreri19@initech.example", acct:"Initech", plan:"Growth", arr:96, title:"Export dashboards to PDF", body:"Our exec team wants the KPI dashboard as a PDF they can drop into the board deck.", urg:"Medium", use:"weekly leadership sync", date:"Aug 7", via:"mcp", first:true}
+];
+var ACCOUNTS = [
+  {name:"Acme", plan:"Enterprise", people:1, arr:"$480k", deal:"$120k"},
+  {name:"Northwind Traders", plan:"Enterprise", people:1, arr:"$360k", deal:"—"},
+  {name:"Globex", plan:"Enterprise", people:2, arr:"$290k", deal:"$80k"},
+  {name:"Initech", plan:"Growth", people:1, arr:"$96k", deal:"$24k"},
+  {name:"Brightline Health", plan:"Growth", people:1, arr:"$72k", deal:"—"},
+  {name:"Harbor Logistics", plan:"Growth", people:1, arr:"$60k", deal:"$30k"},
+  {name:"Pinecone Cafe Group", plan:"Starter", people:2, arr:"$12k", deal:"—"},
+  {name:"Lumen Studio", plan:"Starter", people:1, arr:"$9k", deal:"$6k"}
+];
+var CRIT = [
+  {key:"demand", label:"Demand", w:35},
+  {key:"business_value", label:"Business value", w:30},
+  {key:"strategic_fit", label:"Strategic fit", w:20},
+  {key:"effort", label:"Effort", w:15}
+];
+// INVENTED: the seed has no scores for n1; this is the pending AI `priority` suggestion.
+var AI_SCORES = {
+  demand:{s:5, r:"11 people, 8 accounts; 3 new in 30 days"},
+  business_value:{s:4, r:"$1.38M ARR, $260k open deals"},
+  strategic_fit:{s:4, r:"Reporting, weight 0.9"},
+  effort:{s:3, r:"Reuses the print view"}
+};
+var DEFAULT_OVR_NOTE = "PDF needs a server-side renderer; the print view isn't enough.";
+var REC_NOTE = "We plan to add dashboard snapshots you can share as a PDF, so board and leadership meetings can use current numbers without screenshots. We'll update this page when work starts.";
+var BRIEF_EDIT_FROM = "New support slowed this month.";
+var BRIEF_EDIT_TO = "New support slowed this month. Scheduled email delivery is already planned, but it does not reach board members without a login.";
+var STATUS = {
+  open:{cls:"open", label:"Open"}, planned:{cls:"planned", label:"Planned"}, in_progress:{cls:"progress", label:"In progress"},
+  shipped:{cls:"shipped", label:"Shipped"}, declined:{cls:"declined", label:"Declined"}, "new":{cls:"new", label:"New"}
+};
+var PII = ["Acme","Northwind","Globex","Initech","Brightline","Harbor","Pinecone","Lumen"]
+  .concat(SIGNALS.reduce(function(a,s){return a.concat(s.name.split(" "));},[]));
+
+/* ===================== Helpers ===================== */
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function icon(id,cls){return '<svg class="i'+(cls?' '+cls:'')+'"><use href="#'+id+'"/></svg>';}
+function status(key){var s=STATUS[key];return '<span class="status s-'+s.cls+'"><svg><use href="#st-'+s.cls+'"/></svg>'+s.label+'</span>';}
+function pips(n){var h='<span class="spips">';for(var i=0;i<5;i++)h+='<i'+(i<n?' class="f"':'')+'></i>';return h+'</span>';}
+function scoresOf(st){var o={};CRIT.forEach(function(c){o[c.key]=st.ovr[c.key]?st.ovr[c.key].s:AI_SCORES[c.key].s;});return o;}
+function hundredths(st){var sc=scoresOf(st);return CRIT.reduce(function(t,c){return t+c.w*sc[c.key];},0);} // e.g. 405 = 4.05
+function one(h){return (Math.round(h/10)/10).toFixed(1);}
+function two(h){return (h/100).toFixed(2);}
+function triageCount(st){return 5+(st.prio==="pending"?1:0)+(st.brief==="pending"||st.brief==="editing"||st.brief==="loading"?1:0);}
+function needStatus(st){return st.pub?st.pub.status:"open";}
+
+/* ===================== Decision brief (markdown) ===================== */
+function buildBrief(st){
+  var scored = st.prio==="resolved";
+  return [
+    "# Decision brief",
+    "",
+    "**Need:** "+N1.statement,
+    "",
+    "Eleven people across eight accounts want current dashboard numbers in board and leadership meetings without rebuilding slides from screenshots. Four ask for a PDF, four for a shareable snapshot, and three need to reach board members who have no login. New support slowed this month.",
+    "",
+    "## Demand",
+    "- 11 supporters (11 signals); 3 new in the last 30 days, trend falling",
+    "- Priority score: "+(scored?two(hundredths(st))+" / 5":"not scored"),
+    "",
+    "## Accounts and value",
+    "- Acme (Enterprise): ARR $480k",
+    "- Northwind Traders (Enterprise): ARR $360k",
+    "- Globex (Enterprise): ARR $290k",
+    "- Initech (Growth): ARR $96k",
+    "- Brightline Health (Growth): ARR $72k",
+    "- Harbor Logistics (Growth): ARR $60k",
+    "- Pinecone Cafe Group (Starter): ARR $12k",
+    "- Lumen Studio (Starter): ARR $9k",
+    "- Combined ARR and open deals: $1.64M",
+    "",
+    "## Options",
+    "- **Plan it** (`planned`): Strongest demand among open needs, with three Enterprise accounts and $1.64M in ARR and open deals behind it. Tradeoffs: PDF rendering is new work and would queue behind CRM sync, which is in progress.",
+    "- **Start now (in progress)** (`in_progress`): Acme and Globex both asked and both have open deals ($120k and $80k). Tradeoffs: Starting now splits effort with CRM sync.",
+    "- **Decline** (`declined`): Scheduled delivery is already planned and covers recurring email of dashboards. Tradeoffs: One-off board packs and board members without a login stay unserved; 11 supporters see a no.",
+    "",
+    "## Recommendation",
+    "`planned`: \""+REC_NOTE+"\""
+  ].join("\n");
+}
+function inline(s){
+  return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+function renderMd(md){
+  var out=[], list=false, para=[];
+  function flushP(){if(para.length){out.push("<p>"+inline(para.join(" "))+"</p>");para=[];}}
+  function flushL(){if(list){out.push("</ul>");list=false;}}
+  md.split("\n").forEach(function(line){
+    if(/^# /.test(line)){flushP();flushL();return;}
+    if(/^## /.test(line)){flushP();flushL();out.push("<h4>"+inline(line.slice(3))+"</h4>");return;}
+    if(/^- /.test(line)){flushP();if(!list){out.push("<ul>");list=true;}out.push("<li>"+inline(line.slice(2))+"</li>");return;}
+    if(!line.trim()){flushP();flushL();return;}
+    flushL();para.push(line);
+  });
+  flushP();flushL();
+  return out.join("");
+}
+
+/* ===================== State ===================== */
+function initState(){
+  return {view:"needs", prio:"pending", ovr:{}, editing:null, pick:null, ovrNote:"", ovrErr:false,
+    brief:"none", md:"", mdDraft:"", briefEdited:false,
+    status:"planned", statusTouched:false, note:REC_NOTE, noteTouched:false, pub:null};
+}
+function stepOf(st){
+  if(st.view==="needs") return 1;
+  if(st.view==="need") return st.editing?3:(st.prio==="resolved"?3:2);
+  if(st.view==="decide") return st.brief==="editing"?5:(st.brief==="accepted"?6:4);
+  return 7;
+}
+var STEPS=["Needs","Need detail","Override a score","Draft brief","Edit brief","Decide","Published"];
+
+/* ===================== Views ===================== */
+function opbar(st){
+  var t=triageCount(st);
+  return '<header class="topbar op">'+
+    '<span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>'+
+    '<nav class="topnav"><a data-nav="triage">Triage <span class="n">'+t+'</span></a><a data-nav="needs" class="active" aria-current="page">Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a></nav>'+
+    '<span class="role">Operator</span></header>'+
+    '<nav class="mnav"><a data-nav="triage">Triage <span class="n">'+t+'</span></a><a data-nav="needs" class="active" aria-current="page">Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a></nav>';
+}
+
+function viewNeeds(st){
+  var res=st.prio==="resolved", h=hundredths(st);
+  var n1sc = res ? '<td class="sc">'+one(h)+'</td>' : '<td class="sc pen" title="AI score, pending your review">'+one(h)+'</td>';
+  var n1pend = res ? '<td class="pend"><svg class="i" style="color:var(--muted-foreground)"><use href="#i-chev-r"/></svg></td>' : '<td class="pend"><span class="pmark" title="1 suggestion pending"><i></i>1 pending</span></td>';
+  var rows = [
+    '<tr class="go" data-act="open-need" tabindex="0" aria-label="Open need">'+n1sc+'<td class="st">'+esc(N1.statement)+'</td><td class="th">Reporting</td><td>'+status(needStatus(st))+'</td><td class="num">11</td><td class="num">8</td><td class="num">$1.38M</td>'+n1pend+'</tr>',
+    '<tr><td class="sc">4.1</td><td class="st">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</td><td class="th">Reporting</td><td>'+status("planned")+'</td><td class="num">12</td><td class="num">8</td><td class="num">$1.38M</td><td class="pend"></td></tr>',
+    '<tr><td class="sc">4.0</td><td class="st">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</td><td class="th">Integrations</td><td>'+status("in_progress")+'</td><td class="num">12</td><td class="num">6</td><td class="num">$887k</td><td class="pend"></td></tr>',
+    '<tr><td class="sc">3.4</td><td class="st">Data teams need to query their warehouse directly so that dashboards use one source of truth</td><td class="th">Integrations</td><td>'+status("open")+'</td><td class="num">8</td><td class="num">3</td><td class="num">$228k</td><td class="pend"></td></tr>',
+    '<tr><td class="sc">3.3</td><td class="st">Admins need to limit who can see each dashboard so that sensitive numbers stay with the right people</td><td class="th">Admin</td><td>'+status("open")+'</td><td class="num">8</td><td class="num">5</td><td class="num">$669k</td><td class="pend"></td></tr>',
+    '<tr><td class="sc quiet">—</td><td class="st">Operations teams need threshold alerts in their team chat so that they react before customers notice</td><td class="th">Integrations</td><td>'+status("open")+'</td><td class="num">11</td><td class="num">8</td><td class="num">$1.38M</td><td class="pend"></td></tr>',
+    '<tr><td class="sc quiet">—</td><td class="st">Developers need to be notified when data changes so that their systems stay in sync without polling</td><td class="th">Integrations</td><td>'+status("open")+'</td><td class="num">10</td><td class="num">7</td><td class="num">$1.32M</td><td class="pend"></td></tr>',
+    '<tr><td class="sc quiet">—</td><td class="st">Compliance teams need to archive monthly reports so that audits have a fixed record</td><td class="th">Reporting</td><td>'+status("open")+'</td><td class="num">6</td><td class="num">4</td><td class="num">$237k</td><td class="pend"><span class="pmark" title="1 suggestion pending"><i></i>1 pending</span></td></tr>'
+  ];
+  return '<main class="wrap" style="max-width:1200px;padding-left:40px;padding-right:40px">'+
+    '<div class="ophead"><div><h1 class="h1">Needs</h1><p class="lede" style="font-size:16px">23 needs · sorted by priority</p></div>'+
+    '<div class="search" style="width:280px;flex:none">'+icon("i-search")+'<span>Search needs</span></div></div>'+
+    '<table class="ntable"><thead><tr><th><span class="sort">Priority ↓</span></th><th>Need</th><th>Theme</th><th>Status</th><th class="r">People</th><th class="r">Accounts</th><th class="r">ARR</th><th></th></tr></thead>'+
+    '<tbody>'+rows.join("")+'</tbody></table>'+
+    '<p class="tfoot">15 more needs, not yet scored. In this prototype only the first row opens.</p></main>';
+}
+
+function signalList(){
+  return '<ol class="sigs">'+SIGNALS.map(function(s){
+    var who = s.acct ? esc(s.name)+' · '+esc(s.acct)+' · '+s.plan+' · $'+s.arr+'k ARR' : esc(s.name)+' · Prospect, no account';
+    var ctx = [s.use?s.use.charAt(0).toUpperCase()+s.use.slice(1):"No use case", s.urg+" urgency", s.date, s.via==="mcp"?"via support-copilot (MCP)":"web"].join(" · ");
+    if(s.first) ctx += " · created this need";
+    return '<li><blockquote class="quote"><b>'+esc(s.title)+'</b>“'+esc(s.body)+'”<cite><span title="'+esc(s.email)+'">'+who+'</span><span>'+ctx+'</span></cite></blockquote></li>';
+  }).join("")+'</ol>';
+}
+
+function prioBlock(st){
+  var res=st.prio==="resolved", h=hundredths(st), sc=scoresOf(st);
+  var rows=CRIT.map(function(c){
+    var o=st.ovr[c.key], v=sc[c.key];
+    var reason = o ? esc(o.note)+' <span class="edited">AI said '+AI_SCORES[c.key].s+'</span>' : esc(AI_SCORES[c.key].r);
+    var btn = (!res && st.editing!==c.key) ? '<button class="btn-text" data-act="ovr-open" data-c="'+c.key+'">Override</button>' : '';
+    var cell = '<div class="crit">'+c.label+'<span class="w">× '+(c.w/100).toFixed(2)+'</span></div><div>'+pips(v)+'</div><div class="sval">'+v+(o?'<span class="by">you</span>':'')+'</div><div class="sreason">'+reason+btn+'</div>';
+    if(st.editing===c.key){
+      var p='<span class="pick" role="radiogroup" aria-label="'+c.label+' score">';
+      for(var i=0;i<=5;i++) p+='<button role="radio" aria-checked="'+(st.pick===i)+'" class="'+(st.pick===i?'on':'')+'" data-act="ovr-pick" data-v="'+i+'">'+i+'</button>';
+      p+='</span>';
+      cell+='<div class="ovr"><div class="row"><span>Your '+c.label.toLowerCase()+' score</span>'+p+(c.key==="effort"?'<span class="quiet" style="font-size:12px">5 = small</span>':'')+'</div>'+
+        '<input class="tinput" id="ovrnote" aria-label="Why (required)" placeholder="Why? Supporters never see this." value="'+esc(st.ovrNote)+'">'+
+        (st.ovrErr?'<p class="ferr">Add a short reason so the next PM knows why.</p>':'')+
+        '<div class="sacts"><button class="btn btn-outline sm" data-act="ovr-save">'+icon("i-check")+'Save override</button><button class="btn btn-ghost sm" data-act="ovr-cancel">Cancel</button></div></div>';
+    }
+    return cell;
+  }).join("");
+  var label = res
+    ? '<span class="ilabel">'+icon("i-check")+'Priority</span>'
+    : '<span class="plabel">'+icon("i-pencil")+'AI priority · pending your review</span>';
+  var sub = res
+    ? (Object.keys(st.ovr).length ? 'Accepted today · 1 override by you' : 'Accepted today')
+    : 'Weighted by current criteria · AI suggested today';
+  var acts = res ? '' :
+    '<div class="sacts"><button class="btn btn-outline sm" data-act="accept-prio">'+icon("i-check")+'Accept scores</button><span class="quiet">or override one criterion</span></div>';
+  return '<div class="prio '+(res?'ink':'pencil')+'">'+label+'<div class="score">'+rows+'</div>'+
+    '<div class="overall"><span class="mono">'+one(h)+'</span><span class="sub">'+sub+' · lower effort score = harder</span></div>'+acts+'</div>';
+}
+
+function viewNeed(st){
+  var accts='<table class="mini"><thead><tr><th>Account</th><th>Plan</th><th class="r">People</th><th class="r">ARR</th><th class="r">Open deal</th></tr></thead><tbody>'+
+    ACCOUNTS.map(function(a){return '<tr><td>'+esc(a.name)+'</td><td class="quiet">'+a.plan+'</td><td class="num r">'+a.people+'</td><td class="num r">'+a.arr+'</td><td class="num r">'+a.deal+'</td></tr>';}).join("")+
+    '<tr><td class="quiet">No account</td><td class="quiet">Prospect</td><td class="num r">1</td><td class="num r">—</td><td class="num r">—</td></tr></tbody></table>';
+  var dec = st.pub
+    ? '<div class="sec"><span class="k">Decision</span><div class="ink"><span class="ilabel">'+STATUS[st.pub.status].label+' · today</span><p class="serif" style="font-size:16px">'+esc(st.pub.note)+'</p></div></div>' : '';
+  return '<main class="dwrap">'+
+    '<button class="btn-text back" data-act="go-needs">'+icon("i-arrow-l")+'Needs</button>'+
+    '<div class="nhead"><div><span class="k">Need · Reporting</span><h1 class="nstmt">'+esc(N1.statement)+'</h1>'+
+      '<div class="nmeta">'+status(needStatus(st))+'<span><span class="mono">11</span> people</span><span><span class="mono">8</span> accounts</span><span><span class="mono">$1.38M</span> ARR</span><span><span class="mono">$260k</span> open deals</span><span>First signal '+N1.firstSignal+'</span></div></div>'+
+      (st.pub ? '<button class="btn btn-outline" data-act="go-published">See what supporters see</button>' : '<button class="btn btn-primary" data-act="draft-brief">'+icon("i-sparkles")+'Draft decision brief</button>')+
+    '</div>'+
+    '<div class="dgrid">'+
+      '<div><div class="sec"><span class="k">Signals · 11 · verbatim</span>'+signalList()+'</div></div>'+
+      '<div>'+dec+
+        '<div class="sec">'+prioBlock(st)+'</div>'+
+        '<div class="sec"><span class="k">Public summary</span><div class="ink"><span class="ilabel">'+icon("i-globe")+'Approved · <span class="edited" style="font-variant-caps:normal;letter-spacing:0">edited</span></span><p class="serif" style="font-size:16px">'+esc(N1.summary)+'</p></div></div>'+
+        '<div class="sec"><span class="k">Proposed solutions</span><ul class="rlist">'+N1.solutions.map(function(s){return '<li><span>'+s+'</span><span class="quiet">from the first signal</span></li>';}).join("")+'</ul></div>'+
+        '<div class="sec"><span class="k">Accounts · 8</span>'+accts+'</div>'+
+        '<div class="sec"><span class="k">Merge history</span><ul class="rlist mhist">'+
+          '<li><span class="what">Compliance teams need to archive monthly reports so that audits have a fixed record<span class="quiet" style="display:block;font-family:var(--font-ui);font-size:12px;margin-top:2px">AI: “Both ask for PDF export.” Same solution, different need.</span></span><span class="rej">Merge rejected · Sep 11</span></li>'+
+        '</ul><p class="quiet" style="font-size:13px;margin:10px 0 0">No merges into this need. An accepted merge would show here with <span style="text-decoration:underline;text-underline-offset:3px">Undo merge</span>.</p></div>'+
+      '</div>'+
+    '</div></main>';
+}
+
+function decisionPanel(st){
+  if(st.brief!=="accepted"){
+    return '<div class="dec"><span class="k" style="display:block;margin-bottom:14px">Decision</span>'+
+      '<p class="waiting">'+(st.brief==="loading"?'Waiting for the brief.':'Accept the brief, or edit it first, to choose a status. Nothing is published until you press Publish.')+'</p></div>';
+  }
+  var seg='<div class="seg4" role="radiogroup" aria-label="Status">'+["planned","in_progress","shipped","declined"].map(function(k){
+    var s=STATUS[k];return '<button role="radio" aria-checked="'+(st.status===k)+'" class="s-'+s.cls+(st.status===k?' on':'')+'" data-act="set-status" data-s="'+k+'"><svg><use href="#st-'+s.cls+'"/></svg>'+s.label+'</button>';
+  }).join("")+'</div>';
+  var stLabel = st.statusTouched ? '' : '<span class="plabel" style="font-size:14px">'+icon("i-pencil")+'from the brief</span>';
+  var ntLabel = st.noteTouched ? '<span class="edited">written by you</span>' : '<span class="plabel" style="font-size:14px">'+icon("i-pencil")+'from the brief</span>';
+  return '<div class="dec"><span class="k" style="display:block;margin-bottom:14px">Decision</span>'+
+    '<div class="field"><label>Status '+stLabel+'</label>'+seg+'</div>'+
+    '<div class="field" style="margin-bottom:10px"><label for="pubnote"><span>Public note</span>'+ntLabel+'</label>'+
+      '<textarea class="ta note" id="pubnote" maxlength="2000">'+esc(st.note)+'</textarea>'+
+      '<div style="display:flex;justify-content:space-between;gap:12px">'+checkLine(st.note)+'<span class="cnt" id="notecnt" style="margin-top:10px">'+st.note.length+'/2000</span></div>'+
+    '</div>'+
+    '<div class="dfoot"><button class="btn btn-primary" data-act="publish" id="pubbtn"'+(st.note.trim()?'':' disabled style="opacity:.5;cursor:not-allowed"')+'>Publish decision</button>'+
+    '<p class="note">11 supporters see this on their My signals page. The public board shows the status and note.</p></div></div>';
+}
+function checkLine(note){
+  var hits=PII.filter(function(w){return w.length>2 && new RegExp("\\b"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i").test(note);});
+  var money=/\$\s?\d|\bARR\b/i.test(note);
+  if(hits.length||money){
+    var what=hits.slice(0,3).map(function(h){return "“"+esc(h)+"”";}).concat(money?["revenue"]:[]).join(", ");
+    return '<p class="check warn" id="pubcheck">'+icon("i-alert")+'<span>Mentions '+what+'. Customers will see this note.</span></p>';
+  }
+  return '<p class="check" id="pubcheck">'+icon("i-check")+'<span>No account names, people or revenue found.</span></p>';
+}
+
+function viewDecide(st){
+  var left;
+  if(st.brief==="loading"){
+    left='<div class="loading" style="padding:8px 0 0"><span class="plabel">'+icon("i-pencil")+'Decision brief</span><p class="q-title" style="font-size:22px;margin-top:10px">Drafting a brief from 11 signals and 8 accounts…</p><div class="loadline" role="progressbar" aria-label="Drafting the decision brief"><i></i></div></div>';
+  } else if(st.brief==="editing"){
+    left='<span class="plabel">'+icon("i-pencil")+'Decision brief · editing markdown</span>'+
+      '<textarea class="ta md" id="mdedit" style="margin-top:12px" aria-label="Decision brief markdown">'+esc(st.mdDraft)+'</textarea>'+
+      '<div class="sacts"><button class="btn btn-primary sm" data-act="save-edit">'+icon("i-check")+'Accept with edits</button><button class="btn btn-ghost sm" data-act="cancel-edit">Cancel</button><span class="quiet">Your text replaces the AI’s. The original is kept.</span></div>';
+  } else {
+    var acc=st.brief==="accepted";
+    var lbl = acc ? '<span class="ilabel">'+icon("i-check")+'Decision brief · accepted'+(st.briefEdited?' · <span class="edited" style="font-variant-caps:normal;letter-spacing:0">edited by you</span>':'')+'</span>'
+                  : '<span class="plabel">'+icon("i-pencil")+'Decision brief · AI draft, not yet accepted</span>';
+    left='<div class="'+(acc?'ink':'pencil')+' brief">'+lbl+renderMd(st.md)+'</div>'+
+      (acc ? '' : '<div class="sacts"><button class="btn btn-primary sm" data-act="accept-brief">'+icon("i-check")+'Accept brief</button><button class="btn btn-ghost sm" data-act="edit-brief">'+icon("i-pencil")+'Edit</button><button class="btn btn-ghost sm" data-act="reject-brief">'+icon("i-x")+'Reject</button></div>');
+  }
+  return '<main class="dwrap">'+
+    '<button class="btn-text back" data-act="back-need">'+icon("i-arrow-l")+'Need</button>'+
+    '<div class="nhead"><div><span class="k">Decide</span><h1 class="nstmt" style="font-size:26px">'+esc(N1.statement)+'</h1>'+
+    '<div class="nmeta">'+status("open")+'<span><span class="mono">11</span> people</span><span>Priority <span class="mono">'+(st.prio==="resolved"?one(hundredths(st)):"—")+'</span></span></div></div></div>'+
+    '<div class="dcols"><div>'+left+'</div><div>'+decisionPanel(st)+'</div></div></main>';
+}
+
+function myPreview(st){
+  var p=st.pub;
+  var items=[
+    {when:"Sep 3", title:"Archive monthly reports", body:"We need a frozen copy of each month's report stored for seven years.", stmt:"Compliance teams need to archive monthly reports so that audits have a fixed record", status:"open", ppl:6, dec:null},
+    {when:"Aug 31", title:"Send dashboards to people without logins", body:"Board members don't have accounts. We need to send them the current numbers somehow.", stmt:N1.statement, status:p.status, ppl:11, dec:{label:STATUS[p.status].label+" · today", note:p.note}, upd:true},
+    {when:"Aug 29", title:"Scheduled dashboard emails", body:"Let me get the sales dashboard in my inbox every Monday at 8am.", stmt:"Managers need to receive key dashboards on a schedule so that they act on numbers without logging in", status:"planned", ppl:12, dec:{label:"Planned · Sep 30", note:"Scheduled delivery is planned for the next quarter, starting with weekly email."}}
+  ];
+  return '<div class="myprev">'+
+    '<header class="topbar"><span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span><nav class="topnav"><a>Board</a></nav></header>'+
+    '<div class="mycol"><h1 class="h1">My signals</h1><p class="lede">What you asked for, and what we decided. Only people with this link can see this page.</p>'+
+    '<ol class="mylist">'+items.map(function(it){
+      return '<li><div class="when"><span class="k">You wrote · '+it.when+'</span>'+(it.upd?'<span class="upd">Updated today</span>':'')+'</div>'+
+        '<blockquote class="quote">“'+esc(it.body)+'”</blockquote>'+
+        '<p class="to">Added to</p><p class="ns">'+esc(it.stmt)+'</p>'+
+        '<div class="nmeta">'+status(it.status)+'<span><span class="mono">'+it.ppl+'</span> people</span></div>'+
+        (it.dec ? '<div class="ink"><span class="ilabel">Decision · '+esc(it.dec.label)+'</span><p>'+esc(it.dec.note)+'</p></div>' : '<p class="none-yet">No decision yet.</p>')+
+      '</li>';
+    }).join("")+'</ol></div></div>';
+}
+
+function viewPublished(st){
+  var p=st.pub;
+  return '<main class="pubwrap">'+
+    '<span class="k">Published · Oct 30 · by you</span>'+
+    '<h1 class="done-title" style="margin-top:8px">Decision published.</h1>'+
+    '<p class="ns">'+esc(N1.statement)+'</p>'+
+    '<div class="nmeta" style="margin:0">'+status(p.status)+'<span>was '+status("open")+'</span></div>'+
+    '<div class="ink"><span class="ilabel">Public note</span><p>'+esc(p.note)+'</p></div>'+
+    '<ul class="pubfacts">'+
+      '<li>'+icon("i-check")+'<span>11 supporters see this on their My signals page. No email is sent.</span></li>'+
+      '<li>'+icon("i-check")+'<span>The public board shows '+STATUS[p.status].label+' and this note.</span></li>'+
+      '<li>'+icon("i-check")+'<span>The brief you accepted'+(st.briefEdited?' and edited':'')+' is attached to the decision. Only PMs see it.</span></li>'+
+    '</ul>'+
+    '<div class="prevhead"><span class="k">What a supporter sees</span><p>Lynda Skiles · Brightline Health. She has three signals, so all three appear on her private page and this one is updated.</p></div>'+
+    myPreview(st)+
+    '<div class="foot" style="justify-content:flex-start;margin-top:32px;gap:24px"><button class="btn btn-outline" data-act="go-needs">'+icon("i-arrow-l")+'Back to Needs</button><button class="btn-text" data-act="open-need">Open the need</button></div>'+
+    '</main>';
+}
+
+function renderFrame(st){
+  var v = st.view==="needs"?viewNeeds(st):st.view==="need"?viewNeed(st):st.view==="decide"?viewDecide(st):viewPublished(st);
+  return opbar(st)+v;
+}
+
+/* ===================== Actions ===================== */
+var S = initState(), timer = null;
+var app = document.getElementById("app");
+var logEl = document.getElementById("apilog");
+function log(html){ logEl.innerHTML = html; }
+
+function act(st, a, el, opts){
+  opts = opts||{};
+  switch(a){
+    case "open-need": st.view="need"; return 'Opened need · <b>get_need_detail</b>({ id: n1 })';
+    case "go-needs": st.view="needs"; st.editing=null; return 'Needs board';
+    case "back-need": st.view="need"; return 'Back to the need';
+    case "go-published": st.view="published"; return 'Confirmation';
+    case "accept-prio": st.prio="resolved"; st.editing=null; return '<b>resolve_suggestion</b>({ kind: priority, action: "accept" }) · scores are ink now';
+    case "ovr-open": st.editing=el.dataset.c; st.pick=AI_SCORES[st.editing].s; st.ovrNote=st.editing==="effort"?DEFAULT_OVR_NOTE:""; st.ovrErr=false; return 'Overriding '+st.editing+' · nothing saved yet';
+    case "ovr-pick": st.pick=+el.dataset.v; return null;
+    case "ovr-cancel": st.editing=null; st.ovrErr=false; return 'Override cancelled · nothing changed';
+    case "ovr-save":
+      if(!st.ovrNote.trim()){ st.ovrErr=true; return null; }
+      var c=st.editing;
+      if(st.pick!==AI_SCORES[c].s) st.ovr[c]={s:st.pick, note:st.ovrNote.trim()};
+      st.editing=null; st.prio="resolved";
+      return '<b>resolve_suggestion</b>({ kind: priority, action: "edit", edit: { scores: { '+c+': '+st.pick+' }, reasons: { '+c+': "…" } } }) · priority '+one(hundredths(st));
+    case "draft-brief":
+      st.view="decide"; st.brief="loading"; st.md=buildBrief(st);
+      if(!opts.instant){
+        clearTimeout(timer);
+        timer=setTimeout(function(){ if(S.brief==="loading"){ S.brief="pending"; S.mdOrig=S.md; draw(); log('<b>draft_decision_brief</b>({ id: n1 }) → pending decision_brief suggestion · Triage '+triageCount(S)); } }, 1500);
+      } else { st.brief="pending"; }
+      return 'Drafting · <b>draft_decision_brief</b>({ id: n1 })';
+    case "edit-brief": st.brief="editing"; st.mdDraft=st.md; return 'Editing the brief · nothing saved yet';
+    case "cancel-edit": st.brief="pending"; return 'Edit cancelled';
+    case "save-edit":
+      var md=(opts.md!=null?opts.md:st.mdDraft).trim();
+      if(!md) return null;
+      st.briefEdited = md!==st.md; st.md=md; st.brief="accepted";
+      var rec=/`(planned|in_progress|shipped|declined)`:\s*"([^"]+)"/.exec(md.split("## Recommendation")[1]||"");
+      if(rec){ st.status=rec[1]; st.note=rec[2]; }
+      return '<b>resolve_suggestion</b>({ kind: decision_brief, action: "edit", edit: { markdown } }) · brief accepted with your edits';
+    case "accept-brief": st.brief="accepted"; return '<b>resolve_suggestion</b>({ kind: decision_brief, action: "accept" })';
+    case "reject-brief": st.brief="none"; st.view="need"; return '<b>resolve_suggestion</b>({ kind: decision_brief, action: "reject" }) · nothing changed on the need';
+    case "set-status": st.status=el.dataset.s; st.statusTouched=true; return null;
+    case "publish":
+      if(!st.note.trim()) return null;
+      st.pub={status:st.status, note:st.note.trim()}; st.view="published";
+      return '<b>publish_decision</b>({ id: n1, status: "'+st.status+'", note }) · need is '+STATUS[st.status].label+' · preview via <b>get_my_signals</b>';
+  }
+  return null;
+}
+function draw(){
+  app.innerHTML = renderFrame(S);
+  var cur=stepOf(S);
+  document.querySelectorAll("#strip button[data-step]").forEach(function(b){b.classList.toggle("on", +b.dataset.step===cur);});
+}
+app.addEventListener("click", function(e){
+  var el=e.target.closest("[data-act]"); if(!el || !app.contains(el)) return;
+  var m = act(S, el.dataset.act, el);
+  draw(); if(m) log(m);
+  if(el.dataset.act==="ovr-open"){ var n=app.querySelector("#ovrnote"); if(n) n.focus(); }
+  if(["open-need","go-needs","draft-brief","publish","back-need","go-published"].indexOf(el.dataset.act)>-1) app.scrollIntoView({block:"start"});
+});
+app.addEventListener("keydown", function(e){
+  var el=e.target.closest("tr[data-act]"); if(el && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); el.click(); }
+});
+app.addEventListener("input", function(e){
+  if(e.target.id==="ovrnote"){ S.ovrNote=e.target.value; }
+  if(e.target.id==="mdedit"){ S.mdDraft=e.target.value; }
+  if(e.target.id==="pubnote"){
+    S.note=e.target.value; S.noteTouched=true;
+    app.querySelector("#notecnt").textContent=S.note.length+"/2000";
+    var chk=app.querySelector("#pubcheck"); chk.outerHTML=checkLine(S.note);
+    var b=app.querySelector("#pubbtn"); var ok=!!S.note.trim(); b.disabled=!ok; b.style.opacity=ok?"":".5"; b.style.cursor=ok?"":"not-allowed";
+    var lbl=e.target.parentNode.querySelector("label .plabel"); if(lbl) lbl.outerHTML='<span class="edited">written by you</span>';
+  }
+});
+
+/* Replays actions to reach step n (instant, no loading) */
+var SEQ=[["open-need"],["ovr-open",{c:"effort"}],["ovr-pick",{v:"2"}],["ovr-save"],["draft-brief"],["edit-brief"],["save-edit"],["publish"]];
+function stateAt(n){ return replay({1:0,2:1,3:3,4:5,5:6,6:7,7:8}[n], n); }
+function replay(upto, n){
+  var st=initState(), seq=SEQ;
+  for(var i=0;i<upto;i++){
+    var a=seq[i], fake={dataset:a[1]||{}};
+    if(a[0]==="save-edit"){ act(st,a[0],fake,{md:st.md.replace(BRIEF_EDIT_FROM,BRIEF_EDIT_TO)}); continue; }
+    act(st,a[0],fake,{instant:true});
+  }
+  if(n===5) st.mdDraft=st.md.replace(BRIEF_EDIT_FROM,BRIEF_EDIT_TO);
+  return st;
+}
+function goStep(n){
+  clearTimeout(timer);
+  S=stateAt(n);
+  if(n===4){ S=replay(4); var m=act(S,"draft-brief",{dataset:{}}); draw(); log(m); return; }
+  draw();
+  log(["","Needs board","Opened need · <b>get_need_detail</b>({ id: n1 })","Override form open on Effort, 2 picked. Press Save override.","","Editing the brief: one sentence added to the summary. Press Accept with edits.","Brief accepted with edits. Status and note are prefilled from it.","<b>publish_decision</b>({ id: n1, status: \"planned\", note }) · preview via <b>get_my_signals</b>"][n]);
+}
+(function buildStrip(){
+  var s=document.getElementById("strip");
+  s.innerHTML=STEPS.map(function(t,i){return '<button data-step="'+(i+1)+'"><span class="n">'+(i+1)+'</span>'+t+'</button>';}).join("")+'<button class="reset" data-reset>Reset</button>';
+  s.addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    goStep(b.hasAttribute("data-reset")?1:+b.dataset.step);
+  });
+})();
+
+/* Static frames */
+document.querySelectorAll("[data-snap]").forEach(function(f){ f.innerHTML=renderFrame(stateAt(+f.dataset.snap)); f.setAttribute("inert",""); });
+goStep(1);
+log("Needs board · click the first row to open it");
+</script>
+</body>
+</html>

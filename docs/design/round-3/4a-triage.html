@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal · Triage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Page (documentation chrome, not product) ===================== */
+:root{
+  --page-bg:#e6e5dd; --page-fg:#1e2320; --page-muted:#565d58; --page-rule:#c9c7bb; --page-card:#f4f3ed;
+  --font-serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+}
+:root[data-theme="dark"]{--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page-bg);color:var(--page-fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:40px 16px 96px}
+.doc-head{max-width:860px;margin-bottom:48px}
+.doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-muted)}
+.doc-head h1{font-family:var(--font-serif);font-weight:500;font-size:44px;line-height:1.1;margin:8px 0 12px;letter-spacing:-.01em}
+.doc-head .idea{font-family:var(--font-serif);font-size:21px;line-height:1.45;margin:0 0 20px}
+.doc-head dl{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;margin:0;border-top:1px solid var(--page-rule);padding-top:16px}
+.doc-head dt{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--page-muted);padding-top:3px}
+.doc-head dd{margin:0}
+@media (max-width:600px){.doc-head h1{font-size:34px}.doc-head dl{grid-template-columns:1fr;gap:2px}.doc-head dd{margin-bottom:10px}}
+.section{margin-top:72px}
+.section > h2{font-family:var(--font-serif);font-weight:500;font-size:28px;margin:0 0 4px;letter-spacing:-.005em}
+.section > p.sub{color:var(--page-muted);margin:0 0 20px;max-width:760px}
+.section h3.step{font-family:var(--font-serif);font-weight:500;font-size:20px;margin:40px 0 4px}
+.section p.stepnote{color:var(--page-muted);margin:0 0 16px;max-width:760px;font-size:14px}
+.flabel{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 8px;letter-spacing:.02em}
+.row-desk{display:flex;flex-direction:column;gap:28px}
+.scroller{overflow-x:auto;max-width:100%;padding-bottom:6px}
+.row-phone{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px;align-items:flex-start}
+.row-phone .scroller{flex:0 1 auto}
+
+/* ===================== Theme tokens (copied from round-1 Ledger) ===================== */
+.theme-light{
+  --radius:0.375rem;
+  --background:#f7f7f2; --foreground:#1e2320;
+  --card:#fbfbf7; --card-foreground:#1e2320;
+  --popover:#ffffff; --popover-foreground:#1e2320;
+  --primary:#4a42a0; --primary-foreground:#ffffff;
+  --secondary:#ebeae2; --secondary-foreground:#1e2320;
+  --muted:#eeede6; --muted-foreground:#5b635d;
+  --accent:#ebe9f5; --accent-foreground:#3d3689;
+  --destructive:#a3261b;
+  --border:#dad8cc; --input:#8b928c; --ring:#4a42a0;
+  --chart-1:#4a42a0; --chart-2:#2f7391; --chart-3:#5d8466; --chart-4:#b08a3e; --chart-5:#8d5f91;
+  --sidebar:#f1f0e9; --sidebar-foreground:#1e2320; --sidebar-primary:#4a42a0; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#e6e4f2; --sidebar-accent-foreground:#3d3689; --sidebar-border:#dad8cc; --sidebar-ring:#4a42a0;
+  --rule-strong:#1e2320;
+  --ai:#8f89bb; --ai-foreground:#534e78; --ai-surface:#f1f0f6;
+  --quote-rule:#1e2320;
+  --status-new:#5b635d; --status-open:#23698a; --status-planned:#4a42a0; --status-progress:#8a5700; --status-shipped:#2c6a37; --status-declined:#a3261b;
+  --demand-high:#1e2320; --demand-medium:#5b635d; --demand-low:#a7aca5;
+  --positive:#2c6a37;
+}
+.theme-dark{
+  --radius:0.375rem;
+  --background:#141614; --foreground:#e8e7de;
+  --card:#1a1c1a; --card-foreground:#e8e7de;
+  --popover:#1f211e; --popover-foreground:#e8e7de;
+  --primary:#aaa4f2; --primary-foreground:#15122b;
+  --secondary:#252823; --secondary-foreground:#e8e7de;
+  --muted:#222520; --muted-foreground:#a2a9a3;
+  --accent:#29273f; --accent-foreground:#d2ceff;
+  --destructive:#f0897c;
+  --border:#33362f; --input:#6f766f; --ring:#aaa4f2;
+  --chart-1:#aaa4f2; --chart-2:#6fb4d2; --chart-3:#8fbf98; --chart-4:#dcb766; --chart-5:#c99acb;
+  --sidebar:#181a17; --sidebar-foreground:#e8e7de; --sidebar-primary:#aaa4f2; --sidebar-primary-foreground:#15122b;
+  --sidebar-accent:#26243a; --sidebar-accent-foreground:#d2ceff; --sidebar-border:#2e312b; --sidebar-ring:#aaa4f2;
+  --rule-strong:#e8e7de;
+  --ai:#7a75a6; --ai-foreground:#c0bbe0; --ai-surface:#1d1c26;
+  --quote-rule:#e8e7de;
+  --status-new:#a2a9a3; --status-open:#7cc0de; --status-planned:#b3adf6; --status-progress:#e2b35a; --status-shipped:#8ccf96; --status-declined:#f0897c;
+  --demand-high:#e8e7de; --demand-medium:#a2a9a3; --demand-low:#4e534d;
+  --positive:#8ccf96;
+}
+
+/* ===================== Frames ===================== */
+.frame{container-type:inline-size;container-name:frame;background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;border:1px solid var(--page-rule);border-radius:12px;overflow:hidden;flex:none}
+.frame.desk{width:1280px}
+.frame.phone{width:390px}
+
+/* ===================== Primitives (Ledger) ===================== */
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.mark{color:var(--foreground);flex:none}
+.serif{font-family:var(--font-serif)}
+.mono{font-family:var(--font-mono)}
+.k{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border-radius:var(--radius);font:500 14px/1 var(--font-ui);border:1px solid transparent;cursor:pointer;white-space:nowrap;background:none;color:inherit}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:transparent;color:var(--foreground);border-color:var(--input)}
+.btn-ghost{background:transparent;color:var(--foreground)}
+.btn.sm{height:32px;padding:0 12px;font-size:13px}
+.btn.sm svg.i{width:14px;height:14px}
+.btn-text{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font:500 14px/1.4 var(--font-ui);color:var(--foreground);text-decoration:underline;text-decoration-color:var(--input);text-underline-offset:4px;cursor:pointer}
+.quiet{color:var(--muted-foreground)}
+kbd{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);border:1px solid var(--border);border-radius:3px;padding:0 4px;line-height:16px;display:inline-block;min-width:16px;text-align:center}
+.btn-primary kbd{color:var(--primary-foreground);border-color:color-mix(in srgb,var(--primary-foreground) 45%,transparent)}
+
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--foreground);white-space:nowrap}
+.status svg{width:11px;height:11px;flex:none}
+.s-new svg{color:var(--status-new)} .s-open svg{color:var(--status-open)} .s-planned svg{color:var(--status-planned)}
+.s-progress svg{color:var(--status-progress)} .s-shipped svg{color:var(--status-shipped)} .s-declined svg{color:var(--status-declined)}
+
+/* AI: pencil vs ink */
+.plabel{font-family:var(--font-serif);font-style:italic;font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--ai-foreground);display:inline-flex;align-items:center;gap:6px}
+.plabel svg.i{width:12px;height:12px;stroke-width:1.75}
+.ilabel{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--foreground);display:inline-flex;align-items:center;gap:6px}
+.ilabel svg.i{width:12px;height:12px;stroke-width:2.25}
+.pencil{border-left:1.5px dashed var(--ai);padding:1px 0 1px 14px;color:var(--ai-foreground)}
+.pencil p{margin:4px 0 0}
+.ink{border-left:1.5px solid var(--rule-strong);padding:1px 0 1px 14px;color:var(--foreground)}
+.ink p{margin:4px 0 0}
+.edited{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--muted-foreground)}
+.quote{margin:0;border-left:3px solid var(--quote-rule);padding:2px 0 2px 16px;font-family:var(--font-serif);font-style:italic;font-size:17px;line-height:1.45;color:var(--foreground)}
+.quote cite{display:block;font-style:normal;font-family:var(--font-ui);font-size:12px;color:var(--muted-foreground);margin-top:6px}
+
+/* ===================== App chrome ===================== */
+.topbar{display:flex;align-items:center;gap:28px;height:60px;padding:0 40px;border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:9px;color:var(--foreground);text-decoration:none}
+.wordmark{font-family:var(--font-serif);font-weight:600;font-size:22px;letter-spacing:-.01em;line-height:1}
+.topnav{display:flex;gap:22px;flex:1;min-width:0}
+.topnav a{color:var(--muted-foreground);text-decoration:none;font-weight:500;padding:19px 0 17px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+.topnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+.topnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+.role{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.h1{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.lede{font-family:var(--font-serif);font-size:18px;color:var(--muted-foreground);margin:8px 0 0;line-height:1.45}
+
+/* ===================== Submit wizard ===================== */
+.col{max-width:720px;margin:0 auto;padding:40px 0 64px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:56px}
+.steps span{border-top:2px solid var(--border);padding-top:8px;font-size:12px;color:var(--muted-foreground)}
+.steps span.done{border-top-color:var(--foreground)}
+.steps span.cur{border-top-color:var(--primary);color:var(--foreground);font-weight:500}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.field > label{font-weight:500;font-size:14px}
+.field .opt{font-weight:400;color:var(--muted-foreground)}
+.input,.textarea{border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground)}
+.input{min-height:44px;display:flex;align-items:center;padding:0 14px}
+.input.big{font-family:var(--font-serif);font-size:20px;min-height:52px}
+.textarea{padding:14px 16px;font-family:var(--font-serif);font-size:18px;line-height:1.5;min-height:150px}
+.textarea.focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.ph{color:var(--muted-foreground)}
+.caret{display:inline-block;width:1.5px;height:20px;background:var(--foreground);vertical-align:-3px;margin-left:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.seg{display:inline-grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden;width:300px}
+.seg span{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500;border-left:1px solid var(--input)}
+.seg span:first-child{border-left:0}
+.seg span.on{background:var(--foreground);color:var(--background)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:40px}
+.foot .note{margin:0;font-size:13px;color:var(--muted-foreground);display:flex;gap:8px;align-items:center}
+.foot .note svg.i{width:14px;height:14px}
+
+/* Step 2: compare */
+.q-title{font-family:var(--font-serif);font-weight:500;font-size:30px;line-height:1.2;margin:0}
+.q-sub{color:var(--muted-foreground);margin:6px 0 0}
+.mlist{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.mrow{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.mrow .radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--input);display:grid;place-items:center}
+.mrow.sel .radio{border-color:var(--primary)}
+.mrow.sel .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.mrow .st{font-family:var(--font-serif);font-size:16px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted-foreground)}
+.mrow.sel .st{color:var(--foreground)}
+.mrow .ct{font-family:var(--font-mono);font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.read{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;margin-top:40px}
+.read > div > .k{display:block;margin-bottom:14px}
+.yt{font-family:var(--font-serif);font-weight:500;font-size:20px;line-height:1.35;margin:0 0 8px}
+.yb{font-family:var(--font-serif);font-size:17px;line-height:1.5;margin:0 0 24px}
+.ns{font-family:var(--font-serif);font-size:20px;line-height:1.35;margin:0 0 10px}
+.nmeta{display:flex;gap:16px;align-items:center;font-size:13px;color:var(--muted-foreground);margin-bottom:22px}
+.nmeta .mono{color:var(--foreground);font-weight:500}
+.read .ink,.read .pencil{margin-bottom:20px}
+.read .ink p,.read .pencil p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.nopanel{display:none}
+.nopanel.on{display:block}
+.none-yet{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground);margin:0 0 20px}
+.also{font-size:13px;color:var(--ai-foreground);margin:0}
+.also .btn-text{font-size:13px;color:var(--ai-foreground);text-decoration-color:var(--ai)}
+.loading{padding:40px 0 64px}
+.loadline{height:2px;background:var(--border);overflow:hidden;margin:18px 0 0;max-width:240px}
+.loadline i{display:block;height:100%;width:35%;background:var(--primary);animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){.loadline i{animation:none;width:60%}}
+
+/* Step 3/4 */
+.lands{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 20px;align-items:baseline;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border)}
+.lands .k{grid-column:1 / -1}
+.lands .ns{margin:0}
+.done-title{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.2;margin:0 0 10px}
+.done-to{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:6px 0 10px}
+.linkrow{display:flex;gap:10px;align-items:center}
+.linkrow .input{flex:1;min-width:0;font-family:var(--font-mono);font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:42px}
+
+/* ===================== Public board ===================== */
+.board{max-width:880px;margin:0 auto;padding:48px 0 64px}
+.tools{display:flex;gap:16px;align-items:center;margin-top:32px}
+.search{display:flex;align-items:center;gap:10px;flex:1;max-width:400px;height:42px;padding:0 12px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--muted-foreground)}
+.filter{display:inline-flex;align-items:center;gap:6px;color:var(--muted-foreground);font-weight:500;font-size:14px}
+.filter b{color:var(--foreground);font-weight:500}
+.filter svg.i{width:14px;height:14px}
+.tools .cnt{margin-left:auto;font-size:13px;color:var(--muted-foreground)}
+.blist{list-style:none;margin:24px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.brow{display:grid;grid-template-columns:minmax(0,1fr) 120px 84px;gap:24px;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--border)}
+.brow .stmt{font-family:var(--font-serif);font-size:19px;line-height:1.4;margin:0;text-wrap:pretty}
+.brow .ppl{text-align:right;font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.brow .ppl .mono{font-size:17px;font-weight:500;color:var(--foreground);margin-right:4px}
+
+/* ===================== Operator ===================== */
+.wrap{max-width:1000px;margin:0 auto;padding:40px 0 64px}
+.ophead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.hints{font-size:12px;color:var(--muted-foreground);display:flex;gap:14px;align-items:center}
+.hints span{display:inline-flex;gap:5px;align-items:center}
+.qlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-strong)}
+.qrow{display:grid;grid-template-columns:132px minmax(0,1fr) auto 16px;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.qkind{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:500;color:var(--muted-foreground);white-space:nowrap}
+.qkind svg.i{width:15px;height:15px}
+.qtext{font-family:var(--font-serif);font-size:16px;color:var(--ai-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:1.5px dashed var(--ai);padding-left:12px;line-height:1.4}
+.qtext .ref{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-right:6px}
+.qmeta{font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.qrow > svg.i{color:var(--muted-foreground);width:16px;height:16px}
+.qrow.open{border-bottom:0}
+.qrow.open .qkind{color:var(--foreground)}
+.qbody{padding:8px 0 32px 150px;border-bottom:1px solid var(--border)}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:20px;align-items:start}
+.cmp .arrow{color:var(--muted-foreground);padding-top:28px;display:flex;justify-content:center}
+.cmp .k{display:block;margin-bottom:10px}
+.cmp .ns{font-size:19px}
+.cmp .quote{font-size:16px;margin-top:14px}
+.why{margin-top:24px;max-width:620px}
+.why p{font-family:var(--font-serif);font-size:16px;line-height:1.5}
+.why .conf{display:block;font-size:13px;margin-top:6px}
+.acts{display:flex;gap:8px;align-items:center;margin-top:24px}
+.qrow.resolved .qtext{border-left:1.5px solid var(--input);color:var(--muted-foreground);font-family:var(--font-ui);font-size:14px}
+.qrow.resolved .qkind svg.i{color:var(--muted-foreground)}
+
+/* Needs table */
+.ntable{width:100%;border-collapse:collapse;font-size:14px}
+.ntable th{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+.ntable th.r,.ntable td.r{text-align:right}
+.ntable th .sort{color:var(--foreground)}
+.ntable td{padding:15px 12px 15px 0;border-bottom:1px solid var(--border);vertical-align:baseline}
+.ntable td.sc{font-family:var(--font-mono);font-size:16px;font-weight:500;width:72px}
+.ntable td.st{font-family:var(--font-serif);font-size:16px;line-height:1.4;max-width:420px}
+.ntable td.num{font-family:var(--font-mono);font-size:13px;text-align:right;white-space:nowrap}
+.ntable td.th{color:var(--muted-foreground);white-space:nowrap}
+.ntable td.pend{width:96px;text-align:right;padding-right:0}
+.pmark{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:12px;color:var(--ai-foreground)}
+.pmark i{width:9px;height:9px;border:1.5px dashed var(--ai);border-radius:50%;display:block}
+.ntable tr.open td{border-bottom:0}
+.ntable tr.exp td{padding:0 0 32px 0;border-bottom:1px solid var(--border)}
+.expgrid{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.expgrid .quote{margin-bottom:18px}
+.expgrid .k{display:block;margin-bottom:12px}
+.score{display:grid;grid-template-columns:134px 78px 40px minmax(0,1fr);column-gap:0;align-items:baseline;font-size:13px}
+.score > div{padding:8px 0;border-top:1px solid var(--border)}
+.score > div:nth-child(-n+4){border-top:0;padding-top:0}
+.score .crit{font-weight:500;font-size:14px}
+.spips{display:inline-flex;gap:3px;vertical-align:middle}
+.spips i{width:8px;height:8px;border:1px solid var(--input);display:block}
+.spips i.f{background:var(--foreground);border-color:var(--foreground)}
+.sval{font-family:var(--font-mono);font-weight:500}
+.sreason{color:var(--muted-foreground)}
+.overall{display:flex;align-items:baseline;gap:12px;margin-top:4px;padding-top:10px;border-top:1px solid var(--rule-strong)}
+.overall .mono{font-size:24px;font-weight:500;letter-spacing:-.02em}
+.overall .sub{font-size:13px;color:var(--muted-foreground)}
+
+.mnav{display:none}
+
+/* ===================== Phone (container ≤ 640) ===================== */
+@container frame (max-width:640px){
+  .topbar{padding:0 16px;gap:14px;height:56px}
+  .topbar.op .topnav,.topbar.op .role{display:none}
+  .topbar .btn{height:36px;padding:0 12px;font-size:13px;gap:6px}
+  .topbar .btn svg.i{width:14px;height:14px}
+  .wordmark{font-size:20px}
+  .topnav a{padding:17px 0 15px}
+  .mnav{display:flex;gap:18px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .mnav a{color:var(--muted-foreground);font-weight:500;padding:12px 0 10px;border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+  .mnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+  .mnav .n{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+  .h1{font-size:28px}
+  .lede{font-size:16px}
+  .col,.board,.wrap{padding:24px 16px 40px}
+  .steps{margin-bottom:32px}
+  .q-title{font-size:25px}
+  .textarea{font-size:17px;min-height:170px}
+  .input.big{font-size:18px}
+  .two{grid-template-columns:1fr;gap:0}
+  .seg{width:100%}
+  .foot{flex-direction:column-reverse;align-items:stretch;gap:18px;margin-top:28px}
+  .foot .btn{width:100%}
+  .foot .btn-text{justify-content:center}
+  .foot .note{justify-content:center;text-align:center}
+  .mrow{align-items:start}
+  .mrow .radio{margin-top:3px}
+  .mrow .st{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .read{grid-template-columns:1fr;gap:32px;margin-top:28px}
+  .read .theirs{order:-1}
+  .read .yours{border-top:1px solid var(--border);padding-top:28px}
+  .lands{grid-template-columns:1fr}
+  .done-title{font-size:28px}
+  .tools{flex-wrap:wrap;margin-top:22px}
+  .search{max-width:none;flex-basis:100%}
+  .brow{grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:18px 0}
+  .brow .stmt{grid-column:1 / -1;font-size:18px}
+  .brow .ppl{text-align:right}
+  .ophead{flex-direction:column;align-items:flex-start;gap:6px}
+  .hints{display:none}
+  .qrow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px 0;align-items:start}
+  .qkind{grid-column:1}
+  .qmeta{grid-column:2;grid-row:1;text-align:right}
+  .qtext{grid-column:1 / -1;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .qrow > svg.i{display:none}
+  .qbody{padding:4px 0 28px}
+  .cmp{grid-template-columns:1fr;gap:12px}
+  .cmp .arrow{padding:0;justify-content:flex-start}
+  .cmp .arrow svg{transform:rotate(90deg)}
+  .acts .btn-primary{flex:1}
+  .acts kbd{display:none}
+}
+
+/* ===================== Round 3 · 4a Triage additions (page chrome) ===================== */
+.stepstrip{list-style:none;margin:0 0 20px;padding:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;max-width:1280px}
+.stepstrip button{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;border-top:2px solid var(--page-rule);padding:8px 2px 0;font-size:12px;line-height:1.35;color:var(--page-muted)}
+.stepstrip button b{display:block;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.04em}
+.stepstrip button:hover{color:var(--page-fg)}
+.stepstrip button:focus-visible{outline:2px solid var(--page-fg);outline-offset:3px}
+.stepstrip button.cur{border-top-color:var(--page-fg);color:var(--page-fg);font-weight:500}
+@media (max-width:900px){.stepstrip{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:14px}}
+.doc-head ol.flow{margin:0;padding-left:20px}
+.doc-head ol.flow li{margin:0 0 2px}
+.doc-head code{font-family:var(--font-mono);font-size:12.5px}
+.doc-head .nia{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--page-rule);border-radius:3px;padding:0 4px;margin-right:4px;white-space:nowrap}
+
+/* ===================== Round 3 · 4a Triage additions (product) ===================== */
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.topnav a[href],.mnav a[href]{text-decoration:none;cursor:pointer}
+.qrow{cursor:pointer}
+.qrow.resolved{cursor:default}
+.qrow:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.qrow.resolved .qmeta{display:inline-flex;gap:14px;align-items:center}
+.qrow.resolved .qmeta .btn-text{font-size:13px}
+.qrow.resolved .rej{font-family:var(--font-serif);font-style:italic;color:var(--muted-foreground)}
+.qbody .k{display:block;margin-bottom:10px}
+.who{font-size:13px;color:var(--muted-foreground);margin:10px 0 0}
+.cmp .pencil .ns,.cmp .ink .ns{margin:4px 0 0}
+.cmp .pencil .ns{color:var(--ai-foreground)}
+.solutions{font-size:13px;color:var(--muted-foreground);margin:12px 0 0}
+.pii{display:flex;gap:8px;align-items:center;font-size:13px;margin:14px 0 0;color:var(--positive)}
+.pii svg.i{width:14px;height:14px}
+.pii.warn{color:var(--destructive)}
+.pubsees{font-size:13px;color:var(--muted-foreground);margin:6px 0 0}
+textarea.textarea{display:block;width:100%;resize:vertical;min-height:112px;font-size:17px;outline:none}
+textarea.textarea:focus,input.input:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent);outline:none}
+input.input{display:block;width:100%;font:400 14px/1 var(--font-ui);color:var(--foreground);padding:0 14px}
+input.input::placeholder,textarea.textarea::placeholder{color:var(--muted-foreground)}
+.hint{font-size:12px;color:var(--muted-foreground);margin:8px 0 0}
+.hint.bad{color:var(--destructive)}
+.qbody .mlist{margin-top:0}
+.mrow .ct{font-size:12px}
+.chk{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--input);display:grid;place-items:center;color:var(--primary-foreground)}
+.mrow.sel .chk{background:var(--primary);border-color:var(--primary)}
+.mrow .chk svg{width:11px;height:11px;stroke-width:3;opacity:0}
+.mrow.sel .chk svg{opacity:1}
+.mrow.newtheme .input{min-height:36px}
+.rejectline{display:flex;gap:8px;align-items:center;margin-top:24px;max-width:720px}
+.rejectline .input{flex:1;min-width:0;min-height:32px}
+.caught{padding:56px 0 48px;border-top:1px solid var(--rule-strong);margin-bottom:40px}
+.caught .ilabel{margin-bottom:10px}
+.caught .lede{margin-top:6px}
+.reshead{display:block;margin-bottom:10px}
+.backlink{margin-bottom:28px}
+.needh{font-family:var(--font-serif);font-weight:500;font-size:28px;line-height:1.25;margin:6px 0 10px;letter-spacing:-.005em;max-width:820px}
+.mh{list-style:none;margin:10px 0 40px;padding:0;border-top:1px solid var(--rule-strong)}
+.mh li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--border)}
+.mh li svg.i{color:var(--muted-foreground);width:15px;height:15px;align-self:center}
+.mh .what{font-size:14px}
+.mh .what .serif{font-size:16px}
+.mh .when{font-size:13px;color:var(--muted-foreground);white-space:nowrap;display:inline-flex;gap:14px;align-items:baseline}
+.mh li.undone .what{color:var(--muted-foreground)}
+.needv .quote{margin-bottom:18px;max-width:760px}
+.moved{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-foreground);margin-left:6px}
+
+@container frame (max-width:640px){
+  .qrow.resolved .qmeta{grid-column:1 / -1;grid-row:auto;justify-content:flex-start}
+  .rejectline{flex-wrap:wrap}
+  .rejectline .input{flex-basis:100%}
+  .acts{flex-wrap:wrap}
+  .needh{font-size:23px}
+  .mh li{grid-template-columns:20px minmax(0,1fr)}
+  .mh .when{grid-column:2}
+  .caught{padding:40px 0 32px}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 32 32">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M2 6.5h7.5L18 16"/>
+        <path d="M2 25.5h7.5L18 16"/>
+        <path d="M2 16h28"/>
+      </g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/><path d="M16 13h-2"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="st-new" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="st-open" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.2" fill="currentColor"/></symbol>
+    <symbol id="st-planned" viewBox="0 0 12 12"><path d="M6 .8 11.2 6 6 11.2.8 6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="st-progress" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="st-shipped" viewBox="0 0 12 12"><rect x=".6" y=".6" width="10.8" height="10.8" rx="2" fill="currentColor"/><path d="m3.2 6.1 1.9 1.9 3.8-4" fill="none" stroke="var(--background)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="st-declined" viewBox="0 0 12 12"><rect x="1.2" y="1.2" width="9.6" height="9.6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.6 3.6l4.8 4.8M8.4 3.6 3.6 8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="doc-head">
+  <div class="eyebrow">Signal · Design round 3 · Flow 4a · Compare direction</div>
+  <h1>Triage</h1>
+  <p class="idea">Clear the queue one row at a time. Each suggestion is a line of pencil until you accept, edit, or reject it; the open row holds everything needed to decide, read side by side.</p>
+  <dl>
+    <dt>Steps</dt>
+    <dd><ol class="flow">
+      <li>Queue: seven pending suggestions, the merge open.</li>
+      <li>Accept the merge: Dana's signal moves; <em>Undo merge</em> stays on the row for the session.</li>
+      <li>Open the need: the merge sits in its history with <em>Undo merge</em>.</li>
+      <li>Edit a draft need's statement, then approve it.</li>
+      <li>Accept a split: four signals move to a new need.</li>
+      <li>Approve a public summary, with the PII check line.</li>
+      <li>Reject a theme, with an optional reason.</li>
+      <li>Accept the last two drafts: <em>All caught up</em>.</li>
+    </ol></dd>
+    <dt>Try it</dt>
+    <dd>Everything in the light desktop frame works. Click a row to open it. <kbd>j</kbd>/<kbd>k</kbd> move, <kbd>a</kbd> accept, <kbd>e</kbd> edit, <kbd>r</kbd> reject, <kbd>esc</kbd> cancel, <kbd>⌘</kbd><kbd>↵</kbd> saves an edit. The step strip replays the flow to each state. Dark and phone frames show step 1 and are static.</dd>
+    <dt>API</dt>
+    <dd><code>list_suggestions</code> (pending, newest first) feeds the queue. Accept, edit, and reject call <code>resolve_suggestion</code> with the edits each kind allows: merge <code>{intoNeedId}</code>, draft need <code>{statement}</code>, split <code>{statement, signalIds}</code>, summary <code>{summary}</code>, theme <code>{themeId}</code> or <code>{themeName}</code>. Undo calls <code>undo_merge</code> with the <code>mergeId</code> the accept returned. The need view reads <code>get_need_detail</code> (its <code>merges</code> list); 4b designs the full need page.</dd>
+    <dt>Not in API</dt>
+    <dd><span class="nia">not in API</span>Reject reason: <code>resolve_suggestion</code> takes no reason, so it is shown but would be dropped. <span class="nia">not in API</span>PII check line: computed in the client here by matching submitter names, account names, and emails. The server doesn't return it. The confidence label from round 2 is gone because suggestions carry only a <code>reason</code>.</dd>
+    <dt>Risks</dt>
+    <dd>Dana's draft would also have its own pending <em>draft need</em> suggestion. Accepting the merge would make that one conflict, so the prototype leaves it out. After <em>Undo merge</em> the draft is back but nothing re-queues it. The queue is newest first, so a two-month-old summary sits at the bottom. Rejecting a draft need leaves the need a draft forever. Keyboard accept makes it easy to accept without reading.</dd>
+  </dl>
+</header>
+
+<section class="section" style="margin-top:0">
+  <h2>Flow · desktop 1280 · light</h2>
+  <p class="sub">Jump to any state or click through it. State is local to this page and resets on reload.</p>
+  <ol class="stepstrip" id="strip" aria-label="Flow steps"></ol>
+  <div class="row-desk"><div class="scroller"><p class="flabel" id="mainlabel">Desktop 1280 · light · interactive</p><div class="frame desk theme-light" id="main"></div></div></div>
+</section>
+
+<section class="section">
+  <h2>Key screen · dark and phone</h2>
+  <p class="sub">The queue with the merge open (step 1). On phone the two sides stack: the duplicate first, then the need it would join.</p>
+  <div class="row-desk"><div class="scroller"><p class="flabel">Desktop 1280 · dark · static</p><div class="frame desk theme-dark" id="dark"></div></div></div>
+  <div class="row-phone"><div class="scroller"><p class="flabel">Phone 390 · light · static</p><div class="frame phone theme-light" id="phone"></div></div></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Seed content (lib/signal/seed, rendered with the fixed faker seed) ---------- */
+var THEMES = [
+  {id:"reporting", name:"Reporting", desc:"Dashboards, exports, and getting numbers in front of people.", w:"0.9"},
+  {id:"integrations", name:"Integrations", desc:"Moving data in and out of other tools.", w:"0.7"},
+  {id:"admin", name:"Administration and security", desc:"Access control, audit, and compliance for admins.", w:"0.6"},
+  {id:"collaboration", name:"Collaboration", desc:"Working together inside the product.", w:"0.4"}
+];
+var NEEDS = {
+  n1:{stmt:"Executives need to share dashboard snapshots outside the product so that board meetings use current numbers", status:"open", signals:11, theme:"Reporting"},
+  sched:{stmt:"Managers need to receive key dashboards on a schedule so that they act on numbers without logging in", status:"planned", signals:12, theme:"Reporting"},
+  n2:{stmt:"Compliance teams need to archive monthly reports so that audits have a fixed record", status:"open", signals:6, theme:"Reporting"},
+  crm:{stmt:"Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale", status:"progress", signals:12, theme:"Integrations"},
+  dana:{stmt:"Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue", status:"new", signals:1, theme:"Reporting"},
+  embed:{stmt:"Product teams need to show live charts inside their own app so that customers see their usage", status:"new", signals:2, theme:"Integrations"},
+  loc:{stmt:"International teams need dashboards in their language so that local managers read them without help", status:"new", signals:1, theme:"Reporting"},
+  sup:{stmt:"Support agents need to see a customer's open requests while replying so that they set honest expectations", status:"new", signals:1, theme:"Collaboration"}
+};
+var STATUS = {new:["s-new","st-new","Draft"], open:["s-open","st-open","Open"], planned:["s-planned","st-planned","Planned"], progress:["s-progress","st-progress","In progress"]};
+// Names the PII check looks for (submitters and accounts in this workspace).
+var PII_TERMS = ["Dana","Delores Hagenes","Cory Walker","Bertha Jacobson","Melvin Stoltenberg","Emanuel Christiansen","Cassandra Bernhard","Troy Gislason","Lynda Skiles","Leticia Marks","Amely Berge","Dolores Schoen","Jill Feest","Hardy Becker","Richard Rowe","Armando Keeling","Garrick Olson","Acme","Northwind","Globex","Initech","Brightline","Harbor Logistics","Pinecone","Lumen"];
+var SPLIT_SIGNALS = [
+  {id:"g1", who:"Hardy Becker", acct:"Brightline Health · Growth · $72k ARR", via:"via support copilot"},
+  {id:"g2", who:"Richard Rowe", acct:"Harbor Logistics · Growth · $60k ARR", via:"web"},
+  {id:"g3", who:"Armando Keeling", acct:"Northwind Traders · Enterprise · $360k ARR", via:"via support copilot"},
+  {id:"g4", who:"Garrick Olson", acct:"Brightline Health · Growth · $72k ARR", via:"web"}
+];
+
+// Pending suggestions, newest first (list_suggestions order).
+var SUG = [
+  {id:"s1", kind:"merge", need:"dana", into:"n1", age:"today", meta:"Dana · Acme",
+   reason:"Same problem in other words: current dashboard numbers for the board without rebuilding slides by hand. Acme already supports this need."},
+  {id:"s2", kind:"split", need:"crm", age:"today", meta:"4 of 12 signals",
+   statement:"Support agents need live CRM opportunity data in their copilot so that answers reflect the current deal",
+   reason:"These four ask for live CRM data while helping customers, not for pipeline dashboards."},
+  {id:"s3", kind:"draft", need:"sup", age:"3 days ago", meta:"Cassandra Bernhard · Globex",
+   reason:"New submission with no match above the threshold.",
+   quotes:[["Our support copilot wants to look up a customer's open requests before replying.","Cassandra Bernhard · Globex · Enterprise · $290k ARR · Medium · support replies"]], solutions:"Support sidebar app"},
+  {id:"s4", kind:"draft", need:"loc", age:"6 days ago", meta:"Emanuel Christiansen · Lumen Studio",
+   reason:"New submission with no match above the threshold.",
+   quotes:[["Translate the dashboard labels into German and French for our EU offices.","Emanuel Christiansen · Lumen Studio · Starter · $9k ARR · Medium · EU offices"]], solutions:"Dashboard translations"},
+  {id:"s5", kind:"theme", need:"embed", theme:"integrations", age:"8 days ago", meta:"Draft need",
+   reason:"Embedding is an integration surface."},
+  {id:"s6", kind:"draft", need:"embed", age:"9 days ago", meta:"Bertha Jacobson · Acme +1",
+   reason:"New submission with no match above the threshold.",
+   quotes:[["Let us embed a live chart in our customer portal.","Bertha Jacobson · Acme · Enterprise · $480k ARR · Medium · customer usage portal"],
+           ["Let us embed a live chart in our customer portal.","Melvin Stoltenberg · Northwind Traders · Enterprise · $360k ARR · Low · customer usage portal"]], solutions:"Embeddable charts"},
+  {id:"s7", kind:"summary", need:"n2", age:"67 days ago", meta:"",
+   summary:"Compliance teams keep immutable monthly copies of reports for auditors.",
+   reason:"Anonymized from supporters' use cases."}
+];
+var KIND = {
+  merge:{label:"Merge", icon:"i-merge", accept:"Accept", save:"Merge into selected"},
+  split:{label:"Split", icon:"i-split", accept:"Accept", save:"Split with edits"},
+  draft:{label:"Draft need", icon:"i-file", accept:"Accept", save:"Approve with edit"},
+  theme:{label:"Theme", icon:"i-tag", accept:"Accept", save:"Use this theme"},
+  summary:{label:"Summary", icon:"i-globe", accept:"Approve", save:"Approve with edit"}
+};
+function sug(id){ for(var i=0;i<SUG.length;i++) if(SUG[i].id===id) return SUG[i]; }
+
+/* ---------- State ---------- */
+function fresh(){ return {view:"triage", needKey:null, open:"s1", mode:null, form:{}, res:{}, undone:false}; }
+function pending(st){ return SUG.filter(function(s){ return !st.res[s.id]; }); }
+function stmtOf(st,key){
+  if(key==="embed" && st.res.s6 && st.res.s6.action==="edited") return st.res.s6.statement;
+  return NEEDS[key].stmt;
+}
+function statusOf(st,key){
+  if(key==="embed" && st.res.s6 && st.res.s6.action!=="rejected") return "open";
+  if(key==="sup" && st.res.s3 && st.res.s3.action!=="rejected") return "open";
+  if(key==="loc" && st.res.s4 && st.res.s4.action!=="rejected") return "open";
+  return NEEDS[key].status;
+}
+function mergeTarget(st){ var r=st.res.s1; return r && r.action!=="rejected" ? r.into : null; }
+function signalsOf(st,key){
+  var n=NEEDS[key].signals;
+  if(mergeTarget(st)===key && !st.undone) n+=1;
+  if(key==="crm" && st.res.s2 && st.res.s2.action!=="rejected") n-=st.res.s2.moved;
+  return n;
+}
+function piiHits(text){
+  var hits=[]; PII_TERMS.forEach(function(t){ if(new RegExp("\\b"+t+"\\b","i").test(text)) hits.push(t); });
+  if(/\S+@\S+\.\S+/.test(text)) hits.push("an email address");
+  return hits;
+}
+function short(s,n){ n=n||46; return s.length>n ? s.slice(0,n).replace(/\s+\S*$/,"")+"…" : s; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ---------- Render ---------- */
+function ico(id,cls){ return '<svg class="i'+(cls?" "+cls:"")+'"><use href="#'+id+'"/></svg>'; }
+function statusHTML(key,st){ var s=STATUS[statusOf(st,key)]; return '<span class="status '+s[0]+'"><svg><use href="#'+s[1]+'"/></svg>'+s[2]+'</span>'; }
+function plural(n,w){ return n+" "+w+(n===1?"":"s"); }
+
+function topbar(st){
+  var n=pending(st).length, act=st.view==="need"?"needs":"triage";
+  var nav=function(){ return '<a data-act="nav-triage"'+(act==="triage"?' class="active" aria-current="page"':'')+' href="#">Triage'+(n?' <span class="n">'+n+'</span>':'')+'</a><a data-act="nav-needs"'+(act==="needs"?' class="active" aria-current="page"':'')+' href="#">Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a>'; };
+  return '<header class="topbar op"><span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span><nav class="topnav">'+nav()+'</nav><span class="role">Operator</span></header><nav class="mnav">'+nav()+'</nav>';
+}
+
+function qtext(s,st){
+  switch(s.kind){
+    case "merge": return esc(NEEDS.dana.stmt)+' <span class="ref">→ '+esc(short(NEEDS.n1.stmt,40))+'</span>';
+    case "split": return esc(s.statement);
+    case "draft": return esc(stmtOf(st,s.need));
+    case "theme": return '<span class="ref">'+esc(short(stmtOf(st,"embed"),38))+'</span>Integrations';
+    case "summary": return esc(s.summary);
+  }
+}
+function qmeta(s){
+  if(s.kind==="summary") return piiHits(s.summary).length ? "PII found" : "No PII found";
+  return esc(s.meta);
+}
+
+function resolvedRow(s,st){
+  var r=st.res[s.id], ic=r.action==="rejected"?"i-x":"i-check", txt="", meta="";
+  var ed=r.action==="edited" ? ' · <span class="edited">edited by you</span>' : '';
+  if(s.kind==="merge"){
+    if(r.action==="rejected") txt="Merge rejected";
+    else if(st.undone){ txt="Merge undone · ‘"+esc(short(NEEDS.dana.stmt))+"’ is a draft again"; ic="i-undo"; }
+    else { txt="Merged into ‘"+esc(short(NEEDS[r.into].stmt))+"’ · 1 signal moved"+(r.action==="edited"?' · <span class="edited">target changed by you</span>':''); meta='<button class="btn-text" data-act="goneed" data-need="'+r.into+'">Open need</button><button class="btn-text" data-act="undo">Undo merge</button>'; }
+  } else if(s.kind==="split"){
+    txt = r.action==="rejected" ? "Split rejected" : "Split out ‘"+esc(short(r.statement))+"’ · "+plural(r.moved,"signal")+" moved"+ed;
+  } else if(s.kind==="draft"){
+    txt = r.action==="rejected" ? "Draft ‘"+esc(short(NEEDS[s.need].stmt))+"’ rejected" : "‘"+esc(short(r.action==="edited"?r.statement:NEEDS[s.need].stmt))+"’ approved, now open"+ed;
+  } else if(s.kind==="theme"){
+    txt = r.action==="rejected" ? "‘Integrations’ rejected"+(r.reason?' · <span class="rej">“'+esc(r.reason)+'”</span>':'') : "‘"+esc(r.themeName)+"’ accepted"+ed;
+  } else if(s.kind==="summary"){
+    txt = r.action==="rejected" ? "Summary rejected" : "Summary public on ‘"+esc(short(NEEDS.n2.stmt))+"’"+ed;
+  }
+  if(!meta) meta = r.action==="rejected" && s.kind!=="theme" && r.reason ? '<span class="rej">“'+esc(short(r.reason,30))+'”</span>' : 'just now';
+  return '<li class="qrow resolved" data-id="'+s.id+'"><span class="qkind">'+ico(ic)+KIND[s.kind].label+'</span><span class="qtext">'+txt+'</span><span class="qmeta">'+meta+'</span><span></span></li>';
+}
+
+function quote(q){ return '<blockquote class="quote">“'+esc(q[0])+'”<cite>'+esc(q[1])+'</cite></blockquote>'; }
+function radioRow(sel,act,val,title,ct){ return '<li class="mrow'+(sel?" sel":"")+'" role="radio" aria-checked="'+sel+'" data-act="'+act+'" data-val="'+val+'"><span class="radio"></span><span class="st" title="'+esc(title)+'">'+esc(title)+'</span><span class="ct">'+ct+'</span></li>'; }
+
+function body(s,st){
+  var m=st.mode, f=st.form, h="";
+  if(s.kind==="merge"){
+    var right;
+    if(m==="edit"){
+      right='<span class="k">Into · choose a need</span><ol class="mlist" role="radiogroup">'+
+        ["n1","sched","n2"].map(function(k){ return radioRow(f.into===k,"pick-into",k,NEEDS[k].stmt,plural(NEEDS[k].signals,"signal")); }).join("")+'</ol>';
+    } else {
+      right='<span class="k">Into · Open · 11 signals</span><p class="ns">'+esc(NEEDS.n1.stmt)+'</p>'+quote(["Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.","Delores Hagenes · Acme · Enterprise · $480k ARR · Medium · investor update"]);
+    }
+    h='<div class="cmp"><div><span class="k">From · draft · 1 signal</span><p class="ns">'+esc(NEEDS.dana.stmt)+'</p>'+
+      quote(["Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.","Dana · Acme · Enterprise · $480k ARR · $120k open deal · Medium · today"])+
+      '</div><span class="arrow">'+ico("i-arrow-r")+'</span><div>'+right+'</div></div>'+
+      '<div class="pencil why"><span class="plabel">'+ico("i-pencil")+'Why merge</span><p>'+esc(s.reason)+'</p><span class="conf">After the merge: 12 signals. Dana\'s words move as written; nothing is deleted.</span></div>';
+  }
+  if(s.kind==="split"){
+    var rightS;
+    if(m==="edit"){
+      rightS='<span class="k">New need · statement</span><textarea class="textarea" data-field="statement" aria-label="New need statement">'+esc(f.statement)+'</textarea>'+
+        '<p class="hint" data-hint="statement">Who needs to do what so that outcome.</p>'+
+        '<span class="k" style="margin-top:20px">Signals that move</span><ol class="mlist">'+SPLIT_SIGNALS.map(function(g){
+          var on=f.sigs.indexOf(g.id)>=0;
+          return '<li class="mrow'+(on?" sel":"")+'" role="checkbox" aria-checked="'+on+'" data-act="toggle-sig" data-val="'+g.id+'"><span class="chk">'+ico("i-check")+'</span><span class="st">'+esc(g.who+" · "+g.acct)+'</span><span class="ct">'+g.via+'</span></li>'; }).join("")+'</ol>';
+    } else {
+      rightS='<span class="k">New need · 4 signals</span><div class="pencil"><span class="plabel">'+ico("i-pencil")+'Proposed statement</span><p class="ns">'+esc(s.statement)+'</p></div>'+
+        quote(["Our support copilot keeps asking for live opportunity data from the CRM.","4 people, same words · Hardy Becker · Brightline Health, Richard Rowe · Harbor Logistics, Armando Keeling · Northwind Traders, Garrick Olson · Brightline Health"]);
+    }
+    h='<div class="cmp"><div><span class="k">From · In progress · 12 signals</span><p class="ns">'+esc(NEEDS.crm.stmt)+'</p>'+
+      quote(["We copy CRM exports in by hand every week. A native CRM connector please.","Doug Moore · Northwind Traders · Enterprise · $360k ARR · Medium · stays"])+
+      '</div><span class="arrow">'+ico("i-arrow-r")+'</span><div>'+rightS+'</div></div>'+
+      '<div class="pencil why"><span class="plabel">'+ico("i-pencil")+'Why split</span><p>'+esc(s.reason)+'</p><span class="conf">The original keeps 8 signals and its In progress decision. The moved signals keep their verbatim text.</span></div>';
+  }
+  if(s.kind==="draft"){
+    var rightD = m==="edit"
+      ? '<span class="k">Need statement · your edit</span><textarea class="textarea" data-field="statement" aria-label="Need statement">'+esc(f.statement)+'</textarea><p class="hint" data-hint="statement">Who needs to do what so that outcome.</p>'
+      : '<span class="k">Proposed statement</span><div class="pencil"><span class="plabel">'+ico("i-pencil")+'Draft need</span><p class="ns">'+esc(NEEDS[s.need].stmt)+'</p></div><p class="solutions">Proposed solution: '+esc(s.solutions)+'</p>';
+    h='<div class="cmp"><div><span class="k">Signals · verbatim · '+s.quotes.length+'</span>'+s.quotes.map(quote).join("")+'</div><span class="arrow">'+ico("i-arrow-r")+'</span><div>'+rightD+'</div></div>'+
+      '<div class="pencil why"><span class="plabel">'+ico("i-pencil")+'Why a new need</span><p>'+esc(s.reason)+'</p></div>';
+  }
+  if(s.kind==="theme"){
+    var rightT;
+    if(m==="edit"){
+      rightT='<span class="k">Theme · choose</span><ol class="mlist" role="radiogroup">'+THEMES.map(function(t){ return radioRow(f.theme===t.id,"pick-theme",t.id,t.name,"weight "+t.w); }).join("")+
+        '<li class="mrow newtheme'+(f.theme==="new"?" sel":"")+'" data-act="pick-theme" data-val="new" role="radio" aria-checked="'+(f.theme==="new")+'"><span class="radio"></span><input class="input" data-field="newTheme" placeholder="New theme name" value="'+esc(f.newTheme||"")+'"><span class="ct">new</span></li></ol>';
+    } else {
+      rightT='<span class="k">Proposed theme</span><div class="pencil"><span class="plabel">'+ico("i-pencil")+'Theme</span><p class="ns">Integrations</p><p class="quiet" style="font-family:var(--font-ui);font-size:13px">Moving data in and out of other tools. Strategic weight 0.7.</p></div>';
+    }
+    h='<div class="cmp"><div><span class="k">Need · '+(statusOf(st,"embed")==="open"?"Open":"Draft")+' · 2 signals</span><p class="ns">'+esc(stmtOf(st,"embed"))+'</p><p class="who">Bertha Jacobson · Acme · Enterprise, Melvin Stoltenberg · Northwind Traders · Enterprise</p></div><span class="arrow">'+ico("i-arrow-r")+'</span><div>'+rightT+'</div></div>'+
+      '<div class="pencil why"><span class="plabel">'+ico("i-pencil")+'Why this theme</span><p>'+esc(s.reason)+'</p></div>';
+  }
+  if(s.kind==="summary"){
+    var text = m==="edit" ? f.summary : s.summary;
+    var rightP = m==="edit"
+      ? '<span class="k">Public summary · your edit</span><textarea class="textarea" data-field="summary" aria-label="Public summary">'+esc(f.summary)+'</textarea>'
+      : '<span class="k">Public summary</span><div class="pencil"><span class="plabel">'+ico("i-pencil")+'Summary · not public yet</span><p class="ns">'+esc(s.summary)+'</p></div>';
+    h='<div class="cmp"><div><span class="k">Need · Open · 6 signals</span><p class="ns">'+esc(NEEDS.n2.stmt)+'</p>'+
+      quote(["Auditors ask for the monthly compliance report exactly as it was at month end. Please add PDF export.","Troy Gislason · Lumen Studio · Starter · $9k ARR · Medium · regulator request"])+
+      '</div><span class="arrow">'+ico("i-arrow-r")+'</span><div>'+rightP+piiLine(text)+
+      '<p class="pubsees">The public sees the statement, status, this summary, 6 people, and the demand band. Never names, accounts, or ARR.</p></div></div>'+
+      '<div class="pencil why"><span class="plabel">'+ico("i-pencil")+'How it was written</span><p>'+esc(s.reason)+'</p></div>';
+  }
+  return h+acts(s,st);
+}
+function piiLine(text){
+  var hits=piiHits(text);
+  return hits.length
+    ? '<p class="pii warn" data-pii>'+ico("i-alert")+'PII check: mentions '+esc(hits.join(", "))+'. Remove it before approving.</p>'
+    : '<p class="pii" data-pii>'+ico("i-shield")+'PII check: no names, emails, or account names</p>';
+}
+function acts(s,st){
+  var k=KIND[s.kind];
+  if(st.mode==="edit") return '<div class="acts"><button class="btn btn-primary sm" data-act="save" data-save>'+ico("i-check")+k.save+' <kbd>⌘↵</kbd></button><button class="btn btn-ghost sm" data-act="cancel">Cancel <kbd>esc</kbd></button></div>';
+  if(st.mode==="reject") return '<div class="rejectline"><input class="input" data-field="reason" aria-label="Reason (optional)" placeholder="Reason, optional. Helps the next suggestion." value="'+esc(st.form.reason||"")+'"><button class="btn btn-primary sm" data-act="confirm-reject">'+ico("i-x")+'Reject <kbd>↵</kbd></button><button class="btn btn-ghost sm" data-act="cancel">Cancel <kbd>esc</kbd></button></div>';
+  var blocked = s.kind==="summary" && piiHits(s.summary).length;
+  return '<div class="acts"><button class="btn btn-primary sm" data-act="accept"'+(blocked?" disabled":"")+'>'+ico("i-check")+k.accept+' <kbd>a</kbd></button><button class="btn btn-ghost sm" data-act="edit">'+ico("i-pencil")+'Edit <kbd>e</kbd></button><button class="btn btn-ghost sm" data-act="reject">'+ico("i-x")+'Reject <kbd>r</kbd></button></div>';
+}
+
+function triageView(st){
+  var p=pending(st), h='<main class="wrap"><div class="ophead"><div><h1 class="h1">Triage</h1><p class="lede" style="font-size:16px">'+
+    (p.length? plural(p.length,"suggestion")+" to review" : "Nothing left to review")+'</p></div>'+(p.length?'<div class="hints"><span><kbd>j</kbd><kbd>k</kbd> move</span><span><kbd>a</kbd> accept</span><span><kbd>e</kbd> edit</span><span><kbd>r</kbd> reject</span></div>':'')+'</div>';
+  if(!p.length){
+    h+='<div class="caught"><span class="ilabel">'+ico("i-check")+'Queue empty</span><p class="h1">All caught up.</p><p class="lede">Nothing is waiting on you. New suggestions land here as signals arrive.</p></div><span class="k reshead">Resolved this session</span>';
+  }
+  h+='<ol class="qlist">';
+  SUG.forEach(function(s){
+    if(st.res[s.id]){ h+=resolvedRow(s,st); return; }
+    var open=st.open===s.id;
+    h+='<li class="qrow'+(open?" open":"")+'" data-act="toggle" data-id="'+s.id+'" tabindex="0" aria-expanded="'+open+'"><span class="qkind">'+ico(KIND[s.kind].icon)+KIND[s.kind].label+'</span><span class="qtext">'+qtext(s,st)+'</span><span class="qmeta">'+qmeta(s)+'</span>'+ico(open?"i-chev-d":"i-chev-r")+'</li>';
+    if(open) h+='<li class="qbody" data-body="'+s.id+'">'+body(s,st)+'</li>';
+  });
+  return h+'</ol></main>';
+}
+
+function needView(st){
+  var key=st.needKey, merged = mergeTarget(st)===key;
+  var h='<main class="wrap needv"><div class="backlink"><button class="btn-text" data-act="nav-triage">'+ico("i-arrow-l")+'Back to triage</button></div>'+
+    '<span class="k">Need · '+NEEDS[key].theme+'</span><h1 class="needh">'+esc(NEEDS[key].stmt)+'</h1>'+
+    '<div class="nmeta">'+statusHTML(key,st)+'<span><span class="mono">'+signalsOf(st,key)+'</span> signals</span></div>'+
+    '<span class="k">Merge history</span><ul class="mh">';
+  if(merged){
+    h+= st.undone
+      ? '<li class="undone">'+ico("i-undo")+'<span class="what">Merge undone · <span class="serif">‘'+esc(NEEDS.dana.stmt)+'’</span> is a draft again with its signal</span><span class="when">by you · just now</span></li>'
+      : '<li>'+ico("i-merge")+'<span class="what">Merged in <span class="serif">‘'+esc(NEEDS.dana.stmt)+'’</span> · 1 signal</span><span class="when">by you · just now<button class="btn-text" data-act="undo">Undo merge</button></span></li>';
+  }
+  if(key==="n1") h+='<li class="undone">'+ico("i-x")+'<span class="what">Merge of <span class="serif">‘'+esc(NEEDS.n2.stmt)+'’</span> rejected: same solution, different need</span><span class="when">49 days ago</span></li>';
+  if(!merged && key!=="n1") h+='<li><span></span><span class="what quiet">No merges.</span><span></span></li>';
+  h+='</ul><span class="k" style="display:block;margin-bottom:14px">Newest signals · verbatim</span>';
+  if(merged && !st.undone) h+='<blockquote class="quote">“Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.”<cite>Dana · Acme · Enterprise · $480k ARR · Medium · today<span class="moved">moved by merge</span></cite></blockquote>';
+  if(key==="n1") h+='<blockquote class="quote">“Every month I screenshot six charts for our leadership review. A shareable snapshot would save hours.”<cite>Cory Walker · Northwind Traders · Enterprise · $360k ARR · Medium · quarterly business review · 9 days ago</cite></blockquote>';
+  if(key==="sched") h+='<blockquote class="quote">“Our regional managers never log in. Emailing them the numbers weekly would fix that.”<cite>Rahul Little · Acme · Enterprise · $480k ARR · Medium · regional managers · 11 days ago</cite></blockquote>';
+  if(key==="n2") h+='<blockquote class="quote">“We need a frozen copy of each month\'s report stored for seven years.”<cite>Jill Feest · prospect · High · regulator request · via support copilot · 24 days ago</cite></blockquote>';
+  return h+'</main>';
+}
+
+function render(inst){
+  var st=inst.st;
+  inst.el.innerHTML = topbar(st) + (st.view==="need" ? needView(st) : triageView(st));
+  if(inst.interactive){
+    var t=inst.el.querySelector("textarea.textarea, [data-field=reason], .mrow.newtheme.sel input");
+    if(t && inst.focusField){ t.focus(); if(t.setSelectionRange){ var n=t.value.length; t.setSelectionRange(n,n); } }
+    inst.focusField=false;
+    validate(inst);
+  }
+}
+
+/* ---------- Actions ---------- */
+function nextOpen(st,fromId){
+  var p=pending(st); if(!p.length) return null;
+  var idx=SUG.map(function(s){return s.id;}).indexOf(fromId);
+  for(var i=idx+1;i<SUG.length;i++) if(!st.res[SUG[i].id]) return SUG[i].id;
+  return p[0].id;
+}
+function startEdit(st){
+  var s=sug(st.open); if(!s) return;
+  st.mode="edit";
+  if(s.kind==="merge") st.form={into:"n1"};
+  if(s.kind==="split") st.form={statement:s.statement, sigs:SPLIT_SIGNALS.map(function(g){return g.id;})};
+  if(s.kind==="draft") st.form={statement:stmtOf(st,s.need)};
+  if(s.kind==="theme") st.form={theme:"integrations", newTheme:""};
+  if(s.kind==="summary") st.form={summary:s.summary};
+}
+function canSave(st){
+  var s=sug(st.open), f=st.form; if(!s) return false;
+  if(s.kind==="split") return f.statement.trim().length>=10 && f.sigs.length>=1;
+  if(s.kind==="draft") return f.statement.trim().length>=10;
+  if(s.kind==="summary") return f.summary.trim().length>=1 && !piiHits(f.summary).length;
+  if(s.kind==="theme") return f.theme!=="new" || f.newTheme.trim().length>=2;
+  return true;
+}
+function resolve(st,action){
+  var s=sug(st.open); if(!s) return;
+  var f=st.form, r={action:action};
+  if(action==="accepted"){
+    if(s.kind==="merge") r.into=s.into;
+    if(s.kind==="split"){ r.statement=s.statement; r.moved=4; }
+    if(s.kind==="theme") r.themeName="Integrations";
+    if(s.kind==="summary" && piiHits(s.summary).length) return;
+  }
+  if(action==="edited"){
+    if(!canSave(st)) return;
+    if(s.kind==="merge"){ r.into=f.into; if(f.into===s.into) r.action="accepted"; }
+    if(s.kind==="split"){ r.statement=f.statement.trim(); r.moved=f.sigs.length; if(r.statement===s.statement && r.moved===4) r.action="accepted"; }
+    if(s.kind==="draft"){ r.statement=f.statement.trim(); if(r.statement===NEEDS[s.need].stmt) r.action="accepted"; }
+    if(s.kind==="theme"){ r.themeName = f.theme==="new" ? f.newTheme.trim() : THEMES.filter(function(t){return t.id===f.theme;})[0].name; if(f.theme==="integrations") r.action="accepted"; }
+    if(s.kind==="summary"){ r.summary=f.summary.trim(); if(r.summary===s.summary) r.action="accepted"; }
+  }
+  if(action==="rejected") r.reason=(f.reason||"").trim();
+  st.res[s.id]=r;
+  if(s.kind==="merge") st.undone=false;
+  st.mode=null; st.form={};
+  st.open=nextOpen(st,s.id);
+}
+function move(st,dir){
+  var p=pending(st); if(!p.length) return;
+  var ids=p.map(function(s){return s.id;}), i=ids.indexOf(st.open);
+  i = i<0 ? 0 : Math.max(0,Math.min(ids.length-1,i+dir));
+  st.open=ids[i]; st.mode=null; st.form={};
+}
+
+function validate(inst){
+  var st=inst.st, btn=inst.el.querySelector("[data-save]");
+  if(btn) btn.disabled=!canSave(st);
+  var s=sug(st.open), hint=inst.el.querySelector('[data-hint="statement"]');
+  if(hint && st.form.statement!==undefined){ var bad=st.form.statement.trim().length<10; hint.classList.toggle("bad",bad); hint.textContent = bad ? "At least 10 characters." : "Who needs to do what so that outcome."; }
+  if(s && s.kind==="summary" && st.mode==="edit"){ var old=inst.el.querySelector("[data-pii]"); if(old) old.outerHTML=piiLine(st.form.summary); }
+}
+
+function bind(inst){
+  inst.el.addEventListener("click",function(e){
+    var t=e.target.closest("[data-act]"); if(!t || !inst.el.contains(t)) return;
+    var a=t.dataset.act, st=inst.st;
+    if(t.tagName==="A") e.preventDefault();
+    if(e.target.tagName==="INPUT" && a==="pick-theme"){ if(st.form.theme!=="new"){ st.form.theme="new"; inst.focusField=true; render(inst); } return; }
+    switch(a){
+      case "toggle": st.open = st.open===t.dataset.id ? null : t.dataset.id; st.mode=null; st.form={}; break;
+      case "accept": resolve(st,"accepted"); break;
+      case "edit": startEdit(st); inst.focusField=true; break;
+      case "reject": st.mode="reject"; st.form={reason:""}; inst.focusField=true; break;
+      case "cancel": st.mode=null; st.form={}; break;
+      case "save": resolve(st,"edited"); break;
+      case "confirm-reject": resolve(st,"rejected"); break;
+      case "undo": st.undone=true; break;
+      case "goneed": st.view="need"; st.needKey=t.dataset.need; break;
+      case "nav-needs": st.view="need"; st.needKey=mergeTarget(st)||"n1"; break;
+      case "nav-triage": st.view="triage"; break;
+      case "pick-into": st.form.into=t.dataset.val; break;
+      case "pick-theme": st.form.theme=t.dataset.val; if(t.dataset.val==="new") inst.focusField=true; break;
+      case "toggle-sig": var i=st.form.sigs.indexOf(t.dataset.val); if(i>=0) st.form.sigs.splice(i,1); else st.form.sigs.push(t.dataset.val); break;
+      default: return;
+    }
+    markStep(null);
+    render(inst);
+  });
+  inst.el.addEventListener("input",function(e){
+    var f=e.target.dataset.field; if(!f) return;
+    inst.st.form[f]=e.target.value; validate(inst);
+  });
+  inst.el.addEventListener("keydown",function(e){
+    if(e.key==="Enter" && e.target.dataset.field==="reason"){ e.preventDefault(); resolve(inst.st,"rejected"); markStep(null); render(inst); }
+    if(e.key==="Enter" && e.target.classList.contains("qrow")){ e.preventDefault(); e.target.click(); }
+  });
+}
+
+/* ---------- Instances ---------- */
+var main={el:document.getElementById("main"), st:fresh(), interactive:true};
+var dark={el:document.getElementById("dark"), st:fresh(), interactive:false};
+var phone={el:document.getElementById("phone"), st:fresh(), interactive:false};
+bind(main); render(main); render(dark); render(phone);
+
+document.addEventListener("keydown",function(e){
+  var st=main.st, tag=(e.target.tagName||"").toLowerCase(), typing = tag==="input"||tag==="textarea";
+  if(e.key==="Escape"){ if(st.mode){ st.mode=null; st.form={}; markStep(null); render(main); } return; }
+  if(typing){
+    if(e.key==="Enter" && (e.metaKey||e.ctrlKey) && st.mode==="edit"){ e.preventDefault(); resolve(st,"edited"); markStep(null); render(main); }
+    return;
+  }
+  if(e.metaKey||e.ctrlKey||e.altKey||st.view!=="triage") return;
+  var k=e.key.toLowerCase();
+  if(k==="j") move(st,1); else if(k==="k") move(st,-1);
+  else if(k==="a" && st.open && !st.mode) resolve(st,"accepted");
+  else if(k==="e" && st.open && !st.mode){ startEdit(st); main.focusField=true; }
+  else if(k==="r" && st.open && !st.mode){ st.mode="reject"; st.form={reason:""}; main.focusField=true; }
+  else return;
+  e.preventDefault(); markStep(null); render(main);
+  var o=main.el.querySelector(".qrow.open"); if(o && o.scrollIntoView) o.scrollIntoView({block:"nearest"});
+});
+
+/* ---------- Step strip: replay the flow to each state ---------- */
+var EMBED_EDIT="Product teams need to embed live charts in their customer portal so that their customers see their own usage";
+var THEME_REASON="Embedding is reporting for their customers, not a data integration. I'll theme it by hand.";
+function accept(st,id){ st.open=id; resolve(st,"accepted"); }
+var STEPS=[
+  ["Queue", function(st){ st.open="s1"; }],
+  ["Accept merge", function(st){ accept(st,"s1"); st.open="s6"; }],
+  ["Need · undo", function(st){ accept(st,"s1"); st.view="need"; st.needKey="n1"; }],
+  ["Edit draft", function(st){ accept(st,"s1"); st.open="s6"; startEdit(st); st.form.statement=EMBED_EDIT; }],
+  ["Split", function(st){ accept(st,"s1"); st.open="s6"; startEdit(st); st.form.statement=EMBED_EDIT; resolve(st,"edited"); st.open="s2"; }],
+  ["Public summary", function(st){ STEPS[4][1](st); accept(st,"s2"); st.open="s7"; }],
+  ["Reject theme", function(st){ STEPS[5][1](st); accept(st,"s7"); st.open="s5"; st.mode="reject"; st.form={reason:THEME_REASON}; }],
+  ["All caught up", function(st){ STEPS[6][1](st); resolve(st,"rejected"); accept(st,"s3"); accept(st,"s4"); }]
+];
+var strip=document.getElementById("strip");
+strip.innerHTML=STEPS.map(function(s,i){ return '<li><button type="button" data-step="'+i+'"><b>'+(i+1)+'</b>'+s[0]+'</button></li>'; }).join("");
+function markStep(i){ strip.querySelectorAll("button").forEach(function(b){ var on=String(i)===b.dataset.step; b.classList.toggle("cur",on); if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); }); }
+strip.addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  var i=+b.dataset.step, st=fresh(); STEPS[i][1](st); main.st=st; render(main); markStep(i);
+});
+markStep(0);
+})();
+</script>
+</body>
+</html>

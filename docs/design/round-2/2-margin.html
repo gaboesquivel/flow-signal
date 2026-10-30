@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal · Margin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Page (documentation chrome, not product) ===================== */
+:root{
+  --page-bg:#e6e5dd; --page-fg:#1e2320; --page-muted:#565d58; --page-rule:#c9c7bb; --page-card:#f4f3ed;
+  --font-serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+}
+:root[data-theme="dark"]{--page-bg:#0e0f0e;--page-fg:#e8e7de;--page-muted:#a2a9a3;--page-rule:#2c2f2a;--page-card:#161816}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page-bg);color:var(--page-fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:40px 16px 96px}
+.doc-head{max-width:860px;margin-bottom:48px}
+.doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-muted)}
+.doc-head h1{font-family:var(--font-serif);font-weight:500;font-size:44px;line-height:1.1;margin:8px 0 12px;letter-spacing:-.01em}
+.doc-head .idea{font-family:var(--font-serif);font-size:21px;line-height:1.45;margin:0 0 20px}
+.doc-head dl{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;margin:0;border-top:1px solid var(--page-rule);padding-top:16px}
+.doc-head dt{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--page-muted);padding-top:3px}
+.doc-head dd{margin:0}
+@media (max-width:600px){.doc-head h1{font-size:34px}.doc-head dl{grid-template-columns:1fr;gap:2px}.doc-head dd{margin-bottom:10px}}
+.section{margin-top:72px}
+.section > h2{font-family:var(--font-serif);font-weight:500;font-size:28px;margin:0 0 4px;letter-spacing:-.005em}
+.section > p.sub{color:var(--page-muted);margin:0 0 24px;max-width:760px}
+.flabel{font-family:var(--font-mono);font-size:12px;color:var(--page-muted);margin:0 0 8px;letter-spacing:.02em}
+.row-desk{display:flex;flex-direction:column;gap:32px}
+.scroller{overflow-x:auto;max-width:100%;padding-bottom:6px}
+.row-phone{display:flex;flex-wrap:wrap;gap:28px;margin-top:32px;align-items:flex-start}
+.row-phone .scroller{flex:0 1 auto}
+
+/* ===================== Theme tokens (copied from round-1 Ledger) ===================== */
+.theme-light{
+  --radius:0.375rem;
+  --background:#f7f7f2; --foreground:#1e2320;
+  --card:#fbfbf7; --card-foreground:#1e2320;
+  --popover:#ffffff; --popover-foreground:#1e2320;
+  --primary:#4a42a0; --primary-foreground:#ffffff;
+  --secondary:#ebeae2; --secondary-foreground:#1e2320;
+  --muted:#eeede6; --muted-foreground:#5b635d;
+  --accent:#ebe9f5; --accent-foreground:#3d3689;
+  --destructive:#a3261b;
+  --border:#dad8cc; --input:#8b928c; --ring:#4a42a0;
+  --chart-1:#4a42a0; --chart-2:#2f7391; --chart-3:#5d8466; --chart-4:#b08a3e; --chart-5:#8d5f91;
+  --sidebar:#f1f0e9; --sidebar-foreground:#1e2320; --sidebar-primary:#4a42a0; --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:#e6e4f2; --sidebar-accent-foreground:#3d3689; --sidebar-border:#dad8cc; --sidebar-ring:#4a42a0;
+  --rule-strong:#1e2320;
+  --ai:#8f89bb; --ai-foreground:#534e78; --ai-surface:#f1f0f6;
+  --quote-rule:#1e2320;
+  --status-new:#5b635d; --status-open:#23698a; --status-planned:#4a42a0; --status-progress:#8a5700; --status-shipped:#2c6a37; --status-declined:#a3261b;
+  --demand-high:#1e2320; --demand-medium:#5b635d; --demand-low:#a7aca5;
+  --positive:#2c6a37;
+}
+.theme-dark{
+  --radius:0.375rem;
+  --background:#141614; --foreground:#e8e7de;
+  --card:#1a1c1a; --card-foreground:#e8e7de;
+  --popover:#1f211e; --popover-foreground:#e8e7de;
+  --primary:#aaa4f2; --primary-foreground:#15122b;
+  --secondary:#252823; --secondary-foreground:#e8e7de;
+  --muted:#222520; --muted-foreground:#a2a9a3;
+  --accent:#29273f; --accent-foreground:#d2ceff;
+  --destructive:#f0897c;
+  --border:#33362f; --input:#6f766f; --ring:#aaa4f2;
+  --chart-1:#aaa4f2; --chart-2:#6fb4d2; --chart-3:#8fbf98; --chart-4:#dcb766; --chart-5:#c99acb;
+  --sidebar:#181a17; --sidebar-foreground:#e8e7de; --sidebar-primary:#aaa4f2; --sidebar-primary-foreground:#15122b;
+  --sidebar-accent:#26243a; --sidebar-accent-foreground:#d2ceff; --sidebar-border:#2e312b; --sidebar-ring:#aaa4f2;
+  --rule-strong:#e8e7de;
+  --ai:#7a75a6; --ai-foreground:#c0bbe0; --ai-surface:#1d1c26;
+  --quote-rule:#e8e7de;
+  --status-new:#a2a9a3; --status-open:#7cc0de; --status-planned:#b3adf6; --status-progress:#e2b35a; --status-shipped:#8ccf96; --status-declined:#f0897c;
+  --demand-high:#e8e7de; --demand-medium:#a2a9a3; --demand-low:#4e534d;
+  --positive:#8ccf96;
+}
+
+/* ===================== Frames ===================== */
+.frame{container-type:inline-size;container-name:frame;background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;border:1px solid var(--page-rule);border-radius:12px;overflow:hidden;flex:none}
+.frame.desk{width:1280px}
+.frame.phone{width:390px}
+
+/* ===================== Primitives (Ledger) ===================== */
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.mark{color:var(--foreground);flex:none}
+.serif{font-family:var(--font-serif)}
+.mono{font-family:var(--font-mono);font-feature-settings:"zero" 0}
+.k{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:var(--radius);font:500 14px/1 var(--font-ui);border:1px solid transparent;cursor:default;white-space:nowrap}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:transparent;color:var(--foreground);border-color:var(--input)}
+.btn-ghost{background:transparent;color:var(--muted-foreground);padding:0 10px}
+.btn.sm{height:32px;padding:0 12px;font-size:13px}
+.btn.sm svg.i{width:14px;height:14px}
+.btn.btn-ghost.sm{padding:0 8px}
+.link{color:var(--primary);font-weight:500;font-size:13px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;white-space:nowrap}
+.quiet{color:var(--muted-foreground)}
+
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--foreground);white-space:nowrap}
+.status svg{width:11px;height:11px;flex:none}
+.s-new svg{color:var(--status-new)} .s-open svg{color:var(--status-open)} .s-planned svg{color:var(--status-planned)}
+.s-progress svg{color:var(--status-progress)} .s-shipped svg{color:var(--status-shipped)} .s-declined svg{color:var(--status-declined)}
+
+/* AI: pencil vs ink (Ledger rule) */
+.plabel{font-family:var(--font-serif);font-style:italic;font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--ai-foreground);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.plabel svg.i{width:12px;height:12px;stroke-width:1.75}
+.ilabel{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:16px;line-height:1.2;color:var(--foreground);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ilabel svg.i{width:12px;height:12px;stroke-width:2.25}
+.pencil{border-left:1.5px dashed var(--ai);padding:1px 0 1px 14px;color:var(--ai-foreground)}
+.pencil p{margin:3px 0 0}
+.ink{border-left:1.5px solid var(--rule-strong);padding:1px 0 1px 14px;color:var(--foreground)}
+.edited{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--muted-foreground)}
+.puline{text-decoration:underline dashed var(--ai);text-underline-offset:4px;text-decoration-thickness:1.5px;color:var(--ai-foreground)}
+.quote{margin:0;border-left:3px solid var(--quote-rule);padding:2px 0 2px 16px;font-family:var(--font-serif);font-size:18px;line-height:1.45;color:var(--foreground)}
+.quote .qt{font-weight:500;font-style:normal;display:block;margin-bottom:4px}
+.quote .qb{font-style:italic}
+.quote cite{display:block;font-style:normal;font-family:var(--font-ui);font-size:12px;color:var(--muted-foreground);margin-top:8px}
+
+/* ===================== App chrome ===================== */
+.topbar{display:flex;align-items:center;gap:28px;height:60px;padding:0 40px;border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:9px;color:var(--foreground);text-decoration:none}
+.wordmark{font-family:var(--font-serif);font-weight:600;font-size:22px;letter-spacing:-.01em;line-height:1}
+.topnav{display:flex;gap:22px;flex:1;min-width:0}
+.topnav a{color:var(--muted-foreground);text-decoration:none;font-weight:500;padding:19px 0 17px;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a.active{color:var(--foreground);border-bottom-color:var(--rule-strong)}
+.topnav .n{font-family:var(--font-mono);font-size:12px;margin-left:5px;color:var(--primary)}
+.menu-btn{display:none;color:var(--foreground)}
+.h1{font-family:var(--font-serif);font-weight:500;font-size:34px;line-height:1.15;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{font-family:var(--font-serif);font-size:18px;color:var(--muted-foreground);margin:8px 0 0;line-height:1.45}
+
+/* ===================== Submit wizard: margin + step ===================== */
+.wiz{display:grid;grid-template-columns:280px minmax(0,1fr);gap:72px;max-width:1160px;margin:0 auto;padding:56px 40px 72px}
+.margin{border-right:1px solid var(--border);padding-right:36px;min-height:420px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.steps li{font-size:14px;color:var(--muted-foreground);display:flex;align-items:center;gap:10px}
+.steps li .no{font-family:var(--font-mono);font-size:12px;width:14px}
+.steps li.on{color:var(--foreground);font-weight:600}
+.steps li.done svg.i{width:13px;height:13px;color:var(--muted-foreground)}
+.yours{margin-top:44px}
+.yours .k{display:block;margin-bottom:10px}
+.yours .yt{font-family:var(--font-serif);font-weight:500;font-size:19px;line-height:1.35;margin:0 0 8px;color:var(--foreground)}
+.yours .yb{font-family:var(--font-serif);font-size:16px;line-height:1.5;margin:0 0 10px;color:var(--foreground)}
+.restate{margin-top:28px}
+.restate p{font-family:var(--font-serif);font-size:16px;line-height:1.45}
+.msum{display:none}
+.restate-phone{display:none}
+
+.stepbody{min-width:0;max-width:720px}
+.field{display:flex;flex-direction:column;gap:8px;margin-top:28px}
+.field > label{font-weight:500;font-size:15px}
+.field > label .opt{font-weight:400;color:var(--muted-foreground);font-size:13px;margin-left:6px}
+.input,.textarea{border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--foreground)}
+.input{min-height:44px;display:flex;align-items:center;padding:0 14px}
+.input.ttl{font-family:var(--font-serif);font-size:20px;min-height:52px}
+.textarea{padding:14px 16px;font-family:var(--font-serif);font-size:18px;line-height:1.5;min-height:132px}
+.textarea.short{min-height:76px;font-size:17px}
+.focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 22%,transparent)}
+.ph{color:var(--muted-foreground);font-style:italic}
+.caret{display:inline-block;width:1.5px;height:20px;background:var(--foreground);vertical-align:-3px;margin-left:1px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.field-row .field{margin-top:0}
+.field-row.after{margin-top:28px}
+.seg{display:inline-grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--input);border-radius:var(--radius);overflow:hidden;width:300px}
+.seg span{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500;border-left:1px solid var(--input)}
+.seg span:first-child{border-left:0}
+.seg span.on{background:var(--foreground);color:var(--background)}
+.actions-row{display:flex;align-items:center;gap:16px;margin-top:36px;flex-wrap:wrap}
+.privacy{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted-foreground);margin:28px 0 0;max-width:560px}
+.privacy svg.i{width:14px;height:14px;margin-top:3px}
+
+/* loading */
+.loading{padding-top:96px}
+.loading .h{font-family:var(--font-serif);font-size:26px;color:var(--muted-foreground);margin:0 0 18px}
+.track{height:2px;width:280px;background:var(--border);position:relative;overflow:hidden}
+.track::after{content:"";position:absolute;inset:0 auto 0 0;width:38%;background:var(--rule-strong)}
+
+/* step 2 matches */
+.matches{list-style:none;margin:32px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.m{display:grid;grid-template-columns:30px minmax(0,1fr);padding:26px 0 28px;border-bottom:1px solid var(--border)}
+.radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--input);margin-top:5px;display:grid;place-items:center}
+.m.sel .radio{border-color:var(--primary)}
+.m.sel .radio::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--primary)}
+.m .ms{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:0 0 8px;text-wrap:pretty}
+.m .meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted-foreground)}
+.m .meta .mono{color:var(--foreground);font-weight:500}
+.m .note{margin-top:14px}
+.m .note p{font-family:var(--font-serif);font-size:16px;line-height:1.5;margin:3px 0 0;color:var(--foreground)}
+.m .note.none p{color:var(--muted-foreground);font-style:italic}
+.m .why{margin-top:14px}
+.m .why p{font-size:14px;line-height:1.5}
+.m.newneed .ms{font-family:var(--font-ui);font-size:15px;font-weight:500;margin:2px 0 2px}
+.m.newneed .sub{font-size:13px;color:var(--muted-foreground);margin:0}
+.second{margin-top:22px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ai-foreground)}
+
+/* step 3 / 4 */
+.target .k{display:block;margin-bottom:8px}
+.target .ts{font-family:var(--font-serif);font-size:22px;line-height:1.4;margin:0}
+.target .ts + .link{display:inline-block;margin-top:8px}
+.thanks .h1{margin-bottom:24px}
+.thanks .people{font-size:14px;color:var(--muted-foreground);margin:10px 0 0}
+.thanks .people .mono{color:var(--foreground);font-weight:500}
+.linkrow{display:flex;gap:10px;margin-top:10px;max-width:600px}
+.linkrow .input{flex:1;min-width:0;font-family:var(--font-mono);font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:42px}
+.mysig{margin-top:44px}
+.backboard{display:inline-flex;align-items:center;gap:6px;margin-top:40px;color:var(--muted-foreground);font-weight:500;font-size:14px}
+.backboard svg.i{width:14px;height:14px}
+
+/* ===================== Public board ===================== */
+.bwrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:64px;max-width:1160px;margin:0 auto;padding:56px 40px 72px}
+.themes-m{padding-top:318px}
+.themes-m .k{display:block;margin-bottom:12px}
+.themes-m ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.themes-m li{font-size:14px;color:var(--muted-foreground)}
+.themes-m li.on{color:var(--foreground);font-weight:500;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.toolbar{display:flex;align-items:center;gap:24px;margin-top:28px}
+.search{display:flex;align-items:center;gap:10px;width:360px;height:40px;padding:0 12px;border:1px solid var(--input);border-radius:var(--radius);background:var(--card);color:var(--muted-foreground)}
+.qsel{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--muted-foreground);white-space:nowrap}
+.qsel b{color:var(--foreground);font-weight:500}
+.qsel svg.i{width:14px;height:14px}
+.qsel.theme{display:none}
+.list{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:24px;padding:20px 0 22px;border-bottom:1px solid var(--border)}
+.row .rs{font-family:var(--font-serif);font-size:20px;line-height:1.4;margin:0 0 6px;text-wrap:pretty}
+.row .cnt{text-align:right}
+.row .cnt .mono{display:block;font-size:22px;font-weight:500;line-height:1.2}
+.row .cnt span:last-child{font-size:12px;color:var(--muted-foreground)}
+
+/* ===================== Operator ===================== */
+.tri{display:grid;grid-template-columns:380px minmax(0,1fr);min-height:760px}
+.tlist{border-right:1px solid var(--border);padding:36px 28px 32px 40px;display:flex;flex-direction:column}
+.tlist .h1{font-size:28px}
+.tlist .cnt{font-size:14px;color:var(--muted-foreground);margin:4px 0 0}
+.queue{list-style:none;margin:24px 0 0;padding:0;border-top:1px solid var(--rule-strong)}
+.queue li{padding:14px 0 15px 14px;border-bottom:1px solid var(--border);border-left:2px solid transparent}
+.queue li .ty{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:15px;line-height:1.2;color:var(--muted-foreground);display:block}
+.queue li .sj{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.queue li.on{border-left-color:var(--rule-strong)}
+.queue li.on .sj{font-weight:500}
+.queue li.on .ty{color:var(--foreground)}
+.queue li.res .sj{color:var(--muted-foreground)}
+.queue li.res .ty{display:inline-flex;gap:6px;align-items:center}
+.queue li.res svg.i{width:12px;height:12px}
+.kbd{margin-top:auto;padding-top:28px;font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground)}
+.tdetail{padding:36px 48px 48px;min-width:0}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.dhead .ty{font-family:var(--font-serif);font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:18px;line-height:1.2}
+.dhead .from{font-size:13px;color:var(--muted-foreground);margin:4px 0 0}
+.dhead .from b{color:var(--foreground);font-weight:500}
+.dacts{display:flex;gap:4px;align-items:center;flex:none}
+.dback{display:none}
+.dsec{margin-top:32px;max-width:720px}
+.dsec > .k{display:block;margin-bottom:12px}
+.big p{font-family:var(--font-serif);font-size:22px;line-height:1.4}
+.usecase{font-size:14px;color:var(--muted-foreground);margin:14px 0 0 19px}
+.usecase b{color:var(--foreground);font-weight:500}
+.sim{list-style:none;margin:0;padding:0}
+.sim li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid var(--border);align-items:baseline}
+.sim li:last-child{border-bottom:1px solid var(--border)}
+.sim .no{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground)}
+.sim .st{font-family:var(--font-serif);font-size:17px;line-height:1.4}
+.sim .mt{display:flex;gap:12px;font-size:13px;color:var(--muted-foreground);white-space:nowrap}
+.sim .mt .mono{color:var(--foreground)}
+
+.needs{padding:36px 40px 56px}
+.nhead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.ntable{width:100%;border-collapse:collapse;margin-top:28px}
+.ntable th{text-align:left;font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);padding:0 12px 10px;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+.ntable th.on{color:var(--foreground)}
+.ntable th.on svg.i{width:12px;height:12px;vertical-align:-1px}
+.ntable td{padding:18px 12px;border-bottom:1px solid var(--border);vertical-align:baseline}
+.ntable th:first-child,.ntable td:first-child{padding-left:0}
+.ntable th:last-child,.ntable td:last-child{padding-right:0}
+.ntable .r{text-align:right}
+.ntable td.num{font-family:var(--font-mono);font-size:14px;text-align:right;white-space:nowrap}
+.ntable td.pri{font-family:var(--font-mono);font-size:18px;font-weight:500;width:72px}
+.ntable td.stmt{font-family:var(--font-serif);font-size:17px;line-height:1.4;max-width:440px;text-wrap:pretty}
+.ntable td.th{color:var(--muted-foreground);white-space:nowrap}
+.pend{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--ai-foreground);white-space:nowrap}
+.pend svg.i{width:12px;height:12px;stroke-width:1.75}
+.nfoot{display:flex;gap:24px;align-items:center;margin-top:16px;font-size:13px;color:var(--muted-foreground)}
+
+/* ===================== Phone (container ≤ 640) ===================== */
+@container frame (max-width:640px){
+  .topbar{padding:0 16px;gap:14px;height:56px;justify-content:space-between}
+  .topnav{gap:14px;flex:0 1 auto}
+  .topnav a{padding:17px 0 15px}
+  .wordmark{font-size:20px}
+  .topbar .btn{height:36px;padding:0 12px;font-size:13px;gap:6px}
+  .topbar .btn svg.i{width:14px;height:14px}
+  .h1{font-size:27px}
+  .lede{font-size:16px}
+  .btn{height:44px}
+
+  .wiz{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 36px}
+  .margin{display:none}
+  .msum{display:block;padding-bottom:16px;margin-bottom:24px;border-bottom:1px solid var(--border);font-size:14px;line-height:1.45}
+  .msum .k{display:block;margin-bottom:6px}
+  .msum .yr{color:var(--muted-foreground);display:flex;align-items:baseline;gap:5px;white-space:nowrap;min-width:0}
+  .msum .yr b{color:var(--foreground);font-weight:500;font-family:var(--font-serif);font-size:15px;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .restate-phone{display:block;margin-top:18px}
+  .restate-phone p{font-family:var(--font-serif);font-size:16px;line-height:1.45}
+  .field{margin-top:22px}
+  .input.ttl{font-size:18px}
+  .textarea{font-size:17px;min-height:150px}
+  .textarea.short{min-height:76px;font-size:16px}
+  .field-row{grid-template-columns:minmax(0,1fr);gap:0}
+  .field-row .field{margin-top:22px}
+  .field-row.after{margin-top:0}
+  .seg{width:100%}
+  .actions-row{flex-direction:column;align-items:stretch;gap:8px;margin-top:28px}
+  .actions-row .btn{justify-content:center}
+  .matches{margin-top:20px}
+  .m{grid-template-columns:28px minmax(0,1fr);padding:20px 0 22px}
+  .m .ms{font-size:18px}
+  .target .ts{font-size:19px}
+  .linkrow{flex-direction:column}
+  .linkrow .btn{justify-content:center}
+  .loading{padding-top:40px}
+  .loading .h{font-size:22px}
+  .track{width:100%}
+
+  .bwrap{grid-template-columns:minmax(0,1fr);gap:0;padding:24px 16px 40px}
+  .themes-m{display:none}
+  .toolbar{flex-wrap:wrap;gap:12px 20px;margin-top:20px}
+  .search{width:100%}
+  .qsel.theme{display:inline-flex}
+  .list{margin-top:18px}
+  .row{grid-template-columns:minmax(0,1fr) 44px;gap:12px;padding:18px 0 20px}
+  .row .rs{font-size:18px}
+  .row .cnt .mono{font-size:18px}
+
+  .topnav.op{display:none}
+  .menu-btn{display:inline-flex}
+  .tri{grid-template-columns:minmax(0,1fr);min-height:0}
+  .tlist{border-right:0;padding:24px 16px 32px}
+
+  .kbd{display:none}
+  .tdetail{padding:16px 16px 40px}
+  .dback{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--muted-foreground);margin-bottom:16px}
+  .dback svg.i{width:14px;height:14px}
+  .dhead{flex-direction:column;gap:14px}
+  .dacts{width:100%}
+  .dacts .btn{flex:1;justify-content:center;height:40px}
+  .big p{font-size:19px}
+  .usecase{margin-left:19px}
+  .sim li{grid-template-columns:28px minmax(0,1fr)}
+  .sim .mt{grid-column:2}
+}
+.frame[data-view="list"] .tdetail{display:none}
+.frame[data-view="detail"] .tlist{display:none}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Mark (from round-1 Ledger): three short ledger rules; the outer two converge into the middle, which continues as one line. -->
+    <symbol id="mark" viewBox="0 0 32 32">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M2 6.5h7.5L18 16"/>
+        <path d="M2 25.5h7.5L18 16"/>
+        <path d="M2 16h28"/>
+      </g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="st-new" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="st-open" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.2" fill="currentColor"/></symbol>
+    <symbol id="st-planned" viewBox="0 0 12 12"><path d="M6 .8 11.2 6 6 11.2.8 6Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="st-progress" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="st-shipped" viewBox="0 0 12 12"><rect x=".6" y=".6" width="10.8" height="10.8" rx="2" fill="currentColor"/><path d="m3.2 6.1 1.9 1.9 3.8-4" fill="none" stroke="var(--background)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="doc-head">
+  <div class="eyebrow">Signal · Design round 2 · Variant 2</div>
+  <h1>Margin</h1>
+  <p class="idea">Your words stay in view. A narrow left margin carries the steps and the person's own entry, as written, so every match is read against what they actually said.</p>
+  <dl>
+    <dt>Principles</dt>
+    <dd>One column of work, one primary action per screen. The margin replaces labels and progress chrome: three plain step words and the entry itself. No cards, no pills, rules only where a list needs them. Writing is welcome: the entry is shown back in full, in ink, with an Edit link, and the AI's restatement sits under it in pencil so the difference between "what I said" and "what the AI heard" is visible at a glance. The console uses the same move: a quiet list on the left, the full context of one decision on the right.</dd>
+    <dt>Pencil / ink</dt>
+    <dd>Unchanged from Ledger: AI text sits behind a dashed rule with an italic small-caps label in <code>--ai-foreground</code>; confirmed text is ink. PM-approved summaries and decision notes are ink; "why it matches", the restatement, drafted statements and unconfirmed scores are pencil.</dd>
+    <dt>Risks</dt>
+    <dd>The margin costs 280px; on mid-size laptops the match text column gets narrower than ideal. On phone the entry collapses to one line, so the "read against your own words" benefit is weaker exactly where screens are smallest. A long body could make the margin taller than the step. In triage, master–detail hides the rest of the queue's content: PMs must click through rather than scan everything at once.</dd>
+  </dl>
+</header>
+
+<!-- ===================== Submit ===================== -->
+<section class="section">
+  <h2>Submit · four-step wizard</h2>
+  <p class="sub">Desktop: the margin holds the step words and, from step 2, the person's entry in ink with the AI's restatement in pencil beneath. Phone: the margin collapses to one line above the step.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Step 1 · Describe · Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s1"></div></div>
+    <div class="scroller"><p class="flabel">Step 2 · Check · loading (~1–2 s) · Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s2load"></div></div>
+    <div class="scroller"><p class="flabel">Step 2 · Check · Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s2"></div></div>
+    <div class="scroller"><p class="flabel">Step 2 · Check · Desktop 1280 · dark</p><div class="frame desk theme-dark" data-tpl="s2"></div></div>
+    <div class="scroller"><p class="flabel">Step 3 · Details · Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s3"></div></div>
+    <div class="scroller"><p class="flabel">Step 4 · Done · Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="s4"></div></div>
+  </div>
+  <div class="row-phone">
+    <div class="scroller"><p class="flabel">Step 1 · Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s1"></div></div>
+    <div class="scroller"><p class="flabel">Step 2 · Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s2"></div></div>
+    <div class="scroller"><p class="flabel">Step 3 · Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s3"></div></div>
+    <div class="scroller"><p class="flabel">Step 4 · Phone 390 · light</p><div class="frame phone theme-light" data-tpl="s4"></div></div>
+  </div>
+</section>
+
+<!-- ===================== Board ===================== -->
+<section class="section">
+  <h2>Public board</h2>
+  <p class="sub">A ruled list; themes live in the left margin as quiet text links. Status is one quiet control beside search. Phone: themes become a second quiet control.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="board"></div></div>
+  </div>
+  <div class="row-phone">
+    <div class="scroller"><p class="flabel">Phone 390 · light</p><div class="frame phone theme-light" data-tpl="board"></div></div>
+  </div>
+</section>
+
+<!-- ===================== Triage ===================== -->
+<section class="section">
+  <h2>Operator · Triage</h2>
+  <p class="sub">Master–detail. Left: a compact ruled queue, type in small caps, one-line subject. Right: one suggestion with its full context; Accept / Edit / Reject at the top right. Phone: the list, then the detail.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="triage"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · dark</p><div class="frame desk theme-dark" data-tpl="triage"></div></div>
+  </div>
+  <div class="row-phone">
+    <div class="scroller"><p class="flabel">Phone 390 · light · list</p><div class="frame phone theme-light" data-tpl="triage" data-view="list"></div></div>
+    <div class="scroller"><p class="flabel">Phone 390 · light · detail</p><div class="frame phone theme-light" data-tpl="triage" data-view="detail"></div></div>
+  </div>
+</section>
+
+<!-- ===================== Needs ===================== -->
+<section class="section">
+  <h2>Operator · Needs</h2>
+  <p class="sub">One ruled table, sorted by priority. Unconfirmed values stay in pencil; pending suggestions are a quiet pencil marker, not a badge.</p>
+  <div class="row-desk">
+    <div class="scroller"><p class="flabel">Desktop 1280 · light</p><div class="frame desk theme-light" data-tpl="needs"></div></div>
+    <div class="scroller"><p class="flabel">Desktop 1280 · dark</p><div class="frame desk theme-dark" data-tpl="needs"></div></div>
+  </div>
+</section>
+
+</div>
+
+<!-- ===================== Templates ===================== -->
+<template id="tpl-pubbar">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <nav class="topnav"><a>Board</a></nav>
+  </header>
+</template>
+
+<template id="tpl-yours">
+  <div class="yours">
+    <span class="k">You wrote</span>
+    <p class="yt">Monthly PDF of the revenue dashboard</p>
+    <p class="yb">Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.</p>
+    <span class="link edit">Edit</span>
+  </div>
+</template>
+
+<template id="tpl-s1">
+  <div data-inc="pubbar"></div>
+  <main class="wiz">
+    <aside class="margin">
+      <ol class="steps"><li class="on"><span class="no">1</span>Describe</li><li><span class="no">2</span>Check</li><li><span class="no">3</span>Details</li></ol>
+    </aside>
+    <div class="stepbody">
+      <div class="msum"><span class="k">Step 1 of 3 · Describe</span></div>
+      <h1 class="h1">What do you need?</h1>
+      <p class="lede">Say it in your own words. We'll check whether others have asked for the same thing.</p>
+      <div class="field"><label>In a few words, what do you need?</label><div class="input ttl">Monthly PDF of the revenue dashboard</div></div>
+      <div class="field"><label>What's getting in the way? What were you trying to do?</label><div class="textarea focus">Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.<span class="caret"></span></div></div>
+      <div class="actions-row"><span class="btn btn-primary">Continue<svg class="i"><use href="#i-arrow-r"/></svg></span></div>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-s2load">
+  <div data-inc="pubbar"></div>
+  <main class="wiz">
+    <aside class="margin">
+      <ol class="steps"><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Describe</li><li class="on"><span class="no">2</span>Check</li><li><span class="no">3</span>Details</li></ol>
+      <div data-inc="yours"></div>
+    </aside>
+    <div class="stepbody loading" role="status" aria-live="polite">
+      <p class="h">Looking for needs like yours…</p>
+      <div class="track"></div>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-s2">
+  <div data-inc="pubbar"></div>
+  <main class="wiz">
+    <aside class="margin">
+      <ol class="steps"><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Describe</li><li class="on"><span class="no">2</span>Check</li><li><span class="no">3</span>Details</li></ol>
+      <div data-inc="yours"></div>
+      <div class="pencil restate"><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>As we understand it</span><p>Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p></div>
+    </aside>
+    <div class="stepbody">
+      <div class="msum"><span class="k">Step 2 of 3 · Check</span><span class="yr"><span>Your request:</span><b>Monthly PDF of the revenue dashboard</b><span>·</span><span class="link">Edit</span></span></div>
+      <h1 class="h1">Others may have asked for this already.</h1>
+      <p class="lede">Add your voice to one, or tell us it's new.</p>
+      <div class="pencil restate-phone"><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Your need, as we understand it</span><p>Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p></div>
+      <ul class="matches" role="radiogroup">
+        <li class="m sel">
+          <span class="radio" role="radio" aria-checked="true"></span>
+          <div>
+            <p class="ms">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+            <div class="meta"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span><span><span class="mono">11</span> people</span></div>
+            <div class="note"><span class="ilabel">Summary</span><p>Leaders want current dashboard numbers in board and leadership meetings without rebuilding slides by hand.</p></div>
+            <div class="pencil why"><span class="plabel">Why it matches</span><p>Same problem: getting current dashboard numbers into board meetings. You asked for a PDF; others asked for PDF or email.</p></div>
+          </div>
+        </li>
+        <li class="m">
+          <span class="radio" role="radio" aria-checked="false"></span>
+          <div>
+            <p class="ms">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</p>
+            <div class="meta"><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span><span><span class="mono">12</span> people</span></div>
+            <div class="note"><span class="ilabel">Decision · Planned</span><p>Scheduled delivery is planned for the next quarter, starting with weekly email.</p></div>
+            <div class="pencil why"><span class="plabel">Why it matches</span><p>Related: a monthly PDF could arrive on a schedule, but this need is about managers acting on numbers, not board packs.</p></div>
+          </div>
+        </li>
+        <li class="m">
+          <span class="radio" role="radio" aria-checked="false"></span>
+          <div>
+            <p class="ms">Compliance teams need to archive monthly reports so that audits have a fixed record</p>
+            <div class="meta"><span class="status s-new"><svg><use href="#st-new"/></svg>New</span><span><span class="mono">1</span> person</span></div>
+            <div class="note none"><p>No public summary yet.</p></div>
+            <div class="pencil why"><span class="plabel">Why it matches</span><p>Also asks for a monthly PDF, but to keep a fixed audit record.</p></div>
+          </div>
+        </li>
+        <li class="m newneed">
+          <span class="radio" role="radio" aria-checked="false"></span>
+          <div>
+            <p class="ms">None of these — it's a new need</p>
+            <p class="sub">It will show as New on the board.</p>
+          </div>
+        </li>
+      </ul>
+      <p class="second"><span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Also heard</span><span>You also mentioned rebuilding charts in slides by hand.</span><span class="link">Submit that separately</span></p>
+      <div class="actions-row"><span class="btn btn-primary">Add my voice to this need</span><span class="btn btn-ghost">Back</span></div>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-s3">
+  <div data-inc="pubbar"></div>
+  <main class="wiz">
+    <aside class="margin">
+      <ol class="steps"><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Describe</li><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Check</li><li class="on"><span class="no">3</span>Details</li></ol>
+      <div data-inc="yours"></div>
+    </aside>
+    <div class="stepbody">
+      <div class="msum"><span class="k">Step 3 of 3 · Details</span><span class="yr"><span>Your request:</span><b>Monthly PDF of the revenue dashboard</b><span>·</span><span class="link">Edit</span></span></div>
+      <div class="target">
+        <span class="k">Adding your voice to</span>
+        <p class="ts">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+        <span class="link">Change</span>
+      </div>
+      <div class="field"><label>How does this affect you?<span class="opt">Optional</span></label><div class="textarea short"><span class="ph">e.g. board pack every month, ~2 hours of manual work</span></div></div>
+      <div class="field"><label>How urgent is it?<span class="opt">Optional</span></label><div class="seg"><span>Low</span><span class="on">Medium</span><span>High</span></div></div>
+      <div class="field"><label>Email</label><div class="input focus">dana@acme.example<span class="caret" style="height:18px"></span></div></div>
+      <div class="field-row after">
+        <div class="field"><label>Name<span class="opt">Optional</span></label><div class="input">Dana</div></div>
+        <div class="field"><label>Company<span class="opt">Optional</span></label><div class="input">Acme</div></div>
+      </div>
+      <p class="privacy"><svg class="i"><use href="#i-lock"/></svg><span>Your words are kept as you wrote them and shown only to the product team. Your email is never public.</span></p>
+      <div class="actions-row"><span class="btn btn-primary">Add my voice</span><span class="btn btn-ghost">Back</span></div>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-s4">
+  <div data-inc="pubbar"></div>
+  <main class="wiz">
+    <aside class="margin">
+      <ol class="steps"><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Describe</li><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Check</li><li class="done"><span class="no"><svg class="i"><use href="#i-check"/></svg></span>Details</li></ol>
+      <div class="yours">
+        <span class="k">You wrote</span>
+        <p class="yt">Monthly PDF of the revenue dashboard</p>
+        <p class="yb">Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.</p>
+      </div>
+    </aside>
+    <div class="stepbody thanks">
+      <div class="msum"><span class="k">Done</span></div>
+      <h1 class="h1">Thanks, Dana.</h1>
+      <div class="target">
+        <span class="k">Your voice was added to</span>
+        <p class="ts">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p>
+      </div>
+      <p class="people"><span class="mono">12</span> people now share this need.</p>
+      <div class="mysig">
+        <span class="k">Your private link · My signals</span>
+        <div class="linkrow"><span class="input">https://signal.example/my/7f3kq9xd2m4p</span><span class="btn btn-primary"><svg class="i"><use href="#i-copy"/></svg>Copy link</span></div>
+        <p class="privacy" style="margin-top:12px"><svg class="i"><use href="#i-lock"/></svg><span>No email is sent; keep this link.</span></p>
+      </div>
+      <span class="backboard"><svg class="i"><use href="#i-arrow-l"/></svg>Back to the board</span>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-board">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <nav class="topnav"><a class="active" aria-current="page">Board</a></nav>
+    <span class="btn btn-primary sm"><svg class="i"><use href="#i-plus"/></svg>Submit a request</span>
+  </header>
+  <main class="bwrap">
+    <aside class="themes-m">
+      <span class="k">Themes</span>
+      <ul><li class="on">All</li><li>Reporting</li><li>Integrations</li><li>Administration and security</li><li>Collaboration</li></ul>
+    </aside>
+    <div style="min-width:0">
+      <h1 class="h1">Board</h1>
+      <p class="lede">What customers have asked for, and what we decided.</p>
+      <div class="toolbar">
+        <div class="search"><svg class="i"><use href="#i-search"/></svg><span>Search needs</span></div>
+        <span class="qsel">Status: <b>All</b><svg class="i"><use href="#i-chev-d"/></svg></span>
+        <span class="qsel theme">Theme: <b>All</b><svg class="i"><use href="#i-chev-d"/></svg></span>
+      </div>
+      <ol class="list">
+        <li class="row"><div><p class="rs">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</p><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></div><div class="cnt"><span class="mono">11</span><span>people</span></div></li>
+        <li class="row"><div><p class="rs">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</p><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span></div><div class="cnt"><span class="mono">12</span><span>people</span></div></li>
+        <li class="row"><div><p class="rs">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</p><span class="status s-progress"><svg><use href="#st-progress"/></svg>In progress</span></div><div class="cnt"><span class="mono">12</span><span>people</span></div></li>
+        <li class="row"><div><p class="rs">Operations teams need threshold alerts in their team chat so that they react before customers notice</p><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></div><div class="cnt"><span class="mono">9</span><span>people</span></div></li>
+        <li class="row"><div><p class="rs">Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change</p><span class="status s-shipped"><svg><use href="#st-shipped"/></svg>Shipped</span></div><div class="cnt"><span class="mono">10</span><span>people</span></div></li>
+        <li class="row"><div><p class="rs">Compliance teams need to archive monthly reports so that audits have a fixed record</p><span class="status s-new"><svg><use href="#st-new"/></svg>New</span></div><div class="cnt"><span class="mono">1</span><span>person</span></div></li>
+      </ol>
+    </div>
+  </main>
+</template>
+
+<template id="tpl-opbar-triage">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <nav class="topnav op"><a class="active" aria-current="page">Triage<span class="n">4</span></a><a>Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a></nav>
+    <span class="menu-btn" aria-label="Menu"><svg class="i" style="width:20px;height:20px"><use href="#i-menu"/></svg></span>
+  </header>
+</template>
+
+<template id="tpl-triage">
+  <div data-inc="opbar-triage"></div>
+  <div class="tri">
+    <aside class="tlist">
+      <h1 class="h1">Triage</h1>
+      <p class="cnt">4 to review</p>
+      <ol class="queue">
+        <li><span class="ty">Merge</span><span class="sj">Board members need to see dashboards without an account → 01</span></li>
+        <li class="on"><span class="ty">Draft need</span><span class="sj">From Dana, Acme: Monthly PDF of the revenue dashboard</span></li>
+        <li><span class="ty">Priority score</span><span class="sj">04 · Threshold alerts in team chat · 3.1</span></li>
+        <li><span class="ty">Public summary</span><span class="sj">06 · Compliance teams archive monthly reports</span></li>
+        <li class="res"><span class="ty"><svg class="i"><use href="#i-check"/></svg>Theme · accepted</span><span class="sj">Reporting · edited by you · 2h ago</span></li>
+      </ol>
+      <p class="kbd">j / k move · a accept · e edit · r reject</p>
+    </aside>
+    <section class="tdetail">
+      <span class="dback"><svg class="i"><use href="#i-arrow-l"/></svg>Triage · 2 of 4</span>
+      <div class="dhead">
+        <div>
+          <div class="ty">Draft need</div>
+          <p class="from">From a new signal by <b>Dana</b> · Acme · Enterprise · <span class="mono">$480k</span> ARR</p>
+        </div>
+        <div class="dacts"><span class="btn btn-primary sm"><svg class="i"><use href="#i-check"/></svg>Accept</span><span class="btn btn-ghost sm"><svg class="i"><use href="#i-pencil"/></svg>Edit</span><span class="btn btn-ghost sm"><svg class="i"><use href="#i-x"/></svg>Reject</span></div>
+      </div>
+      <div class="dsec">
+        <span class="k">In their words</span>
+        <blockquote class="quote"><span class="qt">Monthly PDF of the revenue dashboard</span><span class="qb">“Our CFO wants a PDF of the revenue dashboard every month for the board pack. Today I screenshot six charts and paste them into slides.”</span><cite>Dana · Acme · Oct 29 · urgency Medium</cite></blockquote>
+        <p class="usecase">How it affects them: <b>board pack every month, ~2 hours of manual work</b></p>
+      </div>
+      <div class="dsec pencil big">
+        <span class="plabel"><svg class="i"><use href="#i-pencil"/></svg>Suggested need statement</span>
+        <p>Finance leaders need to share current dashboard numbers in the board pack so that the board sees this month's revenue.</p>
+      </div>
+      <div class="dsec pencil">
+        <span class="plabel">Suggested theme</span>
+        <p style="font-family:var(--font-serif);font-size:17px">Reporting</p>
+      </div>
+      <div class="dsec">
+        <span class="k">Closest existing needs</span>
+        <ul class="sim">
+          <li><span class="no">01</span><span class="st">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</span><span class="mt"><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span><span><span class="mono">11</span> people</span></span></li>
+          <li><span class="no">06</span><span class="st">Compliance teams need to archive monthly reports so that audits have a fixed record</span><span class="mt"><span class="status s-new"><svg><use href="#st-new"/></svg>New</span><span><span class="mono">1</span> person</span></span></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-needs">
+  <header class="topbar">
+    <span class="brand"><svg class="mark" width="22" height="22"><use href="#mark"/></svg><span class="wordmark">Signal</span></span>
+    <nav class="topnav op"><a>Triage<span class="n">4</span></a><a class="active" aria-current="page">Needs</a><a>Criteria</a><a>Metrics</a><a>Chat</a></nav>
+  </header>
+  <main class="needs">
+    <div class="nhead">
+      <div><h1 class="h1">Needs</h1><p class="lede">6 needs, highest priority first.</p></div>
+      <div class="search" style="width:320px"><svg class="i"><use href="#i-search"/></svg><span>Search needs</span></div>
+    </div>
+    <table class="ntable">
+      <thead><tr>
+        <th class="on">Priority <svg class="i"><use href="#i-arrow-down"/></svg></th><th>Need</th><th>Theme</th><th>Status</th><th class="r">People</th><th class="r">Accounts</th><th class="r">ARR</th><th class="r"><span class="sr" style="position:absolute;left:-9999px">Pending</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="pri">4.1</td><td class="stmt">Executives need to share dashboard snapshots outside the product so that board meetings use current numbers</td><td class="th">Reporting</td><td><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></td><td class="num">11</td><td class="num">4</td><td class="num">$1.07M</td><td class="r"><span class="pend"><svg class="i"><use href="#i-pencil"/></svg>1 pending</span></td></tr>
+        <tr><td class="pri">4.0</td><td class="stmt">Managers need to receive key dashboards on a schedule so that they act on numbers without logging in</td><td class="th">Reporting</td><td><span class="status s-planned"><svg><use href="#st-planned"/></svg>Planned</span></td><td class="num">12</td><td class="num">5</td><td class="num">$1.18M</td><td></td></tr>
+        <tr><td class="pri">3.9</td><td class="stmt">Revenue teams need CRM data to flow in automatically so that pipeline dashboards are never stale</td><td class="th">Integrations</td><td><span class="status s-progress"><svg><use href="#st-progress"/></svg>In progress</span></td><td class="num">12</td><td class="num">6</td><td class="num">$1.30M</td><td></td></tr>
+        <tr><td class="pri">3.4</td><td class="stmt">Analysts need to break down metrics by two dimensions at once so that they find which segment drives a change</td><td class="th">Reporting</td><td><span class="status s-shipped"><svg><use href="#st-shipped"/></svg>Shipped</span></td><td class="num">10</td><td class="num">4</td><td class="num">$852k</td><td></td></tr>
+        <tr><td class="pri"><span class="puline" title="AI-suggested, not yet accepted">3.1</span></td><td class="stmt">Operations teams need threshold alerts in their team chat so that they react before customers notice</td><td class="th">Integrations</td><td><span class="status s-open"><svg><use href="#st-open"/></svg>Open</span></td><td class="num">9</td><td class="num">5</td><td class="num">$132k</td><td class="r"><span class="pend"><svg class="i"><use href="#i-pencil"/></svg>1 pending</span></td></tr>
+        <tr><td class="pri quiet">—</td><td class="stmt">Compliance teams need to archive monthly reports so that audits have a fixed record</td><td class="th">Reporting</td><td><span class="status s-new"><svg><use href="#st-new"/></svg>New</span></td><td class="num">1</td><td class="num">1</td><td class="num">$480k</td><td class="r"><span class="pend"><svg class="i"><use href="#i-pencil"/></svg>2 pending</span></td></tr>
+      </tbody>
+    </table>
+    <div class="nfoot"><span><span class="puline">3.1</span> pencil: AI-suggested, waiting in Triage</span><span>ARR of requesting accounts</span></div>
+  </main>
+</template>
+
+<script>
+function fill(el){
+  el.querySelectorAll('[data-inc]').forEach(function(inc){
+    var t=document.getElementById('tpl-'+inc.dataset.inc);
+    if(t){var c=t.content.cloneNode(true);fill(c);inc.replaceWith(c);}
+  });
+}
+document.querySelectorAll('[data-tpl]').forEach(function(el){
+  var t=document.getElementById('tpl-'+el.dataset.tpl);
+  if(!t) return;
+  var c=t.content.cloneNode(true); fill(c); el.appendChild(c);
+});
+</script>
+</body>
+</html>
