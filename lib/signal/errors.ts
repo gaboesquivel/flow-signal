@@ -66,9 +66,11 @@ const unavailableMessage =
  * SQLSTATE 08 / 53 / 57P). Constraint violations and query bugs are not "unavailable".
  */
 export const isDatabaseUnavailable = (error: unknown): boolean => {
+  // The Neon driver's WebSocket reports a failed connection as an `error` Event, not an Error.
+  if (typeof Event !== "undefined" && error instanceof Event) return error.type === "error";
   if (!(error instanceof Error)) return false;
   const { code } = error as { code?: unknown };
   if (typeof code === "string" && unavailableCode.test(code)) return true;
   if (unavailableMessage.test(error.message)) return true;
-  return error.cause instanceof Error && isDatabaseUnavailable(error.cause);
+  return error.cause !== undefined && isDatabaseUnavailable(error.cause);
 };

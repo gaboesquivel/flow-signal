@@ -35,7 +35,8 @@
     "db:embed": "node --import tsx scripts/db-embed.ts",
     "db:up": "docker compose -p signal up -d --wait",
     "db:down": "docker compose -p signal down",
-    "db:test:setup": "node --import tsx scripts/db-test-setup.ts"
+    "db:test:setup": "node --import tsx scripts/db-test-setup.ts",
+    "signal:client": "node --import tsx scripts/generate-signal-client.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",
