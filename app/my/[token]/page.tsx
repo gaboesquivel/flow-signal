@@ -11,6 +11,7 @@ import { Quote } from "../../_components/signal/quote";
 import { signalServerClient } from "../../_components/signal/server-client";
 import { PageHeading, PageShell } from "../../_components/signal/site-header";
 import { Status } from "../../_components/signal/status";
+import { SuggestedMatch } from "./suggested-match";
 
 /** A private link: keep it out of search engines and referrers. */
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ type MySignal = MySignals["signals"][number];
 const label = "text-muted-foreground text-[11px] font-semibold tracking-[0.08em] uppercase";
 
 /** One signal: your words, the need it counts toward, and every decision published on it. */
-function SignalItem({ signal }: { signal: MySignal }) {
+function SignalItem({ signal, token }: { signal: MySignal; token: string }) {
   return (
     <li className="border-border flex min-w-0 flex-col gap-6 border-b py-8" data-testid="my-signal">
       <section aria-label="Your request" className="flex flex-col gap-3">
@@ -60,6 +61,10 @@ function SignalItem({ signal }: { signal: MySignal }) {
           <PeopleCount count={signal.need.supporterCount} />
         </div>
       </section>
+
+      {signal.suggestedMatches.map((match) => (
+        <SuggestedMatch key={match.suggestionId} match={match} token={token} />
+      ))}
 
       {signal.decisions.length > 0 ? (
         <ol aria-label="Decisions" className="m-0 flex list-none flex-col gap-4 p-0">
@@ -97,7 +102,7 @@ function MySignalsBody({ result, token }: { result: SignalResult<MySignals>; tok
         className="border-rule-strong m-0 list-none border-t p-0"
       >
         {result.data.signals.map((signal) => (
-          <SignalItem key={signal.signalId} signal={signal} />
+          <SignalItem key={signal.signalId} signal={signal} token={token} />
         ))}
       </ol>
     );

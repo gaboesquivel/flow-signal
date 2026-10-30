@@ -362,9 +362,28 @@ export const assistantActions = pgTable("assistant_actions", {
   status: assistantActionStatus("status").notNull().default("proposed"),
 });
 
+/**
+ * The last merge check of a draft need (spec 009): what the duplicate backstop saw, so a sweep
+ * re-asks the merge judge only when the draft, its nearest candidates, or their supporters changed.
+ */
+export const mergeChecks = pgTable("merge_checks", {
+  /** `[{ needId, supporters }]` the judge saw, nearest first. */
+  candidates: jsonb("candidates")
+    .$type<{ needId: string; supporters: number }[]>()
+    .notNull()
+    .default([]),
+  checkedAt: timestamp("checked_at", { withTimezone: true }).notNull(),
+  /** Signals on the draft when it was checked. */
+  draftSupporters: integer("draft_supporters").notNull(),
+  needId: uuid("need_id")
+    .primaryKey()
+    .references(() => needs.id),
+});
+
 /** Every Signal table; the test harness and the seed truncate these. */
 export const signalTableNames = [
   "assistant_actions",
+  "merge_checks",
   "reports",
   "events",
   "strategies",
