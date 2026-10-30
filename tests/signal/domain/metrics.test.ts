@@ -139,6 +139,44 @@ describeWithDatabase("metrics from the event log", () => {
     return suggestionId;
   };
 
+  /** Close-the-loop rate: a signal filed on `needId` at `at`; returns its id. */
+  const filed = async (needId: string, at: Date, attachedTo: "existing" | "draft" = "existing") => {
+    const signalId = randomUUID();
+    await record({
+      actor: human,
+      needId,
+      occurredAt: at,
+      payload: { attachedTo },
+      signalId,
+      type: "signal.created",
+    });
+    return signalId;
+  };
+  const decideOn = async (needId: string, at: Date, key?: string) => {
+    const decisionId = randomUUID();
+    await record({
+      actor: operator,
+      dedupeKey: key,
+      needId,
+      occurredAt: at,
+      payload: { decisionId, status: "planned" },
+      type: "decision.published",
+    });
+    return decisionId;
+  };
+  /** `signal.decision_seen` as `get_my_signals` records it; no dedupe key unless given. */
+  const seen = (signalId: string, needId: string, decisionId: string, at: Date, key?: string) =>
+    record({
+      actor: human,
+      dedupeKey: key,
+      needId,
+      occurredAt: at,
+      payload: { decisionId, status: "planned" },
+      signalId,
+      type: "signal.decision_seen",
+    });
+  const closeTheLoop = async (window = thisWeek) => (await metrics(window)).closeTheLoopRate;
+
   beforeEach(() => resetDatabase(harness.db));
 
   describe("prevention rate", () => {
@@ -493,7 +531,7 @@ describeWithDatabase("metrics from the event log", () => {
       expect(supporting.timeToTriage).toEqual({ medianHours: 36, resolved: 2 });
       expect(supporting.reviewLoad).toEqual({ created: 3, pendingAtEnd: 2, resolved: 2 });
       expect(supporting.unmergeRate).toEqual({ merges: 2, rate: 0.5, undone: 1 });
-      expect(unsupported.map((entry) => entry.metric)).toEqual(["close_the_loop_rate"]);
+      expect(unsupported).toEqual([]);
     });
   });
 
@@ -807,6 +845,95 @@ describeWithDatabase("metrics from the event log", () => {
         rate: 0.25,
       });
       expect(killCriterion.populations.all.verdict).toBe("fail");
+    });
+  });
+
+  describe("close-the-loop rate", () => {
+    it("divides signals whose holder saw the decision by signals on the decided need", async () => {
+      const needId = randomUUID();
+      const maya = await filed(needId, daysAgo(10));
+      await filed(needId, daysAgo(9));
+      const decision = await decideOn(needId, daysAgo(2));
+      await seen(maya, needId, decision, daysAgo(1));
+      // recorded twice without a dedupe key: still one
+      await seen(maya, needId, decision, daysAgo(0.5));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 2, rate: 0.5, seen: 1 });
+    });
+
+    it("counts a signal again for a later decision on its need", async () => {
+      const needId = randomUUID();
+      const maya = await filed(needId, daysAgo(10));
+      const first = await decideOn(needId, daysAgo(3));
+      await seen(maya, needId, first, daysAgo(2.5));
+      await decideOn(needId, daysAgo(2));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 2, rate: 0.5, seen: 1 });
+    });
+
+    it("leaves out signals filed after the decision and decisions outside the window", async () => {
+      const needId = randomUUID();
+      const early = await filed(needId, daysAgo(10));
+      const older = await decideOn(needId, daysAgo(8));
+      await seen(early, needId, older, daysAgo(7));
+      const decision = await decideOn(needId, daysAgo(2));
+      const late = await filed(needId, daysAgo(1));
+      await seen(late, needId, decision, daysAgo(0.5));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 1, rate: 0, seen: 0 });
+    });
+
+    it("counts a retried decision once and a view after the window not at all", async () => {
+      const needId = randomUUID();
+      const maya = await filed(needId, daysAgo(10));
+      const decision = await decideOn(needId, daysAgo(2), "publish-1");
+      await decideOn(needId, daysAgo(2), "publish-1");
+      await seen(maya, needId, decision, new Date(now.getTime() + DAY_MS));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 1, rate: 0, seen: 0 });
+    });
+
+    it("counts merged duplicates on the need they moved to, unless the merge was undone", async () => {
+      const needId = randomUUID();
+      const kept = randomUUID();
+      const undone = randomUUID();
+      const keptSignal = await filed(kept, daysAgo(10), "draft");
+      await filed(undone, daysAgo(10), "draft");
+      for (const draft of [kept, undone])
+        await record({
+          actor: operator,
+          needId: draft,
+          occurredAt: daysAgo(5),
+          payload: { intoNeedId: needId, mergeId: draft },
+          type: "need.merged",
+        });
+      await undo(undone, undone, daysAgo(4));
+      const decision = await decideOn(needId, daysAgo(2));
+      await seen(keptSignal, needId, decision, daysAgo(1));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 1, rate: 1, seen: 1 });
+    });
+
+    it("follows a split signal to its new need", async () => {
+      const from = randomUUID();
+      const to = randomUUID();
+      const moved = await filed(from, daysAgo(10));
+      await filed(from, daysAgo(10));
+      await record({
+        actor: operator,
+        needId: from,
+        occurredAt: daysAgo(5),
+        payload: { newNeedId: to, signalIds: [moved] },
+        type: "need.split",
+      });
+      const decision = await decideOn(to, daysAgo(2));
+      await seen(moved, to, decision, daysAgo(1));
+
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 1, rate: 1, seen: 1 });
+    });
+
+    it("is null with no decided signals", async () => {
+      expect(await closeTheLoop()).toEqual({ decidedSignals: 0, rate: null, seen: 0 });
     });
   });
 
