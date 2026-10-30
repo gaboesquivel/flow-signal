@@ -23,6 +23,7 @@ import { recordEvent } from "@/lib/signal/events";
 import type { Metrics } from "@/lib/signal/metrics";
 import { executeOperation } from "@/lib/signal/operations/execute";
 import { findOperation } from "@/lib/signal/operations/registry";
+import { configureAutoBriefs, resetAutoBriefs } from "@/lib/signal/domain/readiness";
 import { configureSignalRuntime, resetSignalRuntime } from "@/lib/signal/runtime";
 
 import { worldStart } from "../checks";
@@ -404,6 +405,8 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
   };
 
   configureSignalRuntime({ ai, clock, db: state.db });
+  // The oracle PM drafts its own briefs; Signal's automatic ones would only add model calls.
+  configureAutoBriefs(policy.pmPolicy === "follows_signal");
   configureSuggestionScheduler((task) => {
     if (arm === "signal") state.pending.push(task);
   });
@@ -476,6 +479,7 @@ export const runArm = async (options: RunArmOptions): Promise<RunResult> => {
     };
   } finally {
     resetSignalRuntime();
+    resetAutoBriefs();
     resetSuggestionScheduler();
     if (priorSecret === undefined) delete process.env.OPERATOR_SECRET;
     else process.env.OPERATOR_SECRET = priorSecret;

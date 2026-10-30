@@ -118,6 +118,20 @@ const needsWantingBrief = async (db: SignalDb, needIds?: string[]) => {
   return rows.map((row) => row.id);
 };
 
+let autoBriefs = true;
+
+/**
+ * Turns automatic briefs on or off (on by default). Crewday's oracle PM drafts its own briefs, so
+ * its runs switch them off to keep spec 004's model calls and numbers unchanged; readiness is still
+ * recorded. `resetAutoBriefs` restores the default.
+ */
+export const configureAutoBriefs = (enabled: boolean) => {
+  autoBriefs = enabled;
+};
+export const resetAutoBriefs = () => {
+  autoBriefs = true;
+};
+
 /**
  * Drafts the automatic brief for a ready need unless one is pending or already drafted since it
  * became ready (rechecked here, when the task runs). Never throws.
@@ -183,6 +197,7 @@ export const checkReadiness = async (deps: ReadinessDeps, needIds?: string[]) =>
     if (marked) newlyReady.push(candidate.id);
   }
 
+  if (!autoBriefs) return newlyReady;
   const schedule = deps.schedule ?? scheduleOffHotPath;
   for (const needId of await needsWantingBrief(db, needIds))
     schedule(() => draftAutoBrief(deps, needId));

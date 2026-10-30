@@ -6,7 +6,11 @@ import { beforeEach, expect, it } from "vitest";
 import { events, needs, signals, strategies, suggestions } from "../../../lib/db/schema";
 import { createUnavailableAi } from "../../../lib/signal/ai/fakes";
 import type { SignalAi } from "../../../lib/signal/ai/ports";
-import { checkReadiness } from "../../../lib/signal/domain/readiness";
+import {
+  checkReadiness,
+  configureAutoBriefs,
+  resetAutoBriefs,
+} from "../../../lib/signal/domain/readiness";
 import { getStrategy, setStrategy, strategyInputSchema } from "../../../lib/signal/domain/strategy";
 import { generateSuggestionsForSignal } from "../../../lib/signal/domain/suggestion-generation";
 import { executeOperation } from "../../../lib/signal/operations/execute";
@@ -142,6 +146,20 @@ describeWithDatabase("strategy and readiness (spec 007)", () => {
     // A pending brief is never duplicated by later checks.
     await checkReadiness(deps());
     expect(scheduled).toHaveLength(0);
+  });
+
+  it("records readiness but drafts no brief while auto briefs are off (Crewday oracle runs)", async () => {
+    await setStrategy(harness.db, pm, strategyInput, NOW);
+    configureAutoBriefs(false);
+    try {
+      expect(await checkReadiness(deps())).toEqual([f.big.need.id]);
+      expect(await readyEvents(f.big.need.id)).toHaveLength(1);
+      expect(scheduled).toHaveLength(0);
+    } finally {
+      resetAutoBriefs();
+    }
+    await checkReadiness(deps());
+    expect(scheduled).toHaveLength(1);
   });
 
   it("marks the need ready when a signal lands (suggestion generation)", async () => {
