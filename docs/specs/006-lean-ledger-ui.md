@@ -116,7 +116,7 @@ Agent journey: an Assistant agent calls `preview_signal`, then `submit_signal` w
 - [x] 04: Public board, submit wizard, and My signals UI
 - [x] 05: Console shell, Triage, and Needs
 - [ ] 06: Need detail, decide, and publish
-- [ ] 07: Criteria, Metrics, and Chat
+- [x] 07: Criteria, Metrics, and Chat
 - [ ] 08: Acceptance run and docs
 
 Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 run in parallel after 05; 08 last.
