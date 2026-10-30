@@ -1,9 +1,9 @@
 # 007 — Decision direction: Signal flags ready needs and recommends plan or decline against the PM's strategy
 
-Status: implemented (2026-10-30)
+Status: implemented (2026-10-30). Amended by [0007](../decisions/0007-decision-model-on-gateway-credentials.md) (decision calls bill to the Gateway, no BYOK).
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Product model (Strategy), Metrics (direction accuracy, readiness lead time), Riskiest assumptions 3 and 5, Core journeys 5 and 7. Builds on [spec 001](./001-signal-mvp.md) (decision briefs, `publish_decision`, event log, `get_metrics`) and [spec 004](./004-crewday-outcome-eval.md) (Crewday worlds, PM policy, scorer).
-Decisions: [0006 Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key](../decisions/0006-decision-model-fable-gateway-byok.md) (Accepted).
+Decisions: [0006 Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key](../decisions/0006-decision-model-fable-gateway-byok.md) (Accepted), billing superseded by [0007](../decisions/0007-decision-model-on-gateway-credentials.md).
 Related candidates: [008 Jev for closed-set classification](./008-jev-classification.md), [009 Post-submission duplicate backstop](./009-duplicate-backstop.md).
 
 **Bet.** A recommended direction grounded in a written strategy is right often enough that PMs follow it instead of redoing the analysis (PRODUCT.md riskiest assumption 5). On Crewday, a PM who follows Signal's recommendation (and overrides it at a realistic rate) reaches decision quality ≥ 85% and better revenue coverage than the vote board, sooner.
@@ -93,7 +93,7 @@ Operator console gets a strategy form and a "Ready to decide" list (need, demand
 ## Testing Decisions
 
 - **Domain tests** (`tests/signal/domain/`, real Postgres or PGlite, fake AI ports): strategy versioning and validation; readiness crossing on signal, merge, undo, and strategy change, marked once; auto brief scheduled once and skipped when one is pending; brief payload carries the strategy version and recommendation fields; old briefs still parse; `publish_decision` payload records the recommended status; direction accuracy and readiness lead time on hand-built event histories, including retries counted once, decisions without a brief excluded, and human vs. agent split.
-- **Reasoner tests:** with `MockLanguageModelV4`, decision tasks use the decision model id, send BYOK only when `ANTHROPIC_API_KEY` is set, send `effort` and `fallbacks`, never send disabled thinking; other tasks are unchanged.
+- **Reasoner tests:** with `MockLanguageModelV4`, decision tasks use the decision model id, send no BYOK ([0007](../decisions/0007-decision-model-on-gateway-credentials.md)), send `effort` and `fallbacks`, never send disabled thinking; other tasks are unchanged.
 - **Parity:** the three new operations on REST, Operator MCP, and the Operator agent; `unauthorized` without the secret; absent from public MCP.
 - **Crewday:** a `follows_signal` run on the fixture world is deterministic for a seed; with `pPmOverride = 0` and an always-correct fake brief, direction accuracy is 100%; with an always-wrong fake brief, decision quality drops by the expected amount.
 - Prior art: spec 001 domain and parity suites, `evals/crewday/sim/pm.ts`, `lib/signal/metrics.ts` tests.

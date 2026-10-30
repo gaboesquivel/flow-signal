@@ -35,29 +35,6 @@ export const signalEmbeddingModelId = (
   environment: Record<string, string | undefined> = process.env,
 ) => env("SIGNAL_EMBEDDING_MODEL", environment) ?? DEFAULT_SIGNAL_EMBEDDING_MODEL;
 
-/**
- * Request-scoped Gateway BYOK (decision 0006): with `ANTHROPIC_API_KEY` set, the Gateway bills the
- * call to our Anthropic account; without it, the Gateway's own credentials are used. Spread into
- * `providerOptions`. The key never leaves the server except inside the Gateway request.
- *
- * A key that is not scoped to one Anthropic workspace needs `ANTHROPIC_WORKSPACE_ID`: it is sent
- * as the `anthropic-workspace-id` header on the BYOK credential only. Without it, Anthropic
- * rejects the BYOK attempt and the Gateway silently answers on its own credentials.
- */
-export const anthropicByokOptions = (
-  environment: Record<string, string | undefined> = process.env,
-): {
-  gateway?: {
-    byok: { anthropic: { apiKey: string; headers?: Record<string, string> }[] };
-  };
-} => {
-  const apiKey = env("ANTHROPIC_API_KEY", environment);
-  if (!apiKey) return {};
-  const workspaceId = env("ANTHROPIC_WORKSPACE_ID", environment);
-  const headers = workspaceId ? { headers: { "anthropic-workspace-id": workspaceId } } : {};
-  return { gateway: { byok: { anthropic: [{ apiKey, ...headers }] } } };
-};
-
 /** Direct Anthropic API ids are dashed: `anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`. */
 export const directModelId = (gatewayId: string) =>
   gatewayId.replace(/^anthropic\//u, "").replaceAll(".", "-");
