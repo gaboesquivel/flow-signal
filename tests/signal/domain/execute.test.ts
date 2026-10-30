@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { SignalError } from "../../../lib/signal/errors";
@@ -99,5 +99,75 @@ describe("executeOperation", () => {
       human,
     );
     expect(result).toEqual({ data: { at: "2026-01-01T00:00:00.000Z", n: 2 }, ok: true });
+  });
+
+  it("hides unexpected errors behind a generic internal envelope and logs one sanitized line", async () => {
+    withFakeDatabase();
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      // What drizzle throws for a failed statement: the SQL and its params (PII) in the message.
+      const cause = Object.assign(new Error("duplicate key value violates unique constraint"), {
+        code: "23505",
+      });
+      class DrizzleQueryError extends Error {
+        constructor(message: string, options: ErrorOptions) {
+          super(message, options);
+          this.name = "DrizzleQueryError";
+        }
+      }
+      const error = new DrizzleQueryError(
+        'Failed query: insert into "submitters" ("email", "name") values ($1, $2)\nparams: maya@acme.example,Maya Lin',
+        { cause },
+      );
+      const result = await executeOperation(
+        probe(() => Promise.reject(error)),
+        {},
+        human,
+      );
+      expect(result).toEqual({
+        error: { code: "internal", message: "Something went wrong.", retryable: true },
+        ok: false,
+      });
+      expect(log).toHaveBeenCalledTimes(1);
+      const line = log.mock.calls[0]!.map(String).join(" ");
+      expect(line).toContain("probe");
+      expect(line).toContain("DrizzleQueryError");
+      expect(line).toContain("23505");
+      expect(line).not.toMatch(/maya|Failed query|insert into|params/iu);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it("returns internal when the output does not match the contract", async () => {
+    withFakeDatabase();
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const result = await executeOperation(
+        probe(() => Promise.resolve({ at: "x", n: "maya@acme.example" })),
+        {},
+        human,
+      );
+      expect(result).toMatchObject({ error: { code: "internal" }, ok: false });
+      expect(log.mock.calls.flat().map(String).join(" ")).not.toContain("maya");
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it("maps a statement timeout (SQLSTATE 57014) to database_unavailable", async () => {
+    withFakeDatabase();
+    const cause = Object.assign(new Error("canceling statement due to statement timeout"), {
+      code: "57014",
+    });
+    const result = await executeOperation(
+      probe(() => Promise.reject(new Error("Failed query: select 1", { cause }))),
+      {},
+      human,
+    );
+    expect(result).toMatchObject({
+      error: { code: "database_unavailable", retryable: true },
+      ok: false,
+    });
   });
 });
