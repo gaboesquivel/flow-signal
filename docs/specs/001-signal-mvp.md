@@ -205,7 +205,8 @@ Built last, on the generated client only, once an operation's parity suite is gr
 - **Parity suite** (`tests/signal/parity/`, written first for each operation): one table of cases per operation (input, actor, expected output or error code) runs through all three surfaces: the HTTP route handler, the MCP tool (public or Operator server, by access), and the Eve agent tool. Each case asserts the same output (after removing surface envelopes), the same error code, the same events written, and that `access: "operator"` operations return `unauthorized` over HTTP and are absent from public MCP and the Assistant agent. A registry test fails if an operation is missing from any surface or its schemas differ between surfaces.
 - **Domain tests** (`tests/signal/domain/`): `lib/signal` against a real Postgres with pgvector (local Docker behind a Neon HTTP proxy, or PGlite) with fake AI ports; cover matching thresholds, attach vs. draft, split, merge and undo, visibility filtering, suggestion resolution, decision publishing, and every metric calculation. Each test file runs in its own schema-reset transaction or truncates its tables. Prior art: the injected `query` in `lib/db/ping.ts` and `tests/db-ping.test.ts`.
 - **Contract tests**: HTTP status codes and the error envelope (prior art `tests/genui-compose.route.test.ts`), MCP protocol and isolation (`tests/mcp/route.test.ts`, `tests/mcp/operator-isolation.test.ts`), including that public responses never contain email, company, revenue, or verbatim text of other submitters, and that Operator tools are absent from public discovery.
-- **Agent behaviour tests** (`evals/agents/`, prior art `evals/eve-smoke.test.ts`): given a PM or submitter request, the Eve agent picks the expected operation with valid input (for example "add Acme's vote to the PDF need" → `submit_signal` with `target.needId`), and never calls an Operator tool from the Assistant. These run with live models in `pnpm eval`, not in `pnpm test`.
+- **Agent behaviour tests** (`evals/agents/`, prior art `evals/eve-smoke.test.ts`): given a PM or submitter request, the Eve agent picks the expected operation with valid input (for example "add Acme's vote to the PDF need" → `submit_signal` with `target.needId`), and never calls an Operator tool from the Assistant. These run with live models in `pnpm eval`, never in `pnpm test` or CI: run them on demand and whenever agent instructions, agent tools, or operation descriptions change.
+- **CI stays light:** lint, types, and `pnpm test` on PGlite only; no live-model evals and no Next.js build in CI (Vercel's preview deploy builds every pull request). The goal is a fast loop and maximum parallel work.
 - **Test database:** when `DATABASE_URL_TEST` is set (local Docker Postgres 18 with pgvector behind a Neon HTTP proxy, one database per parallel worker) tests use it through the production driver; when unset they use in-process PGlite with the `vector` extension. CI leaves it unset and runs on PGlite, so CI needs no database service or secret ([0003](../decisions/0003-local-test-databases.md)).
 - **Eval**: `evals/matching` thresholds are the kill criterion for the MVP; failing them blocks calling the bet proven, not the build.
 - **Model ids**: extend `lib/ai/models.test.ts` to the new ids.
@@ -245,7 +246,7 @@ The same steps through the REST API and the Eve agent tools are covered by the p
 - [ ] 08: Operator console UI
 - [ ] 09: Agent behaviour evals and acceptance run
 
-Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build order in [Agent- and API-first](#agent--and-api-first-one-operation-registry): contract → failing parity and domain tests → implementation → adapters; the UI tasks come last.
+Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once, each defining its own operations' contracts first; they merge in order 02 → 06 → 03 → 04 → 05. The UI tasks start once the contracts they call are merged: 07 after 02, 08 after 04, 05, and 06. Each operation follows the build order in [Agent- and API-first](#agent--and-api-first-one-operation-registry): contract → failing parity and domain tests → implementation → adapters; the UI tasks come last.
 
 ### 01: Operation registry, schema, and public read of needs
 
@@ -282,7 +283,7 @@ Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build
 
 **Area:** evals, lib/signal
 
-**Blocked by:** 02
+**Blocked by:** 01 (dataset and runner start now; the live threshold run needs 02's extractor and judge, merged first)
 
 - [ ] At least 120 labeled submissions against a fixture need catalog, covering paraphrases, same solution for different needs, multi-ask, and unrelated cases.
 - [ ] The runner reports precision@3, false-match rate, new-need recall, need-statement rubric score, p95 latency, and cost per signal, and joins `pnpm eval`; it skips with a message without Gateway access.
@@ -294,7 +295,7 @@ Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build
 
 **Area:** lib/signal, lib/ai, app/api, tests
 
-**Blocked by:** 02
+**Blocked by:** 01 (starts on seeded data; 02 is merged first, then generation hooks into submit)
 
 - [ ] Off-hot-path generation (after the submit response) creates `draft_need`, `merge`, `theme`, `public_summary`, and `split` suggestions with reasons, through the `Reasoner` port with fakes in tests.
 - [ ] `list_suggestions`, `resolve_suggestion`, `merge_needs`, `undo_merge`, `split_need`, and `get_need_detail` are built test-first and pass parity on REST, Operator MCP, and the Operator agent; each returns `unauthorized` without the Operator secret and is absent from public MCP and the Assistant agent.
@@ -307,7 +308,7 @@ Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build
 
 **Area:** lib/signal, lib/ai, app/api, tests
 
-**Blocked by:** 04
+**Blocked by:** 01 (starts on seeded data; 04 is merged first, then briefs and scores resolve through `resolve_suggestion`)
 
 - [ ] `get_criteria`, `set_criteria`, `get_demand_summary`, `draft_decision_brief`, and `publish_decision` are built test-first and pass parity on REST, Operator MCP, and the Operator agent.
 - [ ] AI priority scoring produces `priority` suggestions per criterion with reasons; PM overrides are stored with source `pm`; weights validate as specified.
