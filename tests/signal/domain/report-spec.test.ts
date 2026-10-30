@@ -138,6 +138,34 @@ describe("report spec validation", () => {
     expect(sortedChart("arrCents", "theme")[0]?.message).toContain('not "arrCents"');
   });
 
+  it("keeps table-only columns only on the rows the table shows", () => {
+    const shown = spec([
+      {
+        items: [{ aggregate: "sum", column: "arrCents", dataset: "d1", label: "ARR" }],
+        kind: "kpi",
+      },
+      {
+        columns: ["statement", "arrCents"],
+        dataset: "d1",
+        kind: "table",
+        limit: 1,
+        sort: { column: "arrCents", direction: "desc" },
+        title: "Top need",
+      },
+    ]);
+    const pruned = pruneReportData(shown, {
+      d1: {
+        columns: datasetColumns.needs,
+        rows: [
+          { arrCents: 5, statement: "small" },
+          { arrCents: 9, statement: "big" },
+        ],
+        truncated: false,
+      },
+    });
+    expect(pruned.d1?.rows).toEqual([{ arrCents: 5 }, { arrCents: 9, statement: "big" }]);
+  });
+
   it("prunes data to the columns and datasets a spec shows", () => {
     const shown = spec([{ columns: ["statement"], dataset: "d1", kind: "table", title: "x" }]);
     const pruned = pruneReportData(shown, {

@@ -285,6 +285,17 @@ describe("generateReport", () => {
     expect(result.warnings[0]).toContain("72");
   });
 
+  it("replaces a title that cites an untraceable number", async () => {
+    const { deps } = setup({
+      report_compose: () => ({ blocks: goodBlocks, title: "Demand grew 37%" }),
+      report_plan: () => needsPlan,
+    });
+    const result = await generateReport(deps, { prompt: "Demand" });
+
+    expect(result.report.title).toBe("Report");
+    expect(result.warnings[0]).toMatch(/^Replaced the title/u);
+  });
+
   it("traces numbers in chart captions too", async () => {
     const chart = {
       caption: "ARR up 40% quarter over quarter",

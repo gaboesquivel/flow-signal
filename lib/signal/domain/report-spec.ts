@@ -329,29 +329,36 @@ export const referencedColumns = (spec: ReportSpec) => {
 };
 
 /**
- * Keeps only the datasets and columns a spec shows, so a shared snapshot carries nothing the
- * report does not render (rows stay whole: KPIs aggregate over all of them).
+ * Keeps only what a spec renders, so a shared snapshot carries nothing else: unreferenced
+ * datasets and columns are dropped, and columns only a table shows (a need's statement, say)
+ * stay only on the rows that table displays. Columns a KPI or chart aggregates stay on every
+ * row, since those figures are computed from all of them.
  */
 export const pruneReportData = (spec: ReportSpec, data: ReportData): ReportData => {
-  const used = referencedColumns(spec);
-  return Object.fromEntries(
-    [...used].flatMap(([id, keys]) => {
-      const result = data[id];
-      if (!result) return [];
-      return [
-        [
-          id,
-          {
-            columns: result.columns.filter((column) => keys.has(column.key)),
-            rows: result.rows.map((row) =>
-              Object.fromEntries(Object.entries(row).filter(([key]) => keys.has(key))),
-            ),
-            truncated: result.truncated,
-          },
-        ],
-      ];
-    }),
-  );
+  const pruned: ReportData = {};
+  for (const [id, keys] of referencedColumns(spec)) {
+    const result = data[id];
+    if (!result) continue;
+    const aggregated = new Set<string>();
+    const shownRows = new Set<Row>();
+    for (const block of spec.blocks) {
+      if (block.kind === "table" && block.dataset === id)
+        for (const row of applyBlockData(block, result).rows) shownRows.add(row);
+      else if (block.kind !== "table")
+        for (const key of referencedColumns({ ...spec, blocks: [block] }).get(id) ?? [])
+          aggregated.add(key);
+    }
+    const pick = (row: Row, allowed: Set<string>) =>
+      Object.fromEntries(Object.entries(row).filter(([key]) => allowed.has(key)));
+    pruned[id] = {
+      columns: result.columns.filter((column) => keys.has(column.key)),
+      rows: result.rows
+        .map((row) => pick(row, shownRows.has(row) ? keys : aggregated))
+        .filter((row) => Object.keys(row).length > 0),
+      truncated: result.truncated,
+    };
+  }
+  return pruned;
 };
 
 /** Report data keyed by dataset id, as every report operation returns it. */

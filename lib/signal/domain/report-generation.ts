@@ -492,7 +492,7 @@ const checkCompose = (
   prompt: string,
 ): CheckedCompose => {
   const issues: BlockIssue[] = [];
-  const title = output.title.trim().slice(0, 120) || "Report";
+  let title = output.title.trim().slice(0, 120) || "Report";
   let parsed: { block: Block; index: number }[] = [];
 
   for (const [index, raw] of output.blocks.entries()) {
@@ -554,6 +554,16 @@ const checkCompose = (
     return false;
   });
 
+  const untracedTitle = findUntraceableNumbers(title, allowed);
+  if (untracedTitle.length > 0) {
+    issues.push({
+      index: -1,
+      kind: "title",
+      message: `the title cites ${untracedTitle.map((raw) => `"${raw}"`).join(", ")}, which the data does not show`,
+    });
+    title = "Report";
+  }
+
   return { blocks: traced, issues: issues.toSorted((a, b) => a.index - b.index), title };
 };
 
@@ -567,7 +577,7 @@ const blockProse = (block: Block): string[] => {
 };
 
 const describeIssue = ({ index, kind, message }: BlockIssue) =>
-  `Block ${index + 1} (${kind}): ${message}.`;
+  index < 0 ? `Title: ${message}.` : `Block ${index + 1} (${kind}): ${message}.`;
 
 // ---------------------------------------------------------------------------------------------
 // generateReport
@@ -633,7 +643,11 @@ export const generateReport = async (
     );
     layout = checkCompose(composed, queries, data, input.prompt);
     for (const issue of layout.issues)
-      warnings.push(`Dropped a ${issue.kind} block: ${issue.message}.`);
+      warnings.push(
+        issue.index < 0
+          ? `Replaced the title: ${issue.message}.`
+          : `Dropped a ${issue.kind} block: ${issue.message}.`,
+      );
   }
   if (layout.blocks.length === 0)
     throw new SignalError(
