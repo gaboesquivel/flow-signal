@@ -6,7 +6,9 @@ Signal stores everything in Neon Postgres with the pgvector extension ([decision
 
 | Where                       | Env var             | Database                                                                    |
 | --------------------------- | ------------------- | --------------------------------------------------------------------------- |
-| Local dev and all of Vercel | `DATABASE_URL`      | Neon `main` branch                                                          |
+| Vercel (production)         | `DATABASE_URL`      | Neon `main` branch (integration)                                            |
+| Vercel previews             | `DATABASE_URL`      | A Neon branch per preview deployment (integration)                          |
+| Local dev                   | `DATABASE_URL`      | Neon `dev` branch                                                           |
 | Local tests                 | `DATABASE_URL_TEST` | Docker Postgres 18 + pgvector behind a local Neon HTTP proxy (`pnpm db:up`) |
 | CI, or tests without it set | (unset)             | In-process PGlite with the `vector` extension                               |
 
