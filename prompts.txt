@@ -33,3 +33,7 @@ Response: Proposed decision latency (decision-making) and AI suggestion acceptan
 [2026-10-30T14:14:56Z]
 Prompt: Lock and write.
 Response: On new branch signal-mvp (from 02a1133), wrote the confirmed product brief into PRODUCT.md (model, visibility, three MVP metrics, assumptions, kill criterion, journeys) and added Signal, Need, Draft need, Theme, Proposed solution, Merge, Decision and Prevention rate to GLOSSARY.md, then committed.
+
+[2026-10-30T14:18:37Z]
+Prompt: Spec it.
+Response: Wrote draft spec 001 (Signal MVP: duplicate check at submission, board, my-signals, PM triage, priority and decision brief, MCP tools, event log for the three metrics, seed and labeled eval, exposure rules), Proposed decision records 0001 (Neon Postgres with pgvector) and 0002 (retrieve-then-judge matching workflow; Haiku on the hot path, Sonnet off it), and candidate stubs 002 (feedback ingestion) and 003 (stakeholder notifications). Committed on signal-mvp.
