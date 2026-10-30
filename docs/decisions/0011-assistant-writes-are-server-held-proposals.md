@@ -1,6 +1,6 @@
 # 0011 — Assistant writes are server-held proposals confirmed outside the model
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 

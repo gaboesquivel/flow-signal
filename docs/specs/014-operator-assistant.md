@@ -1,8 +1,8 @@
 # 014 — Operator assistant: ask for data, see it charted, and confirm actions in chat (experimental)
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
-Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs), Where human judgment stays, Core journeys 9, Riskiest assumption 7, Diagnostics → Assistant action share. Decision: [0011](../decisions/0011-assistant-writes-are-server-held-proposals.md) (Proposed). Builds on [spec 006](./006-lean-ledger-ui.md) (console Chat, pencil answers), [spec 013](./013-pm-reports.md) (report spec, datasets, renderer), and [spec 001](./001-signal-mvp.md) (operations, `effects: "write"`, event log).
+Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs), Where human judgment stays, Core journeys 9, Riskiest assumption 7, Diagnostics → Assistant action share. Decision: [0011](../decisions/0011-assistant-writes-are-server-held-proposals.md). Builds on [spec 006](./006-lean-ledger-ui.md) (console Chat, pencil answers), [spec 013](./013-pm-reports.md) (report spec, datasets, renderer), and [spec 001](./001-signal-mvp.md) (operations, `effects: "write"`, event log).
 
 **Bet.** If the console chat can show a PM their data as charts and tables and carry out the changes they ask for, behind a preview they confirm, PMs will do part of their triage and decision work there instead of on the dashboard pages (assumption 7).
 
