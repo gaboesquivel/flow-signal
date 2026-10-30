@@ -129,6 +129,71 @@ const runPreview = async (
     }),
   );
 
+/** Codes a preview throws when what it describes changed under it (merged, undone, deleted). */
+const staleCodes = new Set(["conflict", "not_found"]);
+const uuidSource = String.raw`[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}`;
+const nounSource = "need|merge|suggestion|report|theme";
+
+/**
+ * A domain error's message for the PM: ids become the need statements the card showed, or "this
+ * merge", "this need"; an id the card never showed becomes "another one".
+ */
+export const describeStale = (message: string, shown: ActionPreview) => {
+  const statements = new Map(shown.needs.map(({ id, statement }) => [id.toLowerCase(), statement]));
+  const source = shown.needs.find(({ role }) => role === "source");
+  const target = shown.needs.find(({ role }) => role === "target");
+  const quoted = (id: string) => {
+    const statement = statements.get(id.toLowerCase());
+    return statement === undefined ? undefined : `“${statement}”`;
+  };
+  const named = (noun: string, id: string, start: boolean) => {
+    const kind = noun.toLowerCase();
+    const known = quoted(id);
+    if (known) return known;
+    const the = start ? "The" : "the";
+    if (kind === "merge" && source && target)
+      return `${the} merge of “${source.statement}” into “${target.statement}”`;
+    return `${start ? "This" : "this"} ${kind}`;
+  };
+  return message
+    .replaceAll(
+      new RegExp(String.raw`\bNo (${nounSource}) with id (${uuidSource})\.?`, "giu"),
+      (_match, noun: string, id: string, offset: number) =>
+        `${named(noun, id, offset === 0)} no longer exists.`,
+    )
+    .replaceAll(
+      new RegExp(String.raw`\b(${nounSource}) (${uuidSource})`, "giu"),
+      (_match, noun: string, id: string, offset: number) => named(noun, id, offset === 0),
+    )
+    .replaceAll(new RegExp(uuidSource, "giu"), (id: string) => quoted(id) ?? "another one");
+};
+
+/**
+ * The preview confirm checks against. When the operation's own preview throws a stale error
+ * (`conflict`, `not_found`: the merge was undone elsewhere, the need merged first), the PM gets
+ * the card they saw with a `conflict` block instead of a raw error, so Confirm stays disabled.
+ */
+const recomputePreview = async (
+  operation: ProposableOperation,
+  input: Record<string, unknown>,
+  db: SignalDb,
+  ctx: ActionContext,
+  shown: ActionPreview,
+): Promise<ActionPreview> => {
+  try {
+    return await runPreview(operation, input, db, ctx);
+  } catch (error) {
+    if (!(error instanceof SignalError) || !staleCodes.has(error.code)) throw error;
+    return {
+      ...shown,
+      blocks: [
+        ...shown.blocks.filter(({ code }) => code !== "conflict"),
+        { code: "conflict", message: describeStale(error.message, shown) },
+      ],
+    };
+  }
+};
+
 const toView = (row: AssistantActionRow): ActionView => ({
   edited: row.edited,
   errorCode: row.errorCode,
@@ -294,6 +359,8 @@ const applyEdits = (
  * 2. Only `editable` keys of `input` may change (else `validation_failed`); then re-validate.
  * 3. Recompute the preview. If its fingerprint differs from the stored one (staleness, or an
  *    edit that changed it) or it has `blocks`, store it and return `needs_review`, running nothing.
+ *    A preview that throws `conflict` or `not_found` is stale too: the stored preview with a
+ *    `conflict` block naming what changed (`describeStale`).
  * 4. Claim with one conditional `UPDATE … SET resolved_at = now WHERE status = 'proposed' AND
  *    resolved_at IS NULL AND fingerprint = <recomputed>`. Postgres re-checks the condition after
  *    taking the row lock, so exactly one of two concurrent confirms matches; the other re-reads
@@ -321,7 +388,7 @@ export const confirmAction = async (
   const { changed, input: merged } = applyEdits(row.input, edits, row.preview as ActionPreview);
   const input = validate(operation, merged, actionId);
   const edited = row.edited || changed;
-  const preview = await runPreview(operation, input, db, ctx);
+  const preview = await recomputePreview(operation, input, db, ctx, row.preview as ActionPreview);
   const fresh = fingerprint(preview);
 
   if (fresh !== row.fingerprint || preview.blocks.length > 0) {
