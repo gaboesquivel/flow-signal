@@ -10,7 +10,17 @@ import { signalTableNames } from "../../../lib/db/schema";
 import { createFakeAi } from "../../../lib/signal/ai/fakes";
 import { closeSignalDbs, signalDbFor } from "../../../lib/signal/db";
 import type { SignalDb } from "../../../lib/signal/db";
+import {
+  configureSuggestionScheduler,
+  resetSuggestionScheduler,
+} from "../../../lib/signal/domain/suggestion-generation";
 import { configureSignalRuntime, resetSignalRuntime } from "../../../lib/signal/runtime";
+
+/**
+ * Suggestion generation that `submit_signal` scheduled during a test file: recorded, never run
+ * in the background, so parity stays deterministic. Run one with `await scheduledGenerations[0]()`.
+ */
+export const scheduledGenerations: (() => Promise<unknown>)[] = [];
 
 /**
  * Database harness for `tests/signal/**` (lib/signal/README.md → Tests).
@@ -67,10 +77,15 @@ export const useTestDatabase = () => {
     state.db = opened.db;
     state.close = opened.close;
     configureSignalRuntime({ ai: createFakeAi(), db: opened.db });
+    scheduledGenerations.length = 0;
+    configureSuggestionScheduler((task) => {
+      scheduledGenerations.push(task);
+    });
     await resetDatabase(opened.db);
   });
   afterAll(async () => {
     resetSignalRuntime();
+    resetSuggestionScheduler();
     await state.close?.();
   });
   return {

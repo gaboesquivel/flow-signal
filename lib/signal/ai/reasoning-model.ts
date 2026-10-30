@@ -7,39 +7,41 @@ import { SignalError } from "../errors";
 import type { Reasoner } from "./ports";
 
 /**
- * A task-agnostic `Reasoner` on the reasoning model (`SIGNAL_REASONING_MODEL`) with AI SDK
- * structured output: the caller's zod schema shapes and validates the value. Task 05 uses it for
- * `priority`, `decision_brief`, and `demand_summary`; it works for any `ReasonerTask` because the
- * prompt, system, and schema come from the caller. Any failure (no Gateway, network, timeout,
- * output that fails the schema) is `ai_unavailable`.
- *
- * Integration: `gatewayReasoner()` in `gateway.ts` can delegate to this for tasks it does not
- * handle itself (it is a stub until tasks 04/05 merge).
+ * The one production `Reasoner` (`createGatewayAi().reasoner`, also exported as
+ * `gatewayReasoner`): AI SDK structured output on the reasoning model (`SIGNAL_REASONING_MODEL`)
+ * for every `ReasonerTask` (task 04's suggestion generation; task 05's priority, decision_brief,
+ * and demand_summary). The caller's prompt, system, and zod schema shape the call. Any failure
+ * (no Gateway, network, timeout, output that fails the schema) is `ai_unavailable`.
  */
 
 /** Off the hot path, but an operator waits on briefs and demand summaries. */
 const REASONING_TIMEOUT_MS = 60_000;
 
-export const reasoningModelReasoner = ({ model }: { model?: LanguageModel } = {}): Reasoner => ({
+export interface ReasoningModelOptions {
+  /** Injected in tests (`MockLanguageModelV4`); defaults to `SIGNAL_REASONING_MODEL` on the Gateway. */
+  model?: LanguageModel;
+  /** Recorded as the result's `model` (a suggestion's `model`); defaults to `signalReasoningModelId()`. */
+  modelId?: string;
+}
+
+export const reasoningModelReasoner = (options: ReasoningModelOptions = {}): Reasoner => ({
   async generate({ prompt, schema, system, task }) {
-    if (!model && !gatewayAvailable())
-      throw new SignalError(
-        "ai_unavailable",
-        `Reasoning (${task}) is unavailable (no AI Gateway access).`,
-      );
-    const modelId = signalReasoningModelId();
+    const what = `Reasoning (${task})`;
+    if (!options.model && !gatewayAvailable())
+      throw new SignalError("ai_unavailable", `${what} is unavailable (no AI Gateway access).`);
+    const modelId = options.modelId ?? signalReasoningModelId();
     try {
       const result = await generateText({
         abortSignal: AbortSignal.timeout(REASONING_TIMEOUT_MS),
-        maxRetries: 1,
-        model: model ?? gatewayModel(modelId),
+        maxRetries: 2,
+        model: options.model ?? gatewayModel(modelId),
         output: Output.object({ schema }),
         prompt,
-        system,
+        ...(system ? { instructions: system } : {}),
       });
       return { model: modelId, value: schema.parse(result.output) };
     } catch (error) {
-      const unavailable = new SignalError("ai_unavailable", `Reasoning (${task}) is unavailable.`);
+      const unavailable = new SignalError("ai_unavailable", `${what} is unavailable.`);
       unavailable.cause = error;
       throw unavailable;
     }

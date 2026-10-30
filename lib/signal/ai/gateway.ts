@@ -13,14 +13,8 @@ import {
 import { needs } from "@/lib/db/schema";
 
 import { SignalError } from "../errors";
-import type {
-  Embedder,
-  MatchJudge,
-  NeedExtractor,
-  NeedRetriever,
-  Reasoner,
-  SignalAi,
-} from "./ports";
+import { reasoningModelReasoner } from "./reasoning-model";
+import type { Embedder, MatchJudge, NeedExtractor, NeedRetriever, SignalAi } from "./ports";
 
 const unavailable = (what: string, cause?: unknown) => {
   const error = new SignalError("ai_unavailable", `${what} is unavailable.`);
@@ -31,13 +25,6 @@ const unavailable = (what: string, cause?: unknown) => {
 const requireGateway = (what: string) => {
   if (!gatewayAvailable()) throw unavailable(`${what} (no AI Gateway access)`);
 };
-
-const notImplemented = (what: string) =>
-  Promise.reject(
-    gatewayAvailable()
-      ? unavailable(`${what} (not implemented yet)`)
-      : unavailable(`${what} (no AI Gateway access)`),
-  );
 
 export const gatewayEmbedder = (): Embedder => ({
   async embed(texts) {
@@ -191,10 +178,8 @@ export const gatewayJudge = (options: FastModelOptions = {}): MatchJudge => ({
   },
 });
 
-// Tasks 04 and 05 implement the reasoner (reasoning model, off the hot path).
-export const gatewayReasoner = (): Reasoner => ({
-  generate: () => notImplemented("Reasoning"),
-});
+/** The reasoner is task-agnostic; its single implementation lives in `reasoning-model.ts`. */
+export const gatewayReasoner = reasoningModelReasoner;
 
 export const createGatewayAi = (): SignalAi => ({
   embedder: gatewayEmbedder(),

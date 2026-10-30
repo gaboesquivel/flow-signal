@@ -3,6 +3,7 @@ import {
   submitOutputSchema,
   submitSignal as submit,
 } from "../domain/submissions";
+import { scheduleSuggestionGeneration } from "../domain/suggestion-generation";
 import { defineOperation } from "./types";
 
 export const submitSignal = defineOperation({
@@ -15,5 +16,11 @@ export const submitSignal = defineOperation({
   limits: { maxBodyBytes: 16 * 1024, requestsPerMinute: 20 },
   name: "submit_signal",
   output: submitOutputSchema,
-  run: (input, ctx) => submit(ctx, input),
+  async run(input, ctx) {
+    const result = await submit(ctx, input);
+    // Off the hot path (Next.js after()): AI triage suggestions for the PM. A retried submission
+    // reschedules it, which is harmless: pending kinds are not proposed twice.
+    scheduleSuggestionGeneration(ctx, result.signalId);
+    return result;
+  },
 });

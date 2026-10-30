@@ -78,3 +78,20 @@ export const embedMissingNeeds = async (
     embedded += count;
   }
 };
+
+/**
+ * `embedNeeds` that never fails the caller: an unavailable embedder leaves the vector null (the
+ * need is backfilled later by `pnpm db:embed`). For operations that already committed their write.
+ */
+export const embedNeedsQuietly = async (
+  db: SignalQueryable,
+  embedder: Embedder,
+  needIds: string[],
+) => {
+  try {
+    return await embedNeeds(db, embedder, needIds);
+  } catch (error) {
+    if (error instanceof SignalError && error.code === "ai_unavailable") return 0;
+    throw error;
+  }
+};
