@@ -111,6 +111,7 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 
 - **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
 - **AI quality (offline eval set, run in `pnpm eval`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
+- **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals.
 - **Guardrails:** unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
 
 ## Riskiest assumptions
@@ -123,6 +124,7 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 ## Kill criterion
 
 - **MVP (build exercise):** the offline eval set misses its thresholds (precision@3 < 90% or false-match rate > 5%) after tuning; then submission-time matching is not trustworthy and the bet is rethought.
+- **Simulated (before a pilot):** on the held-out Crewday world at default behaviour, Signal does not beat a plain vote board on true prevention rate by 20 points after tuning ([spec 004](./docs/specs/004-crewday-outcome-eval.md)).
 - **With real users:** over at least 200 submissions where Signal showed a match, prevention rate stays under 30% or unmerge rate exceeds 10%.
 
 ## Core journeys

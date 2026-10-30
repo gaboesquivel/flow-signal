@@ -1,0 +1,362 @@
+[
+  {
+    "arrCents": 62000000,
+    "churnRisk": true,
+    "domain": "harborlinehotels.example",
+    "key": "harborline",
+    "name": "Harborline Hotels Group",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 54000000,
+    "churnRisk": false,
+    "domain": "copperleafoutfitters.example",
+    "key": "copperleaf",
+    "name": "Copperleaf Outfitters",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 41000000,
+    "churnRisk": true,
+    "domain": "saltmarshgroup.example",
+    "key": "saltmarsh",
+    "name": "Saltmarsh Restaurant Group",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 33000000,
+    "churnRisk": false,
+    "domain": "northpointrx.example",
+    "key": "northpoint",
+    "name": "Northpoint Pharmacy",
+    "openDealCents": 14000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 26000000,
+    "churnRisk": false,
+    "domain": "grandviewvenues.example",
+    "key": "grandview",
+    "name": "Grandview Venues & Concessions",
+    "openDealCents": 6000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 22000000,
+    "churnRisk": false,
+    "domain": "fairwaygrocers.example",
+    "key": "fairway",
+    "name": "Fairway Grocers",
+    "openDealCents": 0,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 9600000,
+    "churnRisk": true,
+    "domain": "lanternhouseinns.example",
+    "key": "lanternhouse",
+    "name": "Lanternhouse Inns",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 8800000,
+    "churnRisk": false,
+    "domain": "pepperwoodkitchens.example",
+    "key": "pepperwood",
+    "name": "Pepperwood Kitchens",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 8200000,
+    "churnRisk": false,
+    "domain": "tesserahotels.example",
+    "key": "tessera",
+    "name": "Tessera Boutique Hotels",
+    "openDealCents": 21000000,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 7400000,
+    "churnRisk": false,
+    "domain": "mainstreethardware.example",
+    "key": "mainstreet",
+    "name": "Main Street Hardware Co",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 7000000,
+    "churnRisk": false,
+    "domain": "larkspurliving.example",
+    "key": "larkspur",
+    "name": "Larkspur Senior Living",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 6600000,
+    "churnRisk": true,
+    "domain": "sunbeamcinemas.example",
+    "key": "sunbeam",
+    "name": "Sunbeam Cinemas",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 6300000,
+    "churnRisk": false,
+    "domain": "swiftbaydelivery.example",
+    "key": "swiftbay",
+    "name": "Swiftbay Delivery",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 5900000,
+    "churnRisk": false,
+    "domain": "ridgelineski.example",
+    "key": "ridgeline",
+    "name": "Ridgeline Ski Resorts",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 5200000,
+    "churnRisk": false,
+    "domain": "verdantgardens.example",
+    "key": "verdant",
+    "name": "Verdant Garden Centers",
+    "openDealCents": 2000000,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4700000,
+    "churnRisk": false,
+    "domain": "blueanchorseafood.example",
+    "key": "blue-anchor",
+    "name": "Blue Anchor Seafood Houses",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4500000,
+    "churnRisk": false,
+    "domain": "metrofitnessclubs.example",
+    "key": "metro-fitness",
+    "name": "Metro Fitness Clubs",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 4100000,
+    "churnRisk": false,
+    "domain": "quillandpage.example",
+    "key": "quill",
+    "name": "Quill & Page Bookshops",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 3800000,
+    "churnRisk": false,
+    "domain": "kettleandcrumb.example",
+    "key": "kettle",
+    "name": "Kettle & Crumb Bakery Cafés",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 3600000,
+    "churnRisk": false,
+    "domain": "cobaltparking.example",
+    "key": "cobalt-parking",
+    "name": "Cobalt Parking Services",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 3100000,
+    "churnRisk": false,
+    "domain": "evergreenjanitorial.example",
+    "key": "evergreen",
+    "name": "Evergreen Janitorial",
+    "openDealCents": 0,
+    "plan": "Growth"
+  },
+  {
+    "arrCents": 1300000,
+    "churnRisk": false,
+    "domain": "silverspooncatering.example",
+    "key": "silver-spoon",
+    "name": "Silver Spoon Catering",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 1100000,
+    "churnRisk": true,
+    "domain": "urbansprout.example",
+    "key": "urban-sprout",
+    "name": "Urban Sprout Salads",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 900000,
+    "churnRisk": false,
+    "domain": "polishednail.example",
+    "key": "polished-nail",
+    "name": "Polished Nail Studios",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 750000,
+    "churnRisk": false,
+    "domain": "tworiversbrewpub.example",
+    "key": "two-rivers",
+    "name": "Two Rivers Brewpub",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 600000,
+    "churnRisk": true,
+    "domain": "cornercrust.example",
+    "key": "corner-crust",
+    "name": "Corner Crust Pizza",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 500000,
+    "churnRisk": false,
+    "domain": "luckylanebowl.example",
+    "key": "lucky-lane",
+    "name": "Lucky Lane Bowling",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 480000,
+    "churnRisk": false,
+    "domain": "mangotreethai.example",
+    "key": "mango-tree",
+    "name": "Mango Tree Thai Kitchen",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 420000,
+    "churnRisk": false,
+    "domain": "rosiesdiner.example",
+    "key": "rosie-diner",
+    "name": "Rosie's All-Day Diner",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 360000,
+    "churnRisk": false,
+    "domain": "littlefigcafe.example",
+    "key": "little-fig",
+    "name": "Little Fig Café",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 320000,
+    "churnRisk": false,
+    "domain": "northshoreyoga.example",
+    "key": "northshore-yoga",
+    "name": "Northshore Yoga Collective",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 300000,
+    "churnRisk": false,
+    "domain": "patchworkthrift.example",
+    "key": "patchwork",
+    "name": "Patchwork Thrift",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 280000,
+    "churnRisk": false,
+    "domain": "cedarhollowcamp.example",
+    "key": "cedar-hollow",
+    "name": "Cedar Hollow Campground",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 260000,
+    "churnRisk": false,
+    "domain": "baysidescoops.example",
+    "key": "bayside-scoops",
+    "name": "Bayside Scoops Ice Cream",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 240000,
+    "churnRisk": false,
+    "domain": "hightidesurf.example",
+    "key": "high-tide",
+    "name": "High Tide Surf Shop",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 210000,
+    "churnRisk": false,
+    "domain": "juniperflorist.example",
+    "key": "juniper",
+    "name": "Juniper Florist",
+    "openDealCents": 0,
+    "plan": "Starter"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "aurora-resorts.example",
+    "key": "aurora",
+    "name": "Aurora Resorts International",
+    "openDealCents": 45000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "meadowbrookcare.example",
+    "key": "meadowbrook",
+    "name": "Meadowbrook Care Partners",
+    "openDealCents": 32000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "kingswaystores.example",
+    "key": "kingsway",
+    "name": "Kingsway Department Stores",
+    "openDealCents": 18000000,
+    "plan": "Enterprise"
+  },
+  {
+    "arrCents": 0,
+    "churnRisk": false,
+    "domain": "harvesttable.example",
+    "key": "harvest-table",
+    "name": "Harvest Table Restaurants",
+    "openDealCents": 8000000,
+    "plan": "Growth"
+  }
+]

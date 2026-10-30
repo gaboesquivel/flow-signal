@@ -23,8 +23,9 @@
     "check-types": "tsc-ts --noEmit",
     "test": "pnpm run build:mcp-app && vitest run && node --test tooling/setup/data-preset.test.mjs tooling/setup/skills-lock.test.mjs",
     "qa": "pnpm lint && pnpm check-types && pnpm test",
-    "eval": "pnpm eval:genui:offline && vitest run evals/eve-smoke.test.ts && pnpm eval:matching && pnpm eval:agents",
+    "eval": "pnpm eval:genui:offline && vitest run evals/eve-smoke.test.ts && pnpm eval:matching && pnpm eval:crewday && pnpm eval:agents",
     "eval:agents": "node --env-file-if-exists=.env.local --import tsx evals/agents/run.ts",
+    "eval:crewday": "node --env-file-if-exists=.env.local --import tsx evals/crewday/run.ts",
     "acceptance:mcp": "node --env-file-if-exists=.env.local scripts/acceptance-mcp.mjs",
     "eval:matching": "node --env-file-if-exists=.env.local --import tsx evals/matching/run.ts",
     "eval:offline": "node --import tsx lib/genui/scripts/eval-offline.ts",
@@ -39,7 +40,8 @@
     "db:up": "docker compose -p signal up -d --wait",
     "db:down": "docker compose -p signal down",
     "db:test:setup": "node --import tsx scripts/db-test-setup.ts",
-    "signal:client": "node --import tsx scripts/generate-signal-client.ts"
+    "signal:client": "node --import tsx scripts/generate-signal-client.ts",
+    "crewday:generate": "node --env-file-if-exists=.env.local --import tsx evals/crewday/generate/run.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",

@@ -1,0 +1,19 @@
+{
+  "world": "fixture",
+  "version": "v1",
+  "generatedAt": "2026-10-30T00:00:00Z",
+  "startsAt": "2026-01-01T00:00:00Z",
+  "generator": {
+    "models": {},
+    "seeds": {}
+  },
+  "keywordFindableShare": null,
+  "review": {
+    "method": "hand-written fixture",
+    "reviewer": "Signal engineers",
+    "sampleSize": 50,
+    "fixed": 0,
+    "dropped": 0,
+    "notes": "Hand-written for tests (spec 004, task 01): every label kind, trap kind, and planted case. Edit deliberately, never to make a run pass."
+  }
+}

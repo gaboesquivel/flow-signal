@@ -1,0 +1,71 @@
+{
+  "count": 200,
+  "roles": [
+    {
+      "role": "ops admin",
+      "share": 0.1,
+      "channel": "web",
+      "writingStyle": "methodical; numbered lists; names config screens, site counts and the workaround in place"
+    },
+    {
+      "role": "shift manager",
+      "share": 0.14,
+      "channel": "web",
+      "writingStyle": "rushed, written from the floor between tasks; short sentences; logistics jargon (dock, wave, trailer, pick rate)"
+    },
+    {
+      "role": "care or field coordinator",
+      "share": 0.06,
+      "channel": "web",
+      "writingStyle": "polite and detailed; tells a story about a specific client, resident or site"
+    },
+    {
+      "role": "frontline staff (non-native English)",
+      "share": 0.14,
+      "channel": "web",
+      "writingStyle": "non-native English (Polish, Romanian, Tagalog, Spanish speakers); simple grammar; written on a phone"
+    },
+    {
+      "role": "frontline staff (terse)",
+      "share": 0.12,
+      "channel": "web",
+      "writingStyle": "terse, lowercase, typos, no punctuation; sometimes angry about pay"
+    },
+    {
+      "role": "HR or payroll",
+      "share": 0.1,
+      "channel": "web",
+      "writingStyle": "precise; cites pay periods, amounts and policy clauses; tired of rework"
+    },
+    {
+      "role": "IT or security",
+      "share": 0.05,
+      "channel": "web",
+      "writingStyle": "formal, checklist style; mentions SSO, audit findings and vendor questionnaires"
+    },
+    {
+      "role": "CSM filing for account",
+      "share": 0.08,
+      "channel": "web",
+      "writingStyle": "polite; files for a named account; mentions renewal date and revenue at stake; sometimes bundles two asks"
+    },
+    {
+      "role": "sales rep filing for prospect",
+      "share": 0.06,
+      "channel": "web",
+      "writingStyle": "upbeat; names a solution ('they need a Fieldglass integration'); mentions deal size and close date"
+    },
+    {
+      "role": "support copilot",
+      "share": 0.12,
+      "channel": "mcp",
+      "writingStyle": "neutral third-person summary of a support ticket ('Customer reports…'); includes the ticket number; sometimes copies names or phone numbers from the ticket"
+    },
+    {
+      "role": "ops director (escalation)",
+      "share": 0.03,
+      "channel": "web",
+      "writingStyle": "angry, ALL-CAPS bursts; threatens to churn; names the workaround they hate"
+    }
+  ]
+}
