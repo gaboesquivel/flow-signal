@@ -1,6 +1,6 @@
 # 0006 — Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 

@@ -113,8 +113,9 @@ PMs trust the AI enough that their work shifts from organizing to deciding.
 - **Supporting:** context rate (signals with the submitter's own use-case text, ≥ 70%), time to triage, review load, close-the-loop rate.
 - **AI quality (offline eval set, run in `pnpm eval`):** match precision@3 ≥ 90%, false-match rate ≤ 5%, new-need recall ≥ 90%, need-statement rubric ≥ 4/5.
 - **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals.
-- **Simulated outcomes (Crewday worlds, [spec 004](./docs/specs/004-crewday-outcome-eval.md)):** true prevention rate (includes duplicates nobody merged), decision quality against the strategy memo, ARR-weighted revenue coverage, and acceptance precision (accepted suggestions that ground truth says are correct), each measured against a plain vote board with confidence intervals.
-- **Guardrails:** unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
+- **Direction accuracy (proposed):** decision briefs whose recommended status matches the published decision ÷ published decisions that had a brief; weekly; source: the `decision_brief` payload + `decision.published`. On Crewday it is also scored against the strategy-implied decision. Baseline unknown; target ≥ 80% (hypothesis, low confidence).
+- **Readiness lead time (proposed):** median days from `need.ready` (a new event) to `decision.published`. Baseline unknown.
+- **Guardrails:** decision-model spend under $0.25 per brief (hypothesis); unmerge rate < 5%; zero identifying details in public summaries; suggestions within 2 s at p95; under $0.01 of model spend per signal. Over-eager matching would inflate prevention rate; false-match and unmerge rates hold it in check.
 
 ## Riskiest assumptions
 

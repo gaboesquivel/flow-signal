@@ -1,9 +1,9 @@
 # 007 — Decision direction: Signal flags ready needs and recommends plan or decline against the PM's strategy
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Product model (Strategy), Metrics (direction accuracy, readiness lead time), Riskiest assumptions 3 and 5, Core journeys 5 and 7. Builds on [spec 001](./001-signal-mvp.md) (decision briefs, `publish_decision`, event log, `get_metrics`) and [spec 004](./004-crewday-outcome-eval.md) (Crewday worlds, PM policy, scorer).
-Decisions: [0006 Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key](../decisions/0006-decision-model-fable-gateway-byok.md) (Proposed).
+Decisions: [0006 Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key](../decisions/0006-decision-model-fable-gateway-byok.md) (Accepted).
 Related candidates: [008 Jev for closed-set classification](./008-jev-classification.md), [009 Post-submission duplicate backstop](./009-duplicate-backstop.md).
 
 **Bet.** A recommended direction grounded in a written strategy is right often enough that PMs follow it instead of redoing the analysis (PRODUCT.md riskiest assumption 5). On Crewday, a PM who follows Signal's recommendation (and overrides it at a realistic rate) reaches decision quality ≥ 85% and better revenue coverage than the vote board, sooner.
