@@ -14,9 +14,10 @@ import type { Reasoner, ReasonerTask } from "./ports";
 /**
  * The one production `Reasoner` (`createGatewayAi().reasoner`, also exported as
  * `gatewayReasoner`): AI SDK structured output for every `ReasonerTask`. Decision tasks
- * (`DECISION_TASKS`) run on the decision model (`SIGNAL_DECISION_MODEL`, Claude Fable 5.1, decision
- * 0006) on the Gateway's own credentials (no BYOK, decision 0007), with `effort: "medium"`,
- * Anthropic's server-side refusal fallback, and a longer timeout; they never send disabled thinking (Fable rejects it).
+ * (`DECISION_TASKS`) run on the decision model (`SIGNAL_DECISION_MODEL`, Claude Sonnet 5.5 by
+ * default, decision 0008) on the Gateway's own credentials (no BYOK, decision 0007), with
+ * `effort: "medium"`, Anthropic's server-side refusal fallback, and a longer timeout; they never
+ * send disabled thinking (Fable 5.1, the comparison model, rejects it).
  * Every other task runs on the reasoning model (`SIGNAL_REASONING_MODEL`). The caller's prompt,
  * system, and zod schema shape the call. Any failure (no Gateway, network, timeout, output that
  * fails the schema) is `ai_unavailable`.
@@ -27,7 +28,7 @@ export const DECISION_TASKS: ReadonlySet<ReasonerTask> = new Set<ReasonerTask>([
 
 /** Off the hot path, but an operator waits on briefs and demand summaries. */
 const REASONING_TIMEOUT_MS = 60_000;
-/** Fable always thinks; briefs stay off the hot path, so this is a ceiling. */
+/** A ceiling for slower decision models (Fable 5.1 always thinks); briefs stay off the hot path. */
 const DECISION_TIMEOUT_MS = 180_000;
 
 export interface ReasoningModelOptions {

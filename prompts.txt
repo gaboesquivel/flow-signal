@@ -162,3 +162,7 @@ Response: Set then removed ANTHROPIC_API_KEY on Vercel (Production, Preview) and
 [2026-10-30T20:30:00Z]
 Prompt: (side session) quick spec 006 hot fixes, no tests or evals: restyle spec 007's Decide page to Ledger, drop unused supportersLabel, make the site-url local fallback follow the real dev port, quick look at preview_signal latency; PR to main, don't merge.
 Response: Decide page now uses the console heading, a ruled list with one open row, recommendation/confidence/strategy fit in pencil until accepted (ink after), one primary "Publish decision"; strategy form restyled. Removed supportersLabel (Decide now says "people"). site-url falls back to PORTLESS_URL, then the PORT next bound, then 3000 (verified: tracking URL on :3007). preview_signal: judge call is 3.0-3.5 s of the 3.5-3.9 s, extraction already concurrent; no low-risk speedup, findings in the PR only. Checked by hand on a local DB (signal_hotfix_006) at desktop and 390px, light and dark.
+
+[2026-10-30T18:48:45Z]
+Prompt: Use a cheaper decision model (Sonnet); merge everything to main for review in another session.
+Response: Probed Sonnet 5.5 with the decision options live (2 s, no warnings, under $0.001). Wrote decision 0008 (default decision model Sonnet 5.5, Fable 5.1 the Crewday challenger; with 0007, 0006 is fully superseded), switched DEFAULT_SIGNAL_DECISION_MODEL, updated tests, comments, .env.example, back-pointers; merged to main.
