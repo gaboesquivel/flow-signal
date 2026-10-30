@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  accountPlans,
   DEFAULT_DEMAND_DAYS,
   DEFAULT_DEMAND_LIMIT,
   demandSummary,
@@ -17,12 +18,13 @@ const instant = z.union([z.iso.datetime({ offset: true }), z.iso.date()]);
 export const getDemandSummary = defineOperation({
   access: "operator",
   description:
-    'Summarize demand for open work: live needs (draft, open, planned, in progress) ordered by priority score, each with supporters, requesting accounts (name, plan), business value (ARR + open deals, cents), new supporters since `since`, and trend (new supporters in the last 30 days vs. the 30 before: rising above +20%, falling below −20%). Filter by `themeId` or by `accountId` (needs that account supports). `since` defaults to 90 days ago; `limit` 10, max 50. Includes a short AI summary; when the model is unreachable `summary` is null with `ai: "unavailable"` and the numbers are still returned. Use it for questions like "what are enterprise accounts blocked on?".',
+    'Summarize demand for open work: live needs (draft, open, planned, in progress) ordered by priority score, each with supporters, requesting accounts (name, plan), business value (ARR + open deals, cents), new supporters since `since`, and trend (new supporters in the last 30 days vs. the 30 before: rising above +20%, falling below −20%). Filter by `themeId`, by `accountId` (needs that account supports), or by `plan` (`Enterprise`, `Growth`, `Starter`: needs at least one account on that plan supports; numbers stay whole-need). `since` defaults to 90 days ago; `limit` 10, max 50. Includes a short AI summary; when the model is unreachable `summary` is null with `ai: "unavailable"` and the numbers are still returned. Use it for questions like "what are enterprise accounts blocked on?".',
   errors: [],
   http: { method: "GET", path: "/api/operator/demand" },
   input: z.object({
     accountId: z.uuid().optional(),
     limit: z.coerce.number().int().min(1).max(MAX_DEMAND_LIMIT).optional(),
+    plan: z.enum(accountPlans).optional(),
     since: instant.optional(),
     themeId: z.uuid().optional(),
   }),
@@ -39,6 +41,7 @@ export const getDemandSummary = defineOperation({
       {
         accountId: input.accountId,
         limit: input.limit ?? DEFAULT_DEMAND_LIMIT,
+        plan: input.plan,
         since,
         themeId: input.themeId,
         until,
