@@ -31,6 +31,7 @@
     "hooks:pre-commit": "node tooling/security/block-secret-files.mjs && node tooling/checks/check-staged.mjs",
     "prepare": "simple-git-hooks",
     "db:seed": "node --import tsx scripts/db-seed.ts",
+    "db:embed": "node --import tsx scripts/db-embed.ts",
     "db:up": "docker compose -p signal up -d --wait",
     "db:down": "docker compose -p signal down",
     "db:test:setup": "node --import tsx scripts/db-test-setup.ts"

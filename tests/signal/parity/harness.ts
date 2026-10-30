@@ -54,6 +54,8 @@ export interface ParityTable<F> {
 
 const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
 const isoPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/gu;
+/** `submit_signal` tracking links carry a random token. */
+const trackingTokenPattern = /\/my\/[\w-]{16,128}/gu;
 
 /**
  * For writing tables each surface starts from a rebuilt fixture, so ids and timestamps differ;
@@ -67,7 +69,8 @@ export const normalizeRun = (value: unknown) => {
       if (!ids.has(id)) ids.set(id, `<id:${ids.size}>`);
       return ids.get(id)!;
     })
-    .replaceAll(isoPattern, "<time>");
+    .replaceAll(isoPattern, "<time>")
+    .replaceAll(trackingTokenPattern, "/my/<token>");
   return JSON.parse(text) as unknown;
 };
 
@@ -173,7 +176,8 @@ const readEvents = (db: SignalDb) =>
       rows.map(({ actorKind, needId, payload, signalId, suggestionId, type }) => ({
         actorKind,
         needId,
-        payload,
+        // The agent client names its surface (`parity`, `eve:assistant`); actor kind is compared.
+        payload: Object.fromEntries(Object.entries(payload).filter(([key]) => key !== "client")),
         signalId,
         suggestionId,
         type,
