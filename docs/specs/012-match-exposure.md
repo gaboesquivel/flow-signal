@@ -196,6 +196,7 @@ In scope:
   - The 24 h exposure window.
   - That PM splits are frequent enough for `movedOffTakenMatch` to work as a live false-match proxy. If it stays near zero with real users, it shows how rarely PMs split, not match quality.
   - Counting agent submissions toward the 200 together with humans. PRODUCT.md says "real users". The verdict is reported for each population and combined, so this can be settled once the first numbers arrive.
+- **Review follow-ups (after merge):** merge outcomes follow active merge chains to their end as of `to` on both sides, so a draft merged into a shown need's successor (or into a need later merged into a shown one) counts as merged into shown, and a split from a need on the chain counts as moved. Previews count toward `previewsWithoutSubmission` only once their 24 h submit window has closed by `to`.
 - **Spec 009 overlap:** 009's proposed `skippedPreview` flag is covered by `exposure.kind = "skipped"` here. When 009 is fleshed out, it should read exposure instead of adding its own flag.
 - **PRODUCT.md additions on acceptance:**
   - Add match take-up under Diagnostics → Supporting.

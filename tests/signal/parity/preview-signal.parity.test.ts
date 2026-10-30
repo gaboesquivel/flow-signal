@@ -15,6 +15,10 @@ import { runParityTable } from "./harness";
 /** Random per call (spec 012); the harness normalizes it when comparing surfaces. */
 const anyPreviewId = expect.stringMatching(/^pv_[\w-]{22}$/u) as unknown as string;
 
+/** Every preview writes exactly one `preview.shown`; a rejected input writes none. */
+const onePreview = () => ["preview.shown"];
+const none = () => [];
+
 const n1Match = (fx: SubmissionFixture) => ({
   demandBand: "high",
   needId: fx.n1.need.id,
@@ -30,6 +34,7 @@ runParityTable<SubmissionFixture>({
   cases: [
     {
       check: assertNoPrivateData,
+      events: onePreview,
       expect: (fx) => ({
         output: {
           ai: "ok",
@@ -42,6 +47,7 @@ runParityTable<SubmissionFixture>({
       name: "drafts the need and returns N1 with a reason, not N2 (acceptance step 1)",
     },
     {
+      events: onePreview,
       expect: (fx) => ({
         output: {
           ai: "ok",
@@ -61,6 +67,7 @@ runParityTable<SubmissionFixture>({
       name: "returns a second ask in additionalAsks",
     },
     {
+      events: onePreview,
       expect: () => ({
         output: {
           ai: "ok",
@@ -79,6 +86,7 @@ runParityTable<SubmissionFixture>({
       name: "returns no matches when no candidate reaches the threshold",
     },
     {
+      events: onePreview,
       expect: () => ({
         output: {
           ai: "unavailable",
@@ -91,11 +99,13 @@ runParityTable<SubmissionFixture>({
       name: "answers without matches when AI is unavailable",
     },
     {
+      events: none,
       expect: () => ({ error: "validation_failed" }),
       input: () => ({ body: "No title" }),
       name: "requires a title",
     },
     {
+      events: none,
       expect: () => ({ error: "validation_failed" }),
       input: () => ({ body: "x".repeat(5001), title: "Too long" }),
       name: "caps the body length",
