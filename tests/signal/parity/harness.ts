@@ -10,6 +10,8 @@ import { POST as postPublicMcp } from "../../../app/api/mcp/route";
 import { events } from "../../../lib/db/schema";
 import { signalAgentTools } from "../../../lib/signal/adapters/agent";
 import { resetHttpRateLimits } from "../../../lib/signal/adapters/http";
+import { mcpRequestFor, restRequestFor } from "../../../lib/signal/adapters/in-process";
+import type { McpJsonRpcResponse } from "../../../lib/signal/adapters/in-process";
 import type { ErrorCode } from "../../../lib/signal/errors";
 import type { AnyOperation } from "../../../lib/signal/operations/types";
 import type { SignalDb } from "../../../lib/signal/db";
@@ -87,29 +89,11 @@ const toOutcome = (value: unknown): Outcome => {
   return { output: value };
 };
 
-const pathParameter = /:(?<name>[a-zA-Z]+)/gu;
-
 const restRequest = (operation: AnyOperation, input: Record<string, unknown>, asAgent: boolean) => {
-  const pathNames = new Set(
-    [...operation.http.path.matchAll(pathParameter)].map((match) => match.groups?.name),
-  );
-  const path = operation.http.path.replaceAll(pathParameter, (_match, name: string) =>
-    encodeURIComponent(String(input[name])),
-  );
-  const rest = Object.fromEntries(Object.entries(input).filter(([key]) => !pathNames.has(key)));
-  const url = new URL(`http://signal.localhost${path}`);
-  const headers: Record<string, string> = { "content-type": "application/json" };
+  const headers: Record<string, string> = {};
   if (operation.access === "operator") headers.authorization = `Bearer ${OPERATOR_SECRET}`;
   if (asAgent) headers["x-signal-agent"] = "parity";
-  if (operation.http.method === "GET") {
-    for (const [key, value] of Object.entries(rest)) {
-      if (value === undefined) continue;
-      for (const item of Array.isArray(value) ? value : [value])
-        url.searchParams.append(key, String(item));
-    }
-    return new Request(url, { headers, method: "GET" });
-  }
-  return new Request(url, { body: JSON.stringify(rest), headers, method: operation.http.method });
+  return restRequestFor(operation, input, headers);
 };
 
 const restHandlers = { GET, POST, PUT } as const;
@@ -128,24 +112,11 @@ export const mcpCall = async (
   params: Record<string, unknown>,
 ) => {
   const handler = access === "public" ? postPublicMcp : postOperatorMcp;
-  const headers: Record<string, string> = {
-    accept: "application/json, text/event-stream",
-    "content-type": "application/json",
-    "x-mcp-client": "parity",
-  };
+  const headers: Record<string, string> = { "x-mcp-client": "parity" };
   if (access === "operator") headers.authorization = `Bearer ${OPERATOR_SECRET}`;
-  const response = await handler(
-    new Request(`http://signal.localhost/api/mcp${access === "operator" ? "/operator" : ""}`, {
-      body: JSON.stringify({ id: 1, jsonrpc: "2.0", method, params }),
-      headers,
-      method: "POST",
-    }),
-  );
+  const response = await handler(mcpRequestFor(access, method, params, headers));
   assert.equal(response.status, 200);
-  return (await response.json()) as {
-    error?: { message: string };
-    result?: Record<string, unknown>;
-  };
+  return (await response.json()) as McpJsonRpcResponse;
 };
 
 export const callMcp = async (operation: AnyOperation, input: Record<string, unknown>) => {

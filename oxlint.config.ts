@@ -36,6 +36,21 @@ export default defineConfig({
       },
     },
     {
+      // The Crewday simulation replays a world in order: each step depends on the one before.
+      files: ["evals/crewday/sim/**", "evals/crewday/score/**"],
+      rules: {
+        "eslint/no-await-in-loop": "off",
+        "unicorn/no-await-expression-member": "off",
+      },
+    },
+    {
+      // A seeded PRNG is bit arithmetic by definition.
+      files: ["evals/crewday/sim/rng.ts"],
+      rules: {
+        "eslint/no-bitwise": "off",
+      },
+    },
+    {
       files: ["lib/genui/orchestration/stream.ts"],
       rules: {
         "eslint/no-await-in-loop": "off",
