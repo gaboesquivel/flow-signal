@@ -47,6 +47,24 @@ Submissions (`domain/submissions.ts`): a merged-away `target.needId` lands on th
 
 `pnpm test` never calls a live model. The database harness installs `createFakeAi()`. Override per test with `configureSignalRuntime({ ai: createFakeAi({ judge: fakeJudge({ [needId]: { probability: 0.9, reason: "..." } }) }) })`, or simulate an outage with `createUnavailableAi()`. `fakeReasoner({ decision_brief: ({ prompt }) => ({...}) })` answers a reasoner task; an unhandled task fails with `ai_unavailable`. Add a task name to `ReasonerTask` when an operation needs one. Live-model checks belong in `pnpm eval`.
 
+## Prioritization, demand, and decisions
+
+- `domain/criteria.ts`: criteria keys, defaults (returned when `priority_criteria` is empty), `criteriaWeightsSchema` (every key, each 0–1, sum 1 ± 1e-6). A need's priority score is `Σ score × weight` (0–5).
+- `domain/need-facts.ts`: Operator facts about one need (supporters, accounts and ARR, use cases, scores, trend) for model prompts; no submitter names or emails. `trendOf` holds the rising / steady / falling rule.
+- `domain/demand.ts`: `get_demand_summary` numbers (SQL) plus the `demand_summary` reasoner call; any model failure gives `summary: null, ai: "unavailable"` with the numbers intact.
+- `domain/priority.ts`: `suggestPriorityScores({ ai, db, now }, needId)` asks the reasoner (task `priority`) for a 0–5 score and reason per criterion and files a pending `priority` suggestion (payload `{ reason, scores, reasons }`, `suggestion.created` by `signal:ai`); a pending one for the same need is refreshed instead of duplicated. Nothing calls it yet: task 04's off-hot-path generation should call it after a signal lands.
+- `domain/decisions.ts`: `draftDecisionBrief` (task `decision_brief`; demand, accounts, and value in the markdown come from the database, options and the recommendation from the model) and `publishDecision` (need status, `decisions` row with the latest accepted/edited brief, `decision.published` with the publisher as actor, one transaction). `get_my_signals` and the public need view read the `decisions` table.
+- `ai/reasoning-model.ts`: `reasoningModelReasoner()`, a task-agnostic `Reasoner` on `SIGNAL_REASONING_MODEL` with structured output. `gatewayReasoner()` can delegate to it.
+
+**Resolve hooks.** `resolve_suggestion` applies these two kinds by calling, inside its transaction and before marking the suggestion resolved (for `accept` and `edit`; `reject` applies nothing):
+
+| Kind             | Hook                                                      | `edit` shape                                                       | Effect                                                                                                                                                               |
+| ---------------- | --------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `priority`       | `applyPrioritySuggestion(tx, { suggestion, edit?, now })` | `priorityEditSchema`: `{ scores: { <criterion>: 0–5 }, reasons? }` | Upserts `priority_scores`: AI scores with source `ai`, scores the PM set with source `pm` (the PM override).                                                         |
+| `decision_brief` | `applyDecisionBriefSuggestion(tx, { suggestion, edit? })` | `decisionBriefEditSchema`: `{ markdown }`                          | Accept: nothing else. Edit: replaces `payload.markdown` (keeps `originalMarkdown`). `publish_decision` attaches the latest accepted or edited brief to the decision. |
+
+Both throw `validation_failed` for a malformed edit; `applyPrioritySuggestion` throws `conflict` (merged need) or `not_found`.
+
 ## Tests
 
 Tests run on one of two databases, chosen by `DATABASE_URL_TEST` (the shell wins over `.env.local`):
