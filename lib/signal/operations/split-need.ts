@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { embedNeedsQuietly } from "../domain/embeddings";
-import { splitNeed as splitNeedInDb, splitResultSchema } from "../domain/splits";
+import { previewSplit, splitNeed as splitNeedInDb, splitResultSchema } from "../domain/splits";
 import { defineOperation } from "./types";
 
 export const splitNeed = defineOperation({
@@ -18,6 +18,22 @@ export const splitNeed = defineOperation({
   }),
   name: "split_need",
   output: splitResultSchema,
+  async preview({ id, signalIds, statement }, { db }) {
+    const effect = await previewSplit(db, { needId: id, signalIds, statement });
+    return {
+      blocks: [],
+      editable: [{ key: "statement", kind: "text", label: "New need statement" }],
+      lines: [
+        { label: "Signals leaving", value: String(effect.leaving) },
+        { label: "Signals staying", value: String(effect.staying) },
+        { label: "New statement", value: effect.statement },
+        { label: "New need status", value: effect.status },
+      ],
+      needs: [{ id: effect.source.id, role: "subject", statement: effect.source.statement }],
+      notes: [],
+      title: "Split a need",
+    };
+  },
   async run({ id, signalIds, statement }, { actor, ai, clock, db }) {
     const result = await db.transaction((tx) =>
       splitNeedInDb(tx, { actor, needId: id, now: clock.now(), signalIds, statement }),

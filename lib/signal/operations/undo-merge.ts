@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { undoMerge as undoMergeInDb, undoMergeResultSchema } from "../domain/merges";
+import {
+  previewUndoMerge,
+  undoMerge as undoMergeInDb,
+  undoMergeResultSchema,
+} from "../domain/merges";
 import { scheduleReadinessCheck } from "../domain/readiness";
 import { defineOperation } from "./types";
 
@@ -14,6 +18,24 @@ export const undoMerge = defineOperation({
   input: z.object({ id: z.uuid() }),
   name: "undo_merge",
   output: undoMergeResultSchema,
+  async preview({ id }, { db }) {
+    const effect = await previewUndoMerge(db, id);
+    return {
+      blocks: [],
+      editable: [],
+      lines: [
+        { label: "Merged on", value: effect.merge.createdAt.toISOString().slice(0, 10) },
+        { label: "Signals returning", value: String(effect.signalsReturning) },
+        { label: "Status restored", value: effect.status },
+      ],
+      needs: [
+        { id: effect.from.id, role: "source", statement: effect.from.statement },
+        { id: effect.into.id, role: "target", statement: effect.into.statement },
+      ],
+      notes: [],
+      title: "Undo a merge",
+    };
+  },
   async run({ id }, { actor, ai, clock, db }) {
     const result = await db.transaction((tx) =>
       undoMergeInDb(tx, { actor, mergeId: id, now: clock.now() }),

@@ -4,7 +4,7 @@ import type { suggestions } from "@/lib/db/schema";
 
 import type { SignalAi } from "../ai/ports";
 import type { Actor } from "../context";
-import type { SignalTx } from "../db";
+import type { SignalQueryable, SignalTx } from "../db";
 
 /**
  * Per-kind behaviour for `resolve_suggestion` (spec 001 → PM triage). `resolveSuggestion`
@@ -35,11 +35,30 @@ export interface SuggestionApplied {
   result: Record<string, unknown>;
 }
 
+/** What applying a suggestion would do, read-only (spec 014 previews). */
+export interface SuggestionEffectPreview {
+  /** Extra label/value lines (counts as plain strings). */
+  lines: { label: string; value: string }[];
+  /** The need the suggestion would change and, for a merge, its target. */
+  needs: { id: string; role: "source" | "target" | "subject"; statement: string }[];
+  /** The proposal as it would be applied (after the edit). */
+  text: string;
+}
+
 export interface SuggestionKindHandler<E = unknown> {
   /** Applies an accepted or edited suggestion. Throw `SignalError` (conflict, not_found) to abort. */
   apply?: (input: SuggestionApplyInput<E>) => Promise<SuggestionApplied | undefined>;
   /** Validates `edit`; omit to make the kind accept/reject only. */
   edit?: z.ZodType<E>;
+  /**
+   * Reads only: what `apply` would do with this edit now, throwing the codes `apply` would
+   * (conflict for a merged need, not_found). Omit to preview with the payload's reason.
+   */
+  preview?: (input: {
+    db: SignalQueryable;
+    edit: E | undefined;
+    suggestion: SuggestionRow;
+  }) => Promise<SuggestionEffectPreview>;
   /** Side effects of a rejection (for example, clearing a pending public summary). */
   reject?: (input: Omit<SuggestionApplyInput<E>, "edit">) => Promise<void>;
 }

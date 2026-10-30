@@ -1,11 +1,15 @@
 import { z } from "zod";
 
+import { suggestionEditableText } from "../domain/suggestion-kinds";
 import {
   MAX_REJECT_REASON_LENGTH,
+  previewResolution,
   resolveSuggestion as resolveSuggestionInDb,
   resolutionSchema,
 } from "../domain/suggestions";
 import { defineOperation } from "./types";
+
+const resolutionLabel = { accept: "Accept", edit: "Edit and accept", reject: "Reject" } as const;
 
 export const resolveSuggestion = defineOperation({
   access: "operator",
@@ -24,6 +28,35 @@ export const resolveSuggestion = defineOperation({
   }),
   name: "resolve_suggestion",
   output: resolutionSchema,
+  async preview({ action, edit, id, reason }, { db }) {
+    const { effect, filed, rejectReason, suggestion } = await previewResolution(db, {
+      action,
+      edit,
+      id,
+      reason,
+    });
+    const proposal = filed?.text ?? suggestion.reason ?? "";
+    const editable = action === "edit" ? suggestionEditableText[suggestion.kind] : undefined;
+    const fallbackNeeds = [
+      ...(suggestion.need ? [{ ...suggestion.need, role: "subject" as const }] : []),
+      ...(suggestion.relatedNeed ? [{ ...suggestion.relatedNeed, role: "target" as const }] : []),
+    ].map(({ id: needId, role, statement }) => ({ id: needId, role, statement }));
+    return {
+      blocks: [],
+      editable: editable ? [editable] : [],
+      lines: [
+        { label: "Kind", value: suggestion.kind },
+        { label: "Suggestion", value: proposal },
+        { label: "Resolution", value: resolutionLabel[action] },
+        ...(action === "edit" && effect ? [{ label: "Applied as", value: effect.text }] : []),
+        ...(rejectReason ? [{ label: "Reason", value: rejectReason }] : []),
+        ...(effect?.lines ?? []),
+      ],
+      needs: effect?.needs ?? filed?.needs ?? fallbackNeeds,
+      notes: [],
+      title: `${resolutionLabel[action]} a ${suggestion.kind.replaceAll("_", " ")} suggestion`,
+    };
+  },
   run({ action, edit, id, reason }, ctx) {
     return resolveSuggestionInDb(ctx, { action, edit, id, reason });
   },

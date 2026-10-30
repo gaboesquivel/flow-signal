@@ -148,6 +148,38 @@ const draftAutoBrief = async ({ ai, clock, db }: ReadinessDeps, needId: string) 
   }
 };
 
+/** Live, undecided needs not yet marked ready, oldest first, with their demand. */
+const notYetReady = (db: SignalQueryable, needIds?: string[]) =>
+  db
+    .select({
+      arr: needArrCentsSql,
+      id: needs.id,
+      statement: needs.statement,
+      supporters: needSupportersSql,
+    })
+    .from(needs)
+    .where(
+      and(
+        liveUndecided(db),
+        isNull(needs.readyAt),
+        needIds ? inArray(needs.id, needIds) : undefined,
+      ),
+    )
+    .orderBy(asc(needs.createdAt), asc(needs.id));
+
+/**
+ * Read-only (spec 014 previews): the live, undecided needs not yet ready that `line` would mark
+ * ready, oldest first, as `checkReadiness` would after `set_strategy` writes it.
+ */
+export const needsCrossingLine = async (db: SignalQueryable, line: Readiness) => {
+  const candidates = await notYetReady(db);
+  return candidates
+    .filter((row) =>
+      meetsReadiness(line, { arrCents: Number(row.arr), supporters: Number(row.supporters) }),
+    )
+    .map((row) => ({ id: row.id, statement: row.statement }));
+};
+
 /**
  * Checks `needIds` (every live need when omitted) against the readiness line: marks newly ready
  * needs once and schedules a brief for each ready need that still lacks one. Returns the ids of
@@ -158,17 +190,7 @@ export const checkReadiness = async (deps: ReadinessDeps, needIds?: string[]) =>
   const { clock, db } = deps;
   const strategy = await getStrategy(db);
   const line = readinessLine(strategy);
-  const candidates = await db
-    .select({ arr: needArrCentsSql, id: needs.id, supporters: needSupportersSql })
-    .from(needs)
-    .where(
-      and(
-        liveUndecided(db),
-        isNull(needs.readyAt),
-        needIds ? inArray(needs.id, needIds) : undefined,
-      ),
-    )
-    .orderBy(asc(needs.createdAt), asc(needs.id));
+  const candidates = await notYetReady(db, needIds);
 
   const newlyReady: string[] = [];
   for (const candidate of candidates) {
