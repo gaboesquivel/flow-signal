@@ -74,6 +74,13 @@ import type { SignalQueryable } from "./db";
  *   above, over that population), and the all-time unmerge rate before `to` (merges are
  *   need-level, so the guardrail is not split by population).
  *
+ * - **Report reuse** (spec 013; PRODUCT.md → Diagnostics) reads `report.saved`,
+ *   `report.viewed`, and `report.shared` (`payload.reportId`, `occurred_at`, `actor_kind`). A
+ *   report's first `report.saved` is its first save; reports first saved in the window count.
+ *   One is reused when another `report.viewed`, `report.shared`, or `report.saved` event for the
+ *   same `reportId` (any event but that first save) occurs within 14 days after it and before
+ *   `to`. Split by the first save's `actor_kind`.
+ *
  * Counting rules: events are written in the same transaction as the change, so failed or
  * rejected requests write none; `dedupe_key` makes retries write once, and these queries also
  * count each `signal_id` / `suggestion_id` once in case the same fact was recorded twice.
@@ -94,6 +101,8 @@ const KILL_CRITERION_MIN_PREVENTION = 0.3;
 const KILL_CRITERION_MAX_UNMERGE = 0.1;
 /** A preview with no submission this long after it is counted as abandoned (spec 012). */
 const PREVIEW_SUBMIT_HOURS = 24;
+/** A saved report counts as reused when opened, shared, or saved again within this (spec 013). */
+export const REPORT_REUSE_DAYS = 14;
 
 const unsupportedMetrics = [
   {
@@ -192,6 +201,15 @@ const killPopulationSchema = z.object({
 });
 type KillPopulation = z.infer<typeof killPopulationSchema>;
 
+const reportReuseSchema = z.object({
+  /** reused ÷ saved; null with no reports saved in the window. */
+  rate: rateSchema,
+  /** Of those, reports viewed, shared, or saved again within 14 days of the first save. */
+  reused: count,
+  /** Reports first saved in the window. */
+  saved: count,
+});
+
 export const metricsSchema = z.object({
   decisionLatency: z.object({
     /** First decisions published in the window, by who published them. */
@@ -236,6 +254,8 @@ export const metricsSchema = z.object({
     /** Unmerged needs ready more than 30 days before `window.to` with no decision yet. */
     readyUndecidedOver30Days: z.number().int().nonnegative(),
   }),
+  /** Saved reports reused within 14 days, by who first saved them (spec 013). */
+  reportReuse: z.object({ agent: reportReuseSchema, human: reportReuseSchema }),
   suggestionAcceptance: z.object({
     byKind: z.array(split(acceptanceSchema).extend({ kind: z.string() })),
     overall: split(acceptanceSchema),
@@ -831,6 +851,40 @@ export const weeklyPreventionSeries = async (
   });
 };
 
+const reportReuse = async (db: SignalQueryable, { from, to }: MetricsWindow) => {
+  const rows = await query<{ actor_kind: ActorKind; reused: unknown; saved: unknown }>(
+    db,
+    sql`
+      WITH first_save AS (
+        SELECT DISTINCT ON (payload->>'reportId')
+          id, payload->>'reportId' AS report_id, occurred_at, actor_kind
+        FROM events
+        WHERE type = 'report.saved' AND jsonb_typeof(payload->'reportId') = 'string'
+        ORDER BY payload->>'reportId', occurred_at, id
+      )
+      SELECT f.actor_kind, count(*)::int AS saved,
+        count(*) FILTER (WHERE EXISTS (
+          SELECT 1 FROM events e
+          WHERE e.type IN ('report.viewed', 'report.shared', 'report.saved')
+            AND e.payload->>'reportId' = f.report_id AND e.id <> f.id
+            AND e.occurred_at >= f.occurred_at
+            AND e.occurred_at <= f.occurred_at + make_interval(days => ${REPORT_REUSE_DAYS})
+            AND e.occurred_at < ${ts(to)}
+        ))::int AS reused
+      FROM first_save f
+      WHERE f.occurred_at >= ${ts(from)} AND f.occurred_at < ${ts(to)}
+      GROUP BY f.actor_kind
+    `,
+  );
+  const of = (kind: ActorKind) => {
+    const row = rows.find((candidate) => candidate.actor_kind === kind);
+    const saved = num(row?.saved);
+    const reused = num(row?.reused);
+    return { rate: ratio(reused, saved), reused, saved };
+  };
+  return { agent: of("agent"), human: of("human") };
+};
+
 /** All MVP metrics and supporting counts for `[from, to)`. */
 export const computeMetrics = async (
   db: SignalQueryable,
@@ -846,6 +900,7 @@ export const computeMetrics = async (
   const exposureRows = await exposureCounts(db, window);
   const abandoned = await abandonedPreviews(db, window);
   const kill = await killCriterion(db, window);
+  const reuse = await reportReuse(db, window);
 
   return {
     decisionLatency: latency,
@@ -876,6 +931,7 @@ export const computeMetrics = async (
       }),
     },
     readinessLeadTime: readiness,
+    reportReuse: reuse,
     suggestionAcceptance: acceptance,
     supporting: {
       contextRate: {

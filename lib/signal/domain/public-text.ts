@@ -29,11 +29,11 @@ export const publicTextFindingSchema = z.object({
   /** The text as it appears in the checked text. */
   match: z.string(),
 });
-type PublicTextFinding = z.infer<typeof publicTextFindingSchema>;
+export type PublicTextFinding = z.infer<typeof publicTextFindingSchema>;
 
 export const MAX_PUBLIC_TEXT_LENGTH = 10_000;
 
-interface IdentifyingCandidate {
+export interface IdentifyingCandidate {
   kind: FindingKind;
   value: string;
 }
@@ -107,7 +107,7 @@ export const findIdentifyingText = (
  * because published text must not name any customer, not only the need's own supporters (spec 006
  * → `check_public_text`). A given `needId` is only checked to exist.
  */
-const loadCandidates = async (
+export const loadIdentifyingCandidates = async (
   db: SignalQueryable,
   needId: string | undefined,
 ): Promise<IdentifyingCandidate[]> => {
@@ -137,4 +137,4 @@ const loadCandidates = async (
 export const checkPublicText = async (
   db: SignalQueryable,
   { needId, text }: { needId?: string; text: string },
-) => ({ findings: findIdentifyingText(text, await loadCandidates(db, needId)) });
+) => ({ findings: findIdentifyingText(text, await loadIdentifyingCandidates(db, needId)) });
