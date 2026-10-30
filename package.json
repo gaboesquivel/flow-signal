@@ -44,7 +44,6 @@
     "crewday:generate": "node --env-file-if-exists=.env.local --import tsx evals/crewday/generate/run.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.58",
     "@ai-sdk/gateway": "4.0.125",
     "@base-ui/react": "^1.9.0",
     "@faker-js/faker": "10.5.0",

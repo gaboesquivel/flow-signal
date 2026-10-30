@@ -47,7 +47,6 @@ export const registerOperatorMcpTools = (server: McpServer) => {
     ({ verbose }) =>
       asToolResult({
         aiGateway: gatewayAvailable(),
-        anthropicChat: Boolean(process.env.ANTHROPIC_API_KEY?.trim()),
         eveModel: eveModelId(),
         operatorConfigured: isOperatorAccessConfigured(),
         operatorTokenLength: getOperatorAccessToken().length,

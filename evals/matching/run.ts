@@ -17,9 +17,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-import { createGateway, gateway, registerTelemetry } from "ai";
+import { registerTelemetry } from "ai";
 
-import { gatewayAvailable, signalEmbeddingModelId, signalFastModelId } from "@/lib/ai/models";
+import {
+  gatewayAvailable,
+  gatewayProvider,
+  signalEmbeddingModelId,
+  signalFastModelId,
+} from "@/lib/ai/models";
 import { fakeEmbedder, fakeExtractor, fakeJudge } from "@/lib/signal/ai/fakes";
 import { gatewayEmbedder, gatewayExtractor, gatewayJudge } from "@/lib/signal/ai/gateway";
 import { MATCH_THRESHOLD } from "@/lib/signal/domain/matching";
@@ -106,9 +111,7 @@ meter.take();
 
 const loadPrices = async (): Promise<PriceTable> => {
   try {
-    const apiKey = process.env.AI_GATEWAY_API_KEY?.trim();
-    const provider = apiKey ? createGateway({ apiKey }) : gateway;
-    return pricesFromModelList(await provider.getAvailableModels());
+    return pricesFromModelList(await gatewayProvider().getAvailableModels());
   } catch {
     return {};
   }

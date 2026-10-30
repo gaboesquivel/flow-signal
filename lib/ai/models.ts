@@ -35,10 +35,6 @@ export const signalEmbeddingModelId = (
   environment: Record<string, string | undefined> = process.env,
 ) => env("SIGNAL_EMBEDDING_MODEL", environment) ?? DEFAULT_SIGNAL_EMBEDDING_MODEL;
 
-/** Direct Anthropic API ids are dashed: `anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`. */
-export const directModelId = (gatewayId: string) =>
-  gatewayId.replace(/^anthropic\//u, "").replaceAll(".", "-");
-
 /**
  * Gateway auth is a stored key, or Vercel OIDC: it arrives with each request on Vercel
  * deployments, and locally as `VERCEL_OIDC_TOKEN` from `vercel env pull` (expires after about
@@ -49,12 +45,13 @@ export const gatewayAvailable = (environment: Record<string, string | undefined>
   Boolean(environment.VERCEL_OIDC_TOKEN?.trim()) ||
   environment.VERCEL === "1";
 
-export const gatewayModel = (id: string): LanguageModel => {
+/** The one AI Gateway provider: every model call, runtime and evals, goes through it (spec 010). */
+export const gatewayProvider = () => {
   const apiKey = env("AI_GATEWAY_API_KEY");
-  return apiKey ? createGateway({ apiKey })(id) : gateway(id);
+  return apiKey ? createGateway({ apiKey }) : gateway;
 };
 
-export const gatewayEmbeddingModel = (id: string): EmbeddingModel => {
-  const apiKey = env("AI_GATEWAY_API_KEY");
-  return apiKey ? createGateway({ apiKey }).embeddingModel(id) : gateway.embeddingModel(id);
-};
+export const gatewayModel = (id: string): LanguageModel => gatewayProvider()(id);
+
+export const gatewayEmbeddingModel = (id: string): EmbeddingModel =>
+  gatewayProvider().embeddingModel(id);

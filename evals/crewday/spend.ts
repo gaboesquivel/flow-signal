@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { createGateway, gateway } from "ai";
+import { gatewayProvider } from "@/lib/ai/models";
 
 import { pricesFromModelList, UsageMeter } from "../matching/cost";
 import type { ModelCall, PriceTable } from "../matching/cost";
@@ -49,9 +49,7 @@ export class BucketedUsage extends UsageMeter {
 /** The Gateway's per-token prices, or an empty table (calls are then priced by reported cost only). */
 export const loadGatewayPrices = async (): Promise<PriceTable> => {
   try {
-    const apiKey = process.env.AI_GATEWAY_API_KEY?.trim();
-    const provider = apiKey ? createGateway({ apiKey }) : gateway;
-    return pricesFromModelList(await provider.getAvailableModels());
+    return pricesFromModelList(await gatewayProvider().getAvailableModels());
   } catch {
     return {};
   }
