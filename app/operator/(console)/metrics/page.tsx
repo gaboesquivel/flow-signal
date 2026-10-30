@@ -1,18 +1,39 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { ConsoleHeading } from "../_components/console-bits";
+import { ConsoleError, ConsoleHeading } from "../_components/console-bits";
+import { metricsWindow, parseWindowDays } from "../_lib/metrics-view";
+import { operatorServerClient } from "../_lib/operator-client";
+import { MetricsView } from "./metrics-view";
+import { WindowToggle } from "./window-toggle";
 
 export const metadata: Metadata = { title: "Metrics · Signal" };
 
-/**
- * Stub route owned by spec 006 task 07 (The three MVP metrics for 28 and 90 days, people and agents apart).
- * Task 05 only adds the route so the console's top bar links somewhere; task 07 replaces this
- * file with the real screen.
- */
-export default function MetricsPage() {
-  return (
-    <div data-stub="006-07">
-      <ConsoleHeading title="Metrics">Not built yet (spec 006, task 07).</ConsoleHeading>
-    </div>
-  );
+/** The MVP metrics (get_metrics) for the last 28 or 90 days (`?days=90`). */
+export default async function MetricsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const days = parseWindowDays(params.days);
+  const client = await operatorServerClient();
+  // A server component renders once per request; "now" ends the window.
+  // oxlint-disable-next-line react/purity
+  const result = await client.getMetrics(metricsWindow(days, new Date()));
+
+  if (!result.ok) {
+    if (result.error.code === "unauthorized") redirect("/operator/access");
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <ConsoleHeading title="Metrics" />
+          <WindowToggle days={days} />
+        </div>
+        <ConsoleError error={result.error} />
+      </div>
+    );
+  }
+
+  return <MetricsView days={days} metrics={result.data} />;
 }
