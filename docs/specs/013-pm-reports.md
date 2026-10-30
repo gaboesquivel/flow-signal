@@ -1,8 +1,8 @@
 # 013 — PM Reports: describe any report, get grounded charts, save and share it
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
-Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs, agents, stakeholders), Core journeys 8, Diagnostics → Report reuse, Riskiest assumption 6. Decision: [0010](../decisions/0010-reports-as-typed-specs-over-named-datasets.md) (Proposed). Builds on [spec 001](./001-signal-mvp.md) (operations, event log, `get_metrics`), [spec 006](./006-lean-ledger-ui.md) (Operator console, `check_public_text`, Lean Ledger design), and [spec 007](./007-decision-direction.md) (decisions, readiness).
+Product brief: [PRODUCT.md](../../PRODUCT.md) → Who (PMs, agents, stakeholders), Core journeys 8, Diagnostics → Report reuse, Riskiest assumption 6. Decision: [0010](../decisions/0010-reports-as-typed-specs-over-named-datasets.md). Builds on [spec 001](./001-signal-mvp.md) (operations, event log, `get_metrics`), [spec 006](./006-lean-ledger-ui.md) (Operator console, `check_public_text`, Lean Ledger design), and [spec 007](./007-decision-direction.md) (decisions, readiness).
 
 **Bet.** If a PM can describe a report in plain words and get one built only from Signal's records, which they can save, re-run, and share, PMs will come back to their reports instead of rebuilding them in a spreadsheet. A fixed catalog of read-only datasets covers most of what they ask (assumption 6).
 

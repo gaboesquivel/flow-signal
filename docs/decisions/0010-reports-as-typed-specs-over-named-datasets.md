@@ -1,6 +1,6 @@
 # 0010 — PM reports are typed specs over named datasets
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 
