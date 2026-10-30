@@ -2,23 +2,32 @@
 
 Signal stores everything in Neon Postgres with the pgvector extension ([decision 0001](./decisions/0001-neon-postgres-pgvector.md)), accessed through Drizzle (`lib/db/schema.ts`) and `@neondatabase/serverless`.
 
-## Branches
+## Databases
 
-| Neon branch | Env var             | Used by                                                  |
-| ----------- | ------------------- | -------------------------------------------------------- |
-| `main`      | `DATABASE_URL`      | Local dev and all Vercel environments                    |
-| `test`      | `DATABASE_URL_TEST` | Domain, contract, and parity tests (`pnpm test`), and CI |
+| Where                       | Env var             | Database                                                                    |
+| --------------------------- | ------------------- | --------------------------------------------------------------------------- |
+| Local dev and all of Vercel | `DATABASE_URL`      | Neon `main` branch                                                          |
+| Local tests                 | `DATABASE_URL_TEST` | Docker Postgres 18 + pgvector behind a local Neon HTTP proxy (`pnpm db:up`) |
+| CI, or tests without it set | (unset)             | In-process PGlite with the `vector` extension                               |
 
-Tests never touch `main`. Each test file resets the tables it uses.
+Tests never touch Neon. Each test file resets the tables it uses; parallel workers use separate database names on the Docker server. See [decision 0003](./decisions/0003-local-test-databases.md).
+
+## Local test database
+
+```bash
+pnpm db:up
+```
+
+Then set `DATABASE_URL_TEST=postgres://postgres:postgres@db.localtest.me:5432/signal_test` in `.env.local` (the default in `.env.example`). The test harness creates the database, enables pgvector, and applies the schema. Stop it with `pnpm db:down`. Without Docker, leave `DATABASE_URL_TEST` empty and tests run on PGlite.
 
 ## Current project
 
 Provisioned on 2026-10-30:
 
 - Neon project `signal` (`wispy-paper-65345567`) in the **Gabo** org (`org-rough-dust-14948184`), region `aws-us-east-1` (next to Vercel's default `iad1`), Postgres 18.
-- Branches `main` and `test`; schema pushed to both.
+- Branch `main` with the schema pushed. (A `test` branch existed briefly for tests and was removed when tests moved to Docker and PGlite.)
 - `DATABASE_URL` (pooled `main`) set on the Vercel project `flow-signal` for production, preview, and development as a sensitive variable.
-- Locally, `.env.local` holds `DATABASE_URL` and `DATABASE_URL_TEST` (gitignored). Get them again with `neonctl connection-string <branch> --project-id wispy-paper-65345567 --pooled`.
+- Locally, `.env.local` holds `DATABASE_URL` (gitignored). Get it again with `neonctl connection-string main --project-id wispy-paper-65345567 --pooled`.
 
 ## First-time setup with signed-in CLIs
 

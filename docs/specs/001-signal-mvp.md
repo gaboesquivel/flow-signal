@@ -115,7 +115,7 @@ Thin adapters expose the registry and contain no business logic:
 
 `lib/signal/` holds the domain: pure functions over a repository and AI ports, injected like `pingDatabase`'s `query` parameter so AI is faked in tests while the database is real.
 
-- `SignalRepository` (Drizzle on Neon; tests run against the Neon `test` branch, see [docs/database.md](../database.md)).
+- `SignalRepository` (Drizzle; Neon in production and dev, local Docker Postgres or in-process PGlite in tests, see [docs/database.md](../database.md) and [0003](../decisions/0003-local-test-databases.md)).
 - `NeedExtractor`, `NeedRetriever`, `MatchJudge`, `Reasoner` (scores, summaries, briefs), `Embedder` — AI SDK implementations plus test fakes.
 - `recordEvent` writes every metric-relevant event in the same transaction as the change it describes.
 
@@ -192,7 +192,7 @@ Definitions are in [PRODUCT.md → Metrics](../../PRODUCT.md#metrics); calculati
 - **Public writes are open by design** (no submitter auth in the MVP): `preview_signal` and `submit_signal` (`POST /api/signals/preview`, `POST /api/signals`, and their public MCP and Assistant agent tools) are rate limited per IP, size limited, and never return other customers' PII. Submitter emails are stored and shown only to PMs.
 - **PM writes fail closed:** every `access: "operator"` operation returns `unauthorized` over REST and Operator MCP unless `OPERATOR_SECRET` is configured and presented.
 - **Without `DATABASE_URL`** every signal endpoint returns `database_unavailable` (503); the board shows an explanatory empty state. **Without AI Gateway access** preview returns `ai: "unavailable"` with no matches and submission still works.
-- **Database:** Neon, provisioned with `pnpm neon:setup` (approved 2026-10-30), with a `test` branch for the test suites; see [docs/database.md](../database.md) and [0001](../decisions/0001-neon-postgres-pgvector.md).
+- **Database:** Neon, provisioned with `pnpm neon:setup` (approved 2026-10-30), for dev and Vercel; tests use local Docker or PGlite ([0003](../decisions/0003-local-test-databases.md)); see [docs/database.md](../database.md) and [0001](../decisions/0001-neon-postgres-pgvector.md).
 
 ### UI
 
@@ -203,10 +203,10 @@ Built last, on the generated client only, once an operation's parity suite is gr
 **Test-driven, surface by surface.** Every operation is built red → green → refactor, starting from the interfaces agents and API clients use, never from the UI. A test is written and seen failing before the code that makes it pass; a bug fix starts with a failing test that reproduces it.
 
 - **Parity suite** (`tests/signal/parity/`, written first for each operation): one table of cases per operation (input, actor, expected output or error code) runs through all three surfaces: the HTTP route handler, the MCP tool (public or Operator server, by access), and the Eve agent tool. Each case asserts the same output (after removing surface envelopes), the same error code, the same events written, and that `access: "operator"` operations return `unauthorized` over HTTP and are absent from public MCP and the Assistant agent. A registry test fails if an operation is missing from any surface or its schemas differ between surfaces.
-- **Domain tests** (`tests/signal/domain/`): `lib/signal` against the real Neon `test` branch with fake AI ports; cover matching thresholds, attach vs. draft, split, merge and undo, visibility filtering, suggestion resolution, decision publishing, and every metric calculation. Each test file runs in its own schema-reset transaction or truncates its tables. Prior art: the injected `query` in `lib/db/ping.ts` and `tests/db-ping.test.ts`.
+- **Domain tests** (`tests/signal/domain/`): `lib/signal` against a real Postgres with pgvector (local Docker behind a Neon HTTP proxy, or PGlite) with fake AI ports; cover matching thresholds, attach vs. draft, split, merge and undo, visibility filtering, suggestion resolution, decision publishing, and every metric calculation. Each test file runs in its own schema-reset transaction or truncates its tables. Prior art: the injected `query` in `lib/db/ping.ts` and `tests/db-ping.test.ts`.
 - **Contract tests**: HTTP status codes and the error envelope (prior art `tests/genui-compose.route.test.ts`), MCP protocol and isolation (`tests/mcp/route.test.ts`, `tests/mcp/operator-isolation.test.ts`), including that public responses never contain email, company, revenue, or verbatim text of other submitters, and that Operator tools are absent from public discovery.
 - **Agent behaviour tests** (`evals/agents/`, prior art `evals/eve-smoke.test.ts`): given a PM or submitter request, the Eve agent picks the expected operation with valid input (for example "add Acme's vote to the PDF need" → `submit_signal` with `target.needId`), and never calls an Operator tool from the Assistant. These run with live models in `pnpm eval`, not in `pnpm test`.
-- **Database availability:** tests needing a database read `DATABASE_URL_TEST`; without it they are skipped with a message locally and fail in CI, where it is a required secret.
+- **Test database:** when `DATABASE_URL_TEST` is set (local Docker Postgres 18 with pgvector behind a Neon HTTP proxy, one database per parallel worker) tests use it through the production driver; when unset they use in-process PGlite with the `vector` extension. CI leaves it unset and runs on PGlite, so CI needs no database service or secret ([0003](../decisions/0003-local-test-databases.md)).
 - **Eval**: `evals/matching` thresholds are the kill criterion for the MVP; failing them blocks calling the bet proven, not the build.
 - **Model ids**: extend `lib/ai/models.test.ts` to the new ids.
 
@@ -256,7 +256,7 @@ Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build
 **Blocked by:** None (can start immediately)
 
 - [ ] The operation type, registry, error envelope, and actor context exist as specified; HTTP, MCP (public and Operator by access), and Eve agent adapters are generated from the registry with no business logic in them; OpenAPI and public discovery list public operations only.
-- [ ] The full spec 001 schema (all tables, pgvector extension) is in Drizzle and pushed to the Neon `test` and `main` branches; a test-database harness resets tables per test file and skips locally with a message when `DATABASE_URL_TEST` is unset.
+- [ ] The full spec 001 schema (all tables, pgvector extension) is in Drizzle and pushed to Neon `main`; a test-database harness uses `DATABASE_URL_TEST` (local Docker via `pnpm db:up`) or PGlite when unset, and resets tables per test file; the suite passes both ways.
 - [ ] The parity suite runs a case table through REST, public MCP, and the Assistant agent tool and asserts the same output, error code, and events; a registry test fails when an operation is missing from a surface or its schemas differ.
 - [ ] `search_needs` and `get_need` are built test-first and pass parity; public output never contains submitter name, email, company, revenue, verbatim signal text, or an unapproved summary.
 - [ ] `pnpm db:seed` loads the deterministic demo workspace (8 accounts, 4 themes, about 25 needs, about 150 signals over 90 days) including the acceptance scenario's N1 and N2.
@@ -360,7 +360,7 @@ Ready now: 01. After 01: 02 and 06 in parallel. Each operation follows the build
 **Blocked by:** 03, 07, 08
 
 - [ ] Agent behaviour evals pass: the Assistant agent picks `preview_signal` then `submit_signal` with `target.needId` for "add Acme's vote to the PDF need" and never calls an Operator operation; the Operator agent drafts and publishes a decision when asked.
-- [ ] The full acceptance scenario (human journey and agent journey) passes on a fresh seed of the `test` branch, with metrics counted as specified.
+- [ ] The full acceptance scenario (human journey and agent journey) passes on a fresh seed of a test database, with metrics counted as specified.
 - [ ] The deployed preview serves the board and public MCP with the database connected, and Operator surfaces fail closed without the secret.
 
 ## Out of Scope
@@ -386,4 +386,4 @@ Where the assignment's required documentation lives:
 | Measuring business impact                     | PRODUCT.md → Metrics; this spec → Metrics instrumentation                           |
 | Assumptions, risks, tradeoffs                 | PRODUCT.md → Riskiest assumptions, Pre-mortem; decisions 0001, 0002 → Consequences  |
 
-Open assumptions: the embedding model id and dimension; the 0.6 judge threshold (tuned on the eval set); test speed against the Neon `test` branch over HTTP staying acceptable for a red-green loop; Haiku latency meeting 2 s p95 for extract plus judge of 8 candidates.
+Open assumptions: the embedding model id and dimension; the 0.6 judge threshold (tuned on the eval set); PGlite and Postgres 18 behaving the same for the queries used (both run locally to catch drift); Haiku latency meeting 2 s p95 for extract plus judge of 8 candidates.

@@ -1,6 +1,6 @@
 # 0001 — Neon Postgres with pgvector for Signal's data and similarity search
 
-Status: Accepted (2026-10-30)
+Status: Accepted (2026-10-30). Amended by [0003](./0003-local-test-databases.md) (test databases).
 
 ## Context
 
