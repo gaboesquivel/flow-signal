@@ -229,6 +229,9 @@ export const reportPlanOutputSchema = z.object({
 export type ReportPlanOutput = z.infer<typeof reportPlanOutputSchema>;
 
 const composeBlockSchema = z.object({
+  aggregate: optionalText.describe(
+    "chart: how rows sharing an x combine: sum (default) | avg | count | min | max",
+  ),
   caption: optionalText,
   chart: optionalText.describe("chart: bar | line | area | scatter | donut"),
   columns: z.array(z.string()).nullish().describe("table: column keys to show"),
@@ -286,7 +289,7 @@ Block kinds:
 - heading: { kind: "heading", text }
 - text: { kind: "text", markdown } — at most ${MAX_TEXT_BLOCK_CHARS} characters
 - kpi: { kind: "kpi", items: [{ label, dataset, column, aggregate: sum | count | avg | median | min | max | latest }] } — 1–4 items
-- chart: { kind: "chart", chart: bar | line | area | scatter | donut, title, caption?, dataset, x, y: [numeric column keys], seriesBy? (string column, needs exactly one y), stacked?, horizontal?, sort? { column, direction: asc | desc }, limit? (1–100) }
+- chart: { kind: "chart", chart: bar | line | area | scatter | donut, title, caption?, dataset, x, y: [numeric column keys], seriesBy? (string column, needs exactly one y), aggregate? (sum | avg | count | min | max: how rows sharing an x combine; default sum, e.g. x theme over needs sums ARR per theme; use avg for scores and rates), stacked?, horizontal?, sort? { column, direction: asc | desc }, limit? (1–100) }
 - table: { kind: "table", title, dataset, columns: [column keys], sort?, limit? (1–100) }
 
 Rules:
@@ -439,6 +442,7 @@ const gapWarnings = (gaps: string[]) =>
 
 const blockKeys: Record<Block["kind"], string[]> = {
   chart: [
+    "aggregate",
     "caption",
     "chart",
     "dataset",
