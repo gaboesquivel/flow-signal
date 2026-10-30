@@ -29,6 +29,7 @@ Why:
 - Briefs take longer (Fable always thinks); the decision timeout is 180 s and briefs stay off the hot path.
 - Fable 5.1 rejects disabled thinking; decision calls set effort instead.
 - The Anthropic account behind the key must allow 30-day data retention.
-- Whether the server-side refusal fallback passes through the Gateway is unverified; until it is, a refusal is `ai_unavailable` and retried on the next trigger.
+- The Gateway accepts `effort: "medium"` and `fallbacks: "default"` without warnings (live brief, 2026-10-30). Whether a refusal actually falls back is still unobserved (no refusal occurred); until it is, a refusal is `ai_unavailable` and retried on the next trigger.
+- BYOK failure is silent: when Anthropic rejects the BYOK credential, the Gateway retries on its own credentials and the call succeeds, billed to the Gateway. Our key is not workspace-scoped, so BYOK needs `ANTHROPIC_WORKSPACE_ID` (sent as `anthropic-workspace-id` on the BYOK credential only) or a workspace-scoped key. The reasoner logs a warning when a decision call's BYOK attempt failed.
 - Fable becomes the default only if Crewday shows it beats Sonnet 5.5 on direction accuracy and decision quality by enough to justify ~5× the price; otherwise this record is superseded.
 - `docs/INTEROP.md` documents the new use of `ANTHROPIC_API_KEY`.

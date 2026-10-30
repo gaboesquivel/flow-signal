@@ -3,7 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { DEFAULT_SIGNAL_DECISION_MODEL } from "../../../lib/ai/models";
-import { DECISION_TASKS, reasoningModelReasoner } from "../../../lib/signal/ai/reasoning-model";
+import {
+  byokFailure,
+  DECISION_TASKS,
+  reasoningModelReasoner,
+} from "../../../lib/signal/ai/reasoning-model";
+
+/** Gateway provider metadata with one model attempt made of `attempts`. */
+const routing = (attempts: unknown[]) => ({
+  gateway: { routing: { modelAttempts: [{ providerAttempts: attempts }] } },
+});
 
 /** The task-agnostic reasoning-model Reasoner against a mock model: no live calls. */
 
@@ -79,6 +88,19 @@ describe("reasoningModelReasoner decision tasks (spec 007, decision 0006)", () =
       gateway: { byok: { anthropic: [{ apiKey: "sk-ant-test" }] } },
     });
     expect(JSON.stringify(sent)).not.toContain("disabled");
+  });
+
+  it("reports a failed BYOK attempt from the Gateway's routing metadata", () => {
+    expect(byokFailure(undefined)).toBeUndefined();
+    expect(byokFailure(routing([{ credentialType: "byok", success: true }]))).toBeUndefined();
+    expect(
+      byokFailure(
+        routing([
+          { credentialType: "byok", error: "needs anthropic-workspace-id", success: false },
+          { credentialType: "system", success: true },
+        ]),
+      ),
+    ).toBe("needs anthropic-workspace-id");
   });
 
   it("records the responding model so a fallback is visible, else the decision model id", async () => {
