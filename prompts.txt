@@ -519,3 +519,14 @@ Prompt: <agent-message from="ac7235e1c99790883"> [Subagent hand-back] The text b
 
 [2026-10-30T21:28:34Z]
 Prompt: merge everything to main ignore failure
+[2026-10-30T21:00:00Z]
+Prompt: (side session) Fix the open review findings on spec 012 (match exposure); merge pr to avoid regardless vercel failures
+Response: Fixed spec 012 review follow-ups (merge chains, preview window, parity preview.shown asserts, FILTER aggregate); PR #18 merged as 25611ee despite Vercel rate limit, CI verify green.
+
+[2026-10-30T21:10:00Z]
+Prompt: always commit prompt.txt
+Response: Committed the prompt log on its own branch and opened a PR; saved a memory to always commit prompts.txt with the work.
+
+[2026-10-30T21:20:00Z]
+Prompt: Merge it
+Response: Merged PR #19 (before verify finished, against AGENTS.md); verify then failed on a flaky parity previewId normalizer (ids ending in "-"); fixed the pattern and opened a PR.

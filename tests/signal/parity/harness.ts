@@ -35,6 +35,11 @@ export type Outcome = { error: ErrorCode } | { output: unknown };
 export interface ParityCase<F> {
   /** Extra assertions on the (shared) output, e.g. that no PII leaks. */
   check?: (output: unknown, fixture: F) => void;
+  /**
+   * The event types the call itself writes, in order (fixture events excluded), checked on every
+   * surface; omit to rely on the cross-surface comparison alone.
+   */
+  events?: (fixture: F) => string[];
   /** `{ output }` to compare exactly, `{ error }` for an error code, or omit and use `check`. */
   expect?: (fixture: F) => Outcome;
   /** The operation input; REST splits it into path params, query (GET), or JSON body. */
@@ -57,7 +62,7 @@ export interface ParityTable<F> {
 const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
 const isoPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/gu;
 /** `preview_signal` mints a random `previewId` per call (spec 012). */
-const previewIdPattern = /\bpv_[\w-]{22}\b/gu;
+const previewIdPattern = /\bpv_[\w-]{22}(?![\w-])/gu;
 /** `submit_signal` tracking links carry a random token. */
 const trackingTokenPattern = /\/my\/[\w-]{16,128}/gu;
 /** `share_report` links carry a random token (spec 013). */
@@ -180,7 +185,7 @@ const runCase = async <F>(
   db: SignalDb,
   sharedFixture: () => F,
 ) => {
-  const results = new Map<Surface, SurfaceResult & { fixture: F }>();
+  const results = new Map<Surface, SurfaceResult & { callEvents: string[]; fixture: F }>();
   for (const surface of surfaces) {
     resetHttpRateLimits();
     let fixture = sharedFixture();
@@ -188,10 +193,13 @@ const runCase = async <F>(
       await resetDatabase(db);
       fixture = await table.fixture(db);
     }
-    const before = table.mutates ? 0 : (await readEvents(db)).length;
+    const before = (await readEvents(db)).length;
     const outcome = await callSurface(surface, table.operation, parityCase.input(fixture));
-    const written = (await readEvents(db)).slice(before);
-    results.set(surface, { events: written, fixture, outcome });
+    const all = await readEvents(db);
+    // Mutating tables compare fixture events too; they are rebuilt per surface.
+    const written = table.mutates ? all : all.slice(before);
+    const callEvents = all.slice(before).map((event) => event.type);
+    results.set(surface, { callEvents, events: written, fixture, outcome });
   }
 
   const rest = results.get("rest")!;
@@ -202,6 +210,9 @@ const runCase = async <F>(
   for (const [surface, result] of results)
     expect(comparable(result), `${surface} matches rest`).toEqual(comparable(rest));
   if (parityCase.expect) expect(rest.outcome).toEqual(parityCase.expect(rest.fixture));
+  if (parityCase.events)
+    for (const [surface, result] of results)
+      expect(result.callEvents, `${surface} writes`).toEqual(parityCase.events(result.fixture));
   if (parityCase.check) {
     assert.ok("output" in rest.outcome, `expected output, got ${JSON.stringify(rest.outcome)}`);
     parityCase.check(rest.outcome.output, rest.fixture);

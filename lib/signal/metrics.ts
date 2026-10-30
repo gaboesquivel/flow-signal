@@ -62,12 +62,15 @@ import type { SignalQueryable } from "./db";
  *   `domain/exposure.ts`) for signals created in the window, split by `actor_kind`:
  *   - Take-up: `kind = shown` with a non-null `chosenRank` ÷ all `kind = shown`.
  *   - Filed new despite a match: `kind = shown` and `attachedTo = draft`; its draft need
- *     (`need_id`) merged as of `to` into a need in `shownNeedIds` (`need.merged`
- *     `payload.intoNeedId`, not undone), merged elsewhere, or unmerged.
+ *     (`need_id`) merged as of `to` (`need.merged` `payload.intoNeedId`, not undone) into the
+ *     same need a `shownNeedIds` entry resolves to, merged elsewhere, or unmerged. Both sides
+ *     follow the active merge chain to its end.
  *   - Moved off a taken match: `kind = shown` with a `chosenRank` whose `signal_id` is in a
- *     later `need.split` `payload.signalIds` from that signal's `need_id`, before `to`.
- *   - Previews without a submission: `preview.shown` in the window with at least one match and
- *     no `signal.created` carrying its `payload.previewId` within 24 hours.
+ *     later `need.split` `payload.signalIds`, before `to`, from that signal's `need_id` or a need
+ *     on its active merge chain.
+ *   - Previews without a submission: `preview.shown` in the window with at least one match,
+ *     whose 24-hour submit window closed by `to`, and no `signal.created` carrying its
+ *     `payload.previewId` within those 24 hours.
  *
  * - **Kill criterion** (PRODUCT.md → Kill criterion, with real users; spec 012) ignores `from`:
  *   every `signal.created` with `exposure.kind = shown` before `to`, its prevention rate (as
@@ -644,15 +647,23 @@ const unmergeRate = async (db: SignalQueryable, { from, to }: MetricsWindow) => 
   return { merges, rate: ratio(undone, merges), undone };
 };
 
-/** Need merges active as of `to`, with the need each was merged into. */
+/**
+ * Need merges active as of `to`, with the need each was merged into (the latest, if a need was
+ * merged more than once). Ids are text so they join with `payload->>'intoNeedId'`.
+ */
 const activeMergeTargets = (to: Date) => sql`
-  SELECT m.need_id, m.payload->>'intoNeedId' AS into_need_id FROM events m
+  SELECT DISTINCT ON (m.need_id) m.need_id::text AS need_id, m.payload->>'intoNeedId' AS into_need_id
+  FROM events m
   WHERE m.type = 'need.merged' AND m.need_id IS NOT NULL AND m.occurred_at < ${ts(to)}
     AND NOT EXISTS (
       SELECT 1 FROM events u
       WHERE u.type = 'merge.undone' AND u.occurred_at < ${ts(to)}
         AND u.payload->>'mergeId' = m.payload->>'mergeId'
-    )`;
+    )
+  ORDER BY m.need_id, m.occurred_at DESC`;
+
+/** Longest merge chain followed; a guard against a cycle in a malformed log. */
+const MAX_MERGE_CHAIN = 32;
 
 interface ExposureRow {
   actor_kind: ActorKind;
@@ -670,11 +681,17 @@ interface ExposureRow {
   unknown: unknown;
 }
 
+/**
+ * Merge outcomes follow each active merge chain to its end as of `to`: a draft merged into N4
+ * that was then merged into a shown N1, or a shown N1 later merged into the N3 the draft was
+ * merged into, both count as merged into a shown need. A split counts from any need on the
+ * chain from the signal's need.
+ */
 const exposureCounts = (db: SignalQueryable, { from, to }: MetricsWindow) =>
   query<ExposureRow>(
     db,
     sql`
-      WITH created AS (
+      WITH RECURSIVE created AS (
         SELECT DISTINCT ON (COALESCE(signal_id, id))
           signal_id, actor_kind, need_id, occurred_at, payload,
           payload->'exposure'->>'kind' AS kind,
@@ -684,44 +701,50 @@ const exposureCounts = (db: SignalQueryable, { from, to }: MetricsWindow) =>
         WHERE type = 'signal.created' AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
         ORDER BY COALESCE(signal_id, id), occurred_at
       ), merges AS (${activeMergeTargets(to)}),
-      shown AS (
-        SELECT c.*,
-          EXISTS (
-            SELECT 1 FROM merges mg
-            WHERE mg.need_id = c.need_id AND c.shown_ids @> jsonb_build_array(mg.into_need_id)
+      chain (need_id, into_need_id, depth) AS (
+        SELECT need_id, into_need_id, 1 FROM merges
+        UNION ALL
+        SELECT ch.need_id, mg.into_need_id, ch.depth + 1
+        FROM chain ch JOIN merges mg ON mg.need_id = ch.into_need_id
+        WHERE ch.depth < ${MAX_MERGE_CHAIN}
+      ), resolved AS (
+        SELECT DISTINCT ON (need_id) need_id, into_need_id AS end_id
+        FROM chain ORDER BY need_id, depth DESC
+      ), flagged AS (
+        SELECT c.actor_kind, c.kind, c.chosen_rank,
+          c.payload->>'attachedTo' = 'draft' AS draft,
+          r.end_id IS NOT NULL AS merged,
+          r.end_id IS NOT NULL AND EXISTS (
+            SELECT 1 FROM jsonb_array_elements_text(c.shown_ids) AS ids (need_id)
+            LEFT JOIN resolved sr ON sr.need_id = ids.need_id
+            WHERE COALESCE(sr.end_id, ids.need_id) = r.end_id
           ) AS into_shown,
-          EXISTS (SELECT 1 FROM merges mg WHERE mg.need_id = c.need_id) AS merged,
-          EXISTS (
+          c.chosen_rank IS NOT NULL AND EXISTS (
             SELECT 1 FROM events s
-            WHERE s.type = 'need.split' AND s.need_id = c.need_id
+            WHERE s.type = 'need.split'
+              AND (s.need_id = c.need_id OR s.need_id::text IN (
+                SELECT ch.into_need_id FROM chain ch WHERE ch.need_id = c.need_id::text
+              ))
               AND s.occurred_at >= c.occurred_at AND s.occurred_at < ${ts(to)}
               AND s.payload->'signalIds' @> jsonb_build_array(c.signal_id::text)
           ) AS moved
-        FROM created c WHERE c.kind = 'shown'
+        FROM created c LEFT JOIN resolved r ON r.need_id = c.need_id::text
       )
       SELECT actor_kind,
         count(*) FILTER (WHERE kind = 'shown')::int AS shown,
         count(*) FILTER (WHERE kind = 'none_shown')::int AS none_shown,
         count(*) FILTER (WHERE kind = 'skipped')::int AS skipped,
         count(*) FILTER (WHERE kind = 'unknown')::int AS unknown,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.chosen_rank IS NOT NULL)::int AS taken,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.chosen_rank = 1)::int AS rank_1,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.chosen_rank = 2)::int AS rank_2,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.chosen_rank = 3)::int AS rank_3,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.payload->>'attachedTo' = 'draft')::int AS filed_new,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.payload->>'attachedTo' = 'draft' AND s.into_shown)::int AS merged_into_shown,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.payload->>'attachedTo' = 'draft' AND s.merged AND NOT s.into_shown)::int
+        count(*) FILTER (WHERE kind = 'shown' AND chosen_rank IS NOT NULL)::int AS taken,
+        count(*) FILTER (WHERE kind = 'shown' AND chosen_rank = 1)::int AS rank_1,
+        count(*) FILTER (WHERE kind = 'shown' AND chosen_rank = 2)::int AS rank_2,
+        count(*) FILTER (WHERE kind = 'shown' AND chosen_rank = 3)::int AS rank_3,
+        count(*) FILTER (WHERE kind = 'shown' AND draft)::int AS filed_new,
+        count(*) FILTER (WHERE kind = 'shown' AND draft AND into_shown)::int AS merged_into_shown,
+        count(*) FILTER (WHERE kind = 'shown' AND draft AND merged AND NOT into_shown)::int
           AS merged_elsewhere,
-        (SELECT count(*) FROM shown s WHERE s.actor_kind = c.actor_kind
-          AND s.chosen_rank IS NOT NULL AND s.moved)::int AS moved_off
-      FROM created c
+        count(*) FILTER (WHERE kind = 'shown' AND moved)::int AS moved_off
+      FROM flagged
       GROUP BY actor_kind
     `,
   );
@@ -761,6 +784,7 @@ const abandonedPreviews = async (db: SignalQueryable, { from, to }: MetricsWindo
       SELECT p.actor_kind, count(*)::int AS previews
       FROM events p
       WHERE p.type = 'preview.shown' AND p.occurred_at >= ${ts(from)} AND p.occurred_at < ${ts(to)}
+        AND p.occurred_at <= ${ts(to)} - make_interval(hours => ${PREVIEW_SUBMIT_HOURS})
         AND jsonb_array_length(COALESCE(p.payload->'matches', '[]'::jsonb)) > 0
         AND NOT EXISTS (
           SELECT 1 FROM events s
