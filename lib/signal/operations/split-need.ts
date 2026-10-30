@@ -8,6 +8,7 @@ export const splitNeed = defineOperation({
   access: "operator",
   description:
     "Split signals out of a need (`id`) into a new need with the given `statement` (\"who needs to do what so that outcome\"). The listed `signalIds` (at least one, and not all of the need's signals) move to the new need with their verbatim text and the proposed solutions they named; nothing is deleted. Returns the new need's id.",
+  effects: "write",
   errors: ["not_found", "conflict"],
   http: { method: "POST", path: "/api/operator/needs/:id/split" },
   input: z.object({

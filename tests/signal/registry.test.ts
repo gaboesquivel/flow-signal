@@ -153,6 +153,32 @@ describe("surfaces generated from the registry", () => {
     }
   });
 
+  it("gates the Operator agent's write tools on user approval, and only those", () => {
+    const writes = [
+      "merge_needs",
+      "publish_decision",
+      "resolve_suggestion",
+      "set_criteria",
+      "split_need",
+      "undo_merge",
+    ];
+    expect(
+      operations
+        .filter((operation) => operation.effects === "write" && operation.access === "operator")
+        .map((operation) => operation.name)
+        .toSorted(),
+    ).toEqual(writes);
+    const operator = signalAgentTools("operator");
+    const assistant = signalAgentTools("assistant");
+    for (const operation of operations) {
+      const tool = operator[operation.name] as { approval?: unknown };
+      if (writes.includes(operation.name)) expect(tool.approval, operation.name).toBeDefined();
+      else expect(tool.approval, operation.name).toBeUndefined();
+      const publicTool = assistant[operation.name] as { approval?: unknown } | undefined;
+      expect(publicTool?.approval, operation.name).toBeUndefined();
+    }
+  });
+
   it("routes every operation over REST", () => {
     for (const operation of operations) {
       const samplePath = operation.http.path.replaceAll(/:[a-zA-Z]+/gu, "x");
