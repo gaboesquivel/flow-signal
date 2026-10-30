@@ -72,7 +72,7 @@ Default criteria, with PM-editable weights; AI scores each with reasons, PMs ove
 | Submitter name, email, company        | No                                       | Yes                         |
 | Priority                              | Demand band only (high / medium / low)   | Full score breakdown        |
 
-Submitters track their own signals through a private, unguessable "My signals" link shown after submission (no email is sent); status changes and decision notes appear there and over MCP.
+Submitters track their own signals through a private, unguessable "My signals" link shown after submission (no email is sent); status changes and decision notes appear there and over MCP. The link carries forward: a submitter who already holds one files new signals onto it, so their signals collect on one page; links are never grouped by email ([0005](./docs/decisions/0005-my-signals-link-carries-forward.md)).
 
 ## Why now
 

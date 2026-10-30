@@ -1,6 +1,6 @@
 # 001 — Signal MVP: prevent duplicates at submission and close the decision loop
 
-Status: accepted (2026-10-30)
+Status: accepted (2026-10-30) Amended by [006](./006-lean-ledger-ui.md) (web submit checks once in a wizard; tracking links carry forward; visual direction settled; task 08 replaced).
 
 Product brief: [PRODUCT.md](../../PRODUCT.md). Glossary: [GLOSSARY.md](../../GLOSSARY.md).
 Decisions: [0001 Neon Postgres with pgvector](../decisions/0001-neon-postgres-pgvector.md) (Accepted), [0002 Retrieve-then-judge matching, workflow on the hot path](../decisions/0002-retrieve-then-judge-matching.md) (Accepted).

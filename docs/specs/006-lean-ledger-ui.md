@@ -1,9 +1,9 @@
 # 006 — Lean Ledger UI: submit wizard, My signals that carry forward, and the PM console
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md). Design: [DESIGN.md](../../DESIGN.md). Glossary: [GLOSSARY.md](../../GLOSSARY.md). Builds on [001](./001-signal-mvp.md) (accepted).
-Decisions: [0005 My signals links carry forward; never grouped by email](../decisions/0005-my-signals-link-carries-forward.md) (Proposed).
+Decisions: [0005 My signals links carry forward; never grouped by email](../decisions/0005-my-signals-link-carries-forward.md) (Accepted).
 
 **Bet.** A lean, goal-first UI raises the share of submitters who add their voice to an existing need (prevention rate, riskiest assumption 1) and lets a PM clear triage and publish decisions without leaving the console (decision latency, suggestion acceptance; assumption 3). Showing matches only after the person has written, with enough room to read them side by side, beats live suggestions while typing.
 

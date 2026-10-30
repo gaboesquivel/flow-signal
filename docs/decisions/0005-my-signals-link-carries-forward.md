@@ -1,6 +1,6 @@
 # 0005 — My signals links carry forward; never grouped by email
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 
