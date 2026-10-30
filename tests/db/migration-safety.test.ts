@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -82,5 +85,32 @@ describe("seedRefusal", () => {
   it("allows an empty database and the local test database", () => {
     expect(seedRefusal(base)).toBeNull();
     expect(seedRefusal({ ...base, hasData: true, target: "DATABASE_URL_TEST" })).toBeNull();
+  });
+});
+
+describe("0002_tracking_links (spec 006 task 02)", () => {
+  const sql = readFileSync(
+    path.resolve(import.meta.dirname, "../../drizzle/0002_tracking_links.sql"),
+    "utf-8",
+  );
+
+  it("is additive only: passes migration-safety", () => {
+    expect(destructiveStatements(sql)).toEqual([]);
+  });
+
+  it("only creates the links table, adds the nullable link column, its foreign key and index", () => {
+    const statements = sql
+      .split("--> statement-breakpoint")
+      .map((statement) => statement.trim())
+      .filter(Boolean);
+    expect(statements.map((statement) => statement.split(/\s+/u).slice(0, 2).join(" "))).toEqual([
+      "CREATE TABLE",
+      "ALTER TABLE",
+      "ALTER TABLE",
+      "CREATE INDEX",
+    ]);
+    expect(sql).toMatch(/CREATE TABLE "tracking_links"/u);
+    expect(sql).toMatch(/ALTER TABLE "signals" ADD COLUMN "tracking_link_id" uuid;/u);
+    expect(sql).not.toMatch(/NOT NULL;/u);
   });
 });

@@ -7,6 +7,7 @@ import type { z } from "zod";
 
 import { callSignalOperation } from "./client-runtime";
 import type { SignalCallOptions, SignalClientOptions, SignalResult } from "./client-runtime";
+import type { checkPublicText } from "./operations/check-public-text";
 import type { draftDecisionBrief } from "./operations/draft-decision-brief";
 import type { getCriteria } from "./operations/get-criteria";
 import type { getDemandSummary } from "./operations/get-demand-summary";
@@ -15,6 +16,7 @@ import type { getMySignals } from "./operations/get-my-signals";
 import type { getNeed } from "./operations/get-need";
 import type { getNeedDetail } from "./operations/get-need-detail";
 import type { getStrategy } from "./operations/get-strategy";
+import type { listOperatorNeeds } from "./operations/list-operator-needs";
 import type { listReadyNeeds } from "./operations/list-ready-needs";
 import type { listSuggestions } from "./operations/list-suggestions";
 import type { listThemes } from "./operations/list-themes";
@@ -42,6 +44,12 @@ type InputOf<T> = T extends { input: infer I extends z.ZodType } ? z.input<I> : 
 type OutputOf<T> = T extends { output: infer O extends z.ZodType } ? z.output<O> : never;
 
 export const signalRoutes = {
+  check_public_text: {
+    access: "operator",
+    method: "POST",
+    name: "check_public_text",
+    path: "/api/operator/check-public-text",
+  },
   draft_decision_brief: {
     access: "operator",
     method: "POST",
@@ -84,6 +92,12 @@ export const signalRoutes = {
     method: "GET",
     name: "get_strategy",
     path: "/api/operator/strategy",
+  },
+  list_operator_needs: {
+    access: "operator",
+    method: "GET",
+    name: "list_operator_needs",
+    path: "/api/operator/needs",
   },
   list_ready_needs: {
     access: "operator",
@@ -158,6 +172,10 @@ export const signalRoutes = {
 export type SignalOperationName = keyof typeof signalRoutes;
 
 export interface SignalOperations {
+  check_public_text: {
+    input: InputOf<typeof checkPublicText>;
+    output: OutputOf<typeof checkPublicText>;
+  };
   draft_decision_brief: {
     input: InputOf<typeof draftDecisionBrief>;
     output: OutputOf<typeof draftDecisionBrief>;
@@ -172,6 +190,10 @@ export interface SignalOperations {
   get_need: { input: InputOf<typeof getNeed>; output: OutputOf<typeof getNeed> };
   get_need_detail: { input: InputOf<typeof getNeedDetail>; output: OutputOf<typeof getNeedDetail> };
   get_strategy: { input: InputOf<typeof getStrategy>; output: OutputOf<typeof getStrategy> };
+  list_operator_needs: {
+    input: InputOf<typeof listOperatorNeeds>;
+    output: OutputOf<typeof listOperatorNeeds>;
+  };
   list_ready_needs: {
     input: InputOf<typeof listReadyNeeds>;
     output: OutputOf<typeof listReadyNeeds>;
@@ -200,6 +222,10 @@ export interface SignalOperations {
 }
 
 export interface SignalClient {
+  checkPublicText: (
+    input: SignalOperations["check_public_text"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["check_public_text"]["output"]>>;
   draftDecisionBrief: (
     input: SignalOperations["draft_decision_brief"]["input"],
     call?: SignalCallOptions,
@@ -232,6 +258,10 @@ export interface SignalClient {
     input: SignalOperations["get_strategy"]["input"],
     call?: SignalCallOptions,
   ) => Promise<SignalResult<SignalOperations["get_strategy"]["output"]>>;
+  listOperatorNeeds: (
+    input: SignalOperations["list_operator_needs"]["input"],
+    call?: SignalCallOptions,
+  ) => Promise<SignalResult<SignalOperations["list_operator_needs"]["output"]>>;
   listReadyNeeds: (
     input: SignalOperations["list_ready_needs"]["input"],
     call?: SignalCallOptions,
@@ -287,6 +317,8 @@ export interface SignalClient {
 }
 
 export const createSignalClient = (options: SignalClientOptions = {}): SignalClient => ({
+  checkPublicText: (input, call) =>
+    callSignalOperation(signalRoutes.check_public_text, input, options, call),
   draftDecisionBrief: (input, call) =>
     callSignalOperation(signalRoutes.draft_decision_brief, input, options, call),
   getCriteria: (input, call) =>
@@ -301,6 +333,8 @@ export const createSignalClient = (options: SignalClientOptions = {}): SignalCli
     callSignalOperation(signalRoutes.get_need_detail, input, options, call),
   getStrategy: (input, call) =>
     callSignalOperation(signalRoutes.get_strategy, input, options, call),
+  listOperatorNeeds: (input, call) =>
+    callSignalOperation(signalRoutes.list_operator_needs, input, options, call),
   listReadyNeeds: (input, call) =>
     callSignalOperation(signalRoutes.list_ready_needs, input, options, call),
   listSuggestions: (input, call) =>

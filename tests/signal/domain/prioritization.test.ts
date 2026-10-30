@@ -281,6 +281,17 @@ describeWithDatabase("prioritization", () => {
       expect(result.ai).toBe("ok");
     });
 
+    const planIds = async (plan: "Enterprise" | "Growth" | "Starter") =>
+      (
+        await demandSummary({ ai: fakeReasoningAi(), db: harness.db }, { ...filter, plan })
+      ).needs.map((need) => need.needId);
+
+    it("filters to needs an account on a plan supports", async () => {
+      expect(await planIds("Enterprise")).toEqual([fx.n1.need.id, fx.n2.need.id]);
+      expect(await planIds("Growth")).toEqual([fx.n1.need.id]);
+      expect(await planIds("Starter")).toEqual([]);
+    });
+
     it("leaves out merged, shipped, and declined needs", async () => {
       const result = await demandSummary({ ai: fakeReasoningAi(), db: harness.db }, filter);
       const ids = result.needs.map((need) => need.needId);

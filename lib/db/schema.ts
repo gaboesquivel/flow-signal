@@ -123,6 +123,16 @@ export const needs = pgTable(
   ],
 );
 
+/**
+ * A My signals link (spec 006, decision 0005): a private token its holder files signals onto.
+ * Possession of the token is the proof; links are never derived from or grouped by email.
+ */
+export const trackingLinks = pgTable("tracking_links", {
+  createdAt: createdAt(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  token: text("token").notNull().unique(),
+});
+
 export const signals = pgTable(
   "signals",
   {
@@ -144,6 +154,9 @@ export const signals = pgTable(
       .notNull()
       .references(() => submitters.id),
     title: text("title").notNull(),
+    /** Null for signals filed before links existed; set when their token is first used. */
+    trackingLinkId: uuid("tracking_link_id").references(() => trackingLinks.id),
+    /** Per-signal token from spec 001; still unique. The link's token is what holders see. */
     trackingToken: text("tracking_token").notNull().unique(),
     urgency: urgency("urgency"),
     useCase: text("use_case"),
@@ -151,6 +164,7 @@ export const signals = pgTable(
   (table) => [
     index("signals_need_idx").on(table.needId),
     index("signals_submitter_idx").on(table.submitterId),
+    index("signals_tracking_link_idx").on(table.trackingLinkId),
   ],
 );
 
@@ -312,6 +326,7 @@ export const signalTableNames = [
   "merges",
   "proposed_solutions",
   "signals",
+  "tracking_links",
   "needs",
   "themes",
   "submitters",

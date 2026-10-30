@@ -39,6 +39,9 @@ const specTable = [
   ["draft_decision_brief", "operator", "POST", "/api/operator/needs/:id/decision-brief"],
   ["publish_decision", "operator", "POST", "/api/operator/needs/:id/decision"],
   ["get_metrics", "operator", "GET", "/api/operator/metrics"],
+  // Spec 006 → Contract changes.
+  ["list_operator_needs", "operator", "GET", "/api/operator/needs"],
+  ["check_public_text", "operator", "POST", "/api/operator/check-public-text"],
   // Spec 007 → Typed API contract.
   ["get_strategy", "operator", "GET", "/api/operator/strategy"],
   ["set_strategy", "operator", "PUT", "/api/operator/strategy"],

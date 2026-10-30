@@ -1,3 +1,4 @@
+import { checkPublicText } from "./check-public-text";
 import { draftDecisionBrief } from "./draft-decision-brief";
 import { getCriteria } from "./get-criteria";
 import { getDemandSummary } from "./get-demand-summary";
@@ -5,6 +6,7 @@ import { getMetrics } from "./get-metrics";
 import { getMySignals } from "./get-my-signals";
 import { getNeed } from "./get-need";
 import { getNeedDetail } from "./get-need-detail";
+import { listOperatorNeeds } from "./list-operator-needs";
 import { getStrategy } from "./get-strategy";
 import { listReadyNeeds } from "./list-ready-needs";
 import { listThemes } from "./list-themes";
@@ -23,7 +25,8 @@ import { isPlanned } from "./types";
 import type { AnyOperation, PlannedOperation } from "./types";
 
 /**
- * Every spec 001 operation, in the spec's table order, then spec 007's. Built operations are exposed on REST,
+ * Every spec 001 operation, in the spec's table order, then later specs' additions (006: the
+ * PM console's operator reads; 007: decision direction). Built operations are exposed on REST,
  * MCP, and Eve; planned ones hold their slot until their task replaces the file. Adding an
  * operation outside spec 001: one import and one entry here, plus its file.
  */
@@ -45,6 +48,9 @@ export const allOperations: readonly (AnyOperation | PlannedOperation)[] = [
   draftDecisionBrief,
   publishDecision,
   getMetrics,
+  // Spec 006 (lean Ledger UI).
+  listOperatorNeeds,
+  checkPublicText,
   // Spec 007 (decision direction).
   getStrategy,
   setStrategy,

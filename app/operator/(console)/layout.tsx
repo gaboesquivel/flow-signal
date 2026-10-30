@@ -9,6 +9,8 @@ import {
   signOperatorSession,
 } from "@/lib/auth/operator-access";
 import { OperatorDisabled } from "../operator-disabled";
+import { ConsoleShell } from "./_components/console-shell";
+import { operatorServerClient } from "./_lib/operator-client";
 
 export default async function OperatorConsoleLayout({ children }: { children: ReactNode }) {
   if (!isOperatorAccessConfigured()) return <OperatorDisabled />;
@@ -19,5 +21,18 @@ export default async function OperatorConsoleLayout({ children }: { children: Re
 
   if (session !== expected) redirect("/operator/access");
 
-  return children;
+  const client = await operatorServerClient();
+  const pending = await client.listSuggestions({ limit: 100 });
+
+  return (
+    <ConsoleShell
+      initialPending={
+        pending.ok
+          ? { count: pending.data.suggestions.length, more: pending.data.nextCursor !== null }
+          : null
+      }
+    >
+      {children}
+    </ConsoleShell>
+  );
 }

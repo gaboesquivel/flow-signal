@@ -1,9 +1,61 @@
 import assert from "node:assert/strict";
 
+import { signals, trackingLinks } from "../../../lib/db/schema";
+import type { SignalDb } from "../../../lib/signal/db";
 import { getMySignals } from "../../../lib/signal/operations/get-my-signals";
 import { buildPublicNeedsFixture } from "../support/public-needs-fixture";
-import type { PublicNeedsFixture } from "../support/public-needs-fixture";
 import { runParityTable } from "./harness";
+
+const LINK_TOKEN = "maya-link-token-0000000001";
+const OTHER_LINK_TOKEN = "other-link-token-000000001";
+
+/**
+ * The public board plus My signals links (spec 006 task 02): Maya's link holds two signals; a
+ * second link uses the same email (anyone can type any address) and holds one.
+ */
+const fixture = async (db: SignalDb) => {
+  const fx = await buildPublicNeedsFixture(db);
+  const { submitterId } = fx.n1.signals[0]!;
+  const [link, other] = await db
+    .insert(trackingLinks)
+    .values([{ token: LINK_TOKEN }, { token: OTHER_LINK_TOKEN }])
+    .returning();
+  const onLink = (linkId: string, title: string, at: string, needId: string, token: string) => ({
+    actorKind: "human" as const,
+    attachedTo: "existing" as const,
+    body: `${title} body`,
+    channel: "web" as const,
+    createdAt: new Date(at),
+    needId,
+    originalNeedId: needId,
+    submitterId,
+    title,
+    trackingLinkId: linkId,
+    trackingToken: token,
+  });
+  const [older, newer, others] = await db
+    .insert(signals)
+    .values([
+      onLink(link!.id, "Older on link", "2026-10-01T10:00:00Z", fx.n2.need.id, LINK_TOKEN),
+      onLink(
+        link!.id,
+        "Newer on link",
+        "2026-10-02T10:00:00Z",
+        fx.decided.need.id,
+        "maya-own-token-0000000002",
+      ),
+      onLink(
+        other!.id,
+        "Someone else typed Maya's email",
+        "2026-10-03T10:00:00Z",
+        fx.n2.need.id,
+        OTHER_LINK_TOKEN,
+      ),
+    ])
+    .returning();
+  return { ...fx, linked: { newer: newer!, older: older!, others: others! } };
+};
+type Fixture = Awaited<ReturnType<typeof fixture>>;
 
 interface MySignals {
   signals: {
@@ -17,7 +69,7 @@ interface MySignals {
 }
 const mine = (output: unknown) => (output as MySignals).signals;
 
-runParityTable<PublicNeedsFixture>({
+runParityTable<Fixture>({
   cases: [
     {
       check: (output, fx) => {
@@ -54,6 +106,31 @@ runParityTable<PublicNeedsFixture>({
       name: "includes the decision note supporters see",
     },
     {
+      check: (output, fx) => {
+        assert.deepEqual(
+          mine(output).map((signal) => signal.signalId),
+          [fx.linked.newer.id, fx.linked.older.id],
+        );
+        assert.ok(!JSON.stringify(output).includes("Someone else typed"));
+      },
+      input: () => ({ token: LINK_TOKEN }),
+      name: "shows every signal on a link, newest first, never another link's with the same email",
+    },
+    {
+      check: (output, fx) =>
+        assert.deepEqual(
+          mine(output).map((signal) => signal.signalId),
+          [fx.linked.others.id],
+        ),
+      input: () => ({ token: OTHER_LINK_TOKEN }),
+      name: "a second link sharing the email shows only its own signal",
+    },
+    {
+      expect: () => ({ error: "not_found" }),
+      input: () => ({ token: "maya-own-token-0000000002" }),
+      name: "a signal's own token on a shared link is not a link",
+    },
+    {
       expect: () => ({ error: "not_found" }),
       input: () => ({ token: "no-such-tracking-token-000000" }),
       name: "returns not_found for an unknown token",
@@ -64,6 +141,6 @@ runParityTable<PublicNeedsFixture>({
       name: "rejects a malformed token",
     },
   ],
-  fixture: buildPublicNeedsFixture,
+  fixture,
   operation: getMySignals,
 });

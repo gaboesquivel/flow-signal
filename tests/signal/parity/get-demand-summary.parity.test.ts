@@ -86,6 +86,21 @@ runParityTable<PrioritizationFixture>({
       name: "filters by theme, counts new supporters since `since`, and applies the limit",
     },
     {
+      check: (output, fx) => {
+        assert.deepEqual(
+          summary(output).needs.map((need) => need.needId),
+          [fx.n1.need.id],
+        );
+      },
+      input: () => ({ plan: "Growth" }),
+      name: "filters to needs an account on a plan supports",
+    },
+    {
+      expect: () => ({ error: "validation_failed" }),
+      input: () => ({ plan: "Platinum" }),
+      name: "rejects an unknown plan",
+    },
+    {
       expect: () => ({ error: "validation_failed" }),
       input: () => ({ limit: 51 }),
       name: "rejects a limit above 50",

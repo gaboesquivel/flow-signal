@@ -41,6 +41,28 @@ runParityTable({
       name: "rejects a theme suggestion",
     },
     {
+      check: (output) => {
+        const { result, suggestion } = output as Resolution & {
+          suggestion: { payload: Record<string, unknown> };
+        };
+        assert.equal(suggestion.status, "rejected");
+        assert.equal(result, null);
+        assert.equal(suggestion.payload.rejectReason, undefined);
+      },
+      input: (f) => ({ action: "reject", id: f.suggestions.theme.id, reason: "Too broad" }),
+      name: "rejects with a reason (kept in the event payload)",
+    },
+    {
+      expect: () => ({ error: "validation_failed" }),
+      input: (f) => ({ action: "reject", id: f.suggestions.theme.id, reason: "x".repeat(501) }),
+      name: "rejects a reason over 500 characters",
+    },
+    {
+      expect: () => ({ error: "validation_failed" }),
+      input: (f) => ({ action: "accept", id: f.suggestions.theme.id, reason: "Looks right" }),
+      name: "allows a reason only when rejecting",
+    },
+    {
       check: (output, f) => {
         const { result } = output as Resolution;
         assert.equal(result?.fromNeedId, f.n1.need.id);
