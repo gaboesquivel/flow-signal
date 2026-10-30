@@ -130,7 +130,8 @@ describeWithDatabase("submit_signal domain", () => {
     const first = await submit(input({ target: { needId: need.id } }));
     const retry = await submit(input({ email: " MAYA@acme.example", target: { needId: need.id } }));
 
-    expect(retry).toEqual(first);
+    expect(first.replayed).toBe(false);
+    expect(retry).toEqual({ ...first, replayed: true });
     expect(await allSignals()).toHaveLength(1);
     expect(await allEvents()).toHaveLength(1);
   });
@@ -141,6 +142,7 @@ describeWithDatabase("submit_signal domain", () => {
       [0, 1, 2].map(() => submit(input({ target: { newNeed: { statement } } }))),
     );
     expect(new Set(results.map((result) => result.signalId)).size).toBe(1);
+    expect(results.filter((result) => !result.replayed)).toHaveLength(1);
     expect(await allSignals()).toHaveLength(1);
     expect(await harness.db.select().from(needs)).toHaveLength(1);
     expect((await allEvents()).map((event) => event.type)).toEqual([

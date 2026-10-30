@@ -17,10 +17,10 @@ export const submitSignal = defineOperation({
   name: "submit_signal",
   output: submitOutputSchema,
   async run(input, ctx) {
-    const result = await submit(ctx, input);
-    // Off the hot path (Next.js after()): AI triage suggestions for the PM. A retried submission
-    // reschedules it, which is harmless: pending kinds are not proposed twice.
-    scheduleSuggestionGeneration(ctx, result.signalId);
+    const { replayed, ...result } = await submit(ctx, input);
+    // Off the hot path (Next.js after()): AI triage suggestions for the PM, only for a fresh
+    // signal; a replayed idempotencyKey already scheduled them.
+    if (!replayed) scheduleSuggestionGeneration(ctx, result.signalId);
     return result;
   },
 });
