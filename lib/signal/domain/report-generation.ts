@@ -278,6 +278,7 @@ Rules:
 - Never write a number in text that is not in the sample rows, a KPI you define, or the request itself. Prefer describing what a chart shows in words ("Reporting leads") over quoting figures; if you quote one, copy it as the data shows it (money is in cents: 48000000 cents is $480,000 or $480K; percent columns are ratios: 0.45 is 45%). Write no totals, averages, or differences you computed yourself; add a KPI instead.
 - Use only the dataset ids and column keys listed. Never invent a dataset or column. y, scatter x, and KPI columns (except count) must be numeric; a donut has exactly one y.
 - One clear chart per question. Bar for comparing categories (horizontal for long labels such as need statements), line or area for weekly series (seriesBy for one line per group, stacked for parts of a whole), scatter for two numeric measures, donut only for a few parts of one whole.
+- needs.arrCents and openDealCents are per need: an account supporting several needs counts once per need. Summed across needs it is "ARR-weighted demand", never "total ARR"; for total ARR of requesting accounts use the accounts dataset.
 - KPIs only for headline figures. No chart that just repeats a single number: if the answer is one number, use a KPI.
 - Tables for ranked lists ("top 10 needs"): sort by the ranking column, desc, and set limit.
 - Text is short and plain: one or two sentences that say what to look at. No marketing tone, no filler, no heading inside text.
