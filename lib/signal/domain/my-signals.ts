@@ -5,19 +5,17 @@ import { decisions, signals } from "@/lib/db/schema";
 
 import type { SignalQueryable } from "../db";
 import { getPublicNeed, publicNeedSchema } from "./public-needs";
+import { resolveTrackingLink } from "./tracking-links";
 
 /**
- * My signals (spec 001 → get_my_signals): what a tracking link shows its holder. A token is
- * issued per submission, so the link shows the signal(s) filed under that token, never other
- * signals with the same email: emails are not verified, so linking by email would let anyone
- * read another person's verbatim words by submitting with their address.
+ * My signals (spec 001 → get_my_signals, spec 006 → tracking links): what a My signals link
+ * shows its holder: every signal filed onto that link, newest first. A legacy per-signal token
+ * is adopted as a link on first use. Never other signals with the same email: emails are not
+ * verified, so linking by email would let anyone read another person's verbatim words by
+ * submitting with their address (decision 0005).
  */
 
-export const trackingTokenSchema = z
-  .string()
-  .min(16)
-  .max(128)
-  .regex(/^[\w-]+$/u, "Not a tracking token.");
+export { trackingTokenSchema } from "./tracking-links";
 
 const decisionSchema = z.object({
   note: z.string(),
@@ -44,10 +42,12 @@ export const mySignalsOutputSchema = z.object({ signals: z.array(mySignalSchema)
 export type MySignalsOutput = z.infer<typeof mySignalsOutputSchema>;
 
 export const getMySignals = async (db: SignalQueryable, token: string) => {
+  const link = await resolveTrackingLink(db, token);
+  if (!link) return;
   const rows = await db
     .select()
     .from(signals)
-    .where(eq(signals.trackingToken, token))
+    .where(eq(signals.trackingLinkId, link.id))
     .orderBy(desc(signals.createdAt), asc(signals.id));
   if (rows.length === 0) return;
 

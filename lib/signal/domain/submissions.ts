@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { accounts, needs, signals, submitters } from "@/lib/db/schema";
+import { accounts, needs, signals, submitters, trackingLinks } from "@/lib/db/schema";
 import { resolveSiteOrigin } from "@/lib/site-url";
 
 import type { OperationContext } from "../context";
@@ -11,6 +11,7 @@ import type { SignalQueryable } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 import { tryEmbed } from "./embeddings";
+import { createTrackingLink, resolveTrackingLink, trackingTokenSchema } from "./tracking-links";
 
 /**
  * Submitting a signal (spec 001 → submit_signal): attach it to an existing need ("add my
@@ -48,6 +49,12 @@ export const submitInputSchema = z.object({
   previewId: z.string().max(64).optional(),
   target: submitTargetSchema,
   title: z.string().trim().min(1).max(200),
+  /**
+   * The token of a My signals link the submitter already holds (last segment of their
+   * `trackingUrl`). The signal joins that link; an unknown token gets a new link. Pass it only
+   * when the submitter gave it to you; never derive it from an email.
+   */
+  trackingToken: trackingTokenSchema.optional(),
   urgency: z.enum(["low", "medium", "high"]).optional(),
   useCase: z.string().trim().min(1).max(2000).optional(),
 });
@@ -55,9 +62,11 @@ export type SubmitInput = z.infer<typeof submitInputSchema>;
 
 export const submitOutputSchema = z.object({
   attachedTo: z.enum(["existing", "draft"]),
+  /** True when the signal joined the link named by `trackingToken`; false when a new link was issued. */
+  linkReused: z.boolean(),
   needId: z.uuid(),
   signalId: z.uuid(),
-  /** Private, unguessable link to the submitter's signal (`get_my_signals`). Share it only with them. */
+  /** Private, unguessable My signals link (`get_my_signals`) holding this signal. Share it only with them. */
   trackingUrl: z.url(),
 });
 export type SubmitOutput = z.infer<typeof submitOutputSchema>;
@@ -95,6 +104,7 @@ const findPrior = async (db: SignalQueryable, input: SubmitInput) => {
       attachedTo: signals.attachedTo,
       body: signals.body,
       email: submitters.email,
+      linkToken: trackingLinks.token,
       needId: signals.needId,
       signalId: signals.id,
       title: signals.title,
@@ -102,6 +112,7 @@ const findPrior = async (db: SignalQueryable, input: SubmitInput) => {
     })
     .from(signals)
     .innerJoin(submitters, eq(submitters.id, signals.submitterId))
+    .leftJoin(trackingLinks, eq(trackingLinks.id, signals.trackingLinkId))
     .where(eq(signals.idempotencyKey, input.idempotencyKey))
     .limit(1);
   if (!prior) return;
@@ -114,11 +125,14 @@ const findPrior = async (db: SignalQueryable, input: SubmitInput) => {
       "conflict",
       "This idempotencyKey was already used for a different submission; use a new key.",
     );
+  // A new link takes its first signal's token, so the link was reused exactly when the tokens
+  // differ; a legacy signal (no link) was filed before links existed.
   return {
     attachedTo: prior.attachedTo,
+    linkReused: prior.linkToken !== null && prior.linkToken !== prior.trackingToken,
     needId: prior.needId,
     signalId: prior.signalId,
-    trackingUrl: trackingUrlFor(prior.trackingToken),
+    trackingUrl: trackingUrlFor(prior.linkToken ?? prior.trackingToken),
   } satisfies SubmitOutput;
 };
 
@@ -213,6 +227,13 @@ export const submitSignal = async (
         name: input.name,
       });
 
+      // The holder's link (adopting a legacy token on first use), or a new one. An unknown token
+      // never names the new link: the caller gets a fresh, unguessable one.
+      const held = input.trackingToken
+        ? await resolveTrackingLink(tx, input.trackingToken, { inTransaction: true })
+        : undefined;
+      const link = held ?? (await createTrackingLink(tx, { createdAt: now, token: trackingToken }));
+
       const needId =
         existingNeedId ??
         (await createDraftNeed(tx, { createdAt: now, embedding, statement: newStatement ?? "" }));
@@ -231,6 +252,7 @@ export const submitSignal = async (
           originalNeedId: needId,
           submitterId,
           title: input.title,
+          trackingLinkId: link.id,
           trackingToken,
           urgency: input.urgency ?? null,
           useCase: input.useCase ?? null,
@@ -265,10 +287,11 @@ export const submitSignal = async (
 
       return {
         attachedTo,
+        linkReused: Boolean(held),
         needId,
         replayed: false,
         signalId: signal.id,
-        trackingUrl: trackingUrlFor(trackingToken),
+        trackingUrl: trackingUrlFor(link.token),
       } satisfies SubmitResult;
     });
   } catch (error) {

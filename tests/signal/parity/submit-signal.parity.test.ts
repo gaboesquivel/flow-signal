@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { signals } from "../../../lib/db/schema";
+import { signals, trackingLinks } from "../../../lib/db/schema";
 import type { SignalDb } from "../../../lib/signal/db";
 import { submitSignal } from "../../../lib/signal/operations/submit-signal";
 import { buildSubmissionFixture, maya } from "../support/submission-fixture";
@@ -8,6 +8,7 @@ import { runParityTable } from "./harness";
 
 /** A signal stored earlier with this key, so a retry must return it unchanged. */
 const RETRY_KEY = "retry-key-0001";
+const HELD_TOKEN = "held-link-token-000000001";
 const retried = { body: "Schedule the weekly KPI report.", title: "Weekly report emails" };
 
 const fixture = async (db: SignalDb) => {
@@ -28,12 +29,27 @@ const fixture = async (db: SignalDb) => {
       trackingToken: "prior-tracking-token-0001",
     })
     .returning();
-  return { ...fx, prior: prior! };
+  // A My signals link Maya already holds, with one signal on it (spec 006 task 02).
+  const [link] = await db.insert(trackingLinks).values({ token: HELD_TOKEN }).returning();
+  await db.insert(signals).values({
+    actorKind: "human",
+    attachedTo: "existing",
+    body: "Held link words",
+    channel: "web",
+    needId: fx.n2.need.id,
+    originalNeedId: fx.n2.need.id,
+    submitterId: fx.n1.signals[0]!.submitterId,
+    title: "Held link title",
+    trackingLinkId: link!.id,
+    trackingToken: HELD_TOKEN,
+  });
+  return { ...fx, link: link!, prior: prior! };
 };
 type Fixture = Awaited<ReturnType<typeof fixture>>;
 
 interface Submitted {
   attachedTo: string;
+  linkReused: boolean;
   needId: string;
   signalId: string;
   trackingUrl: string;
@@ -50,6 +66,7 @@ runParityTable<Fixture>({
         assert.equal(result.attachedTo, "existing");
         assert.equal(result.needId, fx.n1.need.id);
         assert.match(result.trackingUrl, /\/my\/[\w-]{32}$/u);
+        assert.equal(result.linkReused, false);
       },
       input: (fx) => ({
         ...base,
@@ -102,6 +119,7 @@ runParityTable<Fixture>({
         assert.equal(result.needId, fx.decided.need.id);
         assert.equal(result.attachedTo, "existing");
         assert.ok(result.trackingUrl.endsWith("/my/prior-tracking-token-0001"));
+        assert.equal(result.linkReused, false);
       },
       input: (fx) => ({
         ...retried,
@@ -110,6 +128,59 @@ runParityTable<Fixture>({
         target: { needId: fx.decided.need.id },
       }),
       name: "a retry with the same idempotencyKey returns the same signal and writes no event",
+    },
+    {
+      check: (output, fx) => {
+        const result = submitted(output);
+        assert.equal(result.linkReused, true);
+        assert.ok(result.trackingUrl.endsWith(`/my/${fx.link.token}`));
+      },
+      input: (fx) => ({
+        ...base,
+        idempotencyKey: "maya-held-link-0001",
+        target: { needId: fx.n1.need.id },
+        trackingToken: HELD_TOKEN,
+      }),
+      name: "a held trackingToken files onto that link (linkReused)",
+    },
+    {
+      check: (output) => {
+        const result = submitted(output);
+        assert.equal(result.linkReused, true);
+        assert.ok(result.trackingUrl.endsWith("/my/prior-tracking-token-0001"));
+      },
+      input: (fx) => ({
+        ...base,
+        idempotencyKey: "maya-legacy-link-0001",
+        target: { needId: fx.n1.need.id },
+        trackingToken: "prior-tracking-token-0001",
+      }),
+      name: "a legacy per-signal token is adopted as a link and reused",
+    },
+    {
+      check: (output) => {
+        const result = submitted(output);
+        assert.equal(result.linkReused, false);
+        assert.match(result.trackingUrl, /\/my\/[\w-]{32}$/u);
+        assert.ok(!result.trackingUrl.endsWith("/my/no-such-link-token-00001"));
+      },
+      input: (fx) => ({
+        ...base,
+        idempotencyKey: "maya-unknown-link-0001",
+        target: { needId: fx.n1.need.id },
+        trackingToken: "no-such-link-token-00001",
+      }),
+      name: "an unknown trackingToken issues a new link",
+    },
+    {
+      expect: () => ({ error: "validation_failed" }),
+      input: (fx) => ({
+        ...base,
+        idempotencyKey: "bad-token-0001",
+        target: { needId: fx.n1.need.id },
+        trackingToken: "not a token!",
+      }),
+      name: "rejects a malformed trackingToken",
     },
     {
       expect: () => ({ error: "conflict" }),
