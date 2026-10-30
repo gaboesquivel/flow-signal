@@ -16,7 +16,7 @@ const mcpPost = (
   extraHeaders: Record<string, string> = {},
 ) =>
   handler(
-    new Request("http://flow-next.localhost/api/mcp", {
+    new Request("http://signal.localhost/api/mcp", {
       body: JSON.stringify(body),
       headers: { ...mcpHeaders, ...extraHeaders },
       method: "POST",

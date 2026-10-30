@@ -9,7 +9,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
   description: "MCP-first agentic application starter.",
-  title: "Flow Next",
+  title: "Signal",
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });

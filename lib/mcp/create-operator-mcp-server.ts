@@ -11,7 +11,7 @@ import { registerStarterMcpTools } from "./register-tools";
 
 export const createOperatorMcpServer = () => {
   const server = new McpServer({
-    name: "flow-next-operator",
+    name: "signal-operator",
     version: "1.0.0",
   });
 

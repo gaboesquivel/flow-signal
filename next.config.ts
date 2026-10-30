@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 const markdownAcceptPattern = "^(?!.*text/html).*text/markdown";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["flow-next.localhost", "*.flow-next.localhost"],
+  allowedDevOrigins: ["signal.localhost", "*.signal.localhost"],
   experimental: {
     extensionAlias: {
       ".js": [".ts", ".tsx", ".js"],

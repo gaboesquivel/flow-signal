@@ -40,7 +40,7 @@ test("POST /api/mcp initialize returns 200", async () => {
   const json = (await response.json()) as {
     result?: { serverInfo?: { name?: string } };
   };
-  assert.equal(json.result?.serverInfo?.name, "flow-next");
+  assert.equal(json.result?.serverInfo?.name, "signal");
 });
 
 test("POST /api/mcp tools/list returns starter tools", async () => {

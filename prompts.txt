@@ -5,3 +5,7 @@ Response: Created AGENTS.md with the rule, created CLAUDE.md containing the `@AG
 [2026-10-30T13:43:49Z]
 Prompt: Make the initial commit locally.
 Response: Checked the staged set for secrets and build output (none), then committed all files as the initial commit on main. Not pushed.
+
+[2026-10-30T13:46:10Z]
+Prompt: Start a new project called Signal — AI that prevents duplicate feature requests at submission, steers users to support existing requests, and helps product managers understand demand, decide, and measure impact.
+Response: Ran /start in place on the template clone (slug signal, host signal.localhost, preset minimal). User approved pushing to origin gaboesquivel/flow-signal. Bootstrap (rename, setup, baseline docs, Flow block, checks, initial commit, push, deployment) runs in a worker while explore shapes the product.

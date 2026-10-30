@@ -4,7 +4,7 @@ import { chatUnavailableResolution, resolveChatModel } from "@/lib/ai/resolve-ch
 import { operatorAccessDeniedResponse, verifyOperatorRequest } from "@/lib/auth/operator-access";
 import { jsonError } from "@/lib/api/json-error";
 
-const systemPrompt = `You are the Operator assistant for this Flow Next deployment.
+const systemPrompt = `You are the Operator assistant for this Signal deployment.
 
 You may discuss protected diagnostics, configuration status, and GenUI/MCP capabilities.
 You must not expose secret values (API keys, tokens). When Operator access is misconfigured, explain fail-closed behavior.

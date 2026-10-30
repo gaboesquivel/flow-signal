@@ -9,7 +9,7 @@ test("operator session POST fails closed without OPERATOR_SECRET", async () => {
   delete process.env.OPERATOR_ACCESS_TOKEN;
   try {
     const response = await postSession(
-      new Request("http://flow-next.localhost/api/operator/session", {
+      new Request("http://signal.localhost/api/operator/session", {
         body: JSON.stringify({ token: "anything" }),
         headers: { "Content-Type": "application/json" },
         method: "POST",

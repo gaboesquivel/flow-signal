@@ -28,7 +28,7 @@ export const registerStarterMcpTools = (server: McpServer) => {
       description: "Liveness check for the MCP server.",
       inputSchema: { ping: z.boolean().optional() },
     },
-    () => asToolResult({ ok: true, service: "flow-next-mcp" }),
+    () => asToolResult({ ok: true, service: "signal-mcp" }),
   );
 
   registerAppTool(

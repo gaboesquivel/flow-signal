@@ -33,8 +33,8 @@ export const buildMcpServerCard = (origin: string) => ({
     },
   ],
   serverInfo: {
-    name: "flow-next",
-    title: "Flow Next MCP",
+    name: "signal",
+    title: "Signal MCP",
     version: "1.0.0",
   },
   tools: starterMcpToolCatalog,
@@ -47,7 +47,7 @@ export const buildMcpServerCard = (origin: string) => ({
 
 export const buildMcpRegistryManifest = (origin: string) => ({
   mcpServers: {
-    "flow-next": {
+    signal: {
       transport: {
         type: "http",
         url: `${origin}/api/mcp`,
@@ -60,8 +60,8 @@ export const buildMcpRegistryManifest = (origin: string) => ({
 export const buildAiCatalog = (origin: string) => ({
   servers: [
     {
-      description: "Flow Next MCP — GenUI compose and catalog tools.",
-      name: "flow-next",
+      description: "Signal MCP — GenUI compose and catalog tools.",
+      name: "signal",
       transport: {
         type: "streamable-http",
         url: `${origin}/api/mcp`,

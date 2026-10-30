@@ -10,7 +10,7 @@ import { registerStarterMcpTools } from "./register-tools";
 
 export const createStarterMcpServer = () => {
   const server = new McpServer({
-    name: "flow-next",
+    name: "signal",
     version: "1.0.0",
   });
 

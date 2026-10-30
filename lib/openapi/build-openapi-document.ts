@@ -282,7 +282,7 @@ export const buildOpenApiDocument = (origin: string) => {
     },
     info: {
       description: `${versioningDescription}\n\nAgentic application starter — MCP tools via POST /api/mcp; GenUI via POST /api/genui/compose.`,
-      title: "Flow Next API",
+      title: "Signal API",
       version: "1.0.0",
       "x-api-version": "v1",
     },

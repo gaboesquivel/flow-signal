@@ -14,7 +14,7 @@ export const GET = (request: Request) => {
         mcp: `${origin}/api/mcp`,
         openapi: `${origin}/openapi.json`,
       },
-      title: "Flow Next API",
+      title: "Signal API",
     },
     {
       headers: discoveryRateLimitHeaders(),

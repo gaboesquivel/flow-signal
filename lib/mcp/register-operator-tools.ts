@@ -29,7 +29,7 @@ export const registerOperatorMcpTools = (server: McpServer) => {
       asToolResult({
         ok: true,
         role: "operator",
-        service: "flow-next-operator-mcp",
+        service: "signal-operator-mcp",
       }),
   );
 

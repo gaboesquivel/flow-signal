@@ -1,16 +1,16 @@
-# flow-next
+# signal
 
 Single-app agentic Next.js template: public Assistant, protected Operator, Eve, OpenUI Lang GenUI, MCP Streamable HTTP, and MCP Apps.
 
 ## Quick start
 
 ```bash
-gh repo create my-app --private --template gaboesquivel/flow-next --clone
+gh repo create my-app --private --template gaboesquivel/signal --clone
 cd my-app
 pnpm setup
 ```
 
-Then ask your agent to `/start` (or say "start a new project"): Flow's skills ship in this repository, so it defines the product, renames the template, and makes the initial commit. Run `pnpm dev` and open the Portless URL (default host `flow-next.localhost`).
+Then ask your agent to `/start` (or say "start a new project"): Flow's skills ship in this repository, so it defines the product, renames the template, and makes the initial commit. Run `pnpm dev` and open the Portless URL (default host `signal.localhost`).
 
 **First deployment.** Import the repository in [Vercel](https://vercel.com/new); every push to `main` deploys. No environment variables are required: without `AI_GATEWAY_API_KEY` generation falls back to built-in content, and Operator stays closed until `OPERATOR_SECRET` is set. For a database, run setup with `FLOW_PRESET=neon` (needs `NEON_API_KEY` and `VERCEL_TOKEN`); production builds apply the schema.
 
