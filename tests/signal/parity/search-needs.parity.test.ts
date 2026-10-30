@@ -39,6 +39,16 @@ runParityTable<PublicNeedsFixture>({
       name: "searches approved use-case summaries",
     },
     {
+      check: (output, fx) => assert.deepEqual(ids(output), [fx.n1.need.id]),
+      input: () => ({ q: "PDF export dashboard" }),
+      name: "matches every word anywhere in a need, not the exact phrase",
+    },
+    {
+      check: (output, fx) => assert.deepEqual(ids(output), [fx.n2.need.id]),
+      input: () => ({ q: "compliance archive monthly reports" }),
+      name: "matches a multi-word query across statement and theme",
+    },
+    {
       expect: () => ({ output: { needs: [], nextCursor: null } }),
       input: () => ({ q: "SOC 2" }),
       name: "never searches unapproved summaries",

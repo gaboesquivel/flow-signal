@@ -244,7 +244,7 @@ The same steps through the REST API and the Eve agent tools are covered by the p
 - [x] 06: Metrics from the event log
 - [x] 07: Public board, submit, and My signals UI
 - [ ] 08: Operator console UI (deferred: API, MCP, and agents first; paused work on `build/t08`)
-- [ ] 09: Agent behaviour evals and acceptance run (agent and API journeys now; browser steps wait for 08)
+- [ ] 09: Agent behaviour evals and acceptance run (agent evals and MCP journey done; browser steps wait for 08)
 
 Run for maximum parallelism: after 01, tasks 02, 03, 04, 05, and 06 run at once, each defining its own operations' contracts first; they merge in order 02 → 06 → 03 → 04 → 05. The UI tasks start once the contracts they call are merged: 07 after 02, 08 after 04, 05, and 06. Each operation follows the build order in [Agent- and API-first](#agent--and-api-first-one-operation-registry): contract → failing parity and domain tests → implementation → adapters; the UI tasks come last.
 

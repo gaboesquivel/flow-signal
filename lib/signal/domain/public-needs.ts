@@ -168,6 +168,9 @@ export const getPublicNeed = async (db: SignalQueryable, id: string) => {
 };
 
 const escapeLike = (value: string) => value.replaceAll(/[\\%_]/gu, (match) => `\\${match}`);
+/** Bounds the per-word conditions a public search can add. */
+const MAX_SEARCH_WORDS = 8;
+
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 export interface PublicNeedFilter {
@@ -191,9 +194,11 @@ export const searchPublicNeeds = async (db: SignalQueryable, filter: PublicNeedF
         : sql`lower(${themes.name}) = lower(${theme})`,
     );
   }
-  const q = filter.q?.trim();
-  if (q) {
-    const pattern = `%${escapeLike(q)}%`;
+  // Every word must appear somewhere public (statement, theme, approved summary, or a proposed
+  // solution), in any order: agents and people search with phrases like "PDF export dashboard".
+  const words = (filter.q ?? "").trim().split(/\s+/u).filter(Boolean).slice(0, MAX_SEARCH_WORDS);
+  for (const word of words) {
+    const pattern = `%${escapeLike(word)}%`;
     const textMatch = or(
       ilike(needs.statement, pattern),
       ilike(themes.name, pattern),

@@ -91,3 +91,11 @@ Response: Raised confidence to ~65% and asked the next open question: how ground
 [2026-10-30T15:58:41Z]
 Prompt: Ship partial (API, MCP and agents without the Operator UI) once the agent evals pass.
 Response: Started an independent review of signal-mvp against spec 001 while the task 09 agent evals finish; the plan is to merge 09, fix blocking findings, confirm CI, merge PR #1 with spec 001 left accepted (tasks 08 and the browser part of 09 open), and check production liveness.
+
+[2026-10-30T16:40:00Z]
+Prompt: /to-spec (turn the Crewday testing-strategy conversation into a spec), then mid-turn: wait for the "Source code review" session before branching or pushing.
+Response: Wrote draft spec docs/specs/004-crewday-outcome-eval.md (frozen versioned Crewday world, oracle+noise policies with a behaviour sweep, vote-board arm on alternative AI ports, ground-truth metrics, dev/test splits, run history, agent sub-run) and Proposed decision 0004. Held the commit, branch and push until the review session finishes.
+
+[2026-10-30T16:50:00Z]
+Prompt: In retro, is there anything you would add or change in our spec (004)?
+Response: Reviewed spec 004 critically and listed changes: fix the dev/test split (separate worlds), guard against generator leakage, measure decision quality and ARR-weighted outcomes, start from a messy migrated backlog, add confidence intervals and a regression rule, make latency a reported metric not a gate, drop the model grader from the PM policy, and cut a thinner first slice (agent sub-run as its own candidate spec). No files changed beyond this log.
