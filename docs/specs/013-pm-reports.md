@@ -247,7 +247,7 @@ In scope:
 ## Out of Scope
 
 - Free-form SQL or model-written code. New datasets are added to the catalog.
-- Scheduled refresh or email digests ([spec 003](./003-stakeholder-notifications.md) territory).
+- Scheduled refresh or email digests.
 - PNG, PDF, or CSV export (the Data disclosure is the inspection path).
 - Uploaded or pasted external data.
 - Dashboards with several reports, editing a report's layout by hand, and access control per shared link beyond the token.

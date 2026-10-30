@@ -125,7 +125,7 @@ Actor: a PM in the Operator console, then an agent over Operator MCP. Starting s
 - Auto-publishing decisions; Signal never publishes without a PM or Operator agent action.
 - Capacity planning beyond a per-quarter count (no effort roll-up, no roadmap view).
 - Multiple strategies per workspace or per team.
-- Stakeholder updates ([003](./003-stakeholder-notifications.md)).
+- Stakeholder updates.
 
 ## Further Notes
 
