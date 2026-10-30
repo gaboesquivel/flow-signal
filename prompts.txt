@@ -135,3 +135,14 @@ Response: Wrote docs/design/round-1/brief.md and rendered three directions in pa
 [2026-10-30T17:30:13Z]
 Prompt: Build spec 007 UI slice (Operator strategy form and Ready to decide list).
 Response: Added /operator/decide with StrategyForm (set_strategy, newly ready count) and ReadyNeeds (pencil recommendation, accept brief, edit note, publish, draft brief). Temporary lib/signal/client-007-pending.ts declares get_strategy/set_strategy/list_ready_needs types until the client is regenerated; theme options come from search_needs (no themes op exists).
+[2026-10-30T19:50:00Z]
+Prompt: execute in parallel; ship it.
+Response: Ran the review of tasks 01/03 in parallel with tasks 02/04, merged a 13-finding fix round, relabeled existedAtTime in both worlds, guarded the world output dir, wired an independent oracle embedder; pnpm qa green (542 tests). Opened PR 3 (gaboesquivel/flow-signal#3); auto-merge is disabled on the repo, so the merge waits on CI and the user's merge. Live dev and test runs started in the background (~1.5-2 h, ~$17); results land in a follow-up. Tasks 05-07 deferred; spec stays accepted (not implemented).
+
+[2026-10-30T12:10:00Z]
+Prompt: something is wrong, it's been running for 27m, debug.
+Response: Not hung: both live runs were progressing at ~13.7 s per signal (week 13/53 after 36 min, ~2.3 h per world); progress only logged every 13 weeks. Bottleneck: the engine awaited each signal's Sonnet suggestion generation before the next preview, unlike production's after(). Made generation run in the background (max 8 signals in flight, settled before every PM week and scoring), made the AI meter attribute calls by async context, logged progress every 4 weeks with elapsed time. Tests green; restarted runs: 4 weeks in 285 s (~2.3x faster, ~1 h per world).
+
+[2026-10-30T12:20:00Z]
+Prompt: push everything to main, don't rerun the evals yet, make sure CI is not running them either by contract; hand off the pending fixes to another session that must not run evals either.
+Response: Stopped the live dev/test runs (no results recorded). Added evals/ci-guard.ts (refuseInCi exits when CI is set) to every live eval entry point and tests/evals/ci-contract.test.ts (no workflow invokes an eval; every entry point is guarded). Landed the background-generation speedup, progress logging and the CI contract on main. Handed the pending fixes to a new session with an explicit no-evals rule.
