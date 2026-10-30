@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { reportIdempotencyKeySchema, reportDepsFor, saveReport as save } from "../domain/reports";
+import {
+  previewSaveReport,
+  reportIdempotencyKeySchema,
+  reportDepsFor,
+  saveReport as save,
+} from "../domain/reports";
 import { reportSpecSchema } from "../domain/report-spec";
 import { defineOperation } from "./types";
 
@@ -27,6 +32,37 @@ export const saveReport = defineOperation({
     title: z.string(),
     updatedAt: z.iso.datetime({ offset: true }),
   }),
+  async preview(input, { db }) {
+    const effect = await previewSaveReport(db, input);
+    const kindCounts = new Map<string, number>();
+    for (const block of effect.spec.blocks)
+      kindCounts.set(block.kind, (kindCounts.get(block.kind) ?? 0) + 1);
+    const blockKinds = [...kindCounts].map(([kind, count]) => `${count} ${kind}`);
+    return {
+      blocks: [],
+      editable: [{ key: "title", kind: "text", label: "Title" }],
+      lines: [
+        { label: "Action", value: effect.created ? "Create" : "Update" },
+        { label: "Title", value: input.title },
+        ...(effect.existingTitle && effect.existingTitle !== input.title
+          ? [{ label: "Title before", value: effect.existingTitle }]
+          : []),
+        { label: "Blocks", value: `${effect.spec.blocks.length} (${blockKinds.join(", ")})` },
+        {
+          label: "Datasets",
+          value: effect.spec.datasets.map((dataset) => dataset.name).join(", ") || "none",
+        },
+      ],
+      needs: [],
+      notes: [
+        ...(effect.keepsSharedSnapshot
+          ? ["The share link keeps showing its snapshot until you refresh it."]
+          : []),
+        ...(effect.replay ? ["Already saved with this key; confirming returns that save."] : []),
+      ],
+      title: effect.created ? "Save a new report" : "Update a saved report",
+    };
+  },
   run(input, ctx) {
     return save(reportDepsFor(ctx), input);
   },

@@ -3,7 +3,7 @@ import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
 import type { SignalQueryable } from "../db";
-import { criterionKeys } from "./criteria";
+import { criterionKeys, readCriteria } from "./criteria";
 import type { CriterionKey } from "./criteria";
 import { priorityScoreSql, queryRows, roundScore } from "./need-facts";
 
@@ -160,4 +160,64 @@ export const listOperatorNeeds = async (
     status: row.status,
     theme: row.theme_id && row.theme_name ? { id: row.theme_id, name: row.theme_name } : null,
   }));
+};
+
+/** How many needs the `set_criteria` preview re-ranks. */
+const PREVIEW_TOP = 5;
+
+const weightedScore = (
+  scores: Record<CriterionKey, number | null> | null,
+  weights: Record<CriterionKey, number>,
+) => {
+  if (!scores) return null;
+  let sum = 0;
+  let scored = false;
+  for (const key of criterionKeys) {
+    const score = scores[key];
+    if (score === null) continue;
+    scored = true;
+    sum += score * weights[key];
+  }
+  return scored ? sum : null;
+};
+
+const byPriority = (
+  left: { id: string; people: number; score: number | null },
+  right: { id: string; people: number; score: number | null },
+) =>
+  (right.score ?? -1) - (left.score ?? -1) ||
+  right.people - left.people ||
+  left.id.localeCompare(right.id);
+
+/**
+ * What `set_criteria` would change, read-only (spec 014 previews): each weight before and after,
+ * and the top needs by priority re-ranked with the new weights (the order `list_operator_needs`
+ * with `sort: priority` returns once they are written), with each need's rank before.
+ */
+export const previewCriteria = async (
+  db: SignalQueryable,
+  weights: Record<CriterionKey, number>,
+) => {
+  const { criteria } = await readCriteria(db);
+  const current = new Map(criteria.map((row) => [row.key, row.weight]));
+  const live = await listOperatorNeeds(db, { sort: "priority" });
+  const rankBefore = new Map(live.map((need, index) => [need.id, index + 1]));
+  const after = live
+    .map((need) => ({ ...need, score: weightedScore(need.criterionScores, weights) }))
+    .toSorted(byPriority)
+    .slice(0, PREVIEW_TOP)
+    .map((need) => ({
+      id: need.id,
+      rankBefore: rankBefore.get(need.id) ?? null,
+      score: roundScore(need.score),
+      statement: need.statement,
+    }));
+  return {
+    after,
+    weights: criterionKeys.map((key) => ({
+      after: weights[key],
+      before: current.get(key) ?? 0,
+      key,
+    })),
+  };
 };

@@ -124,6 +124,44 @@ export const MAX_REJECT_REASON_LENGTH = 500;
 const resolvedStatus = { accept: "accepted", edit: "edited", reject: "rejected" } as const;
 type ResolveAction = keyof typeof resolvedStatus;
 
+/** The trimmed rejection reason; `validation_failed` when it is given for another action. */
+const checkRejectReason = (action: ResolveAction, reason: string | undefined) => {
+  const rejectReason = reason?.trim() || undefined;
+  if (reason !== undefined && action !== "reject")
+    throw new SignalError("validation_failed", "`reason` is only allowed with action `reject`.");
+  if (rejectReason && rejectReason.length > MAX_REJECT_REASON_LENGTH)
+    throw new SignalError(
+      "validation_failed",
+      `\`reason\` must be at most ${MAX_REJECT_REASON_LENGTH} characters.`,
+    );
+  return rejectReason;
+};
+
+/**
+ * The checks `resolveSuggestion` makes before applying anything (shared with
+ * `previewResolution`): the suggestion exists and is pending, and `edit` fits the kind.
+ */
+const checkResolution = (
+  suggestion: SuggestionRow | undefined,
+  { action, edit, id }: { action: ResolveAction; edit?: Record<string, unknown>; id: string },
+) => {
+  if (!suggestion) throw new SignalError("not_found", `No suggestion with id ${id}.`);
+  if (suggestion.status !== "pending")
+    throw new SignalError("conflict", `Suggestion ${id} was already ${suggestion.status}.`);
+  const handler = suggestionKindHandlers[suggestion.kind];
+  let parsedEdit: unknown;
+  if (action === "edit") {
+    if (!edit) throw new SignalError("validation_failed", "`edit` is required to edit.");
+    if (!handler?.edit)
+      throw new SignalError("validation_failed", `${suggestion.kind} suggestions can't be edited.`);
+    const parsed = handler.edit.safeParse(edit);
+    if (!parsed.success) throw new SignalError("validation_failed", z.prettifyError(parsed.error));
+    parsedEdit = parsed.data;
+  } else if (edit !== undefined)
+    throw new SignalError("validation_failed", "`edit` is only allowed with action `edit`.");
+  return { handler, parsedEdit, pending: suggestion };
+};
+
 /**
  * Accept, edit, or reject one pending suggestion. The kind's effect, the status change, and the
  * `suggestion.accepted | edited | rejected` event (actor = resolver, payload `{ kind }`, plus
@@ -140,39 +178,14 @@ export const resolveSuggestion = async (
   }: { action: ResolveAction; edit?: Record<string, unknown>; id: string; reason?: string },
 ) => {
   const now = clock.now();
-  const rejectReason = reason?.trim() || undefined;
-  if (reason !== undefined && action !== "reject")
-    throw new SignalError("validation_failed", "`reason` is only allowed with action `reject`.");
-  if (rejectReason && rejectReason.length > MAX_REJECT_REASON_LENGTH)
-    throw new SignalError(
-      "validation_failed",
-      `\`reason\` must be at most ${MAX_REJECT_REASON_LENGTH} characters.`,
-    );
+  const rejectReason = checkRejectReason(action, reason);
   const outcome = await db.transaction(async (tx) => {
-    const [suggestion] = await tx
-      .select()
-      .from(suggestions)
-      .where(eq(suggestions.id, id))
-      .for("update");
-    if (!suggestion) throw new SignalError("not_found", `No suggestion with id ${id}.`);
-    if (suggestion.status !== "pending")
-      throw new SignalError("conflict", `Suggestion ${id} was already ${suggestion.status}.`);
-
-    const handler = suggestionKindHandlers[suggestion.kind];
-    let parsedEdit: unknown;
-    if (action === "edit") {
-      if (!edit) throw new SignalError("validation_failed", "`edit` is required to edit.");
-      if (!handler?.edit)
-        throw new SignalError(
-          "validation_failed",
-          `${suggestion.kind} suggestions can't be edited.`,
-        );
-      const parsed = handler.edit.safeParse(edit);
-      if (!parsed.success)
-        throw new SignalError("validation_failed", z.prettifyError(parsed.error));
-      parsedEdit = parsed.data;
-    } else if (edit !== undefined)
-      throw new SignalError("validation_failed", "`edit` is only allowed with action `edit`.");
+    const [found] = await tx.select().from(suggestions).where(eq(suggestions.id, id)).for("update");
+    const {
+      handler,
+      parsedEdit,
+      pending: suggestion,
+    } = checkResolution(found, { action, edit, id });
 
     const base = { actor, ai, now, suggestion, tx };
     const applied =
@@ -211,4 +224,37 @@ export const resolveSuggestion = async (
   const [view] = await toSuggestionViews(db, [outcome.updated]);
   if (!view) throw new Error("Suggestion view is missing.");
   return { result: outcome.applied?.result ?? null, suggestion: view };
+};
+
+/**
+ * What `resolveSuggestion` would do now, read-only (spec 014 previews): the same checks and
+ * errors, plus the kind's own preview of applying it (an accept or edit), which throws what
+ * applying would (for example `conflict` when the need was merged meanwhile). A rejection
+ * changes only the suggestion, so its effect is the proposal as filed.
+ */
+export const previewResolution = async (
+  db: SignalQueryable,
+  {
+    action,
+    edit,
+    id,
+    reason,
+  }: { action: ResolveAction; edit?: Record<string, unknown>; id: string; reason?: string },
+) => {
+  const rejectReason = checkRejectReason(action, reason);
+  const [found] = await db.select().from(suggestions).where(eq(suggestions.id, id));
+  const { handler, parsedEdit, pending } = checkResolution(found, { action, edit, id });
+  const [view] = await toSuggestionViews(db, [pending]);
+  if (!view) throw new Error("Suggestion view is missing.");
+  // Applying must succeed for an accept or edit, so its preview's errors stand.
+  const effect =
+    action === "reject"
+      ? undefined
+      : await handler?.preview?.({ db, edit: parsedEdit, suggestion: pending });
+  // The proposal as filed, for display only: a rejection never applies it.
+  const filed =
+    action === "accept"
+      ? effect
+      : await handler?.preview?.({ db, edit: undefined, suggestion: pending }).catch(() => null);
+  return { effect, filed, rejectReason, suggestion: view };
 };
