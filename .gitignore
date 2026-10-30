@@ -32,3 +32,5 @@ playwright-report
 evals/matching/results/
 # agent behaviour eval reports (pnpm eval:agents)
 evals/agents/results/
+# Crewday outcome eval reports (pnpm eval:crewday)
+evals/crewday/results/
