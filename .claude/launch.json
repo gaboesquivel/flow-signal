@@ -2,9 +2,20 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "signal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "dev"
+      ],
+      "port": 443,
+      "url": "https://signal.localhost"
+    },
+    {
       "name": "signal-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev:app"],
+      "runtimeArgs": [
+        "dev:app"
+      ],
       "port": 3000
     }
   ]
