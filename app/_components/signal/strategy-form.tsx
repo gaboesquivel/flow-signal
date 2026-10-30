@@ -1,9 +1,11 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import { ConsoleError } from "@/app/operator/(console)/_components/console-bits";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Label } from "@/components/label";
@@ -11,8 +13,7 @@ import { Textarea } from "@/components/textarea";
 import { createSignalClient } from "@/lib/signal/client";
 import type { SignalClientError, SignalOperations } from "@/lib/signal/client";
 
-import { SignalErrorAlert } from "./error-alert";
-import { formatDate, formatUsd, supportersLabel } from "./labels";
+import { formatDate, formatUsd, peopleLabel } from "./labels";
 
 type StrategyRead = SignalOperations["get_strategy"]["output"];
 export interface ThemeOption {
@@ -22,13 +23,15 @@ export interface ThemeOption {
 
 const signal = createSignalClient();
 
+const sectionLabel = "text-muted-foreground text-[11px] font-semibold tracking-[0.08em] uppercase";
+
 const readyLine = ({
   readinessArrCents,
   readinessSupporters,
 }: StrategyRead["defaults"]): string => {
   const parts = [
     readinessArrCents > 0 ? `${formatUsd(readinessArrCents)} ARR` : null,
-    readinessSupporters > 0 ? supportersLabel(readinessSupporters) : null,
+    readinessSupporters > 0 ? peopleLabel(readinessSupporters) : null,
   ].filter(Boolean);
   return parts.join(" or ");
 };
@@ -92,7 +95,7 @@ export function StrategyForm({
       Number.isNaN(dollars) ||
       !Number.isInteger(readinessSupporters)
     ) {
-      setInvalid("Capacity, ARR, and supporters must be whole numbers of 0 or more.");
+      setInvalid("Capacity, ARR, and people must be whole numbers of 0 or more.");
       return;
     }
     const readinessArrCents = Math.round(dollars * 100);
@@ -122,28 +125,31 @@ export function StrategyForm({
   };
 
   return (
-    <section aria-labelledby="strategy-heading" className="space-y-4">
-      <header className="flex items-baseline justify-between gap-4 border-b pb-2">
-        <h2 className="font-serif text-lg" id="strategy-heading">
+    <section aria-labelledby="strategy-heading" className="flex min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 className={sectionLabel} id="strategy-heading">
           Strategy
         </h2>
-        <p className="text-muted-foreground font-mono text-xs">
+        <p className="text-muted-foreground font-mono text-xs tabular-nums">
           {strategy
             ? `v${strategy.version} · ${formatDate(strategy.createdAt)}`
             : `No strategy yet · ready at ${readyLine(initial.defaults)}`}
         </p>
-      </header>
+      </div>
 
-      <form className="space-y-4 text-sm" onSubmit={save}>
-        <fieldset className="space-y-2">
-          <legend className="font-medium">Focus themes</legend>
+      <form
+        className="border-rule-strong flex flex-col gap-5 border-t pt-5 text-sm"
+        onSubmit={save}
+      >
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-2 text-[13px] font-medium">Focus themes</legend>
           {options.length === 0 ? (
             <p className="text-muted-foreground">No themes yet.</p>
           ) : (
-            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+            <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-2 p-0">
               {options.map((theme) => (
                 <li key={theme.id}>
-                  <label className="flex items-center gap-2">
+                  <label className="flex cursor-pointer items-center gap-2">
                     <input
                       checked={focus.has(theme.id)}
                       className="accent-primary size-4"
@@ -158,7 +164,7 @@ export function StrategyForm({
           )}
         </fieldset>
 
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="strategy-revenue">Revenue focus</Label>
           <Input
             id="strategy-revenue"
@@ -169,53 +175,34 @@ export function StrategyForm({
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="strategy-capacity">Capacity per quarter</Label>
-            <Input
-              className="font-mono"
+        <div className="flex flex-col gap-2">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <NumberField
               id="strategy-capacity"
-              inputMode="numeric"
-              min={0}
-              onChange={(e) => setCapacity(e.target.value)}
-              step={1}
-              type="number"
+              label="Capacity per quarter"
+              onChange={setCapacity}
               value={capacity}
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="strategy-arr">Ready at ARR ($)</Label>
-            <Input
-              className="font-mono"
+            <NumberField
               id="strategy-arr"
-              inputMode="numeric"
-              min={0}
-              onChange={(e) => setArrDollars(e.target.value)}
-              step={1}
-              type="number"
+              label="Ready at ARR ($)"
+              onChange={setArrDollars}
               value={arrDollars}
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="strategy-supporters">or supporters</Label>
-            <Input
-              className="font-mono"
+            <NumberField
               id="strategy-supporters"
-              inputMode="numeric"
-              min={0}
-              onChange={(e) => setSupporters(e.target.value)}
-              step={1}
-              type="number"
+              label="or people"
+              onChange={setSupporters}
               value={supporters}
             />
           </div>
+          <p className="text-muted-foreground text-xs">
+            A need is ready when its supporting accounts reach the ARR or the number of people. Set
+            either to 0 to ignore it.
+          </p>
         </div>
-        <p className="text-muted-foreground text-xs">
-          A need is ready when its supporting accounts reach the ARR or the supporter count. Set
-          either to 0 to ignore it.
-        </p>
 
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="strategy-notes">Notes</Label>
           <Textarea
             id="strategy-notes"
@@ -231,19 +218,52 @@ export function StrategyForm({
             {invalid}
           </p>
         ) : null}
-        {error ? <SignalErrorAlert error={error} /> : null}
+        {error ? <ConsoleError error={error} /> : null}
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+          {/* Publish on a ready need is the page's primary action; saving strategy is secondary. */}
           <Button disabled={saving} type="submit" variant="outline">
             {saving ? "Saving…" : "Save strategy"}
           </Button>
           {message ? (
-            <p aria-live="polite" className="text-muted-foreground">
+            <p
+              aria-live="polite"
+              className="border-rule-strong inline-flex items-center gap-1.5 border-l-[1.5px] pl-2.5"
+            >
+              <Check aria-hidden="true" className="size-3" strokeWidth={2.25} />
               {message}
             </p>
           ) : null}
         </div>
       </form>
     </section>
+  );
+}
+
+function NumberField({
+  id,
+  label,
+  onChange,
+  value,
+}: {
+  id: string;
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        className="font-mono tabular-nums"
+        id={id}
+        inputMode="numeric"
+        min={0}
+        onChange={(e) => onChange(e.target.value)}
+        step={1}
+        type="number"
+        value={value}
+      />
+    </div>
   );
 }

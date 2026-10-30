@@ -1,20 +1,26 @@
 "use client";
 
+import { cn } from "cn";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
+import { ConsoleError } from "@/app/operator/(console)/_components/console-bits";
 import { Button } from "@/components/button";
-import { Label } from "@/components/label";
-import { NativeSelect, NativeSelectOption } from "@/components/native-select";
+import { LoadingLine } from "@/components/loading-line";
+import { RuledList, RuledRow } from "@/components/ruled-list";
 import { Textarea } from "@/components/textarea";
 import { createSignalClient } from "@/lib/signal/client";
 import type { SignalClientError, SignalOperations } from "@/lib/signal/client";
 
-import { SignalErrorAlert } from "./error-alert";
-import { formatDate, formatUsd, statusLabels, supportersLabel } from "./labels";
+import { formatDate, formatUsd, statusLabels } from "./labels";
+import { Pencil } from "./pencil";
+import { Status, StatusShape } from "./status";
 
 type ReadyPage = SignalOperations["list_ready_needs"]["output"];
 type ReadyNeed = ReadyPage["needs"][number];
 type DecisionStatus = SignalOperations["publish_decision"]["input"]["status"];
+type ClientError = Pick<SignalClientError, "code" | "message">;
 
 /** A brief as this list shows it: from `list_ready_needs` or a fresh `draft_decision_brief`. */
 interface BriefView {
@@ -33,9 +39,15 @@ const decisionStatuses: DecisionStatus[] = ["planned", "in_progress", "shipped",
 
 const signal = createSignalClient();
 
-/** AI output in pencil (DESIGN.md): dashed AI rule, AI text, italic small-caps label. */
-const pencil = "border-ai text-ai-foreground border-l-[1.5px] border-dashed pl-3";
-const pencilLabel = "font-serif text-xs italic [font-variant-caps:all-small-caps]";
+const sectionLabel = "text-muted-foreground text-[11px] font-semibold tracking-[0.08em] uppercase";
+const textButton =
+  "text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50";
+
+/** The note is the AI's until the PM accepts the brief or rewrites the note. */
+const noteState = (pending: boolean, edited: boolean) => {
+  if (edited) return "edited";
+  return pending ? "suggested" : "accepted";
+};
 
 const percent = (confidence: number) => `${Math.round(confidence * 100)}%`;
 
@@ -51,9 +63,11 @@ export function ReadyNeeds({ initial }: { initial: ReadyPage }) {
     Object.fromEntries(initial.needs.map((n) => [n.needId, briefView(n.brief)])),
   );
   const [open, setOpen] = useState<string | null>(initial.needs[0]?.needId ?? null);
-  const [published, setPublished] = useState<string | null>(null);
+  const [published, setPublished] = useState<{ need: ReadyNeed; status: DecisionStatus } | null>(
+    null,
+  );
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<SignalClientError | null>(null);
+  const [error, setError] = useState<ClientError | null>(null);
 
   const loadMore = async () => {
     if (!cursor) return;
@@ -73,115 +87,127 @@ export function ReadyNeeds({ initial }: { initial: ReadyPage }) {
   };
 
   const onPublished = (need: ReadyNeed, status: DecisionStatus) => {
-    setNeeds((prev) => prev.filter((n) => n.needId !== need.needId));
-    setOpen(null);
-    setPublished(`Published “${statusLabels[status]}” on ${need.statement}`);
+    const rest = needs.filter((n) => n.needId !== need.needId);
+    setNeeds(rest);
+    setOpen(rest[0]?.needId ?? null);
+    setPublished({ need, status });
   };
 
   return (
-    <section aria-labelledby="ready-heading" className="space-y-3">
-      <header className="flex items-baseline justify-between gap-4 border-b pb-2">
-        <h2 className="font-serif text-lg" id="ready-heading">
-          Ready to decide
-        </h2>
-        <p className="text-muted-foreground font-mono text-xs">{needs.length}</p>
-      </header>
+    <section aria-labelledby="ready-heading" className="flex min-w-0 flex-col gap-4">
+      <h2 className={sectionLabel} id="ready-heading">
+        Ready to decide · <span className="font-mono tabular-nums">{needs.length}</span>
+      </h2>
 
       {published ? (
-        <p aria-live="polite" className="text-muted-foreground text-sm">
-          {published}
-        </p>
+        <div aria-live="polite" className="border-rule-strong border-l-[1.5px] py-px pl-3.5">
+          <p className="text-sm">
+            Published <Status className="mx-0.5 align-middle" status={published.status} /> on{" "}
+            <span className="font-serif">{published.need.statement}</span>
+          </p>
+          <Link
+            className="text-primary mt-1 inline-flex items-center gap-1 text-[13px] underline-offset-4 hover:underline"
+            href={`/needs/${published.need.needId}`}
+            target="_blank"
+          >
+            See what supporters see <ArrowRight aria-hidden="true" className="size-3.5" />
+          </Link>
+        </div>
       ) : null}
-      {error ? <SignalErrorAlert error={error} /> : null}
+      {error ? <ConsoleError error={error} /> : null}
 
       {needs.length === 0 ? (
-        <p className="text-muted-foreground py-6 text-sm">Nothing is ready to decide.</p>
+        <p className="text-muted-foreground font-serif text-lg">Nothing is ready to decide.</p>
       ) : (
-        <ul className="divide-y border-b">
-          {needs.map((need) => (
-            <ReadyRow
-              brief={briefs[need.needId] ?? null}
-              key={need.needId}
-              need={need}
-              onBrief={(brief) => setBriefs((prev) => ({ ...prev, [need.needId]: brief }))}
-              onPublished={(status) => onPublished(need, status)}
-              onToggle={() => setOpen((id) => (id === need.needId ? null : need.needId))}
-              open={open === need.needId}
-            />
-          ))}
-        </ul>
+        <RuledList expanded={open} onExpandedChange={setOpen}>
+          {needs.map((need) => {
+            const brief = briefs[need.needId] ?? null;
+            return (
+              <RuledRow
+                key={need.needId}
+                summary={<RowSummary brief={brief} need={need} />}
+                value={need.needId}
+              >
+                {brief ? (
+                  <DecidePanel
+                    brief={brief}
+                    need={need}
+                    onBrief={(next) => setBriefs((prev) => ({ ...prev, [need.needId]: next }))}
+                    onPublished={(status) => onPublished(need, status)}
+                  />
+                ) : (
+                  <DraftBrief
+                    needId={need.needId}
+                    onBrief={(next) => setBriefs((prev) => ({ ...prev, [need.needId]: next }))}
+                  />
+                )}
+              </RuledRow>
+            );
+          })}
+        </RuledList>
       )}
 
       {cursor ? (
-        <Button disabled={loadingMore} onClick={loadMore} size="sm" variant="ghost">
+        <button
+          className={cn(textButton, "self-start")}
+          disabled={loadingMore}
+          onClick={loadMore}
+          type="button"
+        >
           {loadingMore ? "Loading…" : "Show more"}
-        </Button>
+        </button>
       ) : null}
     </section>
   );
 }
 
-function ReadyRow({
-  brief,
-  need,
-  onBrief,
-  onPublished,
-  onToggle,
-  open,
-}: {
-  brief: BriefView | null;
-  need: ReadyNeed;
-  onBrief: (brief: BriefView) => void;
-  onPublished: (status: DecisionStatus) => void;
-  onToggle: () => void;
-  open: boolean;
-}) {
+/** The one-line head: statement, demand in mono, and the AI's suggestion in pencil. */
+function RowSummary({ brief, need }: { brief: BriefView | null; need: ReadyNeed }) {
   const rec = brief?.recommendation;
-  const panelId = `ready-${need.needId}`;
+  const ink = brief !== null && brief.status !== "pending";
   return (
-    <li className="py-3">
-      <button
-        aria-controls={panelId}
-        aria-expanded={open}
-        className="grid w-full gap-1 text-left sm:grid-cols-[1fr_auto] sm:gap-4"
-        onClick={onToggle}
-        type="button"
-      >
-        <span className="font-serif text-base">{need.statement}</span>
-        <span className="text-muted-foreground flex gap-4 font-mono text-xs tabular-nums sm:justify-end">
+    <span className="flex min-w-0 flex-col gap-1.5">
+      <span className="grid min-w-0 gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline">
+        <span className="font-serif text-[17px] leading-snug break-words">{need.statement}</span>
+        <span className="text-muted-foreground flex gap-4 font-mono text-[13px] tabular-nums sm:justify-end">
           <span>{formatUsd(need.arrCents)}</span>
-          <span>{supportersLabel(need.supporters)}</span>
-          <span>ready {formatDate(need.readyAt)}</span>
-        </span>
-        {rec ? (
-          <span className={`${pencil} text-sm sm:col-span-2`}>
-            <span className={pencilLabel}>Suggested </span>
-            {statusLabels[rec.status]}
-            {typeof rec.confidence === "number" ? (
-              <span className="font-mono"> · {percent(rec.confidence)}</span>
-            ) : null}
-            {rec.strategyFit ? ` · ${rec.strategyFit.inFocus ? "In focus" : "Off focus"}` : null}
+          <span>
+            <span className="text-foreground">{need.supporters}</span> people
           </span>
-        ) : (
-          <span className="text-muted-foreground text-sm sm:col-span-2">Brief pending</span>
-        )}
-      </button>
-      {open ? (
-        <div className="mt-3" id={panelId}>
-          {brief ? (
-            <DecidePanel brief={brief} need={need} onBrief={onBrief} onPublished={onPublished} />
-          ) : (
-            <DraftBrief needId={need.needId} onBrief={onBrief} />
+          <span>{formatDate(need.readyAt)}</span>
+        </span>
+      </span>
+      {rec ? (
+        <span
+          className={cn(
+            "inline-flex flex-wrap items-center gap-x-1.5 border-l-[1.5px] pl-2.5 text-[13px]",
+            ink
+              ? "border-rule-strong text-foreground"
+              : "border-ai text-ai-foreground border-dashed",
           )}
-        </div>
-      ) : null}
-    </li>
+        >
+          <span className="font-serif text-sm italic [font-variant-caps:all-small-caps]">
+            {ink ? "Accepted" : "Suggested"}
+          </span>
+          <StatusShape status={rec.status} />
+          {statusLabels[rec.status]}
+          {typeof rec.confidence === "number" ? (
+            <span className="font-mono tabular-nums">· {percent(rec.confidence)}</span>
+          ) : null}
+          {rec.strategyFit ? (
+            <span>· {rec.strategyFit.inFocus ? "in focus" : "off focus"}</span>
+          ) : null}
+        </span>
+      ) : (
+        <span className="text-muted-foreground text-[13px]">Brief pending</span>
+      )}
+    </span>
   );
 }
 
 function DraftBrief({ needId, onBrief }: { needId: string; onBrief: (brief: BriefView) => void }) {
   const [drafting, setDrafting] = useState(false);
-  const [error, setError] = useState<SignalClientError | null>(null);
+  const [error, setError] = useState<ClientError | null>(null);
 
   const draft = async () => {
     setDrafting(true);
@@ -200,8 +226,15 @@ function DraftBrief({ needId, onBrief }: { needId: string; onBrief: (brief: Brie
     });
   };
 
+  if (drafting)
+    return (
+      <LoadingLine className="bg-ai-surface rounded-md px-4 py-3">
+        Drafting a decision brief…
+      </LoadingLine>
+    );
+
   return (
-    <div className="space-y-2 text-sm">
+    <div className="flex flex-col gap-3 text-sm">
       <p className="text-muted-foreground">
         No brief yet. Signal drafts one when a need becomes ready; draft it now if it hasn’t
         arrived.
@@ -211,14 +244,21 @@ function DraftBrief({ needId, onBrief }: { needId: string; onBrief: (brief: Brie
           The decision model is unavailable. Try again in a moment.
         </p>
       ) : null}
-      {error && error.code !== "ai_unavailable" ? <SignalErrorAlert error={error} /> : null}
-      <Button disabled={drafting} onClick={draft} size="sm" variant="outline">
-        {drafting ? "Drafting…" : "Draft brief"}
-      </Button>
+      {error && error.code !== "ai_unavailable" ? <ConsoleError error={error} /> : null}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <Button onClick={draft}>Draft brief</Button>
+        <Link className={textButton} href={`/operator/needs/${needId}#decide`}>
+          Open the need
+        </Link>
+      </div>
     </div>
   );
 }
 
+/**
+ * The brief's recommendation in pencil (ink once accepted) beside the decision: status and the
+ * public note, prefilled from the brief. Publish accepts a pending brief first.
+ */
 function DecidePanel({
   brief,
   need,
@@ -233,10 +273,10 @@ function DecidePanel({
   const rec = brief.recommendation;
   const [status, setStatus] = useState<DecisionStatus>(rec.status);
   const [note, setNote] = useState(rec.note);
-  const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState<"accept" | "publish" | null>(null);
-  const [error, setError] = useState<SignalClientError | null>(null);
+  const [error, setError] = useState<ClientError | null>(null);
   const pending = brief.status === "pending";
+  const statusChanged = status !== rec.status;
   const noteEdited = note.trim() !== rec.note.trim();
 
   /** Accepts the pending brief; a brief someone already resolved counts as accepted. */
@@ -275,100 +315,91 @@ function DecidePanel({
   };
 
   return (
-    <div className="space-y-4 text-sm">
-      <div className={`${pencil} space-y-1`}>
-        <p className={pencilLabel}>Recommended direction</p>
-        <p>
-          {statusLabels[rec.status]}
+    <div className="flex flex-col gap-6 pt-1 text-sm">
+      <Pencil label="Recommended direction" state={pending ? "suggested" : "accepted"}>
+        <p className="inline-flex flex-wrap items-center gap-x-1.5">
+          <StatusShape status={rec.status} />
+          <span className="font-medium">{statusLabels[rec.status]}</span>
           {typeof rec.confidence === "number" ? (
-            <span className="font-mono"> · {percent(rec.confidence)} confident</span>
+            <span className="font-mono tabular-nums">· {percent(rec.confidence)} confident</span>
           ) : null}
         </p>
-        {rec.strategyFit ? (
-          <p>
-            <span className={pencilLabel}>
-              {rec.strategyFit.inFocus ? "In focus " : "Off focus "}
-            </span>
-            {rec.strategyFit.reason}
-          </p>
-        ) : null}
-        {rec.capacityNote ? (
-          <p>
-            <span className={pencilLabel}>Capacity </span>
-            {rec.capacityNote}
-          </p>
-        ) : null}
-        {pending ? null : <p className="text-muted-foreground text-xs italic">brief accepted</p>}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
-        <div className="space-y-1.5">
-          <Label htmlFor={`status-${need.needId}`}>Status</Label>
-          <NativeSelect
-            id={`status-${need.needId}`}
-            onChange={(e) => setStatus(e.target.value as DecisionStatus)}
-            value={status}
-          >
-            {decisionStatuses.map((s) => (
-              <NativeSelectOption key={s} value={s}>
-                {statusLabels[s]}
-                {s === rec.status ? " (suggested)" : ""}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between gap-2">
-            <Label htmlFor={`note-${need.needId}`}>Note to supporters</Label>
-            {noteEdited ? (
-              <span className="text-muted-foreground text-xs italic">edited by you</span>
+        {rec.strategyFit || rec.capacityNote ? (
+          <dl className="m-0 mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-[13px]">
+            {rec.strategyFit ? (
+              <div className="contents">
+                <dt className="opacity-80">{rec.strategyFit.inFocus ? "In focus" : "Off focus"}</dt>
+                <dd className="m-0 break-words">{rec.strategyFit.reason}</dd>
+              </div>
             ) : null}
-          </div>
-          {editing ? (
-            <Textarea
-              id={`note-${need.needId}`}
-              maxLength={2000}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              value={note}
-            />
-          ) : (
-            <p className={noteEdited ? "border-rule-strong border-l-2 pl-3" : pencil}>{note}</p>
-          )}
-        </div>
+            {rec.capacityNote ? (
+              <div className="contents">
+                <dt className="opacity-80">Capacity</dt>
+                <dd className="m-0 break-words">{rec.capacityNote}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+      </Pencil>
+
+      <div className="grid min-w-0 gap-6 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-8">
+        <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
+          <legend className="mb-1.5 text-[13px] font-medium">Status</legend>
+          {decisionStatuses.map((s) => (
+            <label
+              className="hover:bg-muted/40 flex cursor-pointer items-center gap-2.5 rounded-sm px-1 py-1.5"
+              key={s}
+            >
+              <input
+                checked={status === s}
+                className="accent-primary"
+                name={`status-${need.needId}`}
+                onChange={() => setStatus(s)}
+                type="radio"
+                value={s}
+              />
+              <Status status={s} />
+              {s === rec.status && !statusChanged && pending ? (
+                <span className="text-ai-foreground font-serif text-[13px] italic">suggested</span>
+              ) : null}
+            </label>
+          ))}
+        </fieldset>
+        <Pencil
+          label={pending && !noteEdited ? "Public note · from the brief" : "Public note"}
+          state={noteState(pending, noteEdited)}
+        >
+          <Textarea
+            aria-label="Public note"
+            className="text-foreground mt-1 font-serif text-[15px]"
+            maxLength={2000}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="What supporters will read: plain words, no names, accounts, or revenue."
+            rows={4}
+            value={note}
+          />
+        </Pencil>
       </div>
 
-      {error ? <SignalErrorAlert error={error} /> : null}
+      {error ? <ConsoleError error={error} /> : null}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          disabled={busy !== null || note.trim().length === 0}
-          onClick={publish}
-          size="sm"
-          type="button"
-        >
-          {busy === "publish" ? "Publishing…" : "Publish"}
+      <div className="border-border flex flex-wrap items-center gap-x-5 gap-y-3 border-t pt-4">
+        <Button disabled={busy !== null || note.trim().length === 0} onClick={publish} size="lg">
+          {busy === "publish" ? "Publishing…" : "Publish decision"}
         </Button>
         {pending ? (
-          <Button
+          <button
+            className={textButton}
             disabled={busy !== null}
             onClick={acceptOnly}
-            size="sm"
             type="button"
-            variant="ghost"
           >
-            {busy === "accept" ? "Accepting…" : "Accept brief"}
-          </Button>
+            {busy === "accept" ? "Accepting…" : "Accept brief only"}
+          </button>
         ) : null}
-        <Button
-          disabled={busy !== null}
-          onClick={() => setEditing((e) => !e)}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          {editing ? "Done editing" : "Edit note"}
-        </Button>
+        <Link className={textButton} href={`/operator/needs/${need.needId}`}>
+          Open the need
+        </Link>
       </div>
     </div>
   );
