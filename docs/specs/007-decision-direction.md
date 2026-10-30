@@ -1,6 +1,6 @@
 # 007 — Decision direction: Signal flags ready needs and recommends plan or decline against the PM's strategy
 
-Status: implemented (2026-10-30). Amended by [0007](../decisions/0007-decision-model-on-gateway-credentials.md) (decision calls bill to the Gateway, no BYOK).
+Status: implemented (2026-10-30). Amended by [0007](../decisions/0007-decision-model-on-gateway-credentials.md) (decision calls bill to the Gateway, no BYOK) and [0008](../decisions/0008-decision-model-sonnet.md) (default decision model: Sonnet 5.5; Fable 5.1 is the Crewday challenger).
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Product model (Strategy), Metrics (direction accuracy, readiness lead time), Riskiest assumptions 3 and 5, Core journeys 5 and 7. Builds on [spec 001](./001-signal-mvp.md) (decision briefs, `publish_decision`, event log, `get_metrics`) and [spec 004](./004-crewday-outcome-eval.md) (Crewday worlds, PM policy, scorer).
 Decisions: [0006 Decision model: Claude Fable 5.1 through the AI Gateway on our Anthropic key](../decisions/0006-decision-model-fable-gateway-byok.md) (Accepted), billing superseded by [0007](../decisions/0007-decision-model-on-gateway-credentials.md).
