@@ -7,6 +7,8 @@ import { getMySignals } from "./get-my-signals";
 import { getNeed } from "./get-need";
 import { getNeedDetail } from "./get-need-detail";
 import { listOperatorNeeds } from "./list-operator-needs";
+import { getStrategy } from "./get-strategy";
+import { listReadyNeeds } from "./list-ready-needs";
 import { listSuggestions } from "./list-suggestions";
 import { mergeNeeds } from "./merge-needs";
 import { previewSignal } from "./preview-signal";
@@ -14,6 +16,7 @@ import { publishDecision } from "./publish-decision";
 import { resolveSuggestion } from "./resolve-suggestion";
 import { searchNeeds } from "./search-needs";
 import { setCriteria } from "./set-criteria";
+import { setStrategy } from "./set-strategy";
 import { splitNeed } from "./split-need";
 import { submitSignal } from "./submit-signal";
 import { undoMerge } from "./undo-merge";
@@ -22,9 +25,9 @@ import type { AnyOperation, PlannedOperation } from "./types";
 
 /**
  * Every spec 001 operation, in the spec's table order, then later specs' additions (006: the
- * PM console's operator reads). Built operations are exposed on REST, MCP, and Eve; planned
- * ones hold their slot until their task replaces the file. Adding an operation outside spec
- * 001: one import and one entry here, plus its file.
+ * PM console's operator reads; 007: decision direction). Built operations are exposed on REST,
+ * MCP, and Eve; planned ones hold their slot until their task replaces the file. Adding an
+ * operation outside spec 001: one import and one entry here, plus its file.
  */
 export const allOperations: readonly (AnyOperation | PlannedOperation)[] = [
   searchNeeds,
@@ -44,8 +47,13 @@ export const allOperations: readonly (AnyOperation | PlannedOperation)[] = [
   draftDecisionBrief,
   publishDecision,
   getMetrics,
+  // Spec 006 (lean Ledger UI).
   listOperatorNeeds,
   checkPublicText,
+  // Spec 007 (decision direction).
+  getStrategy,
+  setStrategy,
+  listReadyNeeds,
 ];
 
 export const operations: readonly AnyOperation[] = allOperations.filter(

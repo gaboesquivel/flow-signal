@@ -110,6 +110,8 @@ export const needs = pgTable(
     mergedIntoId: uuid("merged_into_id"),
     publicSummary: text("public_summary"),
     publicSummaryStatus: publicSummaryStatus("public_summary_status").notNull().default("none"),
+    /** Set once when the need first crosses the strategy's readiness line (spec 007). */
+    readyAt: timestamp("ready_at", { withTimezone: true }),
     statement: text("statement").notNull(),
     status: needStatus("status").notNull().default("draft"),
     themeId: uuid("theme_id").references(() => themes.id),
@@ -283,9 +285,40 @@ export const events = pgTable(
   ],
 );
 
+/**
+ * The PM's strategy (spec 007), append-only: the current strategy is the highest `version`.
+ * Priority scoring and decision briefs read it; readiness uses its thresholds.
+ */
+export const strategies = pgTable(
+  "strategies",
+  {
+    capacityPerQuarter: integer("capacity_per_quarter").notNull(),
+    createdAt: createdAt(),
+    createdByKind: actorKind("created_by_kind").notNull(),
+    focusThemeIds: uuid("focus_theme_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    id: uuid("id").primaryKey().defaultRandom(),
+    notes: text("notes"),
+    readinessArrCents: bigint("readiness_arr_cents", { mode: "number" }).notNull(),
+    readinessSupporters: integer("readiness_supporters").notNull(),
+    revenueFocus: text("revenue_focus").notNull().default(""),
+    version: integer("version").notNull().unique(),
+  },
+  (table) => [
+    check("strategies_capacity_nonnegative", sql`${table.capacityPerQuarter} >= 0`),
+    check(
+      "strategies_readiness_line",
+      sql`${table.readinessArrCents} >= 0 and ${table.readinessSupporters} >= 0 and (${table.readinessArrCents} > 0 or ${table.readinessSupporters} > 0)`,
+    ),
+  ],
+);
+
 /** Every Signal table; the test harness and the seed truncate these. */
 export const signalTableNames = [
   "events",
+  "strategies",
   "decisions",
   "suggestions",
   "priority_scores",

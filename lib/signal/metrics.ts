@@ -30,6 +30,18 @@ import type { SignalQueryable } from "./db";
  *   `to`) are counted separately and never enter the median. A need created by `split_need` must
  *   record its own `need.created`.
  *
+ * - **Direction accuracy** (spec 007) reads `decision.published` (`occurred_at`, `actor_kind`,
+ *   `payload.status`, `payload.recommendedStatus`, `payload.decisionId`). Over decisions
+ *   published in the window whose `recommendedStatus` is a string (a decision with no brief, or
+ *   recorded before spec 007, has none and is left out): matched when it equals `status`. Each
+ *   `decisionId` counts once; split by the publisher's `actor_kind`.
+ *
+ * - **Readiness lead time** (spec 007) reads `need.ready` (`need_id`, `occurred_at`) and
+ *   `decision.published`. Median days from a need's `need.ready` to its first
+ *   `decision.published`, for first decisions published in the window at or after readiness.
+ *   Needs whose `need.ready` is more than 30 days before `to`, with no `decision.published`
+ *   before `to` and not merged away as of `to`, are counted separately.
+ *
  * - **Suggestion acceptance** reads `suggestion.accepted | suggestion.edited |
  *   suggestion.rejected` (`suggestion_id`, `occurred_at`, `actor_kind` of the resolver, and
  *   `payload.kind`: the suggestion kind). Per kind: accepted ÷ (accepted + edited + rejected),
@@ -109,6 +121,11 @@ const contextSchema = z.object({
 });
 type Context = z.infer<typeof contextSchema>;
 
+const matchSchema = z.object({
+  matched: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+});
+
 const split = <T extends z.ZodType>(schema: T) =>
   z.object({ agent: schema, all: schema, human: schema });
 
@@ -122,10 +139,26 @@ export const metricsSchema = z.object({
       needs: z.number().int().nonnegative(),
     }),
   }),
+  /** Decisions in the window that followed their brief's recommended status (spec 007). */
+  directionAccuracy: z.object({
+    byActorKind: z.object({ agent: matchSchema, human: matchSchema }),
+    matched: z.number().int().nonnegative(),
+    /** matched ÷ total; null with no decisions that carry a recommendation. */
+    rate: rateSchema,
+    total: z.number().int().nonnegative(),
+  }),
   preventionRate: z.object({
     overall: split(preventionSchema),
     /** One bucket per ISO week (Monday, UTC) overlapping the window. */
     weeks: z.array(split(preventionSchema).extend({ weekStart: z.iso.date() })),
+  }),
+  /** Days from a need crossing the readiness line to its first decision (spec 007). */
+  readinessLeadTime: z.object({
+    /** Needs whose first decision, published in the window, followed `need.ready`. */
+    decided: z.number().int().nonnegative(),
+    medianDays: z.number().nonnegative().nullable(),
+    /** Unmerged needs ready more than 30 days before `window.to` with no decision yet. */
+    readyUndecidedOver30Days: z.number().int().nonnegative(),
   }),
   suggestionAcceptance: z.object({
     byKind: z.array(split(acceptanceSchema).extend({ kind: z.string() })),
@@ -317,6 +350,70 @@ const decisionLatency = async (db: SignalQueryable, { from, to }: MetricsWindow)
   };
 };
 
+const directionAccuracy = async (db: SignalQueryable, { from, to }: MetricsWindow) => {
+  const rows = await query<{ actor_kind: ActorKind; matched: unknown; total: unknown }>(
+    db,
+    sql`
+      SELECT actor_kind, count(*)::int AS total,
+        count(*) FILTER (WHERE recommended = status)::int AS matched
+      FROM (
+        SELECT DISTINCT ON (COALESCE(payload->>'decisionId', id::text))
+          actor_kind, payload->>'recommendedStatus' AS recommended, payload->>'status' AS status
+        FROM events
+        WHERE type = 'decision.published'
+          AND jsonb_typeof(payload->'recommendedStatus') = 'string'
+          AND occurred_at >= ${ts(from)} AND occurred_at < ${ts(to)}
+        ORDER BY COALESCE(payload->>'decisionId', id::text), occurred_at, id
+      ) d
+      GROUP BY actor_kind
+    `,
+  );
+  const tally = (kind: ActorKind) => {
+    const row = rows.find((candidate) => candidate.actor_kind === kind);
+    return { matched: num(row?.matched), total: num(row?.total) };
+  };
+  const byActorKind = { agent: tally("agent"), human: tally("human") };
+  const matched = rows.reduce((sum, row) => sum + num(row.matched), 0);
+  const total = rows.reduce((sum, row) => sum + num(row.total), 0);
+  return { byActorKind, matched, rate: ratio(matched, total), total };
+};
+
+const readinessLeadTime = async (db: SignalQueryable, { from, to }: MetricsWindow) => {
+  const [row] = await query<{ decided: unknown; median: unknown; undecided: unknown }>(
+    db,
+    sql`
+      WITH ready AS (
+        SELECT need_id, min(occurred_at) AS ready_at
+        FROM events
+        WHERE type = 'need.ready' AND need_id IS NOT NULL
+        GROUP BY need_id
+      ), first_decision AS (${firstDecisions}), lead AS (
+        SELECT extract(epoch FROM d.occurred_at - r.ready_at) / 86400 AS days
+        FROM first_decision d JOIN ready r ON r.need_id = d.need_id
+        WHERE d.occurred_at >= ${ts(from)} AND d.occurred_at < ${ts(to)}
+          AND d.occurred_at >= r.ready_at
+      )
+      SELECT
+        (SELECT count(*) FROM lead)::int AS decided,
+        (SELECT (percentile_cont(0.5) WITHIN GROUP (ORDER BY days))::float8 FROM lead) AS median,
+        (SELECT count(*) FROM ready r
+          WHERE r.ready_at < ${ts(new Date(to.getTime() - OPEN_NEED_DAYS * DAY_MS))}
+            AND NOT EXISTS (
+              SELECT 1 FROM events d
+              WHERE d.type = 'decision.published' AND d.need_id = r.need_id
+                AND d.occurred_at < ${ts(to)}
+            )
+            AND r.need_id NOT IN (${activeMerges(to)})
+        )::int AS undecided
+    `,
+  );
+  return {
+    decided: num(row?.decided),
+    medianDays: round(numOrNull(row?.median)),
+    readyUndecidedOver30Days: num(row?.undecided),
+  };
+};
+
 const resolutionTypes = sql`('suggestion.accepted', 'suggestion.edited', 'suggestion.rejected')`;
 
 /** Each suggestion's first resolution before `to`, kept when it falls in the window. */
@@ -458,9 +555,12 @@ export const computeMetrics = async (
   const acceptance = await suggestionAcceptance(db, window);
   const review = await reviewCounts(db, window);
   const unmerge = await unmergeRate(db, window);
+  const direction = await directionAccuracy(db, window);
+  const readiness = await readinessLeadTime(db, window);
 
   return {
     decisionLatency: latency,
+    directionAccuracy: direction,
     preventionRate: {
       overall: {
         agent: preventionFrom(signalRows, "agent"),
@@ -477,6 +577,7 @@ export const computeMetrics = async (
         };
       }),
     },
+    readinessLeadTime: readiness,
     suggestionAcceptance: acceptance,
     supporting: {
       contextRate: {

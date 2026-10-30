@@ -76,6 +76,36 @@ describeWithDatabase("metrics from the event log", () => {
       type: "decision.published",
     });
 
+  const publish = (
+    status: string,
+    recommendedStatus: string | null | undefined,
+    options: { actor?: Actor; at?: Date; decisionId?: string; key?: string } = {},
+  ) =>
+    record({
+      actor: options.actor ?? operator,
+      dedupeKey: options.key,
+      needId: randomUUID(),
+      occurredAt: options.at ?? daysAgo(1),
+      payload: {
+        decisionId: options.decisionId ?? randomUUID(),
+        status,
+        ...(recommendedStatus === undefined
+          ? {}
+          : { briefSuggestionId: recommendedStatus ? randomUUID() : null, recommendedStatus }),
+      },
+      type: "decision.published",
+    });
+
+  const ready = (needId: string, at: Date) =>
+    record({
+      actor: { kind: "agent", ref: "signal:readiness" },
+      dedupeKey: `need.ready:${needId}`,
+      needId,
+      occurredAt: at,
+      payload: { arrCents: 30_000_000, strategyVersion: 1, supporters: 3 },
+      type: "need.ready",
+    });
+
   const suggestion = async (
     kind: string,
     resolution?: { actor?: Actor; at?: Date; status: "accepted" | "edited" | "rejected" },
@@ -277,6 +307,108 @@ describeWithDatabase("metrics from the event log", () => {
       await created(need, daysAgo(40));
       await undo(need, await merge(need, daysAgo(20)), daysAgo(10));
       expect((await metrics()).decisionLatency.openPast30Days.needs).toBe(1);
+    });
+  });
+
+  describe("direction accuracy", () => {
+    it("matches the published status against the brief's recommendation, by publisher", async () => {
+      await publish("planned", "planned");
+      await publish("declined", "planned");
+      await publish("planned", "planned", { actor: agent });
+      // outside the window
+      await publish("planned", "declined", { at: daysAgo(10) });
+      const { directionAccuracy } = await metrics();
+      expect(directionAccuracy).toEqual({
+        byActorKind: { agent: { matched: 1, total: 1 }, human: { matched: 1, total: 2 } },
+        matched: 2,
+        rate: 0.6667,
+        total: 3,
+      });
+    });
+
+    it("leaves out decisions published without a brief", async () => {
+      await publish("planned", "planned");
+      await publish("planned", null);
+      await publish("declined", undefined);
+      const { directionAccuracy } = await metrics();
+      expect(directionAccuracy.total).toBe(1);
+      expect(directionAccuracy.rate).toBe(1);
+    });
+
+    it("counts a retried publish once", async () => {
+      const decisionId = randomUUID();
+      for (const _ of [1, 2])
+        await publish("planned", "planned", { decisionId, key: `decision:${decisionId}` });
+      // the same decision recorded twice without a dedupe key
+      const other = randomUUID();
+      for (const _ of [1, 2]) await publish("declined", "planned", { decisionId: other });
+      expect((await metrics()).directionAccuracy).toMatchObject({ matched: 1, total: 2 });
+    });
+
+    it("is null with no recommended decisions", async () => {
+      await publish("planned", null);
+      expect((await metrics()).directionAccuracy).toEqual({
+        byActorKind: { agent: { matched: 0, total: 0 }, human: { matched: 0, total: 0 } },
+        matched: 0,
+        rate: null,
+        total: 0,
+      });
+    });
+  });
+
+  describe("readiness lead time", () => {
+    it("takes the median days from ready to first decision in the window", async () => {
+      const [a, b, c, early, notReady] = [
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+      ];
+      await ready(a, daysAgo(3));
+      // 2 days
+      await decide(a, daysAgo(1));
+      // a retried need.ready is recorded once
+      await ready(a, daysAgo(3));
+      await ready(b, daysAgo(10));
+      // 4 days
+      await decide(b, daysAgo(6), agent);
+      // a later decision does not count again
+      await decide(b, daysAgo(0.5));
+      await ready(c, daysAgo(20));
+      // 15 days
+      await decide(c, daysAgo(5));
+      // decided before it was ready: no lead time
+      await decide(early, daysAgo(4));
+      await ready(early, daysAgo(2));
+      // decided, never ready
+      await decide(notReady, daysAgo(2));
+      const { readinessLeadTime } = await metrics({ from: daysAgo(7), to: now });
+      expect(readinessLeadTime).toEqual({
+        decided: 3,
+        medianDays: 4,
+        readyUndecidedOver30Days: 0,
+      });
+    });
+
+    it("counts ready needs undecided after 30 days separately", async () => {
+      const [old, young, decided, merged] = [
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+      ];
+      await ready(old, daysAgo(40));
+      await ready(young, daysAgo(10));
+      await ready(decided, daysAgo(45));
+      await decide(decided, daysAgo(35));
+      await ready(merged, daysAgo(50));
+      await merge(merged, daysAgo(20));
+      expect((await metrics()).readinessLeadTime).toEqual({
+        decided: 0,
+        medianDays: null,
+        readyUndecidedOver30Days: 1,
+      });
     });
   });
 

@@ -1,5 +1,7 @@
 import { createFakeAi, fakeReasoner, tokens } from "@/lib/signal/ai/fakes";
-import type { SignalAi } from "@/lib/signal/ai/ports";
+import type { ReasonerTask, SignalAi } from "@/lib/signal/ai/ports";
+
+import type { World } from "../format";
 
 /**
  * Deterministic Signal-arm AI for offline runs (`pnpm test`): the `lib/signal/ai/fakes.ts`
@@ -49,13 +51,17 @@ const clampScore = (value: number) => Math.max(0, Math.min(5, Math.round(value *
 /** The `value` group of `pattern` in `text`, as a number (0 when absent). */
 const number = (text: string, pattern: RegExp) => Number(pattern.exec(text)?.groups?.value ?? 0);
 
-export const offlineReasoner = () =>
+type Handler = (input: { prompt: string; system?: string }) => unknown;
+
+const BRIEF_OPTIONS = [
+  { rationale: "Demand is broad.", status: "planned", tradeoffs: "Takes capacity." },
+  { rationale: "Demand is narrow.", status: "declined", tradeoffs: "Some disappointment." },
+];
+
+export const offlineReasoner = (overrides: Partial<Record<ReasonerTask, Handler>> = {}) =>
   fakeReasoner({
     decision_brief: ({ prompt }) => ({
-      options: [
-        { rationale: "Demand is broad.", status: "planned", tradeoffs: "Takes capacity." },
-        { rationale: "Demand is narrow.", status: "declined", tradeoffs: "Some disappointment." },
-      ],
+      options: BRIEF_OPTIONS,
       recommendation: {
         note: "Thanks for telling us how this affects your work; here is our decision.",
         status: number(prompt, /Supporters: (?<value>\d+)/u) >= 2 ? "planned" : "declined",
@@ -101,6 +107,60 @@ export const offlineReasoner = () =>
         theme: bestLine(need, section, 0) ?? (numbered(section).length ? 1 : null),
       };
     },
+    ...overrides,
   });
 
-export const createOfflineSignalAi = (): SignalAi => createFakeAi({ reasoner: offlineReasoner() });
+/**
+ * Spec 007 bounds for `follows_signal`: a `decision_brief` fake that recommends the status
+ * Crewday's strategy implies for the need (`"strategy"`), or the opposite (`"opposite"`). It reads
+ * the need's statement from the prompt and finds its true need by statement: a backlog row, a
+ * world need, or the statement the offline extractor drafts from a signal (title: body); else the
+ * statement with the most shared words.
+ */
+export const strategyBriefHandler = (world: World, mode: "strategy" | "opposite"): Handler => {
+  const byStatement = new Map<string, string>();
+  for (const need of world.needs) byStatement.set(need.statement, need.key);
+  for (const row of world.backlog)
+    byStatement.set(
+      row.body.trim() ? `${row.title.trim()}: ${row.body.trim()}` : row.title,
+      row.trueNeedKey,
+    );
+  for (const signal of world.signals) {
+    const [main] = signal.labels.needKeys;
+    if (main) byStatement.set(`${signal.title.trim()}: ${signal.body.trim()}`.slice(0, 280), main);
+  }
+  const keyOf = (statement: string) => {
+    const exact = byStatement.get(statement);
+    if (exact) return exact;
+    let best: { key: string; score: number } | null = null;
+    for (const [text, key] of byStatement) {
+      const score = overlap(statement, text);
+      if (!best || score > best.score) best = { key, score };
+    }
+    return best?.key;
+  };
+  const needs = new Map(world.needs.map((need) => [need.key, need]));
+  return ({ prompt }) => {
+    const key = keyOf(quoted(prompt, "Need"));
+    const truth = (key && needs.get(key)?.strategyDecision.status) || "declined";
+    const opposite = truth === "planned" ? "declined" : "planned";
+    const status = mode === "strategy" ? truth : opposite;
+    return {
+      options: BRIEF_OPTIONS,
+      recommendation: { note: "Thanks for telling us how this affects your work.", status },
+      summary: "Several teams ask for this.",
+    };
+  };
+};
+
+export interface OfflineAiOptions {
+  /** Replaces the offline `decision_brief` fake (e.g. `strategyBriefHandler`). */
+  decisionBrief?: Handler;
+}
+
+export const createOfflineSignalAi = (options: OfflineAiOptions = {}): SignalAi =>
+  createFakeAi({
+    reasoner: offlineReasoner(
+      options.decisionBrief ? { decision_brief: options.decisionBrief } : {},
+    ),
+  });

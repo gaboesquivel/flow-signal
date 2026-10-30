@@ -8,6 +8,8 @@ export const DEFAULT_GENUI_MODEL = "anthropic/claude-sonnet-4.6";
 export const DEFAULT_SIGNAL_FAST_MODEL = "anthropic/claude-haiku-5.5";
 /** Signal off the hot path (scores, themes, summaries, briefs, demand summaries). */
 export const DEFAULT_SIGNAL_REASONING_MODEL = "anthropic/claude-sonnet-5.5";
+/** Decision tasks (decision briefs): spec 007, decision 0006. */
+export const DEFAULT_SIGNAL_DECISION_MODEL = "anthropic/claude-fable-5.1";
 /** Need embeddings; 1536 dimensions to match `needs.embedding`. */
 export const DEFAULT_SIGNAL_EMBEDDING_MODEL = "openai/text-embedding-3-small";
 
@@ -26,9 +28,24 @@ export const signalFastModelId = (environment: Record<string, string | undefined
 export const signalReasoningModelId = (
   environment: Record<string, string | undefined> = process.env,
 ) => env("SIGNAL_REASONING_MODEL", environment) ?? DEFAULT_SIGNAL_REASONING_MODEL;
+export const signalDecisionModelId = (
+  environment: Record<string, string | undefined> = process.env,
+) => env("SIGNAL_DECISION_MODEL", environment) ?? DEFAULT_SIGNAL_DECISION_MODEL;
 export const signalEmbeddingModelId = (
   environment: Record<string, string | undefined> = process.env,
 ) => env("SIGNAL_EMBEDDING_MODEL", environment) ?? DEFAULT_SIGNAL_EMBEDDING_MODEL;
+
+/**
+ * Request-scoped Gateway BYOK (decision 0006): with `ANTHROPIC_API_KEY` set, the Gateway bills the
+ * call to our Anthropic account; without it, the Gateway's own credentials are used. Spread into
+ * `providerOptions`. The key never leaves the server except inside the Gateway request.
+ */
+export const anthropicByokOptions = (
+  environment: Record<string, string | undefined> = process.env,
+): { gateway?: { byok: { anthropic: { apiKey: string }[] } } } => {
+  const apiKey = env("ANTHROPIC_API_KEY", environment);
+  return apiKey ? { gateway: { byok: { anthropic: [{ apiKey }] } } } : {};
+};
 
 /** Direct Anthropic API ids are dashed: `anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`. */
 export const directModelId = (gatewayId: string) =>

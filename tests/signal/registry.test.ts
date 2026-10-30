@@ -42,6 +42,10 @@ const specTable = [
   // Spec 006 → Contract changes.
   ["list_operator_needs", "operator", "GET", "/api/operator/needs"],
   ["check_public_text", "operator", "POST", "/api/operator/check-public-text"],
+  // Spec 007 → Typed API contract.
+  ["get_strategy", "operator", "GET", "/api/operator/strategy"],
+  ["set_strategy", "operator", "PUT", "/api/operator/strategy"],
+  ["list_ready_needs", "operator", "GET", "/api/operator/needs/ready"],
 ] as const;
 
 const withoutDialect = (schema: Record<string, unknown>) => {
@@ -162,6 +166,7 @@ describe("surfaces generated from the registry", () => {
       "publish_decision",
       "resolve_suggestion",
       "set_criteria",
+      "set_strategy",
       "split_need",
       "undo_merge",
     ];
@@ -328,5 +333,53 @@ describe("REST adapter", () => {
     expect(((await response.json()) as { error: { code: string } }).error.code).toBe(
       "validation_failed",
     );
+  });
+});
+
+describe("spec 007 operations (get_strategy, set_strategy, list_ready_needs)", () => {
+  const spec007 = [
+    ["get_strategy", "GET", "/api/operator/strategy"],
+    ["set_strategy", "PUT", "/api/operator/strategy"],
+    ["list_ready_needs", "GET", "/api/operator/needs/ready"],
+  ] as const;
+  const http = createSignalHttpHandler(operations);
+  withSecret(OPERATOR_SECRET);
+
+  it("route /needs/ready to list_ready_needs, not get_need_detail's /needs/:id", () => {
+    const match = matchOperationPath(operations, "GET", "/api/operator/needs/ready");
+    assert.ok(match && match !== "method_not_allowed");
+    expect(match.operation.name).toBe("list_ready_needs");
+    const detail = matchOperationPath(
+      operations,
+      "GET",
+      "/api/operator/needs/6f1c2a8e-3a4b-4c5d-8e9f-0a1b2c3d4e5f",
+    );
+    assert.ok(detail && detail !== "method_not_allowed");
+    expect(detail.operation.name).toBe("get_need_detail");
+  });
+
+  it("return unauthorized over REST without the Operator secret", async () => {
+    for (const [, method, route] of spec007) {
+      const response = await http(
+        new Request(`http://signal.localhost${route}`, {
+          ...(method === "PUT"
+            ? { body: "{}", headers: { "content-type": "application/json" } }
+            : {}),
+          method,
+        }),
+      );
+      expect(response?.status, `${method} ${route}`).toBe(401);
+    }
+  });
+
+  it("are absent from the public MCP and the Assistant, present for the Operator", async () => {
+    const publicTools = (await listTools("public")).map((tool) => tool.name);
+    const operatorTools = (await listTools("operator")).map((tool) => tool.name);
+    for (const [name] of spec007) {
+      expect(publicTools).not.toContain(name);
+      expect(operatorTools).toContain(name);
+      expect(signalAgentTools("assistant")[name]).toBeUndefined();
+      expect(signalAgentTools("operator")[name]).toBeDefined();
+    }
   });
 });

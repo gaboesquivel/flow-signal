@@ -5,9 +5,11 @@ import { decisions, events, needs, suggestions } from "../../../lib/db/schema";
 import { createUnavailableAi } from "../../../lib/signal/ai/fakes";
 import {
   applyDecisionBriefSuggestion,
+  decisionBriefSuggestionSchema,
   draftDecisionBrief,
   publishDecision,
 } from "../../../lib/signal/domain/decisions";
+import { setStrategy } from "../../../lib/signal/domain/strategy";
 import { getMySignals } from "../../../lib/signal/domain/my-signals";
 import { describeWithDatabase, resetDatabase, useTestDatabase } from "../support/database";
 import {
@@ -44,7 +46,16 @@ describeWithDatabase("decision briefs and decisions", () => {
       supportersLast30Days: 4,
       trend: "rising",
     });
-    expect(brief.payload.recommendation).toEqual({ note: "Targeting Q1", status: "planned" });
+    expect(brief.payload.recommendation).toEqual({
+      capacityNote: "Takes one slot of this quarter's capacity.",
+      confidence: 0.7,
+      note: "Targeting Q1",
+      status: "planned",
+      strategyFit: { inFocus: true, reason: "Serves the strategy's focus themes." },
+    });
+    expect(brief.payload.strategyVersion).toBeNull();
+    expect(brief.payload.markdown).toContain("- No strategy written yet.");
+    expect(brief.payload.markdown).toContain("`planned` (confidence 70%)");
     expect(brief.payload.markdown).toContain("6 supporters (6 signals); 4 new in the last 30 days");
     expect(brief.payload.markdown).toContain("- Globex (Growth): ARR $60,000");
     expect(brief.payload.markdown).toContain("Combined ARR and open deals: $660,000");
@@ -57,6 +68,74 @@ describeWithDatabase("decision briefs and decisions", () => {
     expect(
       await harness.db.select().from(decisions).where(eq(decisions.needId, fx.n1.need.id)),
     ).toEqual([]);
+  });
+
+  it("drafts against the current strategy and records its version (spec 007)", async () => {
+    await setStrategy(
+      harness.db,
+      pm,
+      {
+        capacityPerQuarter: 3,
+        focusThemeIds: [fx.reporting.id],
+        readinessArrCents: 25_000_000,
+        readinessSupporters: 5,
+        revenueFocus: "mid-market retention",
+      },
+      NOW,
+    );
+    let prompt = "";
+    let system = "";
+    const ai = fakeReasoningAi();
+    const { reasoner } = ai;
+    ai.reasoner = {
+      generate: (input) => {
+        ({ prompt } = input);
+        system = input.system ?? "";
+        return reasoner.generate(input);
+      },
+    };
+    const brief = await draftDecisionBrief({ ai, db: harness.db, now: NOW }, fx.n1.need.id);
+    expect(prompt).toContain("Strategy (version 1):");
+    expect(prompt).toContain("- Focus themes: Reporting");
+    expect(prompt).toContain("- Revenue focus: mid-market retention");
+    expect(prompt).toContain("- Capacity: 3 needs per quarter");
+    expect(system).toMatch(/calibrated confidence/u);
+    expect(brief.payload.strategyVersion).toBe(1);
+    expect(brief.payload.markdown).toContain(
+      "- Strategy version 1: in focus. Serves the strategy's focus themes.",
+    );
+    expect(brief.payload.markdown).toContain("- Capacity: Takes one slot");
+  });
+
+  it("still reads briefs stored before spec 007", () => {
+    const old = decisionBriefSuggestionSchema.parse({
+      createdAt: NOW.toISOString(),
+      id: "00000000-0000-4000-8000-000000000001",
+      kind: "decision_brief",
+      model: "anthropic/claude-sonnet-5.5",
+      needId: "00000000-0000-4000-8000-000000000002",
+      payload: {
+        facts: {
+          accounts: [],
+          businessValueCents: 0,
+          priorityScore: null,
+          signalCount: 1,
+          supporters: 1,
+          supportersLast30Days: 1,
+          trend: "steady",
+        },
+        markdown: "# Decision brief",
+        options: [
+          { rationale: "a", status: "planned", tradeoffs: "b" },
+          { rationale: "c", status: "declined", tradeoffs: "d" },
+        ],
+        reason: "x",
+        recommendation: { note: "Targeting Q1", status: "planned" },
+      },
+      status: "accepted",
+    });
+    expect(old.payload.recommendation).toEqual({ note: "Targeting Q1", status: "planned" });
+    expect(old.payload.strategyVersion).toBeUndefined();
   });
 
   it("writes nothing when the model is unreachable", async () => {
@@ -89,9 +168,20 @@ describeWithDatabase("decision briefs and decisions", () => {
 
     const decision = await publishDecision(
       { actor: pm, db: harness.db, now: NOW },
-      { needId: fx.n1.need.id, note: "Targeting Q1", status: "planned" },
+      { needId: fx.n1.need.id, note: "Not this year", status: "declined" },
     );
     expect(decision.briefMarkdown).toBe("# Edited brief");
+    // Direction accuracy reads the brief's recommendation from the event log (spec 007).
+    const [published] = await harness.db
+      .select()
+      .from(events)
+      .where(eq(events.type, "decision.published"));
+    expect(published!.payload).toEqual({
+      briefSuggestionId: brief.id,
+      decisionId: decision.id,
+      recommendedStatus: "planned",
+      status: "declined",
+    });
   });
 
   it("accepting a brief changes nothing but returns its markdown; a bad edit is rejected", async () => {
@@ -124,7 +214,13 @@ describeWithDatabase("decision briefs and decisions", () => {
         actorRef: "mcp:pm-copilot",
         needId: fx.n1.need.id,
         occurredAt: NOW,
-        payload: { client: "pm-copilot", decisionId: decision.id, status: "planned" },
+        payload: {
+          briefSuggestionId: null,
+          client: "pm-copilot",
+          decisionId: decision.id,
+          recommendedStatus: null,
+          status: "planned",
+        },
       },
     ]);
   });

@@ -29,6 +29,8 @@ const compilePath = (path: string) => {
   return { names, regex: new RegExp(`^${pattern}/?$`, "u") };
 };
 
+const paramCount = (path: string) => path.split("/").filter((s) => s.startsWith(":")).length;
+
 export const matchOperationPath = (
   ops: readonly AnyOperation[],
   method: string,
@@ -36,7 +38,9 @@ export const matchOperationPath = (
 ) => {
   const path = pathname.replace(/^\/v1(?=\/api\/)/u, "");
   let pathMatched = false;
-  for (const operation of ops) {
+  // Literal paths win over `:param` ones (`/needs/ready` before `/needs/:id`); stable otherwise.
+  const ordered = ops.toSorted((a, b) => paramCount(a.http.path) - paramCount(b.http.path));
+  for (const operation of ordered) {
     const { names, regex } = compilePath(operation.http.path);
     const match = regex.exec(path);
     if (!match) continue;

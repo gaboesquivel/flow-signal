@@ -78,3 +78,11 @@ export const errorCopy = (
     }
   }
 };
+
+/** Whole dollars from cents, e.g. `$250,000`. */
+export const formatUsd = (cents: number) =>
+  new Intl.NumberFormat("en", {
+    currency: "USD",
+    maximumFractionDigits: 0,
+    style: "currency",
+  }).format(cents / 100);

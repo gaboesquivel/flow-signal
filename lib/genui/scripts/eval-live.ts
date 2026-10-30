@@ -1,4 +1,7 @@
+import { refuseInCi } from "@/evals/ci-guard";
 import { composeQuery } from "../orchestration/compose";
+
+refuseInCi("eval:genui:live");
 
 const prompts = ["Design a completely novel interface", "Surprise me with a custom layout"];
 

@@ -1,5 +1,5 @@
 {
-  "id": "260e40fa-80ac-433c-afe8-35898c23294b",
+  "id": "cca6bc21-25f5-4dd7-a300-c56777ce1054",
   "prevId": "b8dd4399-aea5-43a2-a101-4cfb801995b5",
   "version": "7",
   "dialect": "postgresql",
@@ -408,6 +408,12 @@
           "notNull": true,
           "default": "'none'"
         },
+        "ready_at": {
+          "name": "ready_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "statement": {
           "name": "statement",
           "type": "text",
@@ -783,12 +789,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "tracking_link_id": {
-          "name": "tracking_link_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "urgency": {
           "name": "urgency",
           "type": "urgency",
@@ -824,21 +824,6 @@
           "columns": [
             {
               "expression": "submitter_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "signals_tracking_link_idx": {
-          "name": "signals_tracking_link_idx",
-          "columns": [
-            {
-              "expression": "tracking_link_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -889,19 +874,6 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "signals_tracking_link_id_tracking_links_id_fk": {
-          "name": "signals_tracking_link_id_tracking_links_id_fk",
-          "tableFrom": "signals",
-          "tableTo": "tracking_links",
-          "columnsFrom": [
-            "tracking_link_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -923,6 +895,101 @@
       },
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategies": {
+      "name": "strategies",
+      "schema": "",
+      "columns": {
+        "capacity_per_quarter": {
+          "name": "capacity_per_quarter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by_kind": {
+          "name": "created_by_kind",
+          "type": "actor_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "focus_theme_ids": {
+          "name": "focus_theme_ids",
+          "type": "uuid[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::uuid[]"
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "readiness_arr_cents": {
+          "name": "readiness_arr_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "readiness_supporters": {
+          "name": "readiness_supporters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revenue_focus": {
+          "name": "revenue_focus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "strategies_version_unique": {
+          "name": "strategies_version_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "version"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "strategies_capacity_nonnegative": {
+          "name": "strategies_capacity_nonnegative",
+          "value": "\"strategies\".\"capacity_per_quarter\" >= 0"
+        },
+        "strategies_readiness_line": {
+          "name": "strategies_readiness_line",
+          "value": "\"strategies\".\"readiness_arr_cents\" >= 0 and \"strategies\".\"readiness_supporters\" >= 0 and (\"strategies\".\"readiness_arr_cents\" > 0 or \"strategies\".\"readiness_supporters\" > 0)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.submitters": {
@@ -1191,47 +1258,6 @@
           "value": "\"themes\".\"strategic_weight\" >= 0 and \"themes\".\"strategic_weight\" <= 1"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.tracking_links": {
-      "name": "tracking_links",
-      "schema": "",
-      "columns": {
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "tracking_links_token_unique": {
-          "name": "tracking_links_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },

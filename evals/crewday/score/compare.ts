@@ -31,6 +31,10 @@ export interface Comparison {
   killSignal: boolean;
   lift: {
     decisionQuality: { ci: Interval | null; value: number | null };
+    /** Spec 007: Signal − board (null while the board has no recommendations). */
+    directionAccuracy: { ci: Interval | null; value: number | null };
+    /** Spec 007: mean ready → decided days, Signal − board. */
+    readinessLeadTimeDays: { ci: Interval | null; value: number | null };
     revenueCoverageRatio: { ci: Interval | null; value: number | null };
     truePreventionRate: { ci: Interval | null; value: number | null };
   };
@@ -110,6 +114,30 @@ export const compareArms = (
     board.headline.revenueCoverage,
     ratio,
     samples,
+  );
+
+  // Spec 007's metrics resample their own needs, so spec 004's intervals above stay unchanged.
+  const directionSamples = drawSamples(
+    keysOf(
+      signal.headline.directionAccuracy,
+      board.headline.directionAccuracy,
+      signal.headline.readinessLeadTime,
+      board.headline.readinessLeadTime,
+    ),
+    seed,
+    resamples,
+  );
+  const direction = paired(
+    signal.headline.directionAccuracy,
+    board.headline.directionAccuracy,
+    difference,
+    directionSamples,
+  );
+  const leadTime = paired(
+    signal.headline.readinessLeadTime,
+    board.headline.readinessLeadTime,
+    difference,
+    directionSamples,
   );
 
   const organizing = signal.headline.pmOrganizingShare.value;
@@ -231,6 +259,8 @@ export const compareArms = (
     killSignal: criteria[0]?.pass !== true,
     lift: {
       decisionQuality: quality,
+      directionAccuracy: direction,
+      readinessLeadTimeDays: leadTime,
       revenueCoverageRatio: coverage,
       truePreventionRate: prevention,
     },

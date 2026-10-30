@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { undoMerge as undoMergeInDb, undoMergeResultSchema } from "../domain/merges";
+import { scheduleReadinessCheck } from "../domain/readiness";
 import { defineOperation } from "./types";
 
 export const undoMerge = defineOperation({
@@ -13,7 +14,12 @@ export const undoMerge = defineOperation({
   input: z.object({ id: z.uuid() }),
   name: "undo_merge",
   output: undoMergeResultSchema,
-  run({ id }, { actor, clock, db }) {
-    return db.transaction((tx) => undoMergeInDb(tx, { actor, mergeId: id, now: clock.now() }));
+  async run({ id }, { actor, ai, clock, db }) {
+    const result = await db.transaction((tx) =>
+      undoMergeInDb(tx, { actor, mergeId: id, now: clock.now() }),
+    );
+    // Spec 007: either need may now meet the readiness line (checked after the response).
+    scheduleReadinessCheck({ ai, clock, db }, [result.needId, result.intoNeedId]);
+    return result;
   },
 });

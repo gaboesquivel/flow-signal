@@ -88,9 +88,9 @@ describe("seedRefusal", () => {
   });
 });
 
-describe("0001_tracking_links (spec 006 task 02)", () => {
+describe("0002_tracking_links (spec 006 task 02)", () => {
   const sql = readFileSync(
-    path.resolve(import.meta.dirname, "../../drizzle/0001_tracking_links.sql"),
+    path.resolve(import.meta.dirname, "../../drizzle/0002_tracking_links.sql"),
     "utf-8",
   );
 

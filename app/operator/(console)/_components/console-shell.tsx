@@ -25,6 +25,7 @@ export const fetchPendingCount = async (): Promise<PendingCount> => {
 const links = [
   { href: "/operator/triage", label: "Triage" },
   { href: "/operator/needs", label: "Needs" },
+  { href: "/operator/decide", label: "Decide" },
   { href: "/operator/criteria", label: "Criteria" },
   { href: "/operator/metrics", label: "Metrics" },
   { href: "/operator/chat", label: "Chat" },
@@ -42,7 +43,7 @@ function Mark({ className }: { className?: string }) {
   );
 }
 
-/** PM console top bar (DESIGN.md → PM console): mark, Triage (count) · Needs · Criteria · Metrics · Chat. */
+/** PM console top bar (DESIGN.md → PM console): mark, Triage (count) · Needs · Decide (spec 007) · Criteria · Metrics · Chat. */
 export function ConsoleShell({
   children,
   initialPending,
