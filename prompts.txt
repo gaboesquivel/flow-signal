@@ -135,3 +135,7 @@ Response: Wrote docs/design/round-1/brief.md and rendered three directions in pa
 [2026-10-30T17:30:13Z]
 Prompt: Build spec 007 UI slice (Operator strategy form and Ready to decide list).
 Response: Added /operator/decide with StrategyForm (set_strategy, newly ready count) and ReadyNeeds (pencil recommendation, accept brief, edit note, publish, draft brief). Temporary lib/signal/client-007-pending.ts declares get_strategy/set_strategy/list_ready_needs types until the client is regenerated; theme options come from search_needs (no themes op exists).
+
+[2026-10-30T18:15:56Z]
+Prompt: Close spec 007's open verification items (live brief via Gateway, Crewday comparison, list_themes, acceptance walkthrough); then "simply update the code and dont run the evals yet".
+Response: Ran one instrumented live Fable 5.1 brief on a local test DB (17 s, $0.065, model stored correctly; Gateway accepts effort and fallbacks). Found BYOK silently failing (key not workspace-scoped), added ANTHROPIC_WORKSPACE_ID (anthropic-workspace-id on the BYOK credential) and a warning on silent BYOK fallback. Added list_themes Operator operation with parity test and swapped /operator/decide off the search_needs stopgap. Updated 0006 Consequences and spec 007 Further Notes. Crewday runs and acceptance walkthrough not run per user.

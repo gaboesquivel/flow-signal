@@ -4,38 +4,15 @@ import { SignalErrorAlert } from "@/app/_components/signal/error-alert";
 import { ReadyNeeds } from "@/app/_components/signal/ready-needs";
 import { signalOperatorServerClient } from "@/app/_components/signal/server-client";
 import { StrategyForm } from "@/app/_components/signal/strategy-form";
-import type { ThemeOption } from "@/app/_components/signal/strategy-form";
-import type { SignalClient } from "@/lib/signal/client";
 
 export const dynamic = "force-dynamic";
-
-/**
- * Themes for the focus picker. No operation lists themes yet, so this collects the themes of
- * live needs from `search_needs` (a few pages); themes with no live need are not offered.
- */
-const listThemes = async (signal: SignalClient): Promise<ThemeOption[]> => {
-  const found = new Map<string, string>();
-  let cursor: string | undefined;
-  for (let page = 0; page < 5; page += 1) {
-    // Pages depend on the previous cursor, so they load one after another.
-    // oxlint-disable-next-line no-await-in-loop
-    const result = await signal.searchNeeds({ cursor, limit: 50 });
-    if (!result.ok) break;
-    for (const need of result.data.needs) if (need.theme) found.set(need.theme.id, need.theme.name);
-    if (!result.data.nextCursor) break;
-    cursor = result.data.nextCursor;
-  }
-  return [...found]
-    .map(([id, name]) => ({ id, name }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
-};
 
 export default async function DecidePage() {
   const signal = await signalOperatorServerClient();
   const [strategy, ready, themes] = await Promise.all([
     signal.getStrategy({}),
     signal.listReadyNeeds({}),
-    listThemes(signal),
+    signal.listThemes({}),
   ]);
   // After a save, `router.refresh()` re-renders this page; a new strategy version or ready list
   // changes this key, so the ready list remounts with the fresh data.
@@ -60,7 +37,10 @@ export default async function DecidePage() {
           <SignalErrorAlert error={ready.error} />
         )}
         {strategy.ok ? (
-          <StrategyForm initial={strategy.data} themes={themes} />
+          <StrategyForm
+            initial={strategy.data}
+            themes={themes.ok ? themes.data.themes.map(({ id, name }) => ({ id, name })) : []}
+          />
         ) : (
           <SignalErrorAlert error={strategy.error} />
         )}

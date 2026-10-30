@@ -43,6 +43,7 @@ const specTable = [
   ["get_strategy", "operator", "GET", "/api/operator/strategy"],
   ["set_strategy", "operator", "PUT", "/api/operator/strategy"],
   ["list_ready_needs", "operator", "GET", "/api/operator/needs/ready"],
+  ["list_themes", "operator", "GET", "/api/operator/themes"],
 ] as const;
 
 const withoutDialect = (schema: Record<string, unknown>) => {
@@ -333,11 +334,12 @@ describe("REST adapter", () => {
   });
 });
 
-describe("spec 007 operations (get_strategy, set_strategy, list_ready_needs)", () => {
+describe("spec 007 operations (get_strategy, set_strategy, list_ready_needs, list_themes)", () => {
   const spec007 = [
     ["get_strategy", "GET", "/api/operator/strategy"],
     ["set_strategy", "PUT", "/api/operator/strategy"],
     ["list_ready_needs", "GET", "/api/operator/needs/ready"],
+    ["list_themes", "GET", "/api/operator/themes"],
   ] as const;
   const http = createSignalHttpHandler(operations);
   withSecret(OPERATOR_SECRET);

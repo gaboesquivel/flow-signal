@@ -71,6 +71,22 @@ describe("anthropicByokOptions", () => {
       gateway: { byok: { anthropic: [{ apiKey: "sk-ant-test" }] } },
     });
   });
+
+  it("adds the workspace header to the BYOK credential when ANTHROPIC_WORKSPACE_ID is set", () => {
+    expect(anthropicByokOptions({ ANTHROPIC_WORKSPACE_ID: "wrkspc_1" })).toEqual({});
+    expect(
+      anthropicByokOptions({
+        ANTHROPIC_API_KEY: "sk-ant-test",
+        ANTHROPIC_WORKSPACE_ID: " wrkspc_1 ",
+      }),
+    ).toEqual({
+      gateway: {
+        byok: {
+          anthropic: [{ apiKey: "sk-ant-test", headers: { "anthropic-workspace-id": "wrkspc_1" } }],
+        },
+      },
+    });
+  });
 });
 
 describe("gatewayAvailable", () => {
