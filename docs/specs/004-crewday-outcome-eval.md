@@ -70,7 +70,7 @@ Crewday is one Signal workspace, matching PRODUCT.md's single organization. Both
 | Themes           | 6       | For example Scheduling, Time and attendance, Payroll and exports, Compliance, Integrations, Mobile                                                                                                         |
 | Migrated backlog | ~40     | Needs that exist at day 0, imported as Crewday's old spreadsheet would have them: inconsistent wording, solution-named titles, and about 8 duplicate pairs                                                 |
 | Needs            | ~120    | Includes the backlog's true needs; hand-written in "who needs to do what so that outcome" form, each with an arrival curve (steady, bursty after an incident, seasonal, late-emerging) and a true priority |
-| Signals          | ~1,500  | 12 months after adoption; each carries its hidden labels                                                                                                                                                   |
+| Signals          | ~600 (v1; ~1,500 later) | 12 months after adoption; each carries its hidden labels                                                                                                                                                   |
 
 **Starting state.** The run begins by loading the migrated backlog through operations as approved needs, duplicates included, then turns on Signal. This reflects how a real customer adopts the product and gives both arms the same messy start. Merging the backlog's duplicates is part of the PM's work.
 
@@ -245,9 +245,9 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 - [ ] 02: Generate the Crewday worlds
 - [x] 03: Simulation engine, policies, arms, and scorer (offline)
 - [ ] 04: Signal vs. vote board on Crewday (the lift run)
-- [ ] 05: Behaviour sweep with cached AI responses
-- [ ] 06: Tagged runs, history, and the regression rule
-- [ ] 07: Harder matching set from the test world
+- [ ] 05: Behaviour sweep with cached AI responses _(deferred 2026-10-30: shipped without it for speed)_
+- [ ] 06: Tagged runs, history, and the regression rule _(deferred 2026-10-30: shipped without it for speed)_
+- [ ] 07: Harder matching set from the test world _(deferred 2026-10-30: shipped without it for speed)_
 
 ### 01: World format and fixture world
 
@@ -375,7 +375,7 @@ This task answers the bet on the dev world.
 **Open assumptions**
 
 - **Crewday's domain** (workforce scheduling, mid-market, frontline teams) is a guess; Crewday is only confirmed as fictional.
-- **The human review of generated signals** is not decided. For v1, shipped without a human reviewer, the stratified sample (10% per world, weighted to traps) is checked by a model from a third family, different from both Signal's runtime models and the generator. Disagreements are fixed or dropped and recorded with the world. This is cheaper but not independent; a human review of the same sample can upgrade a world to `v1.1` without changing its signals' labels.
+- **The human review of generated signals** is not decided. **v1 shipped with no review at all, for speed** (manifest records it as deferred). The planned v1.1 method: the stratified sample (10% per world, weighted to traps) is checked by a model from a third family, different from both Signal's runtime models and the generator. Disagreements are fixed or dropped and recorded with the world. This is cheaper but not independent; a human review of the same sample can upgrade a world to `v1.1` without changing its signals' labels.
 - **The generator model family** is not chosen. The requirement is only that it is not one of Signal's runtime models.
 - **Policy defaults** (`p_attach` 0.8, `p_wrong` 0.1, `pm_actions` 60, `p_manual_find`, the readiness line) are hypotheses. The sweep bounds them.
 - **Success thresholds** (+20 points prevention, ≥ 85% decision quality, 1.5× revenue coverage, half the organizing share, ≥ 95% acceptance precision) and the 60% keyword-findable ceiling are proposals.
