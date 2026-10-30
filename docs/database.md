@@ -59,19 +59,33 @@ NEON_API_KEY=<neon key> VERCEL_TOKEN=<vercel token> VERCEL_TEAM_ID=<vercel team 
 
 `VERCEL_TEAM_ID` is the `orgId` in `.vercel/project.json` and is required because the project lives under a Vercel team.
 
-Then push the schema:
+Then apply the migrations:
 
 ```bash
 set -a && . ./.env.local && set +a && pnpm db:migrate
 ```
 
-`drizzle-kit` does not read `.env.local`, so the command loads it into the shell first.
+The baseline migration enables pgvector (`CREATE EXTENSION IF NOT EXISTS vector`).
 
-Spec 001's schema enables pgvector (`CREATE EXTENSION IF NOT EXISTS vector`) when it is pushed.
+## Migrations and seeds
 
-## Schema changes
+Deployments never destroy data. The only database step a Vercel deployment runs is `pnpm db:migrate` on production builds (`scripts/vercel-build.mjs`), and that runner refuses anything destructive. Seeds never run in a deployment.
 
-Edit `lib/db/schema.ts` and make the tests pass (Docker or PGlite apply the schema themselves), then run `pnpm db:migrate` (Drizzle `push`) against the development database. Production builds on Vercel apply the schema automatically when `DATABASE_URL` is set (`scripts/vercel-build.mjs`).
+**Changing the schema**
+
+1. Edit `lib/db/schema.ts` and make the tests pass (Docker and PGlite build the schema themselves).
+2. Run `pnpm db:generate`. It writes a numbered SQL migration to `drizzle/` from the schema diff. Read the SQL, then commit it with the schema change.
+3. Apply it to your dev branch with `pnpm db:migrate`. Production gets it when the merge deploys.
+
+**What counts as destructive.** `DROP TABLE`, `DROP COLUMN`, `DROP TYPE`, `DROP SCHEMA`, `DROP VIEW`, `DROP EXTENSION`, a column type change, any `RENAME`, `TRUNCATE`, `DELETE FROM`, and `UPDATE … SET` (`lib/db/migration-safety.ts`). Three layers stop them:
+
+- **CI:** `tests/db/deploy-safety.test.ts` fails if any committed migration contains one, and if the deploy path ever runs `drizzle-kit push`, `--force`, a seed, or `--allow-destructive`.
+- **Deploy:** `pnpm db:migrate` checks every pending migration first; if one is destructive it applies nothing and fails the build, so the previous deployment keeps serving.
+- **Manual override:** `pnpm db:migrate --allow-destructive` applies one deliberately from a terminal. It is refused on Vercel and in CI. Prefer expand/contract instead: add the new column or table, ship code that uses it, backfill, and only drop the old one in a later, reviewed manual step.
+
+**Databases created before versioned migrations.** Neon `main` and `dev` were created with `drizzle-kit push`. The first `pnpm db:migrate` on such a database records the baseline migration as applied instead of re-creating tables (`--dry-run` shows what it would do without writing). Preview branches inherit that record from `main`.
+
+**Seeds.** `pnpm db:seed` truncates every Signal table before loading the demo workspace. It refuses to run on Vercel or in CI, and refuses to wipe a `DATABASE_URL` that already holds needs unless you pass `--replace`. `--test` targets the local `DATABASE_URL_TEST`.
 
 ## Without a database
 

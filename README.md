@@ -16,15 +16,16 @@ Then ask your agent to `/start` (or say "start a new project"): Flow's skills sh
 
 ## Scripts
 
-| Script            | Purpose                                        |
-| ----------------- | ---------------------------------------------- |
-| `pnpm setup`      | Dependencies, `.env.local`, optional Neon      |
-| `pnpm neon:setup` | Neon database, local and Vercel `DATABASE_URL` |
-| `pnpm db:migrate` | Push the Drizzle schema to `DATABASE_URL`      |
-| `pnpm dev`        | Development via Portless                       |
-| `pnpm qa`         | Lint, types, tests                             |
-| `pnpm build`      | Production build (includes MCP App bundle)     |
-| `pnpm eval`       | Offline GenUI eval + Eve tool smoke            |
+| Script             | Purpose                                        |
+| ------------------ | ---------------------------------------------- |
+| `pnpm setup`       | Dependencies, `.env.local`, optional Neon      |
+| `pnpm neon:setup`  | Neon database, local and Vercel `DATABASE_URL` |
+| `pnpm db:migrate`  | Apply versioned migrations (never destructive) |
+| `pnpm db:generate` | Write a migration from schema changes          |
+| `pnpm dev`         | Development via Portless                       |
+| `pnpm qa`          | Lint, types, tests                             |
+| `pnpm build`       | Production build (includes MCP App bundle)     |
+| `pnpm eval`        | Offline GenUI eval + Eve tool smoke            |
 
 ## Surfaces
 
