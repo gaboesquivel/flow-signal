@@ -1,10 +1,10 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { events, merges, needs, proposedSolutions, signals } from "@/lib/db/schema";
+import { events, merges, needs, proposedSolutions, signals, suggestions } from "@/lib/db/schema";
 
 import type { Actor } from "../context";
-import type { SignalTx } from "../db";
+import type { SignalQueryable, SignalTx } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
 
@@ -36,18 +36,37 @@ export const undoMergeResultSchema = z.object({
   status: z.enum(["draft", "open", "planned", "in_progress", "shipped", "declined"]),
 });
 
+const needColumns = {
+  approvedAt: needs.approvedAt,
+  id: needs.id,
+  mergedIntoId: needs.mergedIntoId,
+  statement: needs.statement,
+  status: needs.status,
+};
+type NeedRow = { [K in keyof typeof needColumns]: (typeof needs.$inferSelect)[K] };
+
 const lockNeeds = (tx: SignalTx, ids: string[]) =>
-  tx
-    .select({
-      approvedAt: needs.approvedAt,
-      id: needs.id,
-      mergedIntoId: needs.mergedIntoId,
-      status: needs.status,
-    })
-    .from(needs)
-    .where(inArray(needs.id, ids))
-    .orderBy(needs.id)
-    .for("update");
+  tx.select(needColumns).from(needs).where(inArray(needs.id, ids)).orderBy(needs.id).for("update");
+
+/** Unlocked read for previews (spec 014): same rows, no lock. */
+const readNeeds = (db: SignalQueryable, ids: string[]) =>
+  db.select(needColumns).from(needs).where(inArray(needs.id, ids)).orderBy(needs.id);
+
+/** The checks `mergeNeeds` makes before moving anything; shared with `previewMerge`. */
+const mergeablePair = (rows: NeedRow[], fromNeedId: string, intoNeedId: string) => {
+  const from = rows.find((row) => row.id === fromNeedId);
+  const into = rows.find((row) => row.id === intoNeedId);
+  if (!from) throw new SignalError("not_found", `No need with id ${fromNeedId}.`);
+  if (!into) throw new SignalError("not_found", `No need with id ${intoNeedId}.`);
+  if (from.status === "merged")
+    throw new SignalError("conflict", `Need ${fromNeedId} is already merged.`);
+  if (into.status === "merged")
+    throw new SignalError(
+      "conflict",
+      `Need ${intoNeedId} is merged into ${into.mergedIntoId}; merge into that need instead.`,
+    );
+  return { from, into };
+};
 
 export const mergeNeeds = async (
   tx: SignalTx,
@@ -60,18 +79,11 @@ export const mergeNeeds = async (
 ): Promise<MergeResult> => {
   if (fromNeedId === intoNeedId)
     throw new SignalError("validation_failed", "A need cannot be merged into itself.");
-  const rows = await lockNeeds(tx, [fromNeedId, intoNeedId]);
-  const from = rows.find((row) => row.id === fromNeedId);
-  const into = rows.find((row) => row.id === intoNeedId);
-  if (!from) throw new SignalError("not_found", `No need with id ${fromNeedId}.`);
-  if (!into) throw new SignalError("not_found", `No need with id ${intoNeedId}.`);
-  if (from.status === "merged")
-    throw new SignalError("conflict", `Need ${fromNeedId} is already merged.`);
-  if (into.status === "merged")
-    throw new SignalError(
-      "conflict",
-      `Need ${intoNeedId} is merged into ${into.mergedIntoId}; merge into that need instead.`,
-    );
+  const { from } = mergeablePair(
+    await lockNeeds(tx, [fromNeedId, intoNeedId]),
+    fromNeedId,
+    intoNeedId,
+  );
 
   const moved = await tx
     .update(signals)
@@ -111,9 +123,28 @@ export const mergeNeeds = async (
   return { fromNeedId, intoNeedId, mergeId, movedSignalIds };
 };
 
+type MergeRow = typeof merges.$inferSelect;
+
+/** The checks `undoMerge` makes before moving anything; shared with `previewUndoMerge`. */
+const undoablePair = (merge: MergeRow | undefined, mergeId: string, rows: NeedRow[]) => {
+  if (!merge) throw new SignalError("not_found", `No merge with id ${mergeId}.`);
+  if (merge.undoneAt) throw new SignalError("conflict", `Merge ${mergeId} was already undone.`);
+  const from = rows.find((row) => row.id === merge.fromNeedId);
+  const into = rows.find((row) => row.id === merge.intoNeedId);
+  if (!from || !into) throw new SignalError("not_found", `Merge ${mergeId} lost its needs.`);
+  if (from.status !== "merged" || from.mergedIntoId !== merge.intoNeedId)
+    throw new SignalError("conflict", `Need ${from.id} is no longer merged by ${mergeId}.`);
+  if (into.status === "merged")
+    throw new SignalError(
+      "conflict",
+      `Need ${into.id} was merged into ${into.mergedIntoId} afterwards; undo that merge first.`,
+    );
+  return { from, into, merge };
+};
+
 /** The status before the merge, from its `need.merged` event (seeded merges lack it). */
 const previousStatus = async (
-  tx: SignalTx,
+  tx: SignalQueryable,
   mergeId: string,
   fallback: { approvedAt: Date | null },
 ): Promise<Exclude<NeedStatus, "merged">> => {
@@ -133,20 +164,12 @@ export const undoMerge = async (
   tx: SignalTx,
   { actor, mergeId, now }: { actor: Actor; mergeId: string; now: Date },
 ) => {
-  const [merge] = await tx.select().from(merges).where(eq(merges.id, mergeId)).for("update");
-  if (!merge) throw new SignalError("not_found", `No merge with id ${mergeId}.`);
-  if (merge.undoneAt) throw new SignalError("conflict", `Merge ${mergeId} was already undone.`);
-  const rows = await lockNeeds(tx, [merge.fromNeedId, merge.intoNeedId]);
-  const from = rows.find((row) => row.id === merge.fromNeedId);
-  const into = rows.find((row) => row.id === merge.intoNeedId);
-  if (!from || !into) throw new SignalError("not_found", `Merge ${mergeId} lost its needs.`);
-  if (from.status !== "merged" || from.mergedIntoId !== merge.intoNeedId)
-    throw new SignalError("conflict", `Need ${from.id} is no longer merged by ${mergeId}.`);
-  if (into.status === "merged")
-    throw new SignalError(
-      "conflict",
-      `Need ${into.id} was merged into ${into.mergedIntoId} afterwards; undo that merge first.`,
-    );
+  const [found] = await tx.select().from(merges).where(eq(merges.id, mergeId)).for("update");
+  const { from, into, merge } = undoablePair(
+    found,
+    mergeId,
+    found ? await lockNeeds(tx, [found.fromNeedId, found.intoNeedId]) : [],
+  );
 
   const status = await previousStatus(tx, mergeId, from);
   const restored =
@@ -179,4 +202,79 @@ export const undoMerge = async (
     type: "merge.undone",
   });
   return { intoNeedId: into.id, mergeId, needId: from.id, restoredSignalIds, status };
+};
+
+/** Distinct submitters with a signal on any of `needIds`. */
+const countPeople = async (db: SignalQueryable, needIds: string[]) => {
+  const [row] = await db
+    .select({ people: sql<number | string>`count(distinct ${signals.submitterId})` })
+    .from(signals)
+    .where(inArray(signals.needId, needIds));
+  return Number(row?.people ?? 0);
+};
+
+/**
+ * What `mergeNeeds` would do now, read-only (spec 014 previews): the same checks and errors,
+ * the signals and people that would move, the people on the target afterwards, and the pending
+ * suggestions about the merged-away need (as subject or target) that the merge leaves stale.
+ */
+export const previewMerge = async (
+  db: SignalQueryable,
+  { fromNeedId, intoNeedId }: { fromNeedId: string; intoNeedId: string },
+) => {
+  if (fromNeedId === intoNeedId)
+    throw new SignalError("validation_failed", "A need cannot be merged into itself.");
+  const { from, into } = mergeablePair(
+    await readNeeds(db, [fromNeedId, intoNeedId]),
+    fromNeedId,
+    intoNeedId,
+  );
+  const [moving] = await db
+    .select({ count: sql<number | string>`count(*)` })
+    .from(signals)
+    .where(eq(signals.needId, fromNeedId));
+  const [open] = await db
+    .select({ count: sql<number | string>`count(*)` })
+    .from(suggestions)
+    .where(
+      and(
+        eq(suggestions.status, "pending"),
+        sql`(${suggestions.needId} = ${fromNeedId} or ${suggestions.relatedNeedId} = ${fromNeedId})`,
+      ),
+    );
+  return {
+    from,
+    into,
+    openSuggestions: Number(open?.count ?? 0),
+    peopleAfter: await countPeople(db, [fromNeedId, intoNeedId]),
+    peopleMoving: await countPeople(db, [fromNeedId]),
+    signalsMoving: Number(moving?.count ?? 0),
+  };
+};
+
+/**
+ * What `undoMerge` would do now, read-only: the same checks and errors, the needs, the status
+ * restored, and the merge's signals that would return (those still on the target).
+ */
+export const previewUndoMerge = async (db: SignalQueryable, mergeId: string) => {
+  const [row] = await db.select().from(merges).where(eq(merges.id, mergeId));
+  const { from, into, merge } = undoablePair(
+    row,
+    mergeId,
+    row ? await readNeeds(db, [row.fromNeedId, row.intoNeedId]) : [],
+  );
+  const returning =
+    merge.movedSignalIds.length === 0
+      ? []
+      : await db
+          .select({ id: signals.id })
+          .from(signals)
+          .where(and(inArray(signals.id, merge.movedSignalIds), eq(signals.needId, into.id)));
+  return {
+    from,
+    into,
+    merge,
+    signalsReturning: returning.length,
+    status: await previousStatus(db, mergeId, from),
+  };
 };

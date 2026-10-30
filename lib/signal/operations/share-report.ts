@@ -1,8 +1,21 @@
 import { z } from "zod";
 
 import { publicTextFindingSchema } from "../domain/public-text";
-import { reportDepsFor, shareReport as share } from "../domain/reports";
+import { previewShareReport, reportDepsFor, shareReport as share } from "../domain/reports";
 import { defineOperation } from "./types";
+
+/** What the preview says happens to the link, by action and whether one is live now. */
+const linkEffect = {
+  refresh: { live: "refreshed (same link)", none: "created" },
+  revoke: { live: "disabled", none: "none to disable" },
+  share: { live: "refreshed (same link)", none: "created" },
+} as const;
+
+const previewTitle = {
+  refresh: "Refresh a report link",
+  revoke: "Revoke a report link",
+  share: "Share a report link",
+} as const;
 
 export const shareReport = defineOperation({
   access: "operator",
@@ -29,6 +42,33 @@ export const shareReport = defineOperation({
     }),
     z.object({ status: z.literal("revoked") }),
   ]),
+  async preview({ action, reportId }, ctx) {
+    const { flags, link, title } = await previewShareReport(reportDepsFor(ctx), {
+      action,
+      reportId,
+    });
+    const linkLine = linkEffect[action][link ? "live" : "none"];
+    return {
+      blocks: [],
+      editable: [],
+      lines: [
+        { label: "Report", value: title },
+        { label: "Link", value: linkLine },
+        ...(action === "revoke"
+          ? []
+          : [{ label: "Identifying text flagged", value: String(flags.length) }]),
+      ],
+      needs: [],
+      notes:
+        flags.length === 0
+          ? []
+          : [
+              ...flags.map((flag) => `Shows ${flag.kind}: ${flag.match}`),
+              "Confirming shares it anyway and acknowledges these.",
+            ],
+      title: previewTitle[action],
+    };
+  },
   run(input, ctx) {
     return share(reportDepsFor(ctx), input);
   },

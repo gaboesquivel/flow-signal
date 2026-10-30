@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   check,
   index,
   integer,
@@ -38,6 +39,13 @@ export const urgency = pgEnum("urgency", ["low", "medium", "high"]);
 export const channel = pgEnum("channel", ["web", "mcp"]);
 export const actorKind = pgEnum("actor_kind", ["human", "agent"]);
 export const attachedTo = pgEnum("attached_to", ["existing", "draft"]);
+export const assistantActionStatus = pgEnum("assistant_action_status", [
+  "proposed",
+  "confirmed",
+  "rejected",
+  "expired",
+  "failed",
+]);
 export const criterionKey = pgEnum("criterion_key", [
   "demand",
   "business_value",
@@ -333,8 +341,28 @@ export const reports = pgTable("reports", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * A write the Operator assistant proposed (spec 014, decision 0011): the validated input, the
+ * preview the PM saw (with its fingerprint), and, once resolved, the result or error code.
+ */
+export const assistantActions = pgTable("assistant_actions", {
+  createdAt: createdAt(),
+  edited: boolean("edited").notNull().default(false),
+  errorCode: text("error_code"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  fingerprint: text("fingerprint").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  input: jsonb("input").$type<Record<string, unknown>>().notNull(),
+  operation: text("operation").notNull(),
+  preview: jsonb("preview").$type<Record<string, unknown>>().notNull(),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  result: jsonb("result").$type<unknown>(),
+  status: assistantActionStatus("status").notNull().default("proposed"),
+});
+
 /** Every Signal table; the test harness and the seed truncate these. */
 export const signalTableNames = [
+  "assistant_actions",
   "reports",
   "events",
   "strategies",

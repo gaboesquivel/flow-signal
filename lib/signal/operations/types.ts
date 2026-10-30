@@ -1,6 +1,7 @@
 import type { z } from "zod";
 
 import type { OperationContext } from "../context";
+import type { ActionPreview } from "../domain/assistant-action-contract";
 import type { ErrorCode } from "../errors";
 
 export type Access = "public" | "operator";
@@ -25,6 +26,12 @@ export interface Operation<I extends z.ZodObject = z.ZodObject, O extends z.ZodT
    * criteria, decisions). The Operator agent asks the user to approve each such call.
    */
   effects?: "read" | "write";
+  /**
+   * Reads only: what `run(input)` would change right now, for the Operator assistant's action card
+   * (spec 014, decision 0011). Throws the same codes as `run` for a bad input. Only operations
+   * with a preview can be proposed by the assistant.
+   */
+  preview?: (input: z.output<I>, ctx: OperationContext) => Promise<ActionPreview>;
   /** REST mapping; `:param` segments are merged into the input. GET reads the query string. */
   http: { method: HttpMethod; path: string };
   /** zod object: REST query/body, MCP `inputSchema`, and agent tool schema. Use `z.coerce` for GET numbers. */

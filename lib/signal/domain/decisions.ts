@@ -1,7 +1,7 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { decisions, needs, suggestions } from "@/lib/db/schema";
+import { decisions, needs, signals, suggestions } from "@/lib/db/schema";
 
 import type { SignalAi } from "../ai/ports";
 import type { Actor } from "../context";
@@ -11,6 +11,7 @@ import { recordEvent } from "../events";
 import { describeNeedFacts, formatCents, loadNeedFacts } from "./need-facts";
 import type { NeedFacts } from "./need-facts";
 import { aiSuggestionActor } from "./priority";
+import { findIdentifyingText, loadIdentifyingCandidates } from "./public-text";
 import { describeStrategy, getStrategy } from "./strategy";
 import type { Strategy } from "./strategy";
 
@@ -313,6 +314,17 @@ const latestResolvedBrief = async (db: SignalQueryable, needId: string) => {
   };
 };
 
+/** The checks `publishDecision` makes before writing; shared with `previewDecision`. */
+const publishable = <N extends { status: string }>(need: N | undefined, needId: string): N => {
+  if (!need) throw new SignalError("not_found", `No need with id ${needId}.`);
+  if (need.status === "merged")
+    throw new SignalError(
+      "conflict",
+      "The need was merged; publish the decision on the need it was merged into.",
+    );
+  return need;
+};
+
 /**
  * Publishes a decision: sets the need's status, appends a `decisions` row (which
  * `get_my_signals` and the public need view read), and records `decision.published` with the
@@ -326,18 +338,13 @@ export const publishDecision = (
   input: { needId: string; note: string; status: DecisionStatus },
 ) =>
   db.transaction(async (tx) => {
-    const [need] = await tx
+    const [found] = await tx
       .select({ status: needs.status })
       .from(needs)
       .where(eq(needs.id, input.needId))
       .limit(1)
       .for("update");
-    if (!need) throw new SignalError("not_found", `No need with id ${input.needId}.`);
-    if (need.status === "merged")
-      throw new SignalError(
-        "conflict",
-        "The need was merged; publish the decision on the need it was merged into.",
-      );
+    const need = publishable(found, input.needId);
     const brief = await latestResolvedBrief(tx, input.needId);
     await tx
       .update(needs)
@@ -373,3 +380,31 @@ export const publishDecision = (
       publishedAt: decision.publishedAt.toISOString(),
     });
   });
+
+/**
+ * What `publishDecision` would do now, read-only (spec 014 previews): the same checks and errors,
+ * the need and its status before, the supporters who see the note (distinct submitters on the
+ * need), whether a brief is attached, and the identifying-text findings on the note (the
+ * deterministic `check_public_text` scan; never a model call).
+ */
+export const previewDecision = async (
+  db: SignalQueryable,
+  input: { needId: string; note: string },
+) => {
+  const [found] = await db
+    .select({ statement: needs.statement, status: needs.status })
+    .from(needs)
+    .where(eq(needs.id, input.needId))
+    .limit(1);
+  const need = publishable(found, input.needId);
+  const [supporters] = await db
+    .select({ count: sql<number | string>`count(distinct ${signals.submitterId})` })
+    .from(signals)
+    .where(eq(signals.needId, input.needId));
+  return {
+    brief: await latestResolvedBrief(db, input.needId),
+    findings: findIdentifyingText(input.note, await loadIdentifyingCandidates(db, undefined)),
+    need,
+    supporters: Number(supporters?.count ?? 0),
+  };
+};

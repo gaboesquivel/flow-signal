@@ -9,12 +9,14 @@ export const errorCodes = [
   "database_unavailable",
   "unauthorized",
   "internal",
+  "action_closed",
 ] as const;
 
 export const errorCodeSchema = z.enum(errorCodes);
 export type ErrorCode = z.infer<typeof errorCodeSchema>;
 
 export const errorStatus: Record<ErrorCode, number> = {
+  action_closed: 409,
   ai_unavailable: 503,
   conflict: 409,
   database_unavailable: 503,

@@ -206,34 +206,39 @@ function Segments({ segments }: { segments: AnswerSegment[] }) {
 const isStatus = (status: string | null): status is OperatorNeedStatus =>
   status !== null && status !== "merged" && status in operatorStatusLabels;
 
+/** An answer's paragraphs and lists with linked needs; the assistant view shares it. */
+export function AnswerProse({ text }: { text: string }) {
+  const blocks = answerBlocks(text);
+  return (
+    <div className="flex flex-col gap-3 text-[15px] leading-relaxed">
+      {blocks.length === 0 ? <p>The agent returned no answer. Try asking another way.</p> : null}
+      {blocks.map((block, index) =>
+        block.kind === "paragraph" ? (
+          // oxlint-disable-next-line react/no-array-index-key -- blocks are positional
+          <p className="m-0" key={index}>
+            <Segments segments={block.segments} />
+          </p>
+        ) : (
+          // oxlint-disable-next-line react/no-array-index-key -- blocks are positional
+          <ul className="m-0 flex list-disc flex-col gap-1 pl-5" key={index}>
+            {block.items.map((item, itemIndex) => (
+              // oxlint-disable-next-line react/no-array-index-key -- items are positional
+              <li key={itemIndex}>
+                <Segments segments={item} />
+              </li>
+            ))}
+          </ul>
+        ),
+      )}
+    </div>
+  );
+}
+
 function Answer({ answer }: { answer: ChatAnswer }) {
-  const blocks = answerBlocks(answer.answer);
   return (
     <div className="flex flex-col gap-6" data-testid="chat-answer">
       <Pencil label="Answer · AI, not reviewed" state="suggested">
-        <div className="flex flex-col gap-3 text-[15px] leading-relaxed">
-          {blocks.length === 0 ? (
-            <p>The agent returned no answer. Try asking another way.</p>
-          ) : null}
-          {blocks.map((block, index) =>
-            block.kind === "paragraph" ? (
-              // oxlint-disable-next-line react/no-array-index-key -- blocks are positional
-              <p className="m-0" key={index}>
-                <Segments segments={block.segments} />
-              </p>
-            ) : (
-              // oxlint-disable-next-line react/no-array-index-key -- blocks are positional
-              <ul className="m-0 flex list-disc flex-col gap-1 pl-5" key={index}>
-                {block.items.map((item, itemIndex) => (
-                  // oxlint-disable-next-line react/no-array-index-key -- items are positional
-                  <li key={itemIndex}>
-                    <Segments segments={item} />
-                  </li>
-                ))}
-              </ul>
-            ),
-          )}
-        </div>
+        <AnswerProse text={answer.answer} />
       </Pencil>
       {answer.cited.length > 0 ? <CitedList needs={answer.cited} /> : null}
       {answer.sources.length > 0 ? (
