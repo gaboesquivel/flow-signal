@@ -23,7 +23,7 @@ const inProcessFetch: typeof fetch = async (input, init) =>
 /**
  * `forwardedFor` is the visitor's address, so server-rendered reads share that visitor's
  * per-IP rate limit instead of one bucket for the whole server. `headers` adds request
- * headers, e.g. `{ authorization: \`Bearer ${secret}\` }` for Operator operations.
+ * headers, e.g. an `authorization: Bearer <OPERATOR_SECRET>` header for Operator operations.
  */
 export const createInProcessSignalClient = ({
   forwardedFor,
