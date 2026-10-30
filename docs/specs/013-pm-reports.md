@@ -89,6 +89,7 @@ type Block =
       y: string[];
       seriesBy?: string; // pivot a string column into series
       stacked?: boolean;
+      aggregate?: "sum" | "avg" | "count" | "min" | "max"; // rows sharing an x are combined (default sum; not scatter)
       horizontal?: boolean;
       sort?: { column: string; direction: "asc" | "desc" };
       limit?: number;

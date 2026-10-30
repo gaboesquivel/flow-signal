@@ -178,6 +178,36 @@ describe("applyBlockData", () => {
     ]);
   });
 
+  it("groups a chart without seriesBy by x, summing by default", () => {
+    const result: DatasetResult = {
+      columns: datasetColumns.needs,
+      rows: [
+        { arrCents: 100, score: 2, theme: "Reporting" },
+        { arrCents: 300, score: 4, theme: "Reporting" },
+        { arrCents: 50, score: null, theme: "Integrations" },
+      ],
+      truncated: false,
+    };
+    const bar: ChartBlock = {
+      chart: "bar",
+      dataset: "d1",
+      kind: "chart",
+      sort: { column: "arrCents", direction: "desc" },
+      title: "ARR by theme",
+      x: "theme",
+      y: ["arrCents"],
+    };
+    expect(applyBlockData(bar, result).rows).toEqual([
+      { arrCents: 400, theme: "Reporting" },
+      { arrCents: 50, theme: "Integrations" },
+    ]);
+    const avg = applyBlockData({ ...bar, aggregate: "avg", sort: undefined, y: ["score"] }, result);
+    expect(avg.rows).toEqual([
+      { score: 3, theme: "Reporting" },
+      { score: null, theme: "Integrations" },
+    ]);
+  });
+
   it("sorts with nulls last and applies the limit", () => {
     const result: DatasetResult = {
       columns: datasetColumns.needs,

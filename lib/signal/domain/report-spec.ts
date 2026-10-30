@@ -22,6 +22,8 @@ const sortSchema = z.object({
 
 export const kpiAggregates = ["sum", "count", "avg", "median", "min", "max", "latest"] as const;
 export const chartKinds = ["bar", "line", "area", "scatter", "donut"] as const;
+/** How a chart combines rows that share an `x` (default sum); scatter plots every row. */
+export const chartAggregates = ["sum", "avg", "count", "min", "max"] as const;
 
 export const blockSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("heading"), text: z.string().min(1).max(120) }),
@@ -44,6 +46,7 @@ export const blockSchema = z.discriminatedUnion("kind", [
     kind: z.literal("kpi"),
   }),
   z.object({
+    aggregate: z.enum(chartAggregates).optional(),
     caption: z.string().max(200).optional(),
     chart: z.enum(chartKinds),
     dataset: ref,
@@ -168,6 +171,33 @@ export interface BlockData {
 export const seriesKey = (value: string) =>
   `s_${value.replaceAll(/[^a-zA-Z0-9]+/gu, "_").slice(0, 40)}`;
 
+const combine = (aggregate: (typeof chartAggregates)[number], values: number[]) => {
+  if (aggregate === "count") return values.length;
+  if (values.length === 0) return null;
+  if (aggregate === "min") return Math.min(...values);
+  if (aggregate === "max") return Math.max(...values);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return aggregate === "avg" ? total / values.length : total;
+};
+
+/** One row per distinct `x`, each `y` combined by the chart's aggregate (default sum). */
+const groupByX = (block: ChartBlock, rows: Row[]): Row[] => {
+  const groups = new Map<string, Row[]>();
+  for (const row of rows) {
+    const key = String(row[block.x] ?? null);
+    groups.set(key, [...(groups.get(key) ?? []), row]);
+  }
+  return [...groups.values()].map((group) => {
+    const out: Row = { [block.x]: group[0]?.[block.x] ?? null };
+    for (const y of block.y)
+      out[y] = combine(
+        block.aggregate ?? "sum",
+        group.map((row) => row[y]).filter((value): value is number => typeof value === "number"),
+      );
+    return out;
+  });
+};
+
 /**
  * The rows a chart or table block shows: sorted, limited, and (for a chart with `seriesBy`)
  * pivoted to one row per `x` with one numeric column per series value.
@@ -188,7 +218,8 @@ export const applyBlockData = (
   }
 
   if (!block.seriesBy) {
-    const rows = sortRows(result.rows, block.sort).slice(0, block.limit ?? MAX_BLOCK_ROWS);
+    const grouped = block.chart === "scatter" ? result.rows : groupByX(block, result.rows);
+    const rows = sortRows(grouped, block.sort).slice(0, block.limit ?? MAX_BLOCK_ROWS);
     return {
       rows,
       series: block.y.map((key) => ({ key, label: labelOf(key) })),
