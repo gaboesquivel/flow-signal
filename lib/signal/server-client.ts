@@ -22,13 +22,15 @@ const inProcessFetch: typeof fetch = async (input, init) =>
 
 /**
  * `forwardedFor` is the visitor's address, so server-rendered reads share that visitor's
- * per-IP rate limit instead of one bucket for the whole server.
+ * per-IP rate limit instead of one bucket for the whole server. `headers` adds request
+ * headers, e.g. `{ authorization: \`Bearer ${secret}\` }` for Operator operations.
  */
 export const createInProcessSignalClient = ({
   forwardedFor,
-}: { forwardedFor?: string | null } = {}): SignalClient =>
+  headers = {},
+}: { forwardedFor?: string | null; headers?: Record<string, string> } = {}): SignalClient =>
   createSignalClient({
     baseUrl: IN_PROCESS_ORIGIN,
     fetch: inProcessFetch,
-    headers: forwardedFor ? { "x-forwarded-for": forwardedFor } : {},
+    headers: forwardedFor ? { ...headers, "x-forwarded-for": forwardedFor } : headers,
   });
