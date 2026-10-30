@@ -1,7 +1,7 @@
 import type { z } from "zod";
 
 import type { OperationContext } from "../context";
-import type { ActionPreview } from "../domain/assistant-actions";
+import type { ActionPreview } from "../domain/assistant-action-contract";
 import type { ErrorCode } from "../errors";
 
 export type Access = "public" | "operator";

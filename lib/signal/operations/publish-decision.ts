@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   decisionStatusSchema,
+  previewDecision,
   publishDecision as publish,
   publishedDecisionSchema,
 } from "../domain/decisions";
@@ -21,6 +22,39 @@ export const publishDecision = defineOperation({
   }),
   name: "publish_decision",
   output: z.object({ decision: publishedDecisionSchema }),
+  async preview({ id, note, status }, { db }) {
+    const effect = await previewDecision(db, { needId: id, note });
+    return {
+      blocks:
+        effect.findings.length === 0
+          ? []
+          : [
+              {
+                code: "public_text_flagged" as const,
+                flags: effect.findings,
+                message: `The note names a customer: ${effect.findings.map((flag) => flag.match).join(", ")}. Rewrite it before publishing.`,
+              },
+            ],
+      editable: [
+        {
+          key: "status",
+          kind: "select",
+          label: "Status",
+          options: [...decisionStatusSchema.options],
+        },
+        { key: "note", kind: "longtext", label: "Note" },
+      ],
+      lines: [
+        { label: "Status", value: `${effect.need.status} → ${status}` },
+        { label: "Note", value: note },
+        { label: "Supporters notified", value: String(effect.supporters) },
+        { label: "Brief attached", value: effect.brief ? "yes" : "no" },
+      ],
+      needs: [{ id, role: "subject", statement: effect.need.statement }],
+      notes: [],
+      title: "Publish a decision",
+    };
+  },
   async run({ id, note, status }, { actor, clock, db }) {
     return {
       decision: await publish({ actor, db, now: clock.now() }, { needId: id, note, status }),

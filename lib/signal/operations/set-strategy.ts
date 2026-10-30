@@ -1,8 +1,9 @@
 import { z } from "zod";
 
-import { checkReadiness } from "../domain/readiness";
+import { checkReadiness, needsCrossingLine } from "../domain/readiness";
 import {
   setStrategy as writeStrategy,
+  strategyChanges,
   strategyInputSchema,
   strategySchema,
 } from "../domain/strategy";
@@ -18,6 +19,27 @@ export const setStrategy = defineOperation({
   input: strategyInputSchema,
   name: "set_strategy",
   output: z.object({ newlyReady: z.number().int().nonnegative(), strategy: strategySchema }),
+  async preview(input, { db }) {
+    const { changed, current } = await strategyChanges(db, input);
+    const ready = await needsCrossingLine(db, input);
+    return {
+      blocks: [],
+      editable: [
+        { key: "revenueFocus", kind: "text", label: "Revenue focus" },
+        { key: "notes", kind: "longtext", label: "Notes" },
+      ],
+      lines: [
+        ...changed.map(({ after, before, label }) => ({ label, value: `${before} → ${after}` })),
+        { label: "Needs becoming ready", value: String(ready.length) },
+      ],
+      needs: ready.map(({ id, statement }) => ({ id, role: "subject" as const, statement })),
+      notes: [
+        ...(changed.length === 0 ? ["No field changes; a new version is still stored."] : []),
+        ...(ready.length > 0 ? ["Each need becoming ready gets a decision brief drafted."] : []),
+      ],
+      title: current ? `Update strategy (version ${current.version + 1})` : "Write the strategy",
+    };
+  },
   async run(input, { actor, ai, clock, db }) {
     const strategy = await db.transaction((tx) => writeStrategy(tx, actor, input, clock.now()));
     const newlyReady = await checkReadiness({ ai, clock, db });

@@ -1,11 +1,7 @@
 import { operatorAccessDeniedResponse, verifyOperatorRequest } from "@/lib/auth/operator-access";
 import { isOperatorAssistantEnabled } from "@/lib/flags/operator-assistant";
-import {
-  assistantConfirmActor,
-  confirmAction,
-  getAction,
-  rejectAction,
-} from "@/lib/signal/domain/assistant-actions";
+import { confirmAction, getAction, rejectAction } from "@/lib/signal/domain/assistant-actions";
+import { assistantConfirmActor } from "@/lib/signal/domain/assistant-action-contract";
 import {
   describeUnexpectedError,
   errorStatus,

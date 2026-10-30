@@ -309,6 +309,34 @@ export const snapshotTexts = ({ data, spec, title }: Snapshot): string[] => {
 
 export type ShareAction = "share" | "refresh" | "revoke";
 
+const requireLinkToRefresh = (row: ReportRow, action: ShareAction) => {
+  if (action === "refresh" && !row.shareToken)
+    throw new SignalError("validation_failed", "This report has no live link; share it first.");
+};
+
+/**
+ * The snapshot a share or refresh would store, and the identifying text it shows. Reads only;
+ * `shareReport` stores the snapshot, the `share_report` preview lists the flags.
+ */
+const checkedSnapshot = async (
+  { db, runDataset }: Pick<ReportDeps, "db" | "runDataset">,
+  row: ReportRow,
+) => {
+  const spec = reportSpecSchema.parse(row.spec);
+  // The link carries only what the report shows: unreferenced datasets and columns are dropped.
+  const snapshot: Snapshot = {
+    data: pruneReportData(spec, await runAll(spec, runDataset)),
+    spec,
+    title: row.title,
+  };
+  // One scan over the joined text; blank lines keep matches from spanning two values.
+  const flags = findIdentifyingText(
+    snapshotTexts(snapshot).join("\n\n"),
+    await loadIdentifyingCandidates(db, undefined),
+  );
+  return { flags, snapshot };
+};
+
 export type ShareReportResult =
   | { flags: PublicTextFinding[]; status: "needs_acknowledgement" }
   | { path: string; snapshotAt: string; status: "shared" }
@@ -341,21 +369,8 @@ export const shareReport = async (
       return { status: "revoked" as const };
     });
 
-  if (input.action === "refresh" && !row.shareToken)
-    throw new SignalError("validation_failed", "This report has no live link; share it first.");
-
-  const spec = reportSpecSchema.parse(row.spec);
-  // The link carries only what the report shows: unreferenced datasets and columns are dropped.
-  const snapshot: Snapshot = {
-    data: pruneReportData(spec, await runAll(spec, runDataset)),
-    spec,
-    title: row.title,
-  };
-  // One scan over the joined text; blank lines keep matches from spanning two values.
-  const flags = findIdentifyingText(
-    snapshotTexts(snapshot).join("\n\n"),
-    await loadIdentifyingCandidates(db, undefined),
-  );
+  requireLinkToRefresh(row, input.action);
+  const { flags, snapshot } = await checkedSnapshot({ db, runDataset }, row);
   if (flags.length > 0 && !input.acknowledgeFlags)
     return { flags, status: "needs_acknowledgement" };
 
@@ -407,4 +422,39 @@ export const getSharedReport = async (
     spec,
     title: snapshot.title,
   };
+};
+
+/**
+ * What `saveReport` would do now, read-only (spec 014 previews): the same spec validation and
+ * `not_found`, whether it creates or updates, the validated spec, and whether a live link keeps
+ * its snapshot. A retry of an earlier save (same `idempotencyKey`) is reported as `replay`.
+ */
+export const previewSaveReport = async (db: SignalQueryable, input: SaveReportInput) => {
+  const spec = parseSpec(input.spec);
+  const replay = input.idempotencyKey ? await findReplay(db, input.idempotencyKey) : undefined;
+  const existing = !replay && input.reportId ? await requireReport(db, input.reportId) : undefined;
+  return {
+    created: !input.reportId,
+    existingTitle: existing?.title ?? null,
+    keepsSharedSnapshot: Boolean(existing?.shareToken),
+    replay: replay ?? null,
+    spec,
+  };
+};
+
+/**
+ * What `shareReport` would do now, read-only (spec 014 previews): the same `not_found` and
+ * `validation_failed`, the current link, and for a share or refresh the identifying-text flags
+ * the new snapshot would show. The queries run, but nothing is stored.
+ */
+export const previewShareReport = async (
+  deps: Pick<ReportDeps, "db" | "runDataset">,
+  input: { action: ShareAction; reportId: string },
+) => {
+  const row = await requireReport(deps.db, input.reportId);
+  const link = row.shareToken ? sharePath(row.shareToken) : null;
+  if (input.action === "revoke") return { flags: [], link, title: row.title };
+  requireLinkToRefresh(row, input.action);
+  const { flags } = await checkedSnapshot(deps, row);
+  return { flags, link, title: row.title };
 };

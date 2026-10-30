@@ -3,7 +3,11 @@ import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
 import type { SignalQueryable } from "./db";
-import { ACTION_TTL_MS, ASSISTANT_CLIENT, writeEventTypes } from "./domain/assistant-actions";
+import {
+  ACTION_TTL_MS,
+  ASSISTANT_CLIENT,
+  writeEventTypes,
+} from "./domain/assistant-action-contract";
 
 /**
  * The MVP metrics (PRODUCT.md → Metrics; spec 001 → Metrics instrumentation), computed with SQL

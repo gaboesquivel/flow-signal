@@ -8,7 +8,7 @@ import {
   ACTION_TTL_MS,
   assistantAgentActor,
   assistantConfirmActor,
-} from "../../../lib/signal/domain/assistant-actions";
+} from "../../../lib/signal/domain/assistant-action-contract";
 import { recordEvent } from "../../../lib/signal/events";
 import type { SignalEvent } from "../../../lib/signal/events";
 import { computeMetrics, DAY_MS } from "../../../lib/signal/metrics";
