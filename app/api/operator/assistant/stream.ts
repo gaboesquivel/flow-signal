@@ -21,7 +21,8 @@ import { jsonError } from "@/lib/api/json-error";
 import { operatorAccessDeniedResponse, verifyOperatorRequest } from "@/lib/auth/operator-access";
 import { isOperatorAssistantEnabled } from "@/lib/flags/operator-assistant";
 import type { SignalDb } from "@/lib/signal/db";
-import { assistantAgentActor, getAction } from "@/lib/signal/domain/assistant-actions";
+import { getAction } from "@/lib/signal/domain/assistant-actions";
+import { assistantAgentActor } from "@/lib/signal/domain/assistant-action-contract";
 import {
   extractTextNumbers,
   findUntraceableNumbers,

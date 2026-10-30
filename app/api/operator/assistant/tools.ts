@@ -13,7 +13,8 @@ import {
 import type { ProposeOutput, ShowDataOutput } from "@/app/operator/(console)/_lib/assistant";
 import { inputJsonSchema } from "@/lib/signal/adapters/schema";
 import type { SignalDb } from "@/lib/signal/db";
-import { assistantAgentActor, proposeAction } from "@/lib/signal/domain/assistant-actions";
+import { proposeAction } from "@/lib/signal/domain/assistant-actions";
+import { assistantAgentActor } from "@/lib/signal/domain/assistant-action-contract";
 import type { ActionContext } from "@/lib/signal/domain/assistant-actions";
 import {
   datasetColumns,

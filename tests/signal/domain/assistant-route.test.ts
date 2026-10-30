@@ -11,8 +11,9 @@ import { assistantReadTools } from "../../../app/operator/(console)/_lib/assista
 import { assistantActions, events, needs } from "../../../lib/db/schema";
 import { createFakeAi } from "../../../lib/signal/ai/fakes";
 import type { SignalDb } from "../../../lib/signal/db";
-import { assistantAgentActor, proposeAction } from "../../../lib/signal/domain/assistant-actions";
-import type { ActionPreview } from "../../../lib/signal/domain/assistant-actions";
+import { proposeAction } from "../../../lib/signal/domain/assistant-actions";
+import { assistantAgentActor } from "../../../lib/signal/domain/assistant-action-contract";
+import type { ActionPreview } from "../../../lib/signal/domain/assistant-action-contract";
 import { SignalError } from "../../../lib/signal/errors";
 import { executeOperation } from "../../../lib/signal/operations/execute";
 import { getReportDataset } from "../../../lib/signal/operations/get-report-dataset";

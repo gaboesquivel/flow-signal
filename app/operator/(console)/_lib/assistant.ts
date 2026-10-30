@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 
-import type { ActionPreview, ActionStatus } from "@/lib/signal/domain/assistant-actions";
+import type { ActionPreview, ActionStatus } from "@/lib/signal/domain/assistant-action-contract";
 import type { ReportData, ReportSpec, ReportSpecIssue } from "@/lib/signal/domain/report-spec";
 
 /**
