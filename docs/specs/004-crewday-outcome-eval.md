@@ -1,9 +1,9 @@
 # 004 — Crewday outcome eval: prove Signal moves the core metrics against a vote board
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
 Product brief: [PRODUCT.md](../../PRODUCT.md) → Metrics, Riskiest assumptions. Builds on [spec 001](./001-signal-mvp.md) (operation registry, event log, `get_metrics`, matching eval). Agent outcome runs on the same worlds: [spec 005](./005-agent-outcome-eval.md) (candidate).
-Decisions: [0004 Simulated customer world with scripted behaviour as the outcome eval](../decisions/0004-simulated-world-outcome-eval.md) (Proposed).
+Decisions: [0004 Simulated customer world with scripted behaviour as the outcome eval](../decisions/0004-simulated-world-outcome-eval.md) (Accepted).
 
 **Bet.** Given a realistic, independently labeled year of customer demand, Signal (driven through its REST and MCP surfaces) produces more consolidated demand and better, faster decisions on the revenue that matters than a plain vote board does, without breaking a guardrail. If Signal does not clearly beat the board in a world we control, it will not beat it with real users.
 
@@ -272,7 +272,7 @@ Spec 005 gives the same journey through live Eve agents over MCP.
 - [ ] Each world has about 40 accounts, about 200 personas, and about 1,500 signals over 12 months, and loads through task 01's loader. The two worlds share no needs, accounts, or personas.
 - [ ] The generator never passes a need statement to the model. It records model ids, prompts, and RNG seeds.
 - [ ] The keyword-findable share is ≤ 60% in each world and is recorded with the world.
-- [ ] The stratified review is done and recorded: who reviewed, how many signals, and what was fixed or dropped. _Open: reviewer and sample size (spec Further Notes)._
+- [ ] The stratified review is done and recorded: who reviewed, how many signals, and what was fixed or dropped. v1 uses the third-family model check described in Further Notes.
 
 ### 03: Simulation engine, policies, arms, and scorer (offline)
 
@@ -374,7 +374,7 @@ This task answers the bet on the dev world.
 **Open assumptions**
 
 - **Crewday's domain** (workforce scheduling, mid-market, frontline teams) is a guess; Crewday is only confirmed as fictional.
-- **The human review of generated signals** is not decided: who reviews, and what share (proposed 10% per world, weighted to traps, about 150 signals each). The alternative is cross-family model review that flags disagreements, which is cheaper but not independent.
+- **The human review of generated signals** is not decided. For v1, shipped without a human reviewer, the stratified sample (10% per world, weighted to traps) is checked by a model from a third family, different from both Signal's runtime models and the generator. Disagreements are fixed or dropped and recorded with the world. This is cheaper but not independent; a human review of the same sample can upgrade a world to `v1.1` without changing its signals' labels.
 - **The generator model family** is not chosen. The requirement is only that it is not one of Signal's runtime models.
 - **Policy defaults** (`p_attach` 0.8, `p_wrong` 0.1, `pm_actions` 60, `p_manual_find`, the readiness line) are hypotheses. The sweep bounds them.
 - **Success thresholds** (+20 points prevention, ≥ 85% decision quality, 1.5× revenue coverage, half the organizing share, ≥ 95% acceptance precision) and the 60% keyword-findable ceiling are proposals.

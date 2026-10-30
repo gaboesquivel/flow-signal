@@ -1,6 +1,6 @@
 # 0004 — Simulated customer world with scripted behaviour as the outcome eval
 
-Status: Proposed (2026-10-30)
+Status: Accepted (2026-10-30)
 
 ## Context
 
