@@ -12,6 +12,8 @@ import {
 } from "../../../lib/signal/ai/fakes";
 import type { SignalAi } from "../../../lib/signal/ai/ports";
 import { embedMissingNeeds } from "../../../lib/signal/domain/embeddings";
+import { events } from "../../../lib/db/schema";
+import type { Actor } from "../../../lib/signal/context";
 import { MATCH_THRESHOLD, previewSubmission } from "../../../lib/signal/domain/matching";
 import { SignalError } from "../../../lib/signal/errors";
 import { insertNeed, supporters } from "../support/builders";
@@ -23,6 +25,9 @@ const draft = {
   statement: "Executives need dashboard snapshots for the board",
 };
 
+const human: Actor = { kind: "human", ref: "web" };
+const clock = { now: () => new Date("2026-10-30T12:00:00Z") };
+
 const embedded = (statement: string) => ({ embedding: fakeEmbedding(statement), statement });
 
 describeWithDatabase("preview matching (extract → retrieve → judge)", () => {
@@ -32,7 +37,9 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
   const preview = (ai: Partial<SignalAi>) =>
     previewSubmission(
       {
+        actor: human,
         ai: createFakeAi({ extractor: fakeExtractor({ PDF: draft }), ...ai }),
+        clock,
         db: harness.db,
       },
       submission,
@@ -137,11 +144,13 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
   it("passes additional asks through so the submitter can split them", async () => {
     const result = await previewSubmission(
       {
+        actor: human,
         ai: createFakeAi({
           extractor: fakeExtractor({
             PDF: { ...draft, additionalAsks: ["Admins need SSO so that access is central"] },
           }),
         }),
+        clock,
         db: harness.db,
       },
       submission,
@@ -160,6 +169,54 @@ describeWithDatabase("preview matching (extract → retrieve → judge)", () => 
     expect(result.matches).toEqual([]);
     expect(result.draftNeed.statement).toBeTruthy();
     expect(result.previewId).toMatch(/^pv_/u);
+  });
+
+  it("records preview.shown with the shown needs and ranks, never the text (spec 012)", async () => {
+    const { need } = await insertNeed(harness.db, embedded(draft.statement));
+    const result = await preview({
+      judge: fakeJudge({ [need.id]: { probability: 0.9, reason: "Same need." } }),
+    });
+    const second = await preview({});
+
+    const recorded = await harness.db.select().from(events);
+    expect(
+      recorded.map(({ actorKind, needId, payload, signalId, type }) => ({
+        actorKind,
+        needId,
+        payload,
+        signalId,
+        type,
+      })),
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          actorKind: "human",
+          needId: null,
+          payload: {
+            additionalAsks: 0,
+            ai: "ok",
+            matches: [{ needId: need.id, probability: 0.9, rank: 1 }],
+            previewId: result.previewId,
+          },
+          signalId: null,
+          type: "preview.shown",
+        },
+      ]),
+    );
+    expect(recorded).toHaveLength(2);
+    expect(second.previewId).not.toBe(result.previewId);
+    const stored = JSON.stringify(recorded.map((event) => event.payload));
+    for (const text of [submission.title, submission.body, draft.statement, "Same need."])
+      expect(stored).not.toContain(text);
+  });
+
+  it("records preview.shown when AI is unavailable", async () => {
+    const result = await preview({ embedder: createUnavailableAi().embedder });
+    const [event] = await harness.db.select().from(events);
+    expect(event).toMatchObject({
+      payload: { additionalAsks: 0, ai: "unavailable", matches: [], previewId: result.previewId },
+      type: "preview.shown",
+    });
   });
 
   it("does not hide other failures as AI outages", async () => {

@@ -56,6 +56,8 @@ export interface ParityTable<F> {
 
 const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/giu;
 const isoPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/gu;
+/** `preview_signal` mints a random `previewId` per call (spec 012). */
+const previewIdPattern = /\bpv_[\w-]{22}\b/gu;
 /** `submit_signal` tracking links carry a random token. */
 const trackingTokenPattern = /\/my\/[\w-]{16,128}/gu;
 
@@ -72,7 +74,8 @@ export const normalizeRun = (value: unknown) => {
       return ids.get(id)!;
     })
     .replaceAll(isoPattern, "<time>")
-    .replaceAll(trackingTokenPattern, "/my/<token>");
+    .replaceAll(trackingTokenPattern, "/my/<token>")
+    .replaceAll(previewIdPattern, "pv_<id>");
   return JSON.parse(text) as unknown;
 };
 

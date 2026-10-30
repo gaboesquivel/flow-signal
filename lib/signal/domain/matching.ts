@@ -1,16 +1,19 @@
-import { createHash } from "node:crypto";
+import { randomBytes } from "node:crypto";
 
 import { z } from "zod";
 
 import type { DraftNeed, MatchJudgement, NeedCandidate, SignalAi } from "../ai/ports";
+import type { Actor, Clock } from "../context";
 import type { SignalQueryable } from "../db";
 import { SignalError } from "../errors";
+import { recordEvent } from "../events";
 import { demandBandSchema, getPublicNeed, publicNeedStatusSchema } from "./public-needs";
 
 /**
  * The submission hot path (spec 001 → Architecture and AI choices; decision 0002): a fixed
  * extract → retrieve → judge workflow, with extraction running concurrently with the rest. Any AI step that fails degrades the preview to
- * `ai: "unavailable"` with no matches; database errors still propagate.
+ * `ai: "unavailable"` with no matches; database errors still propagate. Every preview records
+ * `preview.shown` (spec 012): the needs shown and their ranks, never the submitted text.
  */
 
 /** Judge probability a candidate needs to be shown as a match; confirmed by the task 03 live eval (spec 001). */
@@ -47,9 +50,32 @@ export const previewOutputSchema = z.object({
 });
 type PreviewOutput = z.infer<typeof previewOutputSchema>;
 
-/** Deterministic id for a preview of this text (no state is stored for a preview). */
-export const previewIdFor = ({ body, title }: { body: string; title: string }) =>
-  `pv_${createHash("sha256").update(`${title.trim()}\n${body.trim()}`).digest("base64url").slice(0, 22)}`;
+/** Random id per preview call; `preview.shown` records it so `submit_signal` can find what was shown. */
+export const newPreviewId = () => `pv_${randomBytes(17).toString("base64url").slice(0, 22)}`;
+
+/** Records what this preview showed (spec 012): need ids, probabilities, and ranks only, no text. */
+const recordShown = async (
+  { actor, clock, db }: { actor: Actor; clock: Clock; db: SignalQueryable },
+  output: PreviewOutput,
+) => {
+  await recordEvent(db, {
+    actor,
+    dedupeKey: `preview.shown:${output.previewId}`,
+    occurredAt: clock.now(),
+    payload: {
+      additionalAsks: output.draftNeed.additionalAsks.length,
+      ai: output.ai,
+      matches: output.matches.map(({ needId, probability }, index) => ({
+        needId,
+        probability,
+        rank: index + 1,
+      })),
+      previewId: output.previewId,
+    },
+    type: "preview.shown",
+  });
+  return output;
+};
 
 /** Draft need shown when the extractor is down: the title, which the submitter can edit. */
 const fallbackDraft = (title: string): DraftNeed => ({
@@ -97,12 +123,12 @@ export const chooseMatches = <J extends MatchJudgement>({
     .slice(0, MAX_MATCHES);
 };
 
-export const previewSubmission = async (
+const matchSubmission = async (
   { ai, db }: { ai: SignalAi; db: SignalQueryable },
   submission: { body: string; title: string },
-  { threshold = MATCH_THRESHOLD }: { threshold?: number } = {},
+  { threshold = MATCH_THRESHOLD }: { threshold?: number },
 ): Promise<PreviewOutput> => {
-  const previewId = previewIdFor(submission);
+  const previewId = newPreviewId();
   const unavailable = (draftNeed: DraftNeed): PreviewOutput => ({
     ai: "unavailable",
     draftNeed,
@@ -185,3 +211,10 @@ export const previewSubmission = async (
   });
   return { ai: "ok", draftNeed, matches, previewId };
 };
+
+export const previewSubmission = async (
+  context: { actor: Actor; ai: SignalAi; clock: Clock; db: SignalQueryable },
+  submission: { body: string; title: string },
+  options: { threshold?: number } = {},
+): Promise<PreviewOutput> =>
+  recordShown(context, await matchSubmission(context, submission, options));

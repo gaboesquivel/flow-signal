@@ -135,7 +135,7 @@ In scope:
 
 ## Tasks
 
-- [ ] 01: Record `preview.shown` with a random `previewId`
+- [x] 01: Record `preview.shown` with a random `previewId`
 - [ ] 02: Stamp exposure on `signal.created`
 - [ ] 03: Exposure and kill-criterion metrics in `get_metrics`
 - [ ] 04: Exposure panel on `/operator/metrics`

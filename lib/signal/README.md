@@ -35,7 +35,7 @@ Limits: public operations are rate limited per client IP and operation (120/min)
 
 ## Matching and embeddings
 
-`domain/matching.ts` runs preview's extract → retrieve → judge workflow (`previewSubmission`); `MATCH_THRESHOLD` (0.6, tuned by task 03), `CANDIDATE_LIMIT` (8), and `MAX_MATCHES` (3) live there. Any AI step failing with `ai_unavailable` degrades to `ai: "unavailable"` with no matches. `previewId` is a deterministic hash of the text (no preview state is stored); `submit_signal` records it in the `signal.created` payload.
+`domain/matching.ts` runs preview's extract → retrieve → judge workflow (`previewSubmission`); `MATCH_THRESHOLD` (0.6, tuned by task 03), `CANDIDATE_LIMIT` (8), and `MAX_MATCHES` (3) live there. Any AI step failing with `ai_unavailable` degrades to `ai: "unavailable"` with no matches. `previewId` is random per call; preview records `preview.shown` (shown need ids and ranks, no text), and `submit_signal` stamps `exposure` on `signal.created` from it (spec 012).
 
 Only needs with an embedding are candidates. `submit_signal` embeds a new draft need's statement (left null if the embedder is down). **When you change a need's statement or create a need** (resolve_suggestion edits, split_need), call `embedNeeds(db, ctx.ai.embedder, [needId])` from `domain/embeddings.ts` after the write commits (or in `after()`). `pnpm db:embed` (`--test` for `DATABASE_URL_TEST`) backfills every live need without an embedding via `embedMissingNeeds`; it is idempotent and needs Gateway access.
 

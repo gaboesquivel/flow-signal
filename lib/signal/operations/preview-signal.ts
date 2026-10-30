@@ -11,7 +11,7 @@ const previewSignalInput = z.object({
 export const previewSignal = defineOperation({
   access: "public",
   description:
-    'Check a request for duplicates before submitting it. Give the submitter\'s title and body; returns the drafted underlying need (`draftNeed.statement`, a named `proposedSolution`, and any `additionalAsks`, which should be offered as separate submissions), up to 3 existing needs that are the same need (`matches`, each with a probability and a one-line reason), and a `previewId` to pass to `submit_signal`. Show the matches and let the submitter choose one (submit with `target.needId`) or none (submit with `target.newNeed.statement`). With `ai: "unavailable"` there are no matches and submitting still works. Read-only.',
+    'Check a request for duplicates before submitting it. Give the submitter\'s title and body; returns the drafted underlying need (`draftNeed.statement`, a named `proposedSolution`, and any `additionalAsks`, which should be offered as separate submissions), up to 3 existing needs that are the same need (`matches`, each with a probability and a one-line reason), and a `previewId` to pass to `submit_signal`. Show the matches and let the submitter choose one (submit with `target.needId`) or none (submit with `target.newNeed.statement`). With `ai: "unavailable"` there are no matches and submitting still works. Signal records which needs it showed (ids and ranks only, never the text) so the submission can be linked to them.',
   errors: ["validation_failed"],
   http: { method: "POST", path: "/api/signals/preview" },
   input: previewSignalInput,
@@ -19,5 +19,5 @@ export const previewSignal = defineOperation({
   limits: { maxBodyBytes: 16 * 1024, requestsPerMinute: 60 },
   name: "preview_signal",
   output: previewOutputSchema,
-  run: (input, { ai, db }) => previewSubmission({ ai, db }, input),
+  run: (input, context) => previewSubmission(context, input),
 });

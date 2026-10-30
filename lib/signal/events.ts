@@ -17,6 +17,8 @@ import type { SignalQueryable } from "./db";
  *   (the need's latest accepted or edited brief, or nulls; spec 007); the actor is the publisher.
  * - `suggestion.created`: `suggestionId`, payload `{ kind }`.
  * - `need.ready`: `needId`, payload `{ arrCents, supporters, strategyVersion }`; once per need (spec 007).
+ * - `preview.shown` (spec 012): payload `{ previewId, ai, matches: [{ needId, probability, rank }],
+ *   additionalAsks }` (a count); no need or signal id, and never the submitted text.
  * - `suggestion.accepted | edited | rejected`: `suggestionId`, payload `{ kind }`; the actor is
  *   the resolver.
  */
@@ -27,6 +29,7 @@ export type SignalEventType =
   | "need.merged"
   | "need.ready"
   | "need.split"
+  | "preview.shown"
   | "signal.created"
   | "suggestion.accepted"
   | "suggestion.created"
