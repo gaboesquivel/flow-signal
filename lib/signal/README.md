@@ -69,6 +69,14 @@ Submissions (`domain/submissions.ts`): a merged-away `target.needId` lands on th
 
 Both throw `validation_failed` for a malformed edit; `applyPrioritySuggestion` throws `conflict` (merged need) or `not_found`. They are registered as handlers in `domain/suggestion-kinds.ts` (see PM triage).
 
+## Strategy and readiness (spec 007)
+
+Operations: `get_strategy`, `set_strategy`, `list_ready_needs` (all Operator; `set_strategy` is a write).
+
+- `domain/strategy.ts`: the append-only strategy (`getStrategy`, `setStrategy`, `readinessLine`, `DEFAULT_READINESS` when none is written).
+- `domain/readiness.ts`: `checkReadiness(deps, needIds?)` marks live, undecided needs (`draft | open`, no decision, `ready_at` null) whose distinct supporting accounts' ARR or distinct supporters reach either nonzero threshold: sets `ready_at` and records `need.ready` once (`dedupeKey: need.ready:<needId>`, payload `{ arrCents, supporters, strategyVersion }`, actor `signal:ai`). It then schedules an automatic `draftDecisionBrief` for every ready, undecided need that has no pending brief and none drafted since it became ready, so a brief that failed with `ai_unavailable` is retried on the next check. Hooks: suggestion generation (the signal's need), `merge_needs` and `undo_merge` (scheduled after the response), `set_strategy` (every live need, inline, for `newlyReady`). `listReadyNeeds` backs `list_ready_needs`.
+- `domain/scheduler.ts`: the off-hot-path scheduler shared by suggestion generation, readiness, and auto briefs (`scheduleOffHotPath`; `after()` in route handlers, a recorder in tests).
+
 ## PM triage
 
 Operations: `list_suggestions`, `resolve_suggestion`, `merge_needs`, `undo_merge`, `split_need`, `get_need_detail` (all Operator).
