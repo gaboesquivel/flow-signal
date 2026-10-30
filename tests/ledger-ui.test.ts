@@ -189,3 +189,22 @@ describe("Reading pair, loading line, keyboard hints", () => {
     expect(markup).toContain("move");
   });
 });
+
+describe("RuledRow actions", () => {
+  it("keeps a row's actions beside its head while the row is closed", () => {
+    const markup = html(
+      h(
+        RuledList,
+        { "aria-label": "Suggestions" },
+        h(RuledRow, {
+          actions: h("button", { type: "button" }, "Undo merge"),
+          summary: "Row A",
+          value: "a",
+        }),
+      ),
+    );
+    expect(markup).toContain('data-slot="ruled-row-actions"');
+    expect(markup).toContain("Undo merge");
+    expect(markup).not.toContain('data-slot="ruled-row-panel"');
+  });
+});
