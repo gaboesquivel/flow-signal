@@ -328,3 +328,13 @@ Prompt: are we done with cleanup?
 [2026-10-30T19:24:00Z]
 Prompt: keep build/t08; are we done with cleanup?
 Response: Kept build/t08. Deleted stale local spec/004-crewday-outcome-eval (content already on main). Remaining: flow-signal-wt/010 worktree (PR 10 merged; retro session still running), docs/harness-visual + PR 12 (harness session active, new diagram refresh).
+
+[2026-10-30T19:25:28Z]
+Prompt: remove flow-signal-wt and similar folder, leave only the main folder
+
+[2026-10-30T19:25:55Z]
+Prompt: remove flow-signal-wt and similar folders, leave only the main folder
+Response: Removed worktrees 010, harness-visual, t08 and the flow-signal-wt folder (all clean, commits pushed or on branches). build/t08 branch kept locally; spec/010 work is on origin.
+
+[2026-10-30T19:26:35Z]
+Prompt: merge it to main ignore checks vercel builds are rate limited

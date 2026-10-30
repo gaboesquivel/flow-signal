@@ -22,7 +22,7 @@ import { SignalError } from "@/lib/signal/errors";
  * stores one on every new need; nothing in the board ranks by them.
  */
 
-export const BOARD_MATCHES = 3;
+const BOARD_MATCHES = 3;
 
 /** Live needs with the public text a keyword search reads. */
 const liveNeedTexts = async (db: SignalQueryable) => {

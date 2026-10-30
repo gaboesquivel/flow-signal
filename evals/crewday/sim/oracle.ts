@@ -106,12 +106,12 @@ export const createNearestNeed = (world: World, embedder: Embedder): NearestNeed
 };
 
 /** The oracle's embedding model when live: deliberately not Signal's (`SIGNAL_EMBEDDING_MODEL`). */
-export const ORACLE_EMBEDDING_MODEL = "openai/text-embedding-3-large";
+const ORACLE_EMBEDDING_MODEL = "openai/text-embedding-3-large";
 /** List price of `ORACLE_EMBEDDING_MODEL`, USD per token ($0.13 per million). */
 const ORACLE_USD_PER_TOKEN = 0.13 / 1_000_000;
 
 /** An embedder that also reports its own spend, so the runner can keep it out of Signal's. */
-export interface OracleEmbedder extends Embedder {
+interface OracleEmbedder extends Embedder {
   spendUsd: () => number;
 }
 

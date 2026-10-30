@@ -3,11 +3,11 @@ import type { CompositionEnvelope } from "../core/envelope";
 import type { ComposeResult } from "../orchestration/compose";
 import type { QueryMatrixCase } from "./query-matrix";
 
-export type MatrixGrade = "PASS" | "FAIL";
+type MatrixGrade = "PASS" | "FAIL";
 
 const groundedRecordPrefix = /^(?:entity:|document:|metric:|media:)/u;
 
-export const rootExperienceFromOpenUi = (openuiText: string) =>
+const rootExperienceFromOpenUi = (openuiText: string) =>
   openuiText.match(/^\s*root\s*=\s*(?<root>\w+)/u)?.groups?.root ?? null;
 
 const gradeError = ({ error, matrixCase }: { error: unknown; matrixCase: QueryMatrixCase }) => {
@@ -202,9 +202,4 @@ const gradeExpectations = ({
   }
 
   return { grade: "PASS" as const };
-};
-
-export const envelopeFromResult = (result: ComposeResult) => {
-  const complete = result.events.find((event) => event.type === "complete");
-  return complete?.type === "complete" ? complete.envelope : null;
 };

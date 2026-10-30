@@ -78,7 +78,7 @@ const intervalAtMost = (ci: Interval | null, bar: number) => (ci ? ci[1] <= bar 
 const both = (...values: (boolean | null)[]) =>
   values.includes(null) ? null : values.every(Boolean);
 
-export interface CompareOptions {
+interface CompareOptions {
   resamples?: number;
   seed?: number;
 }

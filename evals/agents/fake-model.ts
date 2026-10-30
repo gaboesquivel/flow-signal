@@ -8,7 +8,7 @@ import { MockLanguageModelV4 } from "ai/test";
  * "Done.".
  */
 
-export interface ScriptCall {
+interface ScriptCall {
   input: unknown;
   name: string;
 }

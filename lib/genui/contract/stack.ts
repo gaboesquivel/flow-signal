@@ -1,12 +1,12 @@
 import { GENUI_MAX_STACK_CHILDREN } from "../core/limits";
 import type { ComponentName } from "../registry/components";
 
-export interface ParsedComponentChild {
+interface ParsedComponentChild {
   props: Record<string, unknown>;
   typeName: ComponentName;
 }
 
-export const isParsedComponentChild = (value: unknown): value is ParsedComponentChild =>
+const isParsedComponentChild = (value: unknown): value is ParsedComponentChild =>
   Boolean(
     value &&
     typeof value === "object" &&

@@ -18,12 +18,12 @@ import type { SimState } from "./state";
  * - **Revenue focus:** the memo's order (keep Enterprise, land up-market deals, then Growth).
  */
 
-export const FOCUS_WEIGHT = 0.8;
-export const CAPACITY_PER_QUARTER = 12;
-export const REVENUE_FOCUS =
+const FOCUS_WEIGHT = 0.8;
+const CAPACITY_PER_QUARTER = 12;
+const REVENUE_FOCUS =
   "Keep Enterprise (gross churn under 8%), then land up-market Enterprise deals in healthcare staffing and logistics, then Growth expansion to Enterprise; Starter demand is a tie-breaker.";
 
-export interface StrategyInput {
+interface StrategyInput {
   [key: string]: unknown;
   capacityPerQuarter: number;
   focusThemeIds: string[];

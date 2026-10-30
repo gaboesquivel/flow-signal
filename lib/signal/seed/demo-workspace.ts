@@ -30,7 +30,7 @@ import type { DemoNeed } from "./demo-data";
  * every run (fixed faker seed); dates are relative to `now`. Replaces all Signal data.
  */
 
-export const DEMO_SEED = 20_261_030;
+const DEMO_SEED = 20_261_030;
 const DAY = 86_400_000;
 const PEOPLE = 72;
 const PROSPECTS = 10;
@@ -38,7 +38,7 @@ const PROSPECTS = 10;
 type SignalRow = typeof signals.$inferInsert & { createdAt: Date; id: string };
 type SuggestionRow = typeof suggestions.$inferInsert;
 
-export interface SeedOptions {
+interface SeedOptions {
   /** Embeds need statements when given (needs Gateway access); otherwise embeddings stay null. */
   embedder?: Embedder;
   now?: Date;

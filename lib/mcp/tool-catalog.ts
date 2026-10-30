@@ -4,7 +4,7 @@ import { GENUI_PREVIEW_RESOURCE_URI } from "./genui-preview-resource";
 
 const starterMcpAppResourceUri = GENUI_PREVIEW_RESOURCE_URI;
 
-export interface StarterMcpToolCard {
+interface StarterMcpToolCard {
   description: string;
   name: string;
 }

@@ -27,7 +27,7 @@ export const resetSignalRuntime = () => {
   overrides = {};
 };
 
-export const signalDatabaseUrl = () => process.env.DATABASE_URL?.trim() || undefined;
+const signalDatabaseUrl = () => process.env.DATABASE_URL?.trim() || undefined;
 
 export const createOperationContext = (actor: Actor): OperationContext => {
   const databaseUrl = signalDatabaseUrl();

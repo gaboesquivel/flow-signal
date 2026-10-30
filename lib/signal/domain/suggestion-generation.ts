@@ -36,11 +36,11 @@ import type { SuggestionKind } from "./suggestion-types";
  */
 
 /** The event actor for AI-created suggestions (matches the seed). */
-export const SUGGESTION_AI_ACTOR: Actor = { kind: "agent", ref: "signal:ai" };
+const SUGGESTION_AI_ACTOR: Actor = { kind: "agent", ref: "signal:ai" };
 
 const MERGE_CANDIDATES = 5;
 /** Need-level kinds run on a need's signals 1, 2, then every this-many (see above). */
-export const REGENERATE_EVERY_SIGNALS = 5;
+const REGENERATE_EVERY_SIGNALS = 5;
 
 /** Whether the need's `ordinal`th signal (1-based, in arrival order) runs the need-level kinds. */
 export const onNeedCadence = (ordinal: number) =>
@@ -53,13 +53,13 @@ const NEED_LEVEL_KINDS: ReadonlySet<SuggestionKind> = new Set([
 ]);
 const MAX_SIGNALS_IN_PROMPT = 30;
 
-export interface GenerationDeps {
+interface GenerationDeps {
   ai: SignalAi;
   clock: Clock;
   db: SignalDb;
 }
 
-export interface GenerationOutcome {
+interface GenerationOutcome {
   created: { id: string; kind: SuggestionKind }[];
   skipped: { kind: SuggestionKind; reason: string }[];
 }
@@ -408,13 +408,7 @@ export const generateSuggestionsForSignal = async (
   return outcome;
 };
 
-export {
-  configureSuggestionScheduler,
-  resetSuggestionScheduler,
-  scheduleOffHotPath,
-  startNow,
-} from "./scheduler";
-export type { SuggestionScheduler } from "./scheduler";
+export { configureSuggestionScheduler, resetSuggestionScheduler } from "./scheduler";
 
 /**
  * The hook `submit_signal` calls once its transaction commits:

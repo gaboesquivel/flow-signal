@@ -9,7 +9,7 @@ import {
 import { decodeOffsetCursor, encodeOffsetCursor } from "../domain/cursor";
 import { defineOperation } from "./types";
 
-export const listSuggestionsInput = z.object({
+const listSuggestionsInput = z.object({
   /** Opaque cursor from a previous page's `nextCursor`. */
   cursor: z
     .string()

@@ -31,7 +31,7 @@ export const operatorNeedStatuses = [
   "shipped",
   "declined",
 ] as const;
-export type OperatorNeedStatus = (typeof operatorNeedStatuses)[number];
+type OperatorNeedStatus = (typeof operatorNeedStatuses)[number];
 
 export const operatorNeedSorts = ["priority", "people", "accounts", "arr"] as const;
 export type OperatorNeedSort = (typeof operatorNeedSorts)[number];
@@ -58,7 +58,7 @@ export const operatorNeedSchema = z.object({
 });
 export type OperatorNeed = z.infer<typeof operatorNeedSchema>;
 
-export interface OperatorNeedFilter {
+interface OperatorNeedFilter {
   /** Words that must each appear in the statement, theme name, or a proposed solution. */
   query?: string;
   sort: OperatorNeedSort;

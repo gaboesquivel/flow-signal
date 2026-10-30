@@ -31,7 +31,7 @@ const REASONING_TIMEOUT_MS = 60_000;
 /** A ceiling for slower decision models (Fable 5.1 always thinks); briefs stay off the hot path. */
 const DECISION_TIMEOUT_MS = 180_000;
 
-export interface ReasoningModelOptions {
+interface ReasoningModelOptions {
   /** Injected in tests (`MockLanguageModelV4`); defaults to the task's model on the Gateway. */
   model?: LanguageModel;
   /**
@@ -42,7 +42,7 @@ export interface ReasoningModelOptions {
 }
 
 /** Provider options for a decision task: Anthropic effort and the refusal fallback (no BYOK, decision 0007). */
-export const decisionProviderOptions = () => ({
+const decisionProviderOptions = () => ({
   anthropic: { effort: "medium" as const, fallbacks: "default" as const },
 });
 

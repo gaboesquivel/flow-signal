@@ -24,7 +24,7 @@ export const mergeResultSchema = z.object({
   /** Every signal that moved; `undo_merge` moves exactly these back. */
   movedSignalIds: z.array(z.uuid()),
 });
-export type MergeResult = z.infer<typeof mergeResultSchema>;
+type MergeResult = z.infer<typeof mergeResultSchema>;
 
 export const undoMergeResultSchema = z.object({
   intoNeedId: z.uuid(),

@@ -8,7 +8,7 @@ import { gatewayModel, signalReasoningModelId } from "@/lib/ai/models";
  * JSON report next to each draft so a person can spot-check them.
  */
 
-export const RUBRIC = `Score the drafted need statement from 1 to 5 against the customer's submission.
+const RUBRIC = `Score the drafted need statement from 1 to 5 against the customer's submission.
 Criteria:
 1. Form: "who needs to do what so that outcome" (a kind of person, a capability, an outcome).
 2. Problem, not solution: states the underlying need; a named feature is not the need itself.
@@ -25,7 +25,7 @@ export const gradeSchema = z.object({
 });
 export type Grade = z.infer<typeof gradeSchema>;
 
-export interface StatementGrader {
+interface StatementGrader {
   grade: (input: { body: string; statement: string; title: string }) => Promise<Grade>;
   model: string;
 }

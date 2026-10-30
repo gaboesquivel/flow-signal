@@ -60,13 +60,6 @@ export interface PlannedOperation {
   planned: true;
 }
 
-export const plannedOperation = (
-  operation: Omit<PlannedOperation, "planned">,
-): PlannedOperation => ({
-  ...operation,
-  planned: true,
-});
-
 export const isPlanned = (
   operation: AnyOperation | PlannedOperation,
 ): operation is PlannedOperation => "planned" in operation && operation.planned === true;

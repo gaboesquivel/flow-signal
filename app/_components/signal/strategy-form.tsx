@@ -16,7 +16,7 @@ import type { SignalClientError, SignalOperations } from "@/lib/signal/client";
 import { formatDate, formatUsd, peopleLabel } from "./labels";
 
 type StrategyRead = SignalOperations["get_strategy"]["output"];
-export interface ThemeOption {
+interface ThemeOption {
   id: string;
   name: string;
 }

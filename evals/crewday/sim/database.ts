@@ -17,7 +17,7 @@ import type { SimDatabaseTarget } from "./safety";
  * Drizzle schema, or a local Docker database whose schema is brought up to date and whose Signal
  * tables are emptied (a run always starts from nothing).
  */
-export interface SimDatabase {
+interface SimDatabase {
   close: () => Promise<void>;
   db: SignalDb;
 }

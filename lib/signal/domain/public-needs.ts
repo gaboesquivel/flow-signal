@@ -22,10 +22,10 @@ export const livePublicNeedStatuses = [
   "declined",
 ] as const;
 export const publicNeedStatusSchema = z.enum([...livePublicNeedStatuses, "merged"]);
-export type PublicNeedStatus = z.infer<typeof publicNeedStatusSchema>;
+type PublicNeedStatus = z.infer<typeof publicNeedStatusSchema>;
 
 export const demandBandSchema = z.enum(["high", "medium", "low"]);
-export type DemandBand = z.infer<typeof demandBandSchema>;
+type DemandBand = z.infer<typeof demandBandSchema>;
 
 export const publicNeedSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),
@@ -48,13 +48,13 @@ export const publicNeedSchema = z.object({
   supporterCount: z.number().int().nonnegative(),
   theme: z.object({ id: z.uuid(), name: z.string() }).nullable(),
 });
-export type PublicNeed = z.infer<typeof publicNeedSchema>;
+type PublicNeed = z.infer<typeof publicNeedSchema>;
 
 /** Draft needs are public as "new" (GLOSSARY → Draft need). */
 export const toPublicStatus = (status: typeof needs.$inferSelect.status): PublicNeedStatus =>
   status === "draft" ? "new" : status;
 
-export const fromPublicStatus = (status: PublicNeedStatus): typeof needs.$inferSelect.status =>
+const fromPublicStatus = (status: PublicNeedStatus): typeof needs.$inferSelect.status =>
   status === "new" ? "draft" : status;
 
 /**
@@ -133,7 +133,7 @@ interface PublicNeedRow {
 
 const iso = (value: string | Date) => new Date(value).toISOString();
 
-export const toPublicNeed = (row: PublicNeedRow): PublicNeed => {
+const toPublicNeed = (row: PublicNeedRow): PublicNeed => {
   const supporters = Number(row.supporterCount);
   return {
     createdAt: iso(row.createdAt),
@@ -173,7 +173,7 @@ const MAX_SEARCH_WORDS = 8;
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
-export interface PublicNeedFilter {
+interface PublicNeedFilter {
   limit: number;
   offset: number;
   q?: string;

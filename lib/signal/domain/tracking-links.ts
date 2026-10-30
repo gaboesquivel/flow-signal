@@ -17,7 +17,7 @@ export const trackingTokenSchema = z
   .max(128)
   .regex(/^[\w-]+$/u, "Not a tracking token.");
 
-export interface TrackingLink {
+interface TrackingLink {
   id: string;
   token: string;
 }
@@ -39,7 +39,7 @@ const findLink = async (db: SignalQueryable, token: string): Promise<TrackingLin
  * transaction. Concurrent first uses converge on one link (the token is unique). Undefined when
  * no unlinked signal has this token.
  */
-export const adoptLegacyToken = async (
+const adoptLegacyToken = async (
   tx: SignalQueryable,
   token: string,
 ): Promise<TrackingLink | undefined> => {

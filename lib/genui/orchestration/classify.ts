@@ -7,7 +7,7 @@ import { ambiguousQueryTier } from "./routing";
 
 export type ComposeClassifier = "jev" | "regex";
 
-export type AmbiguousClassification =
+type AmbiguousClassification =
   | {
       classifier: ComposeClassifier;
       intent: ControlledIntent;

@@ -154,7 +154,7 @@ const averageRanks = (values: number[]) => {
 const mean = (values: number[]) => values.reduce((sum, v) => sum + v, 0) / values.length;
 
 /** Spearman rank correlation with average ranks for ties; null under three pairs. */
-export const spearman = (pairs: [number, number][]) => {
+const spearman = (pairs: [number, number][]) => {
   if (pairs.length < 3) return null;
   const a = averageRanks(pairs.map((p) => p[0]));
   const b = averageRanks(pairs.map((p) => p[1]));
@@ -519,7 +519,7 @@ const buildCtx = (world: World, run: RunResult, options: ScoreOptions): Ctx => {
   };
 };
 
-export interface ScoreOptions {
+interface ScoreOptions {
   resamples?: number;
   /** Bootstrap seed; default the run's seed. */
   seed?: number;

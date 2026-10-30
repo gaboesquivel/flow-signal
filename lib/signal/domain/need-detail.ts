@@ -102,7 +102,7 @@ export const needDetailSchema = z.object({
   supporterCount: z.number().int(),
   theme: z.object({ id: z.uuid(), name: z.string() }).nullable(),
 });
-export type NeedDetail = z.infer<typeof needDetailSchema>;
+type NeedDetail = z.infer<typeof needDetailSchema>;
 
 const toAccount = (account: typeof accounts.$inferSelect) => ({
   arrCents: Number(account.arrCents),

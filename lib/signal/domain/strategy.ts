@@ -40,7 +40,7 @@ export const strategyInputSchema = z
     message: "Set at least one readiness threshold above 0.",
     path: ["readinessArrCents"],
   });
-export type StrategyInput = z.infer<typeof strategyInputSchema>;
+type StrategyInput = z.infer<typeof strategyInputSchema>;
 
 export const strategySchema = z.object({
   capacityPerQuarter: z.number().int(),

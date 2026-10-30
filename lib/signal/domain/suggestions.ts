@@ -89,7 +89,7 @@ export const toSuggestionViews = async (
   }));
 };
 
-export interface SuggestionFilter {
+interface SuggestionFilter {
   kind?: SuggestionKind;
   limit: number;
   /** As subject (`needId`) or merge target (`relatedNeedId`). */
@@ -122,7 +122,7 @@ export const listSuggestions = async (db: SignalQueryable, filter: SuggestionFil
 export const MAX_REJECT_REASON_LENGTH = 500;
 
 const resolvedStatus = { accept: "accepted", edit: "edited", reject: "rejected" } as const;
-export type ResolveAction = keyof typeof resolvedStatus;
+type ResolveAction = keyof typeof resolvedStatus;
 
 /**
  * Accept, edit, or reject one pending suggestion. The kind's effect, the status change, and the

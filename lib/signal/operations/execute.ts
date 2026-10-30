@@ -13,7 +13,7 @@ import { createOperationContext } from "../runtime";
 import { implicitErrors } from "./types";
 import type { AnyOperation } from "./types";
 
-export type OperationResult = { data: unknown; ok: true } | (ErrorEnvelope & { ok: false });
+type OperationResult = { data: unknown; ok: true } | (ErrorEnvelope & { ok: false });
 
 const failure = (error: SignalError): OperationResult => ({
   ok: false,

@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import * as React from "react";
 
 /** Opening a row closes any other; opening the open row closes it. */
-export function toggleExpanded(current: string | null, value: string): string | null {
+function toggleExpanded(current: string | null, value: string): string | null {
   return current === value ? null : value;
 }
 
@@ -179,4 +179,4 @@ function RuledRow({
   );
 }
 
-export { RuledItem, RuledList, RuledRow };
+export { RuledList, RuledRow };

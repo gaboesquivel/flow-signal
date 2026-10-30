@@ -30,12 +30,14 @@ Builds on [spec 010](./010-retro-remediation.md) (Gateway-only models) and decis
 ## Implementation Decisions
 
 **Anthropic sweep.**
+
 - `lib/starter-content.ts`: replace "optional Anthropic key" with the Gateway (`AI_GATEWAY_API_KEY` or OIDC).
 - `tests/signal/domain/reasoning-model.test.ts`: drop the `ANTHROPIC_API_KEY` stubs (the BYOK assertion they guarded is gone since decision 0007). Edit only; do not run.
 - Confirm with `grep -rniE "@ai-sdk/anthropic|createAnthropic|ANTHROPIC_" app lib agents/*/agent scripts evals mcp-app providers hooks components .env.example docs/database.md` returning nothing. Decision records and accepted specs keep their history untouched.
 - Eve agents (`agents/*/agent/agent.ts`): confirm their model resolves through the Gateway, not Eve's `anthropic-api/` provider prefix. Built `.output/` folders are gitignored and out of scope.
 
 **Unused code.**
+
 - Tool: `pnpm dlx knip@5` (no config committed unless it removes false positives cheaply; if one is added, it is `knip.json` with entries for `agents/*/agent/**`, `mcp-app/src/main.tsx`, `scripts/**`, `tooling/**`, `evals/**`, and ignores `.agents/**`, `.claude/**`).
 - Delete an unused `components/*.tsx` only after confirming nothing imports it by path or by registry string (GenUI's catalog in `lib/genui/registry/` and `lib/genui/react/` resolves components; check before deleting). Components that GenUI or the MCP app can render stay.
 - Remove the unused dependencies from `package.json` and refresh `pnpm-lock.yaml`. Add `postcss` as a devDependency if `postcss.config.mjs` needs it listed.
@@ -43,6 +45,7 @@ Builds on [spec 010](./010-retro-remediation.md) (Gateway-only models) and decis
 - Out of bounds: `.agents/`, `.claude/`, `tooling/hooks/`, `scripts/vercel-build.mjs` (referenced from `vercel.json`).
 
 **Local dev database** (decision [0009](../decisions/0009-local-dev-on-docker-postgres.md)).
+
 - `.env.example`: `DATABASE_URL=postgres://postgres:postgres@localhost:5432/signal_dev`, with a comment that a Neon branch URL also works.
 - New `scripts/db-dev-setup.ts`, run by `pnpm db:dev` = `pnpm db:up && node --env-file-if-exists=.env.local --import tsx scripts/db-dev-setup.ts`: refuses non-local hosts (`isLocalDatabaseHost` from `lib/signal/db.ts`), creates the database if missing (reuse the create step in `lib/db/prepare-database.ts`), applies `drizzle/` migrations the same way `scripts/db-migrate.ts` does, and runs the demo seed only when the Signal tables are empty.
 - No change to `lib/signal/db.ts`: `localhost` already routes through the proxy on port 4444 over plain WebSocket.

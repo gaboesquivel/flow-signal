@@ -20,7 +20,7 @@ import type { Surface } from "./surfaces";
 const MIN_STATEMENT = 10;
 const MAX_STATEMENT = 500;
 
-export const idempotencyKeyFor = (world: string, signal: WorldSignal) =>
+const idempotencyKeyFor = (world: string, signal: WorldSignal) =>
   `crewday:${world}:${signal.retryOf ?? signal.id}`;
 
 /** A statement `submit_signal` accepts: the drafted one, padded with the body when too short. */

@@ -5,7 +5,7 @@
  * database that already has data unless asked to.
  */
 
-export interface DestructiveStatement {
+interface DestructiveStatement {
   kind: string;
   statement: string;
 }
@@ -45,7 +45,7 @@ export const destructiveStatements = (sql: string): DestructiveStatement[] =>
       return match ? [{ kind: match.kind, statement }] : [];
     });
 
-export interface JournalEntry {
+interface JournalEntry {
   tag: string;
   when: number;
 }
@@ -56,7 +56,7 @@ export const pendingMigrations = <T extends JournalEntry>(
   lastAppliedAt: number | null,
 ): T[] => journal.filter((entry) => lastAppliedAt === null || entry.when > lastAppliedAt);
 
-export interface SeedContext {
+interface SeedContext {
   env: Record<string, string | undefined>;
   hasData: boolean;
   replace: boolean;

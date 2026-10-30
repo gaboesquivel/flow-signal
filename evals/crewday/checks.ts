@@ -98,7 +98,7 @@ const checkBacklog = ({ backlog, needs }: NeedSet, needsByKey: Map<string, Need>
 };
 
 /** Themes, accounts, needs (traps, splits, priorities), and the backlog that points at them. */
-export const checkNeedSet = (set: NeedSet): string[] => {
+const checkNeedSet = (set: NeedSet): string[] => {
   const { accounts, backlog, needs, themes } = set;
   const needsByKey = new Map(needs.map((need) => [need.key, need]));
   const groups = new Map<string, Need[]>();

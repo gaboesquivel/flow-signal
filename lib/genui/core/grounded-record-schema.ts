@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const recordId = z.string().min(1).max(200);
 
-export const entityRecordSchema = z.strictObject({
+const entityRecordSchema = z.strictObject({
   cta: z.string().max(120).optional(),
   features: z.array(z.string().max(120)).max(16).optional(),
   id: recordId,
@@ -15,7 +15,7 @@ export const entityRecordSchema = z.strictObject({
   url: z.string().min(1).max(2000),
 });
 
-export const documentRecordSchema = z.strictObject({
+const documentRecordSchema = z.strictObject({
   excerpt: z.string().min(1).max(4000),
   id: recordId,
   kind: z.literal("document"),
@@ -24,7 +24,7 @@ export const documentRecordSchema = z.strictObject({
   url: z.string().min(1).max(2000),
 });
 
-export const metricRecordSchema = z.strictObject({
+const metricRecordSchema = z.strictObject({
   id: recordId,
   kind: z.literal("metric"),
   label: z.string().min(1).max(500),
@@ -34,7 +34,7 @@ export const metricRecordSchema = z.strictObject({
   value: z.string().min(1).max(200),
 });
 
-export const mediaRecordSchema = z.strictObject({
+const mediaRecordSchema = z.strictObject({
   id: recordId,
   kind: z.literal("media"),
   mimeType: z.string().min(1).max(200),

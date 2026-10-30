@@ -138,7 +138,7 @@ const errorCodeOf = (output: unknown) => {
   return typeof error === "string" ? error : "error";
 };
 
-export interface ConversationOptions {
+interface ConversationOptions {
   agent: LoadedAgent;
   /** Sent in order after the first message while `until` is not yet satisfied. */
   followUps?: string[];

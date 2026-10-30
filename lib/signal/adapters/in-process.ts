@@ -8,7 +8,7 @@ import type { Access, AnyOperation } from "../operations/types";
  */
 
 /** Not a real host: requests never leave the process. */
-export const IN_PROCESS_ORIGIN = "http://signal.localhost";
+const IN_PROCESS_ORIGIN = "http://signal.localhost";
 
 const pathParameter = /:(?<name>[a-zA-Z]+)/gu;
 

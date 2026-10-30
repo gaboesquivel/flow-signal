@@ -1,5 +1,3 @@
-import { componentNames } from "../registry/components";
-
 export const GENUI_LIBRARY_VERSION = 1;
 
 export type GroundedRecord =
@@ -47,11 +45,3 @@ export interface CompositionEnvelope {
   records: GroundedRecord[];
   requestId: string;
 }
-
-export const recordIdsValid = ({ ids, records }: { ids: string[]; records: GroundedRecord[] }) => {
-  const known = new Set(records.map((record) => record.id));
-  return ids.every((id) => known.has(id));
-};
-
-export const componentAllowed = (name: string) =>
-  (componentNames as readonly string[]).includes(name);

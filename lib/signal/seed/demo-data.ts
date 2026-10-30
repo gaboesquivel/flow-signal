@@ -5,7 +5,7 @@
  * through. Keys are stable handles used by tests and the acceptance scenario (n1, n2).
  */
 
-export interface DemoAccount {
+interface DemoAccount {
   arrCents: number;
   domain: string;
   key: string;
@@ -81,7 +81,7 @@ export const demoAccounts: DemoAccount[] = [
   },
 ];
 
-export interface DemoTheme {
+interface DemoTheme {
   description: string;
   key: string;
   name: string;

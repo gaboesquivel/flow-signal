@@ -6,7 +6,7 @@ import type { AnyOperation } from "../operations/types";
  * on its own; a shared store (e.g. KV) is out of scope for the MVP.
  */
 
-export const DEFAULT_REQUESTS_PER_MINUTE = 120;
+const DEFAULT_REQUESTS_PER_MINUTE = 120;
 const WINDOW_MS = 60_000;
 
 const buckets = new Map<string, { count: number; resetAt: number }>();

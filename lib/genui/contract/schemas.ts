@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { compositeNames } from "../registry/composites";
 
-export const compositeSchema = z.enum(compositeNames);
+const compositeSchema = z.enum(compositeNames);
 
 export const answerPropsSchema = z.object({
   body: z.string(),

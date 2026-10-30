@@ -21,19 +21,19 @@ import { SignalError } from "../errors";
  *   match. Repeats are reported once, in order of first appearance, with the text's own casing.
  */
 
-export const findingKinds = ["person", "account", "email"] as const;
-export type FindingKind = (typeof findingKinds)[number];
+const findingKinds = ["person", "account", "email"] as const;
+type FindingKind = (typeof findingKinds)[number];
 
 export const publicTextFindingSchema = z.object({
   kind: z.enum(findingKinds),
   /** The text as it appears in the checked text. */
   match: z.string(),
 });
-export type PublicTextFinding = z.infer<typeof publicTextFindingSchema>;
+type PublicTextFinding = z.infer<typeof publicTextFindingSchema>;
 
 export const MAX_PUBLIC_TEXT_LENGTH = 10_000;
 
-export interface IdentifyingCandidate {
+interface IdentifyingCandidate {
   kind: FindingKind;
   value: string;
 }

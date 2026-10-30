@@ -135,7 +135,7 @@ const compositeFromProps = (component: ComponentName, props: Record<string, unkn
   return typeof composite === "string" ? composite : null;
 };
 
-export const validateComponentSubtree = ({
+const validateComponentSubtree = ({
   component,
   props,
   records,

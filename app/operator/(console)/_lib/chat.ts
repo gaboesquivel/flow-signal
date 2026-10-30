@@ -22,7 +22,7 @@ export interface CitedNeed {
 export type AnswerSegment =
   | { text: string; type: "text" }
   | { id: string; text: string; type: "need" };
-export type AnswerBlock =
+type AnswerBlock =
   | { kind: "paragraph"; segments: AnswerSegment[] }
   | { items: AnswerSegment[][]; kind: "list" };
 

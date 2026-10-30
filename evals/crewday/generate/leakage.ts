@@ -17,7 +17,7 @@ interface NeedDocument extends KeywordDocument {
   key: string;
 }
 
-export interface Findability {
+interface Findability {
   /** Signal id → whether its true need ranked first, and its share of query words hit there. */
   bySignal: Map<string, { findable: boolean; trueShare: number }>;
   considered: number;

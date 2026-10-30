@@ -1,6 +1,6 @@
-export type FormFieldType = "email" | "text";
+type FormFieldType = "email" | "text";
 
-export interface FormFieldDefinition {
+interface FormFieldDefinition {
   label: string;
   name: string;
   required?: boolean;

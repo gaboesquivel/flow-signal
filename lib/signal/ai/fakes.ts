@@ -103,7 +103,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  * handlers written before spec 007 keep working: confidence 0.7, in focus unless declined, and a
  * capacity note. Deterministic; what a handler sets wins.
  */
-export const withFakeDirection = (value: unknown): unknown => {
+const withFakeDirection = (value: unknown): unknown => {
   if (!isRecord(value) || !isRecord(value.recommendation)) return value;
   const { recommendation } = value;
   const declined = recommendation.status === "declined";

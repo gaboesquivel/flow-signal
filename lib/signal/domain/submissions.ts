@@ -20,7 +20,7 @@ import { createTrackingLink, resolveTrackingLink, trackingTokenSchema } from "./
  * retry return the first result and count once.
  */
 
-export const submitTargetSchema = z.union([
+const submitTargetSchema = z.union([
   z.object({ needId: z.uuid() }).strict(),
   z
     .object({
@@ -69,11 +69,11 @@ export const submitOutputSchema = z.object({
   /** Private, unguessable My signals link (`get_my_signals`) holding this signal. Share it only with them. */
   trackingUrl: z.url(),
 });
-export type SubmitOutput = z.infer<typeof submitOutputSchema>;
+type SubmitOutput = z.infer<typeof submitOutputSchema>;
 
-export const newTrackingToken = () => randomBytes(24).toString("base64url");
+const newTrackingToken = () => randomBytes(24).toString("base64url");
 
-export const trackingUrlFor = (token: string) => `${resolveSiteOrigin()}/my/${token}`;
+const trackingUrlFor = (token: string) => `${resolveSiteOrigin()}/my/${token}`;
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -198,7 +198,7 @@ const channelFor = (ref: string) => (ref.startsWith("mcp:") ? "mcp" : "web");
  * `replayed` (internal, not in the output schema) is true when a reused `idempotencyKey`
  * returned the stored result, so callers skip side effects such as suggestion generation.
  */
-export type SubmitResult = SubmitOutput & { replayed: boolean };
+type SubmitResult = SubmitOutput & { replayed: boolean };
 
 export const submitSignal = async (
   { actor, ai, clock, db }: OperationContext,

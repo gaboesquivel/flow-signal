@@ -19,13 +19,13 @@ import type { CaseRun } from "./metrics";
  * same way as the pgvector retriever without a database.
  */
 
-export interface MatchingPorts {
+interface MatchingPorts {
   embedder: Embedder;
   extractor: NeedExtractor;
   judge: MatchJudge;
 }
 
-export interface IndexedNeed {
+interface IndexedNeed {
   embedding: number[];
   needId: string;
   statement: string;
@@ -45,7 +45,7 @@ const cosine = (a: number[], b: number[]) => {
   return normA === 0 || normB === 0 ? 0 : dot / Math.sqrt(normA * normB);
 };
 
-export const inMemoryRetriever = (index: IndexedNeed[]): NeedRetriever => ({
+const inMemoryRetriever = (index: IndexedNeed[]): NeedRetriever => ({
   retrieve: ({ embedding, limit }) =>
     Promise.resolve(
       index
@@ -73,7 +73,7 @@ const noDatabase = undefined as unknown as SignalQueryable;
 
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
-export const runCase = async (
+const runCase = async (
   ports: MatchingPorts,
   retriever: NeedRetriever,
   submission: LabeledSubmission,

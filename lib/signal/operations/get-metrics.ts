@@ -13,7 +13,7 @@ import { defineOperation } from "./types";
 /** An ISO date (`2026-10-26`, midnight UTC) or a date-time with an offset. */
 const instant = z.union([z.iso.datetime({ offset: true }), z.iso.date()]);
 
-export const getMetricsInput = z.object({
+const getMetricsInput = z.object({
   /** Window start, inclusive. Defaults to 28 days before `to`. */
   from: instant.optional(),
   /** Window end, exclusive. Defaults to now. */

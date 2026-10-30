@@ -22,7 +22,7 @@ export type SignalTx = Parameters<Parameters<SignalDb["transaction"]>[0]>[0];
 export type SignalQueryable = SignalDb | SignalTx;
 
 /** Port of the local Neon HTTP/WebSocket proxy in docker-compose.yml. */
-export const LOCAL_NEON_PROXY_PORT = 4444;
+const LOCAL_NEON_PROXY_PORT = 4444;
 
 export const isLocalDatabaseHost = (host: string) =>
   host === "localhost" || host === "127.0.0.1" || /(?:^|\.)localtest\.me$/u.test(host);
