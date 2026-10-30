@@ -84,10 +84,12 @@ Public pages and `submit_signal` stay public and rate limited as in 001; a `trac
 
 ## Testing Decisions
 
-- Contract-first, red → green, as in 001: parity tests for each changed or new operation across REST, MCP, and agent tools; domain tests for link reuse (existing, unknown, legacy token adoption, replayed idempotency key), the additive migration passing `migration-safety`, reject reasons, `check_public_text` matches, and `list_operator_needs` sorting with null scores.
+Testing follows the project policy in [ARCHITECTURE.md → Testing](../../ARCHITECTURE.md#testing): automated tests cover the API, MCP, and agent surfaces only; the UI has no automated tests.
+
+- Contract-first, red → green, as in 001: parity tests for each changed or new operation across REST, MCP, and agent tools, limited to proving the surfaces agree (one success case, one case per declared error code, access). Behaviour cases live in domain tests: link reuse (existing, unknown, legacy token adoption, replayed idempotency key), the additive migration passing `migration-safety`, reject reasons, `check_public_text` matches, and `list_operator_needs` sorting with null scores.
 - Isolation tests: the new operator operations are absent from public discovery and return `unauthorized` without the secret; `get_my_signals` never returns a signal from another link that shares the email.
-- Playwright on seeded data for the wizard (including AI unavailable, None of these, carry-forward and Start a new link), triage keyboard flow, and decide → publish. Prior art: `tests/mcp/operator-isolation.test.ts`, `tests/mcp/route.test.ts`, existing Playwright setup.
-- Visual checks from DESIGN.md → Checking rendered output: pencil vs ink, no PII on public pages, light/dark AA, no sideways scroll at 390px.
+- UI: no unit, component, or browser tests. Each screen is checked by hand in a browser against DESIGN.md → Checking rendered output (pencil vs ink, no PII on public pages, light/dark AA, no sideways scroll at 390px), and the human steps of the acceptance scenario are walked through once on the deployment.
+- CI stays light (`pnpm qa`: lint, types, unit/parity/domain on in-process PGlite). Live-model evals run on demand (`pnpm eval`), not in CI.
 
 **Acceptance scenario.**
 
@@ -129,7 +131,6 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 
 - [ ] Each primitive renders in light and dark with the DESIGN.md tokens; status never relies on colour alone.
 - [ ] The ruled list allows exactly one expanded row and is keyboard reachable; the side-by-side pair stacks at 390px with no sideways scroll.
-- [ ] Component tests cover pencil/ink states and the single-expansion rule.
 
 ### 02: My signals links that carry forward
 
@@ -168,7 +169,7 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 - [ ] Nothing is suggested while typing; `preview_signal` runs once on Continue and again only after the words change; Back keeps what was typed.
 - [ ] Check shows up to three matches with the first read side by side; "None of these" is one click; additional asks are offered in one line; AI-unavailable and database-unavailable states are explained.
 - [ ] Details shows where it lands with Change and which My signals link it files under; Done shows the link and whether it was reused.
-- [ ] Public pages show no PII of other customers; Playwright covers the wizard, carry-forward, and Start a new link.
+- [ ] Public pages show no PII of other customers.
 
 ### 05: Console shell, Triage, and Needs
 
@@ -181,7 +182,7 @@ Ready now: 01, 02, 03. Then 04 (after 01, 02) and 05 (after 01, 03); 06 and 07 r
 - [ ] Shell: Triage (live count) · Needs · Criteria · Metrics · Chat, behind Operator access; unauthorized shows the access page.
 - [ ] Triage: J/K/A/E/R/Esc work; each suggestion kind edits only what `resolve_suggestion` allows; summary approval runs `check_public_text` and blocks on findings.
 - [ ] Needs reads `list_operator_needs` with filters and sort in the URL.
-- [ ] Takes client plumbing from `build/t08` where it fits; Playwright covers the triage keyboard flow.
+- [ ] Takes client plumbing from `build/t08` where it fits.
 
 ### 06: Need detail, decide, and publish
 
