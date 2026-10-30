@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import { z } from "zod";
 
 import type { Actor } from "../context";
@@ -9,7 +7,8 @@ import { publicTextFindingSchema } from "./public-text";
 /**
  * Operator assistant action contract (spec 014, decision 0011), kept apart from
  * `assistant-actions.ts` so operations and metrics can import it without a cycle through the
- * registry. Operator assistant actions (spec 014, decision 0011): the model only proposes a write; the
+ * registry, and browser-safe (no `node:` imports: the report renderer reaches it through
+ * metrics). Operator assistant actions (spec 014, decision 0011): the model only proposes a write; the
  * server previews it from the database, stores it as a pending action, and runs it once when the
  * PM confirms through an Operator route that never calls the model.
  */
@@ -64,26 +63,6 @@ export const actionPreviewSchema = z.object({
   title: z.string(),
 });
 export type ActionPreview = z.infer<typeof actionPreviewSchema>;
-
-/**
- * Stable hash of what the PM saw (`title`, `lines`, `needs`, `blocks`); confirm refuses to run
- * when the recomputed preview's fingerprint differs.
- */
-export const fingerprint = (preview: ActionPreview): string =>
-  createHash("sha256")
-    .update(
-      JSON.stringify([
-        preview.title,
-        preview.lines.map(({ label, value }) => [label, value]),
-        preview.needs.map(({ id, role, statement }) => [id, role, statement]),
-        preview.blocks.map(({ code, flags, message }) => [
-          code,
-          message,
-          (flags ?? []).map((flag) => JSON.stringify(flag)),
-        ]),
-      ]),
-    )
-    .digest("base64url");
 
 /**
  * Event types recorded by `effects: "write"` operations: the denominator of the assistant action

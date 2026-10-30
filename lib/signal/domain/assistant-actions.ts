@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
@@ -19,15 +19,35 @@ import {
   actionPreviewSchema,
   assistantAgentActor,
   assistantConfirmActor,
-  fingerprint,
 } from "./assistant-action-contract";
 import type { ActionPreview, ActionStatus } from "./assistant-action-contract";
 
 /**
  * Propose, confirm, and reject Operator assistant actions (spec 014, decision 0011). The contract
- * (preview schema, fingerprint, actors, write event types) lives in `assistant-action-contract.ts`
- * and is imported from there directly.
+ * (preview schema, actors, write event types) lives in `assistant-action-contract.ts` and is
+ * imported from there directly.
  */
+
+/**
+ * Stable hash of what the PM saw (`title`, `lines`, `needs`, `blocks`); confirm refuses to run
+ * when the recomputed preview's fingerprint differs. Here, not in the contract, so the contract
+ * stays browser-safe.
+ */
+export const fingerprint = (preview: ActionPreview): string =>
+  createHash("sha256")
+    .update(
+      JSON.stringify([
+        preview.title,
+        preview.lines.map(({ label, value }) => [label, value]),
+        preview.needs.map(({ id, role, statement }) => [id, role, statement]),
+        preview.blocks.map(({ code, flags, message }) => [
+          code,
+          message,
+          (flags ?? []).map((flag) => JSON.stringify(flag)),
+        ]),
+      ]),
+    )
+    .digest("base64url");
 
 /* ---------------------------------------------------------------------------------------------
  * Propose, confirm, reject (spec 014 task 03).
