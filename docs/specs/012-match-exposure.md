@@ -45,12 +45,17 @@ Humans and agents are reported separately, as for every MVP metric. PMs see the 
 ```ts
 // events row: type "preview.shown", actor from the request context, no need_id or signal_id
 payload: {
-  previewId: string;            // random, see below
+  previewId: string; // random, see below
   ai: "ok" | "unavailable";
-  matches: { needId: string; probability: number; rank: number }[]; // rank 1–3, as returned
-  additionalAsks: number;       // count only
+  matches: {
+    needId: string;
+    probability: number;
+    rank: number;
+  }
+  []; // rank 1–3, as returned
+  additionalAsks: number; // count only
 }
-dedupeKey: `preview.shown:${previewId}`
+dedupeKey: `preview.shown:${previewId}`;
 ```
 
 No title, body, draft statement, or reason is stored. The payload holds need IDs and numbers only.
@@ -73,21 +78,22 @@ exposure:
 
 **Metrics.** `get_metrics` gains an `exposure` block. Every rate is `null` on a zero denominator, split human vs. agent like the existing metrics, and windowed on `signal.created.occurred_at`:
 
-| Field | Calculation |
-| --- | --- |
-| `shownSubmissions` | `signal.created` with `exposure.kind = "shown"` |
-| `takeUpRate` | shown with `chosenRank` not null ÷ `shownSubmissions` |
-| `chosenRank` | counts for ranks 1, 2, 3 |
-| `filedNewDespiteMatch` | shown, `attachedTo = "draft"`; split into `mergedIntoShown`, `mergedElsewhere`, and `unmerged`, from `need.merged` not followed by `merge.undone` |
-| `movedOffTakenMatch` | shown signals with `chosenRank` not null that appear in a later `need.split` `signalIds` from that need ÷ shown with `chosenRank` not null |
-| `skipped`, `noneShown`, `unknown` | counts by `exposure.kind` |
-| `previewsWithoutSubmission` | `preview.shown` with ≥ 1 match in the window and no `signal.created` carrying its `previewId` within 24 h. Diagnostic; one person may preview several times |
+| Field                             | Calculation                                                                                                                                                 |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shownSubmissions`                | `signal.created` with `exposure.kind = "shown"`                                                                                                             |
+| `takeUpRate`                      | shown with `chosenRank` not null ÷ `shownSubmissions`                                                                                                       |
+| `chosenRank`                      | counts for ranks 1, 2, 3                                                                                                                                    |
+| `filedNewDespiteMatch`            | shown, `attachedTo = "draft"`; split into `mergedIntoShown`, `mergedElsewhere`, and `unmerged`, from `need.merged` not followed by `merge.undone`           |
+| `movedOffTakenMatch`              | shown signals with `chosenRank` not null that appear in a later `need.split` `signalIds` from that need ÷ shown with `chosenRank` not null                  |
+| `skipped`, `noneShown`, `unknown` | counts by `exposure.kind`                                                                                                                                   |
+| `previewsWithoutSubmission`       | `preview.shown` with ≥ 1 match in the window and no `signal.created` carrying its `previewId` within 24 h. Diagnostic; one person may preview several times |
 
-A separate `killCriterion` block ignores the window. It counts every `shown` submission ever (human and agent together, plus each alone). For that population it reports prevention rate (existing definition) and unmerge rate, and a verdict: `insufficient_data` under 200, `fail` when prevention rate < 30% or unmerge rate > 10%, and `pass` otherwise. Seeded demo history has no `exposure` field, so seeded data never counts toward it.
+A separate `killCriterion` block ignores the window. It counts every `shown` submission ever (human and agent together, plus each alone). For that population it reports prevention rate (existing definition), plus the all-time unmerge rate (merges are need-level, so that guardrail is not split by population), and a verdict: `insufficient_data` under 200, `fail` when prevention rate < 30% or unmerge rate > 10%, and `pass` otherwise. Seeded demo history has no `exposure` field, so seeded data never counts toward it.
 
 Calculations live in `lib/signal/metrics.ts` beside the existing ones and read only `events`, matching how prevention rate is computed. `close_the_loop_rate` stays in `unsupportedMetrics`.
 
 **Contracts agents see.**
+
 - `preview_signal` (public MCP, REST, Assistant agent): same input and output. The description drops "Read-only" and says Signal records which needs were shown, never the text.
 - `submit_signal`: unchanged.
 - `get_metrics` (Operator MCP, REST, Operator agent): the output schema adds `exposure` and `killCriterion`, and the description defines each field as above. Still `access: "operator"`; it returns `unauthorized` without the Operator secret.
@@ -101,6 +107,7 @@ Calculations live in `lib/signal/metrics.ts` beside the existing ones and read o
 Tests go test-first at the domain level, on hand-built event histories, like the existing metrics tests. Parity covers the operation surfaces. Prior art: `tests/signal/domain/submissions.test.ts`, `tests/signal/domain/matching.test.ts`, the metrics domain tests, and `tests/signal/parity/*`.
 
 In scope:
+
 - `preview.shown` holds no title, body, statement, or reason. A test asserts the payload keys.
 - Each `exposure.kind`, including an expired preview and a forged `previewId`, records correctly, and none fails the submission.
 - `chosenRank` is right for ranks 1–3, a new need, and a need outside the shown set.
@@ -137,7 +144,7 @@ In scope:
 
 - [x] 01: Record `preview.shown` with a random `previewId`
 - [x] 02: Stamp exposure on `signal.created`
-- [ ] 03: Exposure and kill-criterion metrics in `get_metrics`
+- [x] 03: Exposure and kill-criterion metrics in `get_metrics`
 - [ ] 04: Exposure panel on `/operator/metrics`
 
 ### 01: Record `preview.shown` with a random `previewId`
@@ -196,4 +203,5 @@ In scope:
   - Add `movedOffTakenMatch` as the live counterpart of the false-match guardrail.
 
   These add to PRODUCT.md and reverse nothing.
+
 - **Crewday:** once this ships, the lift run reports take-up per arm with no scorer change. That gives the simulation's submitter policy a measured counterpart the day real submissions arrive.
