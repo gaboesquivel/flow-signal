@@ -6,10 +6,12 @@ import {
   genuiPreviewResourceDescription,
   readGenuiPreviewHtml,
 } from "./genui-preview-resource";
+import { registerSignalMcpTools } from "@/lib/signal/adapters/mcp";
+
 import { registerOperatorMcpTools } from "./register-operator-tools";
 import { registerStarterMcpTools } from "./register-tools";
 
-export const createOperatorMcpServer = () => {
+export const createOperatorMcpServer = (request?: Request) => {
   const server = new McpServer({
     name: "signal-operator",
     version: "1.0.0",
@@ -35,5 +37,6 @@ export const createOperatorMcpServer = () => {
 
   registerStarterMcpTools(server);
   registerOperatorMcpTools(server);
+  registerSignalMcpTools(server, { access: "operator", request });
   return server;
 };

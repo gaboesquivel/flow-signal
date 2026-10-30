@@ -10,13 +10,13 @@ export const handleMcpRequest = async ({
   createServer,
   request,
 }: {
-  createServer: () => McpServer;
+  createServer: (request: Request) => McpServer;
   request: Request;
 }) => {
   const { headers: rateHeaders, limited } = consumeMcpRateLimit(request);
   if (limited) return mergeResponseHeaders(limited, rateHeaders);
 
-  const server = createServer();
+  const server = createServer(request);
   const transport = new WebStandardStreamableHTTPServerTransport({
     enableJsonResponse: true,
     sessionIdGenerator: undefined,
