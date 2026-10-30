@@ -1,65 +1,57 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/badge";
-
+import { formatDate, statusLabels } from "./labels";
 import type { PublicNeed } from "./labels";
-import { demandLabels, formatDate, statusLabels, supportersLabel } from "./labels";
+import { InkNote } from "./ink-note";
+import { Status } from "./status";
 
-export function StatusBadge({ status }: { status: PublicNeed["status"] }) {
-  const variant = status === "new" || status === "open" ? "outline" : "secondary";
-  return <Badge variant={variant}>{statusLabels[status]}</Badge>;
-}
-
-export function NeedFacts({ need }: { need: PublicNeed }) {
+/** People asking: the count in mono, the word in muted text (reads "11 people"). */
+export function PeopleCount({ className, count }: { className?: string; count: number }) {
   return (
-    <ul className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-      <li>
-        <StatusBadge status={need.status} />
-      </li>
-      {need.theme ? <li>{need.theme.name}</li> : null}
-      <li>{supportersLabel(need.supporterCount)}</li>
-      <li>{demandLabels[need.demandBand]}</li>
-    </ul>
+    <span className={`text-muted-foreground text-[13px] whitespace-nowrap ${className ?? ""}`}>
+      <span className="text-foreground mr-1 font-mono text-[17px] font-medium tabular-nums">
+        {count}
+      </span>
+      {count === 1 ? "person" : "people"}
+    </span>
   );
 }
 
+/** The latest published decision, in ink. */
 export function DecisionNote({ decision }: { decision: NonNullable<PublicNeed["decision"]> }) {
   return (
-    <p className="bg-muted/60 rounded-md px-3 py-2 text-sm">
-      <span className="font-medium">
-        {statusLabels[decision.status]} · {formatDate(decision.publishedAt)}:
-      </span>{" "}
+    <InkNote
+      label={
+        <>
+          Decision · {statusLabels[decision.status]}{" "}
+          <span className="text-muted-foreground font-mono text-xs [font-variant-caps:normal]">
+            {formatDate(decision.publishedAt)}
+          </span>
+        </>
+      }
+    >
       {decision.note}
-    </p>
+    </InkNote>
   );
 }
 
-/** One need on the board: public fields only (no submitter, account, or verbatim text). */
-export function NeedCard({ need }: { need: PublicNeed }) {
+/**
+ * One need on the board as a ruled row: statement, status word and shape, people. Public fields
+ * only (no submitter, account, or verbatim text).
+ */
+export function NeedRow({ need }: { need: PublicNeed }) {
   return (
-    <article
-      aria-labelledby={`need-${need.id}`}
-      className="bg-card ring-foreground/10 flex flex-col gap-3 rounded-xl p-4 ring-1"
-    >
-      <h3 className="leading-snug font-medium" id={`need-${need.id}`}>
-        <Link
-          className="focus-visible:ring-ring/50 rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-3"
-          href={`/needs/${need.id}`}
-        >
+    <li className="border-border min-w-0 border-b">
+      <Link
+        className="focus-visible:ring-ring/50 hover:bg-muted/40 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-2 rounded-sm py-[18px] outline-none focus-visible:ring-3 sm:grid-cols-[minmax(0,1fr)_120px_84px] sm:gap-x-6 sm:py-5"
+        href={`/needs/${need.id}`}
+      >
+        <span className="col-span-2 font-serif text-lg leading-snug text-pretty break-words sm:col-span-1 sm:text-[19px]">
           {need.statement}
-        </Link>
-      </h3>
-      <NeedFacts need={need} />
-      {need.proposedSolutions.length > 0 ? (
-        <p className="text-sm">
-          <span className="text-muted-foreground">Proposed solutions: </span>
-          {need.proposedSolutions.join(", ")}
-        </p>
-      ) : null}
-      {need.publicSummary ? (
-        <p className="text-muted-foreground text-sm">{need.publicSummary}</p>
-      ) : null}
-      {need.decision ? <DecisionNote decision={need.decision} /> : null}
-    </article>
+        </span>
+        <Status status={need.status} />
+        <PeopleCount className="text-right" count={need.supporterCount} />
+      </Link>
+    </li>
   );
 }

@@ -28,7 +28,7 @@ export default defineConfig({
     },
     {
       // Tests build database fixtures step by step and index into rows they just inserted.
-      files: ["tests/**"],
+      files: ["tests/**", "e2e/**"],
       rules: {
         "eslint/no-await-in-loop": "off",
         "typescript/no-non-null-assertion": "off",
