@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
@@ -6,110 +6,28 @@ import { z } from "zod";
 import { assistantActions } from "@/lib/db/schema";
 
 import type { SignalAi } from "../ai/ports";
-import type { Actor, Clock } from "../context";
+import type { Clock } from "../context";
 import type { SignalDb, SignalQueryable } from "../db";
 import { SignalError } from "../errors";
 import { recordEvent } from "../events";
-import type { SignalEventType } from "../events";
 import { executeOperation } from "../operations/execute";
 import { operations } from "../operations/registry";
 import { isPlanned } from "../operations/types";
 import type { AnyOperation } from "../operations/types";
-import { publicTextFindingSchema } from "./public-text";
+import {
+  ACTION_TTL_MS,
+  actionPreviewSchema,
+  assistantAgentActor,
+  assistantConfirmActor,
+  fingerprint,
+} from "./assistant-action-contract";
+import type { ActionPreview, ActionStatus } from "./assistant-action-contract";
 
 /**
- * Operator assistant actions (spec 014, decision 0011): the model only proposes a write; the
- * server previews it from the database, stores it as a pending action, and runs it once when the
- * PM confirms through an Operator route that never calls the model.
+ * Propose, confirm, and reject Operator assistant actions (spec 014, decision 0011). The contract
+ * (preview schema, fingerprint, actors, write event types) lives in `assistant-action-contract.ts`
+ * and is imported from there directly.
  */
-
-/** Pending actions expire 30 minutes after they are proposed. */
-export const ACTION_TTL_MS = 30 * 60 * 1000;
-
-/** The `client` on events from writes the PM confirmed in the assistant. */
-export const ASSISTANT_CLIENT = "console:assistant";
-
-/** The actor a confirmed action runs as: the PM, through the assistant. */
-export const assistantConfirmActor: Actor = { client: ASSISTANT_CLIENT, kind: "human", ref: "web" };
-
-/** The actor the assistant's own reads and proposals run as. */
-export const assistantAgentActor: Actor = {
-  client: ASSISTANT_CLIENT,
-  kind: "agent",
-  ref: ASSISTANT_CLIENT,
-};
-
-export const actionStatuses = ["proposed", "confirmed", "rejected", "expired", "failed"] as const;
-export type ActionStatus = (typeof actionStatuses)[number];
-
-export const actionPreviewSchema = z.object({
-  /** Blocking issues; Confirm is refused while any remain. */
-  blocks: z.array(
-    z.object({
-      code: z.enum(["public_text_flagged", "conflict"]),
-      flags: z.array(publicTextFindingSchema).optional(),
-      message: z.string(),
-    }),
-  ),
-  /** Fields the PM may edit on the card, by input key; validated again on confirm. */
-  editable: z.array(
-    z.object({
-      key: z.string(),
-      kind: z.enum(["text", "longtext", "select", "number"]),
-      label: z.string(),
-      options: z.array(z.string()).optional(),
-    }),
-  ),
-  lines: z.array(z.object({ label: z.string(), value: z.string() })),
-  needs: z.array(
-    z.object({
-      id: z.string(),
-      role: z.enum(["source", "target", "subject"]),
-      statement: z.string(),
-    }),
-  ),
-  /** Non-blocking notes, shown in pencil. */
-  notes: z.array(z.string()),
-  title: z.string(),
-});
-export type ActionPreview = z.infer<typeof actionPreviewSchema>;
-
-/**
- * Stable hash of what the PM saw (`title`, `lines`, `needs`, `blocks`); confirm refuses to run
- * when the recomputed preview's fingerprint differs.
- */
-export const fingerprint = (preview: ActionPreview): string =>
-  createHash("sha256")
-    .update(
-      JSON.stringify([
-        preview.title,
-        preview.lines.map(({ label, value }) => [label, value]),
-        preview.needs.map(({ id, role, statement }) => [id, role, statement]),
-        preview.blocks.map(({ code, flags, message }) => [
-          code,
-          message,
-          (flags ?? []).map((flag) => JSON.stringify(flag)),
-        ]),
-      ]),
-    )
-    .digest("base64url");
-
-/**
- * Event types recorded by `effects: "write"` operations: the denominator of the assistant action
- * share (PRODUCT.md → Diagnostics). `set_criteria` and `set_strategy` record no event today, so
- * their writes are not counted.
- */
-export const writeEventTypes = [
-  "decision.published",
-  "merge.undone",
-  "need.merged",
-  "need.split",
-  "report.saved",
-  "report.shared",
-  "suggestion.accepted",
-  "suggestion.edited",
-  "suggestion.rejected",
-] as const satisfies readonly SignalEventType[];
 
 /* ---------------------------------------------------------------------------------------------
  * Propose, confirm, reject (spec 014 task 03).
@@ -298,7 +216,35 @@ const settled = async (db: SignalDb, actionId: string, now: Date): Promise<Confi
   );
 };
 
-/** Applies the PM's edits: only the preview's `editable` keys may differ from the stored input. */
+const record = (value: unknown): Record<string, unknown> | undefined =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+
+/** The value at a dotted path (`edit.statement`, `weights.demand`), or undefined. */
+const valueAt = (input: Record<string, unknown>, path: string): unknown => {
+  let value: unknown = input;
+  for (const key of path.split(".")) value = record(value)?.[key];
+  return value;
+};
+
+/** A copy of `input` with `value` at a dotted path, creating objects along the way. */
+const withValueAt = (input: Record<string, unknown>, path: string, value: unknown) => {
+  const copy = toJson(input);
+  const keys = path.split(".");
+  let target = copy;
+  for (const key of keys.slice(0, -1)) {
+    target[key] = record(target[key]) ?? {};
+    target = target[key] as Record<string, unknown>;
+  }
+  target[keys.at(-1) ?? path] = value;
+  return copy;
+};
+
+/**
+ * Applies the PM's edits, keyed by input key or by an `editable` dotted path (`edit.statement`).
+ * Only the preview's `editable` keys may differ from the stored input.
+ */
 const applyEdits = (
   stored: Record<string, unknown>,
   edits: Record<string, unknown> | undefined,
@@ -307,7 +253,7 @@ const applyEdits = (
   if (!edits) return { changed: false, input: stored };
   const editable = new Set(preview.editable.map(({ key }) => key));
   const changedKeys = Object.keys(edits).filter(
-    (key) => JSON.stringify(edits[key]) !== JSON.stringify(stored[key]),
+    (key) => JSON.stringify(edits[key]) !== JSON.stringify(valueAt(stored, key)),
   );
   const locked = changedKeys.filter((key) => !editable.has(key));
   if (locked.length > 0)
@@ -315,7 +261,9 @@ const applyEdits = (
       "validation_failed",
       `Only ${editable.size > 0 ? [...editable].join(", ") : "no fields"} can be edited on this action, not ${locked.join(", ")}.`,
     );
-  return { changed: changedKeys.length > 0, input: { ...stored, ...edits } };
+  let input = stored;
+  for (const key of changedKeys) input = withValueAt(input, key, edits[key]);
+  return { changed: changedKeys.length > 0, input };
 };
 
 /**

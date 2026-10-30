@@ -5,8 +5,8 @@ import {
   actionPreviewSchema,
   fingerprint,
   writeEventTypes,
-} from "../../../lib/signal/domain/assistant-actions";
-import type { ActionPreview } from "../../../lib/signal/domain/assistant-actions";
+} from "../../../lib/signal/domain/assistant-action-contract";
+import type { ActionPreview } from "../../../lib/signal/domain/assistant-action-contract";
 import { operations } from "../../../lib/signal/operations/registry";
 import { isPlanned } from "../../../lib/signal/operations/types";
 

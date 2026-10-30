@@ -7,13 +7,14 @@ import { assistantActions, events, needs } from "../../../lib/db/schema";
 import { createFakeAi } from "../../../lib/signal/ai/fakes";
 import type { SignalDb } from "../../../lib/signal/db";
 import {
-  ACTION_TTL_MS,
   confirmAction,
   getAction,
   proposeAction,
   rejectAction,
 } from "../../../lib/signal/domain/assistant-actions";
-import type { ActionContext, ActionPreview } from "../../../lib/signal/domain/assistant-actions";
+import { ACTION_TTL_MS } from "../../../lib/signal/domain/assistant-action-contract";
+import type { ActionContext } from "../../../lib/signal/domain/assistant-actions";
+import type { ActionPreview } from "../../../lib/signal/domain/assistant-action-contract";
 import { mergeNeeds as mergeNeedsInDb } from "../../../lib/signal/domain/merges";
 import { SignalError } from "../../../lib/signal/errors";
 import { mergeNeeds } from "../../../lib/signal/operations/merge-needs";
@@ -132,7 +133,36 @@ const readOnly = defineOperation({
   name: "read_only",
 });
 
-const testOperations = [mergeWithPreview, publishNote, alwaysConflicts, keyed, readOnly];
+/** A write with a nested editable field, like `resolve_suggestion`'s `edit.statement`. */
+const nestedEdit = defineOperation({
+  access: "operator",
+  description: "Test only: echoes a nested statement.",
+  effects: "write",
+  errors: [],
+  http: { method: "POST", path: "/api/test/nested" },
+  input: z.object({ edit: z.object({ reason: z.string(), statement: z.string() }) }),
+  name: "nested_edit",
+  output: z.object({ statement: z.string() }),
+  preview: ({ edit }) =>
+    Promise.resolve({
+      blocks: [],
+      editable: [{ key: "edit.statement", kind: "text" as const, label: "Statement" }],
+      lines: [{ label: "Statement", value: edit.statement }],
+      needs: [],
+      notes: [],
+      title: "Nested edit",
+    }),
+  run: ({ edit }) => Promise.resolve({ statement: edit.statement }),
+});
+
+const testOperations = [
+  mergeWithPreview,
+  publishNote,
+  alwaysConflicts,
+  keyed,
+  readOnly,
+  nestedEdit,
+];
 
 const clock = { current: start, now: () => clock.current };
 const ctx: ActionContext = { ai: createFakeAi(), clock, operations: testOperations };
@@ -529,5 +559,40 @@ describeWithDatabase("assistant action routes", () => {
     const missing = "33333333-3333-4333-8333-333333333333";
     const notFound = await POST(request(missing, { decision: "confirm" }), params(missing));
     expect(notFound.status).toBe(404);
+  });
+
+  it("edits nested fields by their dotted editable path, and only those", async () => {
+    const proposal = await proposeAction(
+      harness.db,
+      { input: { edit: { reason: "dupes", statement: "Old" } }, operation: "nested_edit" },
+      ctx,
+    );
+    expect(
+      await codeOf(
+        confirmAction(
+          harness.db,
+          { actionId: proposal.actionId, input: { "edit.reason": "other" } },
+          ctx,
+        ),
+      ),
+    ).toBe("validation_failed");
+    expect(
+      await codeOf(
+        confirmAction(
+          harness.db,
+          { actionId: proposal.actionId, input: { edit: { reason: "dupes", statement: "New" } } },
+          ctx,
+        ),
+      ),
+    ).toBe("validation_failed");
+    const edited = { actionId: proposal.actionId, input: { "edit.statement": "New" } };
+    expect(await confirmAction(harness.db, edited, ctx)).toMatchObject({ status: "needs_review" });
+    expect(await confirmAction(harness.db, { actionId: proposal.actionId }, ctx)).toMatchObject({
+      result: { statement: "New" },
+      status: "confirmed",
+    });
+    expect((await actionRow(harness.db, proposal.actionId)).input).toEqual({
+      edit: { reason: "dupes", statement: "New" },
+    });
   });
 });
