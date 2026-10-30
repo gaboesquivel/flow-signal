@@ -9,6 +9,7 @@ domain/       queries and rules shared by operations (public-needs.ts: the publi
 ai/           ports.ts (interfaces), gateway.ts (AI SDK), fakes.ts (tests)
 seed/         deterministic demo workspace for `pnpm db:seed`
 events.ts     recordEvent: the append-only event log behind the metrics
+metrics.ts    get_metrics calculations: SQL over events (which fields each metric reads)
 errors.ts     error codes, SignalError, the { error: { code, message, retryable } } envelope
 context.ts    OperationContext: { actor, db, ai, clock }
 runtime.ts    builds the context from DATABASE_URL and the Gateway; test overrides
