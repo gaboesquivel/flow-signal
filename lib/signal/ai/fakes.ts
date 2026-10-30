@@ -1,3 +1,4 @@
+import type { DecisionModel } from "@/lib/ai/models";
 import { EMBEDDING_DIMENSIONS } from "@/lib/db/schema";
 
 import { SignalError } from "../errors";
@@ -92,6 +93,41 @@ export const fakeJudge = (
     ),
   model: "fake/judge",
 });
+
+type DecisionQuestion = Parameters<DecisionModel["doDecide"]>[0]["questions"][string];
+type DecisionState = Parameters<DecisionModel["doDecide"]>[0]["state"];
+type DecisionAnswer = Awaited<ReturnType<DecisionModel["doDecide"]>>["answers"][string];
+
+/**
+ * A fake decision model (spec 008) for tests, like `MockLanguageModelV4` for language models:
+ * `answer` returns each question's typed answer; every call is kept in `calls`.
+ */
+export const fakeDecisionModel = (
+  answer: (id: string, question: DecisionQuestion, state: DecisionState) => DecisionAnswer,
+) => {
+  const calls: Parameters<DecisionModel["doDecide"]>[0][] = [];
+  const model: DecisionModel & { calls: typeof calls } = {
+    calls,
+    doDecide(options) {
+      calls.push(options);
+      return Promise.resolve({
+        answers: Object.fromEntries(
+          Object.entries(options.questions).map(([id, question]) => [
+            id,
+            answer(id, question, options.state),
+          ]),
+        ),
+        usage: { inputTokens: 100, outputTokens: 0 },
+        warnings: [],
+      });
+    },
+    modelId: "fake/jev",
+    provider: "fake",
+    specificationVersion: "v4",
+    supportedQuestionTypes: ["boolean", "choice", "score"],
+  };
+  return model;
+};
 
 type ReasonerHandler = (input: { prompt: string; system?: string }) => unknown;
 

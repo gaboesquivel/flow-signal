@@ -36,6 +36,10 @@ export interface CaseRun {
   kind: CaseKind;
   /** Wall time of extract → embed → retrieve → judge for this submission. */
   latencyMs: number;
+  /** Jev's P(more than one separate ask), when the multi-ask probe ran (spec 008). */
+  multiAskProbability?: number;
+  /** Per-step wall time: extraction (from the start; concurrent), embedding, and judging. */
+  steps?: { embedMs?: number; extractMs?: number; judgeMs?: number };
 }
 
 export interface ThresholdScore {
@@ -178,6 +182,47 @@ export const multiAskDetection = (runs: CaseRun[]) => {
   const multi = runs.filter((run) => run.kind === "multi_ask" && !run.error);
   return ratio(multi.filter((run) => run.additionalAsks.length > 0).length, multi.length);
 };
+
+/**
+ * Multi-ask detection as a classifier (spec 008): recall on multi-ask cases and the false-positive
+ * rate on the rest, for a detector that says whether a run found more than one ask. Runs the
+ * detector has no answer for (`undefined`) are left out.
+ */
+export const multiAskScores = (
+  runs: CaseRun[],
+  detected: (run: CaseRun) => boolean | undefined,
+) => {
+  let multi = 0;
+  let hits = 0;
+  let single = 0;
+  let falsePositives = 0;
+  for (const run of runs) {
+    const answer = run.error ? undefined : detected(run);
+    if (answer === undefined) continue;
+    if (run.kind === "multi_ask") {
+      multi += 1;
+      if (answer) hits += 1;
+    } else {
+      single += 1;
+      if (answer) falsePositives += 1;
+    }
+  }
+  return { falsePositiveRate: ratio(falsePositives, single), recall: ratio(hits, multi) };
+};
+
+/** p`p` of one hot-path step's wall time across runs that recorded it. */
+export const stepPercentile = (
+  runs: CaseRun[],
+  step: keyof NonNullable<CaseRun["steps"]>,
+  p: number,
+) =>
+  percentile(
+    runs.flatMap((run) => {
+      const value = run.error ? undefined : run.steps?.[step];
+      return value === undefined ? [] : [value];
+    }),
+    p,
+  );
 
 /** Scores split by case kind (precision and false matches per kind), for the report. */
 export const scoreByKind = (runs: CaseRun[], threshold: number) => {

@@ -89,6 +89,7 @@ export const meterAi = (ai: SignalAi, meter: AiMeter): SignalAi => {
         return ai.judge.judge(input);
       },
       model: ai.judge.model,
+      ...(ai.judge.threshold === undefined ? {} : { threshold: ai.judge.threshold }),
     },
     reasoner: {
       generate: (input) => {

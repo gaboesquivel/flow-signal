@@ -6,11 +6,13 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CHAT_MODEL,
   DEFAULT_GENUI_MODEL,
+  DEFAULT_SIGNAL_CLASSIFIER_MODEL,
   DEFAULT_SIGNAL_DECISION_MODEL,
   DEFAULT_SIGNAL_EMBEDDING_MODEL,
   DEFAULT_SIGNAL_FAST_MODEL,
   DEFAULT_SIGNAL_REASONING_MODEL,
   gatewayAvailable,
+  signalClassifierModelId,
   signalDecisionModelId,
   signalEmbeddingModelId,
   signalFastModelId,
@@ -32,6 +34,7 @@ describe("model defaults", () => {
       DEFAULT_SIGNAL_REASONING_MODEL,
       DEFAULT_SIGNAL_DECISION_MODEL,
       DEFAULT_SIGNAL_EMBEDDING_MODEL,
+      DEFAULT_SIGNAL_CLASSIFIER_MODEL,
     ])
       expect(types, id).toContain(`'${id}'`);
   });
@@ -53,6 +56,16 @@ describe("model defaults", () => {
     expect(signalDecisionModelId({})).toBe(DEFAULT_SIGNAL_DECISION_MODEL);
     expect(signalDecisionModelId({ SIGNAL_DECISION_MODEL: " anthropic/claude-sonnet-5.5 " })).toBe(
       "anthropic/claude-sonnet-5.5",
+    );
+  });
+});
+
+describe("classifier model (spec 008)", () => {
+  it("is Jev on the Gateway, overridable by env", () => {
+    expect(DEFAULT_SIGNAL_CLASSIFIER_MODEL).toBe("typesafe-ai/jev");
+    expect(signalClassifierModelId({})).toBe("typesafe-ai/jev");
+    expect(signalClassifierModelId({ SIGNAL_CLASSIFIER_MODEL: " typesafe-ai/jev-1.14.0 " })).toBe(
+      "typesafe-ai/jev-1.14.0",
     );
   });
 });

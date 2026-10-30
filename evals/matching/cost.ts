@@ -37,6 +37,15 @@ export interface CostSummary {
   unpricedCalls: number;
 }
 
+/** Spend per model id, so each step's cost per signal can be read (spec 008). */
+export const costByModel = (calls: ModelCall[], prices: PriceTable) => {
+  const byModel = new Map<string, ModelCall[]>();
+  for (const call of calls) byModel.set(call.modelId, [...(byModel.get(call.modelId) ?? []), call]);
+  return Object.fromEntries(
+    [...byModel].map(([modelId, list]) => [modelId, summarizeCost(list, prices)]),
+  );
+};
+
 export const summarizeCost = (calls: ModelCall[], prices: PriceTable): CostSummary => {
   let totalUsd = 0;
   let unpricedCalls = 0;
@@ -76,6 +85,16 @@ export class UsageMeter {
 
   telemetry(): Telemetry {
     return {
+      // Decision models (spec 008: Jev on the Gateway) report usage and cost the same way.
+      experimental_onDecisionModelCallEnd: (event) => {
+        const reportedCostUsd = gatewayCost(event.providerMetadata);
+        this.record({
+          inputTokens: event.usage?.inputTokens ?? 0,
+          modelId: event.modelId,
+          outputTokens: event.usage?.outputTokens ?? 0,
+          ...(reportedCostUsd === undefined ? {} : { reportedCostUsd }),
+        });
+      },
       onEmbedEnd: (event) => {
         this.record({
           inputTokens: event.usage?.tokens ?? 0,
