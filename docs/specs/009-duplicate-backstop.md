@@ -121,7 +121,7 @@ In scope:
 
 **Blocked by:** None (can start immediately)
 
-- [ ] Existing suggestion-generation tests pass; multi-candidate and rejected-candidate cases pass.
+- [x] Existing suggestion-generation tests pass; multi-candidate and rejected-candidate cases pass.
 
 ### 02: Duplicate sweep on submission, after `db:embed`, and `sweep_duplicates`
 
@@ -131,7 +131,7 @@ In scope:
 
 **Blocked by:** 01
 
-- [ ] Due-rule, embedder-down, and back-to-back cases pass; parity passes for `sweep_duplicates`.
+- [x] Due-rule, embedder-down, and back-to-back cases pass; parity passes for `sweep_duplicates`.
 
 ### 03: Server check and `possibleDuplicates` on `submit_signal`; skip rate in metrics
 
@@ -141,7 +141,7 @@ In scope:
 
 **Blocked by:** None (can start immediately)
 
-- [ ] Submission cases and the `skipRate` test pass; submit parity passes.
+- [x] Submission cases and the `skipRate` test pass; submit parity passes.
 
 ### 04: Submitter follow-up: `suggestedMatches` and `answer_suggested_match`
 
@@ -151,7 +151,7 @@ In scope:
 
 **Blocked by:** 01
 
-- [ ] Follow-up cases pass; parity passes for both operations.
+- [x] Follow-up cases pass; parity passes for both operations.
 
 ### 05: Follow-up on `/my/<token>` and docs
 
@@ -161,7 +161,7 @@ In scope:
 
 **Blocked by:** 04
 
-- [ ] Acceptance step 4 checked by hand in the browser.
+- [x] Acceptance step 4 checked by hand in the browser.
 
 ## Further Notes
 
