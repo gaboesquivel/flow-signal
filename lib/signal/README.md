@@ -29,6 +29,10 @@ Actors: REST callers are `human` unless they send `X-Signal-Agent: <client>`; MC
 
 REST limits: public operations are rate limited per IP (120/min) and bodies capped at 16 KB; override per operation with `limits: { requestsPerMinute, maxBodyBytes }`.
 
+## Typed client (UI)
+
+`client.ts` is generated from the registry by `pnpm signal:client` (`scripts/generate-signal-client.ts`); do not edit it. It has one method per operation (`createSignalClient().searchNeeds({ q })`), typed from the operation's zod input and output (planned operations are typed `never` until built, so building one needs no regeneration; adding or renaming one does, and `tests/signal-client.test.ts` fails until you regenerate). Calls return `{ ok: true, data } | { ok: false, error }` with the error envelope's code plus `network_error`. Browser code uses `createSignalClient()` (relative URLs, the public REST API). Server components use `signalServerClient()` from `app/_components/signal/server-client.ts`, which dispatches the same REST requests in process through the HTTP adapter (`server-client.ts`) with the visitor's IP for rate limits; pass `headers: { authorization }` to `createInProcessSignalClient`-style clients for Operator calls. Pages never import the domain or the database.
+
 ## Matching and embeddings
 
 `domain/matching.ts` runs preview's extract → retrieve → judge workflow (`previewSubmission`); `MATCH_THRESHOLD` (0.6, tuned by task 03), `CANDIDATE_LIMIT` (8), and `MAX_MATCHES` (3) live there. Any AI step failing with `ai_unavailable` degrades to `ai: "unavailable"` with no matches. `previewId` is a deterministic hash of the text (no preview state is stored); `submit_signal` records it in the `signal.created` payload.
