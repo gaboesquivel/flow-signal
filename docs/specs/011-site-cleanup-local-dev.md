@@ -1,8 +1,8 @@
 # 011 — Site cleanup: remove unused code, Gateway-only AI, local dev on Docker Postgres
 
-Status: draft (2026-10-30)
+Status: accepted (2026-10-30)
 
-Builds on [spec 010](./010-retro-remediation.md) (Gateway-only models) and decision [0003](../decisions/0003-local-test-databases.md) (local Docker Postgres). Depends on decision [0009](../decisions/0009-local-dev-on-docker-postgres.md) (Proposed): local development runs on Docker Postgres by default.
+Builds on [spec 010](./010-retro-remediation.md) (Gateway-only models) and decision [0003](../decisions/0003-local-test-databases.md) (local Docker Postgres). Depends on decision [0009](../decisions/0009-local-dev-on-docker-postgres.md) : local development runs on Docker Postgres by default.
 
 **Bet.** The site carries template leftovers (unused shadcn components, dead exports, stale Anthropic copy) and needs a Neon cloud branch before `signal.localhost` shows any data. If we strip what nothing imports and point local dev at the Docker stack we already run for tests, a fresh checkout reaches a working `signal.localhost` with one setup command and no cloud credentials except `AI_GATEWAY_API_KEY`.
 

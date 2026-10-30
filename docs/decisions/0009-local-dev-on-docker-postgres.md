@@ -1,6 +1,6 @@
 # 0009 — Local development runs on Docker Postgres by default
 
-Status: Proposed (2026-10-30). Amends [0003](./0003-local-test-databases.md) (the development database only).
+Status: Accepted (2026-10-30). Amends [0003](./0003-local-test-databases.md) (the development database only).
 
 ## Context
 
