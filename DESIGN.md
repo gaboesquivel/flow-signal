@@ -7,7 +7,7 @@ Product goals, users, and journeys live in [PRODUCT.md](./PRODUCT.md); this file
 Signal is a ledger of what customers need. It should feel calm, exact, and quick: a customer files a request in a minute without being talked out of writing, and a PM reviews and decides without organizing.
 
 - **Lean, goal-first.** Every screen has one job and one primary action. If an element doesn't help the person finish that job, it goes. No dashboards for their own sake, no decoration.
-- **AI proposes, people decide — visibly.** AI output is written in *pencil*; a person's confirmation turns it to *ink*. The difference is visible everywhere, with one treatment.
+- **AI proposes, people decide — visibly.** AI output is written in _pencil_; a person's confirmation turns it to _ink_. The difference is visible everywhere, with one treatment.
 - **People's words are kept.** Customer text is shown verbatim, as quotes, never blended with AI text.
 
 ## Identity
@@ -20,20 +20,20 @@ Signal is a ledger of what customers need. It should feel calm, exact, and quick
 
 Defined once in `styles/globals.css` (`:root` light, `.dark` dark) with shadcn names; Tailwind utilities come from `@theme inline`.
 
-| Role | Token | Light | Dark |
-| --- | --- | --- | --- |
-| Paper | `background` | `#f7f7f2` | `#141614` |
-| Ink | `foreground` | `#1e2320` | `#e8e7de` |
-| Primary action, selection | `primary` | `#4a42a0` | `#aaa4f2` |
-| Secondary text | `muted-foreground` | `#5b635d` | `#a2a9a3` |
-| Hairline rules | `border` | `#dad8cc` | `#33362f` |
-| Ink rule (confirmed, selected) | `rule-strong` | `#1e2320` | `#e8e7de` |
-| Customer quote rule | `quote-rule` | `#1e2320` | `#e8e7de` |
-| AI pencil rule | `ai` | `#8f89bb` | `#7a75a6` |
-| AI pencil text | `ai-foreground` | `#534e78` | `#c0bbe0` |
-| AI loading/working surface | `ai-surface` | `#f1f0f6` | `#1d1c26` |
-| Status: New / Open / Planned / In progress / Shipped / Declined | `status-*` | `#5b635d` `#23698a` `#4a42a0` `#8a5700` `#2c6a37` `#a3261b` | `#a2a9a3` `#7cc0de` `#b3adf6` `#e2b35a` `#8ccf96` `#f0897c` |
-| Demand high / medium / low | `demand-*` | `#1e2320` `#5b635d` `#a7aca5` | `#e8e7de` `#a2a9a3` `#4e534d` |
+| Role                                                            | Token              | Light                                                       | Dark                                                        |
+| --------------------------------------------------------------- | ------------------ | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| Paper                                                           | `background`       | `#f7f7f2`                                                   | `#141614`                                                   |
+| Ink                                                             | `foreground`       | `#1e2320`                                                   | `#e8e7de`                                                   |
+| Primary action, selection                                       | `primary`          | `#4a42a0`                                                   | `#aaa4f2`                                                   |
+| Secondary text                                                  | `muted-foreground` | `#5b635d`                                                   | `#a2a9a3`                                                   |
+| Hairline rules                                                  | `border`           | `#dad8cc`                                                   | `#33362f`                                                   |
+| Ink rule (confirmed, selected)                                  | `rule-strong`      | `#1e2320`                                                   | `#e8e7de`                                                   |
+| Customer quote rule                                             | `quote-rule`       | `#1e2320`                                                   | `#e8e7de`                                                   |
+| AI pencil rule                                                  | `ai`               | `#8f89bb`                                                   | `#7a75a6`                                                   |
+| AI pencil text                                                  | `ai-foreground`    | `#534e78`                                                   | `#c0bbe0`                                                   |
+| AI loading/working surface                                      | `ai-surface`       | `#f1f0f6`                                                   | `#1d1c26`                                                   |
+| Status: New / Open / Planned / In progress / Shipped / Declined | `status-*`         | `#5b635d` `#23698a` `#4a42a0` `#8a5700` `#2c6a37` `#a3261b` | `#a2a9a3` `#7cc0de` `#b3adf6` `#e2b35a` `#8ccf96` `#f0897c` |
+| Demand high / medium / low                                      | `demand-*`         | `#1e2320` `#5b635d` `#a7aca5`                               | `#e8e7de` `#a2a9a3` `#4e534d`                               |
 
 Radius `0.375rem`. Status is always a word plus a small shape, never colour alone.
 
