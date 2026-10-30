@@ -23,6 +23,13 @@ interface MatchingPorts {
   embedder: Embedder;
   extractor: NeedExtractor;
   judge: MatchJudge;
+  /** Optional multi-ask classifier (spec 008), run alongside extraction; recorded, not used. */
+  multiAsk?: { detect: (submission: { body: string; title: string }) => Promise<number> };
+}
+
+interface PipelineOptions {
+  /** Wait for extraction and pass the drafted need to the judge (spec 008 variant; serial). */
+  judgeWithDraft?: boolean;
 }
 
 interface IndexedNeed {
@@ -77,6 +84,7 @@ const runCase = async (
   ports: MatchingPorts,
   retriever: NeedRetriever,
   submission: LabeledSubmission,
+  { judgeWithDraft = false }: PipelineOptions = {},
   now: () => number = performance.now.bind(performance),
 ): Promise<CaseRun> => {
   const base = {
@@ -93,32 +101,53 @@ const runCase = async (
   try {
     // Same flow as `previewSubmission` (lib/signal/domain/matching.ts): extraction runs alongside
     // embed → retrieve → judge on the submission text, so latency is one fast-model call.
+    const steps: NonNullable<CaseRun["steps"]> = {};
     const settleExtraction = async () => {
       try {
-        return { draft: await ports.extractor.extract(input), ok: true as const };
+        const draft = await ports.extractor.extract(input);
+        steps.extractMs = now() - started;
+        return { draft, ok: true as const };
       } catch (error) {
         return { error, ok: false as const };
       }
     };
     const extraction = settleExtraction();
+    // A failed probe is left out of the multi-ask diagnostic.
+    const probeMultiAsk = async (): Promise<number | undefined> => {
+      try {
+        return await ports.multiAsk?.detect(input);
+      } catch {
+        return Number.NaN;
+      }
+    };
+    const multiAsk = probeMultiAsk();
+    const embedStarted = now();
     const [embedding] = await ports.embedder.embed([`${input.title}\n\n${input.body}`]);
+    steps.embedMs = now() - embedStarted;
     if (!embedding) throw new Error("The embedder returned no embedding.");
     const candidates = await retriever.retrieve({
       db: noDatabase,
       embedding,
       limit: CANDIDATE_LIMIT,
     });
+    const extracted = judgeWithDraft ? await extraction : undefined;
+    if (extracted && !extracted.ok) throw extracted.error;
+    const judgeStarted = now();
     const judgements =
       candidates.length === 0
         ? []
         : await ports.judge.judge({
             candidates: candidates.map(({ needId, statement }) => ({ needId, statement })),
+            ...(extracted?.ok ? { draft: extracted.draft } : {}),
             submission: input,
           });
+    if (candidates.length > 0) steps.judgeMs = now() - judgeStarted;
     const settled = await extraction;
     if (!settled.ok) throw settled.error;
     const { draft } = settled;
     draftStatement = draft.statement;
+    const probed = await multiAsk;
+    const multiAskProbability = Number.isNaN(probed) ? undefined : probed;
     return {
       ...base,
       additionalAsks: draft.additionalAsks,
@@ -130,6 +159,8 @@ const runCase = async (
         reason,
       })),
       latencyMs: now() - started,
+      ...(multiAskProbability === undefined ? {} : { multiAskProbability }),
+      steps,
     };
   } catch (error) {
     return {
@@ -168,6 +199,7 @@ export const runPipeline = async ({
   concurrency = 4,
   index,
   onCase,
+  options,
   ports,
   submissions,
 }: {
@@ -175,12 +207,13 @@ export const runPipeline = async ({
   concurrency?: number;
   index?: IndexedNeed[];
   onCase?: (run: CaseRun) => void;
+  options?: PipelineOptions;
   ports: MatchingPorts;
   submissions: LabeledSubmission[];
 }) => {
   const retriever = inMemoryRetriever(index ?? (await indexCatalog(catalog, ports.embedder)));
   return mapLimit(submissions, concurrency, async (submission) => {
-    const run = await runCase(ports, retriever, submission);
+    const run = await runCase(ports, retriever, submission, options);
     onCase?.(run);
     return run;
   });

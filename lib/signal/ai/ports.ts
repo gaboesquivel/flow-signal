@@ -57,6 +57,11 @@ export interface MatchJudge {
     submission: { body: string; title: string };
   }) => Promise<MatchJudgement[]>;
   model: string;
+  /**
+   * The judge's tuned match threshold, when it differs from `MATCH_THRESHOLD`: probabilities from
+   * different judges are not on one scale (spec 008).
+   */
+  threshold?: number;
 }
 
 /** Off-hot-path reasoning tasks; add a task name when an operation needs a new kind. */

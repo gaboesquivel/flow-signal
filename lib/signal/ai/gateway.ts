@@ -7,12 +7,14 @@ import {
   gatewayAvailable,
   gatewayEmbeddingModel,
   gatewayModel,
+  signalClassifierCalls,
   signalEmbeddingModelId,
   signalFastModelId,
 } from "@/lib/ai/models";
 import { needs } from "@/lib/db/schema";
 
 import { SignalError } from "../errors";
+import { jevJudge } from "./jev";
 import { reasoningModelReasoner } from "./reasoning-model";
 import type { Embedder, MatchJudge, NeedExtractor, NeedRetriever, SignalAi } from "./ports";
 
@@ -183,10 +185,18 @@ export const gatewayJudge = (options: FastModelOptions = {}): MatchJudge => ({
 /** The reasoner is task-agnostic; its single implementation lives in `reasoning-model.ts`. */
 export const gatewayReasoner = reasoningModelReasoner;
 
-export const createGatewayAi = (): SignalAi => ({
+/** The match judge `SIGNAL_CLASSIFIER_CALLS` selects: Jev or the fast LLM (spec 008). */
+export const selectedJudge = (
+  environment: Record<string, string | undefined> = process.env,
+): MatchJudge =>
+  signalClassifierCalls(environment).has("match_judge") ? jevJudge() : gatewayJudge();
+
+export const createGatewayAi = (
+  environment: Record<string, string | undefined> = process.env,
+): SignalAi => ({
   embedder: gatewayEmbedder(),
   extractor: gatewayExtractor(),
-  judge: gatewayJudge(),
+  judge: selectedJudge(environment),
   reasoner: gatewayReasoner(),
   retriever: pgvectorRetriever,
 });

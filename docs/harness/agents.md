@@ -102,7 +102,7 @@ flowchart LR
   subgraph Ids[lib/ai/models.ts · env overrides]
     CH[Chat · CHAT_MODEL<br/>claude-sonnet-5.5]
     EV[Eve · EVE_AGENT_MODEL / EVE_OPERATOR_MODEL<br/>claude-sonnet-5.5]
-    FA[Signal fast · SIGNAL_FAST_MODEL<br/>claude-haiku-5.5: extract, judge]
+    FA[Signal fast · SIGNAL_FAST_MODEL<br/>claude-haiku-5.5: extract<br/>Jev · SIGNAL_CLASSIFIER_MODEL: judge]
     RE[Signal reasoning · SIGNAL_REASONING_MODEL<br/>claude-sonnet-5.5: scores, themes, summaries]
     DE[Signal decision · SIGNAL_DECISION_MODEL<br/>claude-sonnet-5.5: decision briefs]
     EM[Embeddings · SIGNAL_EMBEDDING_MODEL<br/>text-embedding-3-small, 1536 d]
