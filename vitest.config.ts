@@ -1,7 +1,7 @@
 import path from "node:path";
 import { defineConfig } from "vitest/config";
 
-const exclude = ["node_modules/**", ".agents/**", ".next/**", "**/.eve/**", "mcp-app/**"];
+const exclude = ["node_modules/**", ".agents/**", ".claude/**", ".next/**", "**/.eve/**", "mcp-app/**"];
 /** Tests that share the Neon test branch; one fork runs their files one at a time. */
 const databaseTests = ["tests/signal/**/*.test.ts"];
 
