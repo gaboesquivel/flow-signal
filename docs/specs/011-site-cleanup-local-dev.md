@@ -1,6 +1,6 @@
 # 011 — Site cleanup: remove unused code, Gateway-only AI, local dev on Docker Postgres
 
-Status: accepted (2026-10-30)
+Status: implemented (2026-10-30)
 
 Builds on [spec 010](./010-retro-remediation.md) (Gateway-only models) and decision [0003](../decisions/0003-local-test-databases.md) (local Docker Postgres). Depends on decision [0009](../decisions/0009-local-dev-on-docker-postgres.md) : local development runs on Docker Postgres by default.
 

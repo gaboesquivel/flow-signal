@@ -338,3 +338,10 @@ Response: Removed worktrees 010, harness-visual, t08 and the flow-signal-wt fold
 
 [2026-10-30T19:26:35Z]
 Prompt: merge it to main ignore checks vercel builds are rate limited
+
+[2026-10-30T19:26:46Z]
+Prompt: dont wait on ci, simple squash merge dont verify
+
+[2026-10-30T19:27:23Z]
+Prompt: merge it vercel build are rate limited
+Response: Spec 011 (site cleanup, Gateway-only, local dev on Docker via pnpm db:dev) + decision 0009 written, accepted, built (54 unused components, 6 deps, dead exports removed; Anthropic traces dropped), lint + types only, squash-merged without CI per request.

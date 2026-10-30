@@ -40,6 +40,7 @@
     "db:embed": "node --import tsx scripts/db-embed.ts",
     "db:up": "docker compose -p signal up -d --wait",
     "db:down": "docker compose -p signal down",
+    "db:dev": "pnpm db:up && node --env-file-if-exists=.env.local --import tsx scripts/db-dev-setup.ts",
     "db:test:setup": "node --import tsx scripts/db-test-setup.ts",
     "signal:client": "node --import tsx scripts/generate-signal-client.ts",
     "crewday:generate": "node --env-file-if-exists=.env.local --import tsx evals/crewday/generate/run.ts"
