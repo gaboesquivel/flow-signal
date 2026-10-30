@@ -30,7 +30,7 @@ Evidence comes from the 2026-10-30 retro: transcripts of the four flow-signal se
    - Spec 004 task 04 requires "`pnpm eval` includes the dev-world run".
 4. **Docs say things that are not true.**
    - Spec 004 still requires worlds of about 1,500 signals and a stratified review. The shipped worlds have 604 signals each and `"review": "none (deferred)"`, yet task 02 is ticked.
-   - PRODUCT.md rates assumption 4 (under 2 s, under $0.01) *high* confidence, although the last live runs measured p95 4.7 s and $0.014 per signal.
+   - PRODUCT.md rates assumption 4 (under 2 s, under $0.01) _high_ confidence, although the last live runs measured p95 4.7 s and $0.014 per signal.
    - PRODUCT.md lists decision quality as a headline simulated outcome, while spec 004 says it "mostly measures noise".
    - PRODUCT.md lists 19 metrics in no tiers.
 5. **The prompt log is unreliable.** `prompts.txt` entries carry hand-written, out-of-order timestamps (`19:10:00Z`, `20:00:00Z`) and are appended separately in each worktree.
@@ -96,18 +96,38 @@ Committed `.claude/settings.json`, using the space form the docs use:
 {
   "permissions": {
     "allow": [
-      "Bash(gh pr view *)", "Bash(gh pr checks *)", "Bash(gh pr create *)", "Bash(gh pr merge *)",
-      "Bash(gh pr edit *)", "Bash(gh run view *)", "Bash(gh run watch *)",
-      "Bash(vercel env ls *)", "Bash(vercel env add *)", "Bash(vercel env pull *)",
-      "Bash(vercel inspect *)", "Bash(vercel logs *)", "Bash(vercel ls *)",
-      "Bash(neonctl branches list *)", "Bash(neonctl connection-string *)", "Bash(neonctl branches create *)",
-      "Bash(pnpm qa)", "Bash(pnpm lint *)", "Bash(pnpm check-types)", "Bash(pnpm test:changed *)",
-      "Bash(pnpm eval:matching *)", "Bash(pnpm eval:agents *)", "Bash(pnpm db:migrate)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr edit *)",
+      "Bash(gh run view *)",
+      "Bash(gh run watch *)",
+      "Bash(vercel env ls *)",
+      "Bash(vercel env add *)",
+      "Bash(vercel env pull *)",
+      "Bash(vercel inspect *)",
+      "Bash(vercel logs *)",
+      "Bash(vercel ls *)",
+      "Bash(neonctl branches list *)",
+      "Bash(neonctl connection-string *)",
+      "Bash(neonctl branches create *)",
+      "Bash(pnpm qa)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm check-types)",
+      "Bash(pnpm test:changed *)",
+      "Bash(pnpm eval:matching *)",
+      "Bash(pnpm eval:agents *)",
+      "Bash(pnpm db:migrate)",
       "Bash(docker compose -p signal *)"
     ],
     "ask": [
-      "Bash(vercel env rm *)", "Bash(vercel remove *)", "Bash(neonctl branches delete *)",
-      "Bash(neonctl projects delete *)", "Bash(gh repo delete *)", "Bash(pnpm db:seed *)"
+      "Bash(vercel env rm *)",
+      "Bash(vercel remove *)",
+      "Bash(neonctl branches delete *)",
+      "Bash(neonctl projects delete *)",
+      "Bash(gh repo delete *)",
+      "Bash(pnpm db:seed *)"
     ]
   },
   "hooks": {}
@@ -141,11 +161,11 @@ This edits AGENTS.md. The user authorizes it by accepting this spec.
   - "Workers run `pnpm test:changed` and lint/types for their files. The integrator and CI run the full suite once. Don't re-run a green suite to confirm it."
   - A table mapping each changed path to its eval:
 
-    | Changed path | Eval to run |
-    |---|---|
-    | `lib/signal/ai/**`, `lib/signal/domain/matching*` | `pnpm eval:matching` |
-    | `agents/**`, `lib/mcp/**` | `pnpm eval:agents` |
-    | `evals/crewday/**`, policy or metric code | `pnpm eval:crewday`, when asked for |
+    | Changed path                                      | Eval to run                         |
+    | ------------------------------------------------- | ----------------------------------- |
+    | `lib/signal/ai/**`, `lib/signal/domain/matching*` | `pnpm eval:matching`                |
+    | `agents/**`, `lib/mcp/**`                         | `pnpm eval:agents`                  |
+    | `evals/crewday/**`, policy or metric code         | `pnpm eval:crewday`, when asked for |
 - **CI** (`.github/workflows/ci.yml`) is unchanged: `security:check` plus `qa`.
 
 ### Task 06: Docs match what shipped
@@ -157,7 +177,7 @@ This edits AGENTS.md. The user authorizes it by accepting this spec.
   - Implementation line 209 ("Joins `pnpm eval`…") changes the same way.
 - **Spec 007:** the Solution's "Decision model" bullet and Implementation Decisions → Decision model now describe Sonnet 5.5 on Gateway credentials. They link 0007 and 0008 and drop `anthropicByokOptions` and Fable-as-default.
 - **PRODUCT.md:**
-  - Assumption 4's confidence becomes *medium*, citing the measured p95 4.7 s and $0.014 per signal.
+  - Assumption 4's confidence becomes _medium_, citing the measured p95 4.7 s and $0.014 per signal.
   - Decision quality is labelled a non-inferiority check.
   - Metrics are split into three tiers: the one metric that matters plus the two MVP metrics; guardrails; and diagnostics.
   - One line under simulated outcomes states that the simulation takes submitter behaviour as an input, so it cannot test assumption 1.
@@ -172,6 +192,7 @@ This edits AGENTS.md. The user authorizes it by accepting this spec.
   ```
 
   It always exits 0 and prints nothing.
+
 - It is registered in `.claude/settings.json` under `hooks.UserPromptSubmit`.
 - The AGENTS.md rule becomes: "A hook logs each prompt with its timestamp. After responding, append one `Response:` line under it with a brief summary."
 - Worktree entries still diverge, so `prompts.txt` merges as a union: add `prompts.txt merge=union` to `.gitattributes`.
@@ -196,7 +217,10 @@ These are the agent's own permission settings, so the user applies them:
 {
   "permissions": { "defaultMode": "auto" },
   "autoMode": {
-    "environment": ["$defaults", "gaboesquivel/* GitHub repos, the flow-signal Vercel project and the signal Neon project are the user's own; agents manage their branches, preview deploys and env vars"],
+    "environment": [
+      "$defaults",
+      "gaboesquivel/* GitHub repos, the flow-signal Vercel project and the signal Neon project are the user's own; agents manage their branches, preview deploys and env vars"
+    ],
     "allow": ["$defaults", "Squash-merging a gaboesquivel/* PR after its CI checks pass"]
   }
 }
@@ -227,7 +251,7 @@ Then, from a terminal, run `claude auto-mode critique`. After that, remove `ANTH
 - **docs/INTEROP.md:** `ANTHROPIC_API_KEY` with `FLOW_ALLOW_DIRECT_ANTHROPIC=1` was a local direct-chat override. Now every model call goes through the AI Gateway, and there is no direct provider path. Confirmed by the user on 2026-10-30 ("make sure we running everything to vercel gateway").
 - **ARCHITECTURE.md → Testing:** "Live-model evals (`pnpm eval`) run on demand and whenever agent code changes" changes. Now `pnpm eval` is the cheap tier, matched to the changed path, and `pnpm eval:crewday` runs only when asked for.
 - **Spec 004:** a ~1,500-signal world, a review required for v1, and Crewday inside `pnpm eval` change to 604 signals, review deferred, and Crewday on demand. This records what shipped and widens nothing.
-- **PRODUCT.md:** assumption 4 drops from *high* to *medium* confidence, decision quality becomes a non-inferiority check, and the metrics are split into tiers.
+- **PRODUCT.md:** assumption 4 drops from _high_ to _medium_ confidence, decision quality becomes a non-inferiority check, and the metrics are split into tiers.
 
 ## Out of Scope
 
