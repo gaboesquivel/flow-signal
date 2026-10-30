@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-const fontSerif = Newsreader({ style: ["normal", "italic"], subsets: ["latin"], variable: "--font-serif" });
+const fontSerif = Newsreader({
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
 
 const fontMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -30,7 +34,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, fontSerif.variable, "font-sans", inter.variable)}
+      className={cn(
+        "antialiased",
+        fontMono.variable,
+        fontSerif.variable,
+        "font-sans",
+        inter.variable,
+      )}
     >
       <body>
         <NuqsAdapter>
