@@ -9,7 +9,8 @@ import type { SignalQueryable } from "./db";
  *
  * Fields `lib/signal/metrics.ts` reads (record them, or the metric undercounts):
  * - `signal.created`: `signalId`, `needId` (the need filed on at submission), payload
- *   `{ attachedTo: "existing" | "draft", hasUseCase: boolean }`; `dedupeKey` from `idempotencyKey`.
+ *   `{ attachedTo: "existing" | "draft", hasUseCase: boolean, previewId?, exposure }` (`exposure`
+ *   from `domain/exposure.ts`, spec 012); `dedupeKey` from `idempotencyKey`.
  * - `need.created`: `needId`, at the need's first signal (also for a need created by a split).
  * - `need.merged`: `needId` (the need merged away), payload `{ mergeId, intoNeedId }`.
  * - `merge.undone`: `needId` (the need restored), payload `{ mergeId }` of the merge it reverts.
