@@ -1,5 +1,5 @@
 interface:
   display_name: "Prototype"
-  short_description: "Prototype to answer an interaction, API, or logic question"
+  short_description: "Throwaway experiment for an interaction or API question"
 policy:
   allow_implicit_invocation: true

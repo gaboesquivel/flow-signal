@@ -1,6 +1,6 @@
 ---
 name: flow
-description: Align the current project's PRODUCT.md, DESIGN.md, GLOSSARY.md, and ARCHITECTURE.md after meaningful changes, and write the project Flow block on request. Use when the user says "update the docs", "sync the context", "keep the docs aligned", or "set up Flow here".
+description: Align the project's PRODUCT.md, DESIGN.md, GLOSSARY.md, and ARCHITECTURE.md after meaningful changes, and write the Flow block on request. Use when the user says "update the docs", "sync the docs", or "set up Flow here".
 disable-model-invocation: false
 ---
 
@@ -23,7 +23,7 @@ This skill runs when the user asks or invokes `/flow`, or when `build` and `revi
 
 ## Process
 
-1. Read `PRODUCT.md`, `DESIGN.md`, `GLOSSARY.md`, and `ARCHITECTURE.md` when present, with parallel tool calls. Read relevant `docs/specs/` and `docs/decisions/` records only when they clarify the area you are aligning.
+1. Read `PRODUCT.md`, `DESIGN.md`, `GLOSSARY.md`, and `ARCHITECTURE.md` when present, with parallel tool calls. Read relevant `docs/specs/` and `docs/decisions/` records only when they clarify the area you are aligning. Align root files to accepted intent only; a draft spec or Proposed decision, even on the default branch, is labeled as a proposal, never written in as current (`write-agents` Context freshness).
 2. Update only sections affected by the change, with one writer per root file. Keep `DESIGN.md` consistent with what shipped; choosing a new visual direction is `design`'s. Keep one home per fact; link to specs, decisions, or code instead of duplicating detail that is cheap to rediscover.
 3. Create a root file only when it would hold meaningful content about the current project. Do not scaffold empty trees, Flow methodology boilerplate, or parallel trackers (no PRD/PDR/ADR folders).
 
@@ -48,6 +48,7 @@ Report the helper's output: the block's file (`Wrote` or `Unchanged`), any stale
 - Edit adopter instruction files (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, or similar) only for the Flow block and the `@AGENTS.md` import, and write the block only when the user asks or `start` runs.
 - Do not require installation, initialization, or a prior skill invocation.
 - Do not treat alignment edits as permission to implement unrelated code. For authorized implementation and tests, invoke the `build` skill when installed.
+- Never write a session registry, live roster, or shared progress log; coordination is Git evidence (`write-agents` Sessions).
 - Do not create `docs/specs/` or `docs/decisions/` records here; use `to-spec` or explicit decision work when durable bounded artifacts are justified.
 - Name another skill (`to-spec`, `domain-modeling`, `review`, …) only when the user asks or setup finds no goals (see Flow block), then wait.
 

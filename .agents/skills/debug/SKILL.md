@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Investigate and fix a reproducible failure using evidence and bounded hypotheses. Use when the user says "debug this", "why is this failing", or "find the root cause".
+description: Find and fix a reproducible failure from evidence, testing one hypothesis at a time. Use when the user says "debug this", "why is this failing", or "find the root cause".
 disable-model-invocation: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: to-tasks
-description: Break a plan, spec, or conversation into verifiable vertical-slice tasks with explicit blockers; list them in the spec's Tasks checklist. Use when the user says "break it down", "make tasks", or "split this into tasks".
+description: Break a plan, spec, or conversation into verifiable vertical-slice tasks with blockers, listed in the spec's Tasks checklist. Use when the user says "break it down" or "split this into tasks".
 disable-model-invocation: false
 ---
 
@@ -18,7 +18,7 @@ Work from the conversation. If the user passes a spec path, issue, or URL, read 
 
 ### 2. Explore the codebase (optional)
 
-When you have not already explored the codebase, read the areas the work touches to see the current state (fan-out rule: `write-agents` Workers). Task titles and descriptions should use the project glossary and respect decision records in the area you touch.
+When you have not already explored the codebase, read the areas the work touches to see the current state (fan-out rule: `write-agents` Workers). Task titles and descriptions use the project's terms (`domain-modeling` Shared language) and respect decision records in the area you touch.
 
 Look for prefactors that make the implementation easier: make the change easy, then make the easy change.
 
@@ -49,7 +49,7 @@ Outside a Git repository, offer `git init` and stop on a no. Tasks are the spec'
 
 **Task issues** open only when the user asks: one per task from the issue template (sub-issues of the issue the user names, if any), opened in parallel, with blockers linked once every number exists (native blocked-by links where supported, otherwise `Blocked by #a, #b` atop the body); append `(#N)` to each checklist line. On a public repository, say the issues are public. If publishing stops partway, report which issues exist; on a retry, match existing issues by title and open only the missing ones.
 
-Tasks are not pull requests; `build` owns how tasks group into pull requests. A task is **ready** when its blockers are complete.
+A wave, if named at all, only describes scheduling; it is never a checkpoint or gate. Tasks are not pull requests, issues, or worktrees; `build` owns how tasks group into pull requests, and a worker or session gets none of its own. A task is **ready** when its blockers are complete.
 
 Report where the tasks live, each task with what it delivers and its area, and the ready set, then wait for "build it". Do not start implementation.
 
@@ -63,8 +63,8 @@ Report where the tasks live, each task with what it delivers and its area, and t
 
 **Blocked by:** the numbers or titles of tasks that gate this one, or "None (can start immediately)".
 
-- [ ] Acceptance criterion 1
-- [ ] Acceptance criterion 2
+- [ ] Observable behavior 1, with its focused check when one exists
+- [ ] Observable behavior 2
 
 </task-template>
 

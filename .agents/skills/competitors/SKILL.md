@@ -1,6 +1,6 @@
 ---
 name: competitors
-description: Map alternatives, differentiation, and switching dynamics for a product decision. Use when the user says "who are the competitors", "what are the alternatives", or "why would people switch".
+description: Map the alternatives, what sets the product apart, and why people switch or stay. Use when the user says "who are the competitors", "what are the alternatives", or "why would people switch".
 disable-model-invocation: false
 ---
 

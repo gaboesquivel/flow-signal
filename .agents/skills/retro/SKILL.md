@@ -1,6 +1,6 @@
 ---
 name: retro
-description: Retrospective on the agent environment after a session; propose improvement candidates with evidence. Use when the user says "let's do a retro", "what went wrong", or "what should we improve".
+description: Run a retrospective on the agent environment after a session and propose improvements with evidence. Use when the user says "let's do a retro" or "what should we improve".
 disable-model-invocation: false
 ---
 
@@ -16,6 +16,7 @@ The user asked for a retrospective on how the agent environment could improve fu
 
 3. Look for improvement candidates:
 
+- **Delivery:** intent against what shipped (accepted, shipped, deferred, silently dropped), whether it shipped within its appetite, and cost per shipped change, each with its evidence quality; "not measured" when the evidence cannot show it. Scope added mid-flight and coordination overhead are candidate causes, not measured ones.
 - **Navigation:** difficulty finding files or hidden dependencies; whether a short pointer document would help.
 - **Automated checks:** lint, typecheck, tests, or CI the repo already defines but does not run; missing guardrails when mistakes were preventable.
 - **Coding standards:** recurring violations that deserve a mechanical check versus judgment-only guidance in a standards document.
@@ -33,7 +34,7 @@ The user asked for a retrospective on how the agent environment could improve fu
 
    For each important candidate, state: evidence the mistake occurred, root cause, why the chosen prevention level fits, how to verify the correction, and whether an existing instruction is now redundant. A single occurrence is a candidate only; do not turn it into a permanent rule without recurrence or explicit user direction.
 
-5. Present candidates by severity. Implementation of recommendations requires explicit user authorization. This retrospective does not authorize file edits by itself.
+5. Present candidates by severity, led by `tldr`'s Handoff digest. Implementation of recommendations requires explicit user authorization. This retrospective does not authorize file edits by itself.
 
 ## Reference
 

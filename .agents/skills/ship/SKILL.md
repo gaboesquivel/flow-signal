@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Land work on the default branch with no confirmation, building and verifying it first when needed, then merge and a liveness check of the shipped commit. Use when the user says "ship it" or "drop the spec".
+description: 'Land work on the default branch without asking: build and verify it first when needed, then merge and check the shipped commit is live. Use when the user says "ship it", or "drop the spec" to abandon one.'
 disable-model-invocation: false
 ---
 
@@ -20,7 +20,7 @@ Outside a Git repository, offer `git init` and stop on a no. Fetch, then read br
 
 **Target.** "Ship it" means ship: never ask whether to. Ship the named work, else the current branch; on the default branch, the one unmerged work branch that holds the others, asking only when several remain. When another agent is still pushing, never edit its checkout or race it: wait, then ship the pushed head.
 
-**Leftovers.** First integrate this work's worker branches, worktrees, and uncommitted changes into the delivery branch (`build`'s Work in flight). A failed task is not runnable: refuse a spec with unfinished tasks unless the user says to ship it partial. Report unrelated leftovers without touching them; stop when local `main` is ahead of its remote with commits that are not this work. A decision record this work links or adds that is still **Proposed** after acceptance stops the landing.
+**Leftovers.** First integrate this work's worker branches, worktrees, and uncommitted changes into the delivery branch (`build`'s Work in flight). A failed task is not runnable: refuse a spec with unfinished tasks unless the user says to ship it partial. Stop when another session owns this delivery and the user did not name it (named work follows Target), or an open branch or pull request overlaps it with unknown ownership (`write-agents` Sessions); name the owner or the unknown. Report unrelated leftovers without touching them; stop when local `main` is ahead of its remote with commits that are not this work. A decision record this work links or adds that is still **Proposed** after acceptance stops the landing.
 
 Classify the work:
 
@@ -33,11 +33,11 @@ Run `build` unless the branch is verified: the review the size guard picked cove
 
 ## Merge
 
-**Gate.** Land automatically when preflight passed, checks are green, no findings block, and protection is satisfied. Never approve your own pull request and never bypass protection (for example `gh pr merge --admin`). When protection requires a human approval, stop.
+**Gate.** Land automatically when preflight passed, checks are green, no findings block, and protection is satisfied. In GitHub mode, run `node <this skill's directory>/scripts/required-checks.mjs <owner>/<repo> <number>` and land only on exit 0: the pull request is not a draft and every required check's latest result on its head is `success`. A required check that is pending or failing stops the landing, however close the work or the deadline is, and so does one that is skipped, neutral, cancelled, missing, or reported for another head: a check skipped while the pull request was a draft never counts. Name each required check and its state from the script's report. Never approve your own pull request and never bypass protection (for example `gh pr merge --admin`). When protection requires a human approval, stop.
 
 Update the branch from the default branch only when it conflicts or protection requires it to be up to date; the updated head needs its checks again, and its review only when resolving the conflict changed code. In local mode, when `main` moved since the branch was checked, run the suite once on the merge result before `main` moves; on red, fix as `build` describes.
 
-- **GitHub mode:** merge with a method the repository allows (read them first, for example `gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed`), pinned to the checked head (the reviewed head when a review ran). Delete the remote branch and update local `main`; after a squash or rebase merge, delete the local branch with `git branch -D`, since its merged pull request proves the work landed.
+- **GitHub mode:** merge with a method the repository allows (read them first; `build`'s Reaching GitHub has the routes), pinned to the checked head (the reviewed head when a review ran). Delete the remote branch unless the repository already deletes merged branches (a host that refuses branch deletion leaves it for that setting; say so) and update local `main`; after a squash or rebase merge, delete the local branch with `git branch -D`, since its merged pull request proves the work landed.
 - **Local mode:** merge the checked head into `main` with a merge commit. With a remote, push `main`; "ship it" is that request. When the push is rejected because the remote moved, fetch, merge the remote default branch into `main`, rerun the suite once, and push once; if that fails, stop and report the local-only commits. With no remote, say nothing was published.
 
 **Refused merge.** When permission policy or protection refuses it, stop with a ready-to-merge report (head SHA, checks, review location, merge command); never retry another way around it.
@@ -59,4 +59,4 @@ Only the user's own request drops a spec ("drop the spec", naming it or with it 
 
 ## Output
 
-Stop on an unresolvable spec, a branch `build` could not verify, refused merge or push, or protection that cannot be met; never report shipped when a gate failed. Report delivery state, the verified head (checks and review), any `unresolved` scenario steps, landing result, liveness, and work in flight, including on a stop.
+Stop on an unresolvable spec, a branch `build` could not verify, refused merge or push, or protection that cannot be met; never report shipped when a gate failed. Report, led by `tldr`'s Handoff digest, delivery state, shipped scope against accepted scope (deferred items, and any accepted behavior not delivered; `build`'s Scope guard), the verified head (checks and review), any `unresolved` scenario steps, landing result, liveness, and work in flight, including on a stop.

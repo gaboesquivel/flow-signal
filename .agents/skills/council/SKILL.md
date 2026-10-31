@@ -1,6 +1,6 @@
 ---
 name: council
-description: Get independent expert perspectives and an evidence-based synthesis for a consequential decision; advisory only. Use when the user says "ask the council", "get a second opinion", or "what would experts say".
+description: Get independent expert views and an evidence-based synthesis on a consequential decision; advisory only. Use when the user says "ask the council", "get a second opinion", or "what would experts say".
 disable-model-invocation: false
 ---
 

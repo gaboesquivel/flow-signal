@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review work against intent, specs, and root context on five axes (correctness, readability, architecture, security, performance). Use when the user says "check it against the spec", "does this match the intent", or "alignment review".
+description: Review work against intent, specs, and root context on five axes (correctness, readability, architecture, security, performance). Use when the user says "check it against the spec" or "does this match the intent".
 disable-model-invocation: false
 ---
 
@@ -26,8 +26,9 @@ Read repository instructions and inspect Git status. Outside a Git repository, r
 
 Recover intent from the request, spec, tests, and decisions. Assess every axis the change can affect:
 
-- **Correctness:** intent match, regressions, failure paths, test coverage.
-- **Readability and simplicity:** names, complexity, dead code.
+- **Correctness:** intent match, regressions, failure paths, and test evidence as `build` Tests describes: a changed contract has a check that would fail without the change; a missing UI test is a finding only when the user or spec asked for one.
+- **Scope:** additions outside the accepted scope (unrelated refactors, dependencies, infrastructure, UI surfaces, test harnesses, new specs) and accepted behavior the change omits (`build`'s Scope guard). A dependency, surface, or infrastructure the accepted scope does not need blocks until the user accepts it; omitted accepted behavior is an `unmet` step. Judge content, not a changed-file count.
+- **Readability and simplicity:** names (a second name for a glossary concept is a finding, per `domain-modeling` Shared language), complexity, dead code.
 - **Architecture:** boundaries, duplication, conventions.
 - **Security:** trust boundaries, secrets, permissions.
 - **Performance:** scaling, repeated I/O, blocking paths.
@@ -39,4 +40,4 @@ For consequential changes, add proportional blast-radius checks when cheap tests
 
 ## Report
 
-Open spec reviews with the scenario verdicts, then findings. Note stale root docs as findings. Review is read-only unless fixes are requested.
+Open spec reviews with the scenario verdicts, then findings. Note stale root docs as findings, and label context by status and location (`write-agents` Context freshness). Review is read-only unless fixes are requested.

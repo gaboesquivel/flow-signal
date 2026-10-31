@@ -1,6 +1,6 @@
 ---
 name: design
-description: Explore and compare visual directions, let the user choose, and record the approved identity and design direction in DESIGN.md. Use when the user says "design this", "what should it look like", or "explore visual directions".
+description: Compare visual directions, let the user choose, and record the chosen identity and direction in DESIGN.md. Use when the user says "design this" or "what should it look like".
 disable-model-invocation: false
 ---
 
