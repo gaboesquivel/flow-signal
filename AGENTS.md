@@ -9,6 +9,8 @@ A hook (`tooling/hooks/log-prompt.mjs`) appends each user prompt to prompts.txt 
 - The GitHub repo `gaboesquivel/flow-signal`, the Vercel project `flow-signal`, and the Neon project `signal` are the user's own; run their CLIs directly. In an unlinked worktree, use `vercel --cwd <main checkout>` or copy `.env.local` and `.vercel/` (Claude Code worktrees get them from `.worktreeinclude`).
 - Pipe secrets into CLIs; never print them. Merge a PR only after `gh pr checks <n> --watch` passes.
 - Before merging to `main`, run `pnpm smoke` against a running local server (`SMOKE_BASE_URL`, default `https://signal.localhost`; `--live` adds one model call) and include its summary line in the PR or hand-back. CI has no server, so it never runs there.
+- Delivery: one draft pull request per spec on `spec/<number>-<slug>`. Drafts run no CI and no preview; marking it ready runs the checks (Flow `build` and `ship`). Vercel builds only `main`; previews are explicit (`vercel deploy`).
+- No git hooks; secret and security checks run in ready-PR CI.
 - Workers run `pnpm format`, `pnpm test:changed`, and lint and types for their files; the full suite runs once, in CI. Live evals run on demand, matched to the changed path (ARCHITECTURE.md → Testing).
 
 <!-- BEGIN FLOW -->

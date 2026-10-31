@@ -46,3 +46,4 @@ evals/crewday/.cache/
 !.claude/settings.local.json
 .cursor/*
 !.cursor/cli.json
+!.cursor/environment.json
