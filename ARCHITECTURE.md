@@ -40,9 +40,10 @@ My signals: signals point to a shared tracking link (`tracking_links`), so a sub
 ## Testing
 
 - **Automated tests cover the API, MCP, and agent surfaces only:** operation contracts, the parity suite (REST, MCP, and agent tools agree on output, error codes, events, and access), domain behaviour on a test database, migration safety, and agent tool behaviour. Parity proves the surfaces agree; behaviour cases belong in domain tests.
+- **Contracts are test-first:** a change to an operation, route, or MCP tool writes its focused contract check first and sees it fail: parity in `tests/signal/parity/`, domain behaviour in `tests/signal/domain/`, MCP routes in `tests/mcp/`. Run one file with `pnpm vitest run <file>`.
 - **No UI tests:** no component, unit, or browser (Playwright) tests for pages or components. UI is checked by hand in a browser against [DESIGN.md](./DESIGN.md) → Checking rendered output.
 - **Test databases are per worktree:** with `DATABASE_URL_TEST` naming the shared `signal_test`, a linked worktree's tests use `signal_test_<worktree dir>`; `DATABASE_URL_TEST= pnpm test:changed` runs on PGlite instead ([docs/database.md](./docs/database.md)).
-- **CI is light:** `pnpm qa` (lint, types, and unit/parity/domain tests on in-process PGlite). Live-model evals never run in CI.
+- **CI is light and runs on ready PRs only:** `pnpm qa` (lint, types, and unit/parity/domain tests on in-process PGlite). Live-model evals never run in CI.
 - **Each check runs once:** workers and the integrator run `pnpm test:changed` plus lint and types for their files; CI runs the full suite once. Don't re-run a green suite to confirm it.
 - **Evals match the change, on demand** ([spec 010](./docs/specs/010-retro-remediation.md)). `pnpm eval` is the cheap tier (offline GenUI, Eve smoke, matching, agents); Crewday costs dollars and runs only when asked:
 

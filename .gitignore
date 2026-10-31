@@ -47,3 +47,6 @@ evals/crewday/.cache/
 .cursor/*
 !.cursor/cli.json
 !.cursor/environment.json
+
+# Per-session prompt logs and progress notes (AGENTS.md → Prompt logging)
+.sessions/

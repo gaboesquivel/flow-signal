@@ -205,12 +205,6 @@
       "skillPath": "skills/start/SKILL.md",
       "computedHash": "f0ac95607a53845cad87b3e219d6506caf5ab740ca4864c2831b755f9fe6e521"
     },
-    "test-driven-development": {
-      "source": "addyosmani/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/test-driven-development/SKILL.md",
-      "computedHash": "3685f4d68f60c5fe97674a069bf589e6723e5196961fca68a26d40b319a4841d"
-    },
     "tldr": {
       "source": "gaboesquivel/flow-skills",
       "sourceType": "github",

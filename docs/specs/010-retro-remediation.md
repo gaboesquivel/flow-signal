@@ -185,6 +185,8 @@ This edits AGENTS.md. The user authorizes it by accepting this spec.
 
 ### Task 07: Prompt-log hook
 
+> **Superseded (2026-10-31):** the shared tracked `prompts.txt` is now a frozen archive; each session logs to its own redacted, Git-ignored `.sessions/<tag>.prompts.log` ([AGENTS.md](../../AGENTS.md) → Prompt Logging, Flow `write-agents` Sessions).
+
 - `tooling/hooks/log-prompt.mjs` reads the hook's JSON from stdin and appends this to `prompts.txt` in the project root:
 
   ```

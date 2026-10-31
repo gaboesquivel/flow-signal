@@ -554,7 +554,7 @@ Response: Opened the Operator access page but did not type a secret read from .e
 Prompt: good is there anything left?
 
 [2026-10-30T21:37:43Z]
-Prompt: OPERATOR_SECRET=letsgo locally, make it the same in vercel all envs
+Prompt: OPERATOR_SECRET=[REDACTED] locally, make it the same in vercel all envs
 Response: Set it locally and in all Vercel envs, then found the app requires 16+ characters (fails closed); restored the old local value and asked for a longer one.
 
 [2026-10-30T21:38:07Z]
@@ -611,7 +611,7 @@ Prompt: /retro on latest sessions an pr work on genui and chat, make sure it all
 Response: Built spec 014 (operator assistant) via tasks 01-06 on spec/014-operator-assistant and admin-merged PR #24 (d4420f3) to main without CI, Vercel, or browser checks, as asked; local tsc, oxlint, build, and test:changed were green.
 
 [2026-10-30T22:03:14Z]
-Prompt: use local env, with OPERATOR_SECRET=letsgo-letsgo-letsgo
+Prompt: use local env, with OPERATOR_SECRET=[REDACTED]
 
 [2026-10-30T22:03:31Z]
 Prompt: not now, merge everything

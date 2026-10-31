@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// UserPromptSubmit hook: append each user prompt to prompts.txt with the real UTC time and a
-// short session tag (spec 010). Harness turns (subagent hand-backs, task notifications, events)
-// are skipped. The agent appends the matching `Response [<session>]:` line. Never blocks a
-// prompt: always exits 0; its only output is the session tag, added to the agent's context.
+// UserPromptSubmit hook: append each user prompt, redacted, to this session's own Git-ignored
+// `.sessions/<tag>.prompts.log` in the main checkout. Harness turns (subagent hand-backs, task
+// notifications, events) are skipped. Never blocks a prompt: always exits 0; its only output
+// tells the agent where the log is and how to add its response line.
 import { logPrompt } from "./prompt-log.mjs";
 
 let raw = "";
@@ -12,12 +12,12 @@ process.stdin.on("data", (chunk) => {
 });
 process.stdin.on("end", () => {
   try {
-    const session = logPrompt(JSON.parse(raw || "{}"));
-    if (!session) return;
+    const logged = logPrompt(JSON.parse(raw || "{}"));
+    if (!logged) return;
     process.stdout.write(
       JSON.stringify({
         hookSpecificOutput: {
-          additionalContext: `prompts.txt logged this prompt as session:${session}; append your summary as one line \`Response [${session}]: ...\`.`,
+          additionalContext: `Prompt logged for session:${logged.session} (Git-ignored, redacted). After responding, run \`node tooling/hooks/log-response.mjs ${logged.session} "<brief summary>"\`.`,
           hookEventName: "UserPromptSubmit",
         },
       }),

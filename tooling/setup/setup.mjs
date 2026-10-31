@@ -26,7 +26,7 @@ try {
 if (!existsSync(path.join(root, "node_modules")))
   execSync("pnpm install", { cwd: root, stdio: "inherit" });
 
-// The template no longer installs Git hooks; drop any an older clone still has.
+// The repository no longer installs Git hooks; drop any an older clone still has.
 try {
   const hooksDir = execSync("git rev-parse --git-path hooks", {
     cwd: root,

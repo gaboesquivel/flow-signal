@@ -32,6 +32,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm security:check
       # Light by design: lint, types, and unit/parity/domain tests on in-process PGlite
-      # (DATABASE_URL_TEST unset). No live-model evals here: run `pnpm eval` on demand and
-      # whenever agent code changes. The Next.js build is covered by Vercel's preview deploy.
+      # (DATABASE_URL_TEST unset). No live-model evals here: they run on demand, matched to the
+      # changed path. Branches get no automatic Vercel preview, so the Next.js build is proven
+      # by production from main, or by an explicit `vercel deploy` first.
       - run: pnpm qa
