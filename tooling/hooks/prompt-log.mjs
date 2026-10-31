@@ -24,11 +24,18 @@ const MAX_LENGTH = 2000;
 const UNREDACTABLE = /-----BEGIN [A-Z ]*PRIVATE KEY/u;
 
 const SECRET_KEY =
-  /\b(?<key>[\w.-]*(?:secret|token|password|passwd|api[_-]?key|access[_-]?key|private[_-]?key|credentials?|cookie)[\w.-]*)(?<sep>["']?\s*[:=]\s*)(?!\[REDACTED)(?<value>"[^"]*"|'[^']*'|[^\s,;'"}]+)/giu;
+  /\b(?<key>[\w.-]*(?:secret|token|password|passwd|api[_-]?key|access[_-]?key|private[_-]?key|credentials?|cookie)[\w.-]*)(?<sep>["']?\s*[:=]\s*)(?!\[REDACTED)(?<value>"[^"]*"|'[^']*'|[^\s,;&'"}]+)/giu;
 
 /** Ordered: keyed values first (they keep their key name), then known token shapes. */
 const RULES = [
   // Environment assignments: NAME=value, whatever the name.
+  // CLI flags that carry a secret: --token X, --password=X, --value X, mysql -p X.
+  [
+    /(?<flag>--[\w-]*(?:token|password|passwd|secret|api-?key|value)[\w-]*)(?<sep>[ =])(?!\[REDACTED)\S+/giu,
+    "$<flag>$<sep>[REDACTED]",
+  ],
+  [/(?<cmd>\bmysql\w*\b[^\n]*?\s-p)(?<gap>\s?)(?!\[REDACTED)\S+/gu, "$<cmd>$<gap>[REDACTED]"],
+  [/(?<flag>\s-u\s+|\s--user[ =])[^\s:]+:\S+/gu, "$<flag>[REDACTED:credentials]"],
   [/\b(?<name>[A-Z][A-Z0-9_]+)=(?!\[REDACTED)(?:"[^"]*"|'[^']*'|\S+)/gu, "$<name>=[REDACTED]"],
   [
     SECRET_KEY,
@@ -37,14 +44,23 @@ const RULES = [
       return `${key}${sep}${value.startsWith('"') ? '"[REDACTED]"' : "[REDACTED]"}`;
     },
   ],
+  // Prose: "password is X", "client_secret X".
+  [
+    /\b(?<key>password|passwd|passphrase|client_secret|api[_-]?key)(?<gap>\s+(?:is\s+)?)(?!\[REDACTED)[^\s,;]+/giu,
+    "$<key>$<gap>[REDACTED]",
+  ],
+  [/\bBasic\s+[A-Za-z0-9+/]{8,}=*/gu, "Basic [REDACTED:credentials]"],
   [/\bBearer\s+[\w.~+/-]+=*/giu, "Bearer [REDACTED:token]"],
-  [/\b(?<scheme>[a-z][a-z0-9+.-]*:\/\/)[^\s/@:]+:[^\s/@]+@/giu, "$<scheme>[REDACTED:credentials]@"],
+  [/\b(?<scheme>[a-z][a-z0-9+.-]*:\/\/)[^\s/@:]+:[^\s/]+@/giu, "$<scheme>[REDACTED:credentials]@"],
   [/\bsk-(?:ant-)?[\w-]{16,}/gu, "[REDACTED:api-key]"],
   [/\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_\w{20,})/gu, "[REDACTED:github-token]"],
+  [/\b(?:napi|npm|vck)_[A-Za-z0-9]{16,}/gu, "[REDACTED:api-key]"],
+  [/\b[rs]k_(?:test|live)_\w{8,}/gu, "[REDACTED:api-key]"],
+  [/\bxox[abprs]-[\w-]{10,}/gu, "[REDACTED:slack-token]"],
   [/\bAKIA[0-9A-Z]{16}\b/gu, "[REDACTED:aws-key]"],
   [/\beyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]{8,}/gu, "[REDACTED:jwt]"],
-  // Opaque high-entropy strings: mixed case and digits, 24+ characters.
-  [/\b(?=[\w-]*[A-Z])(?=[\w-]*[a-z])(?=[\w-]*\d)[\w-]{24,}/gu, "[REDACTED:token]"],
+  // Opaque high-entropy strings: mixed case, 3+ digits, 32+ characters (not camelCase names).
+  [/\b(?=[\w-]*[A-Z])(?=[\w-]*[a-z])(?=(?:[\w-]*\d){3})[\w-]{32,}/gu, "[REDACTED:token]"],
 ];
 
 /** Text with credentials, environment values, and tokens replaced, or null when unsafe to keep. */

@@ -67,6 +67,19 @@ test("redact replaces credentials and keeps their key names", () => {
       "connect to postgres://[REDACTED:credentials]@host:5432/db",
     ],
     ["opaque Xk9Tq2LmZr8Vb4Nw7Ys1Pd6Hc3Jf5Gt0 value", "opaque [REDACTED:token] value"],
+    ["gh auth login --token abc123secret", "gh auth login --token [REDACTED]"],
+    ["vercel env add FOO --value=supersecret", "vercel env add FOO --value=[REDACTED]"],
+    ["mysql -u root -p hunter2 db", "mysql -u root -p [REDACTED] db"],
+    ["curl -u admin:hunter2 https://x", "curl -u [REDACTED:credentials] https://x"],
+    ["Authorization: Basic dXNlcjpwYXNz", "Authorization: Basic [REDACTED:credentials]"],
+    ["my password is hunter2", "my password is [REDACTED]"],
+    ["client_secret abc123", "client_secret [REDACTED]"],
+    ["neon napi_abcdefghij0123456789xyz ok", "neon [REDACTED:api-key] ok"],
+    ["npm npm_abcdefghij0123456789xyz ok", "npm [REDACTED:api-key] ok"],
+    ["slack xoxb-1234567890-abcdefghij ok", "slack [REDACTED:slack-token] ok"],
+    ["stripe sk_test_51Habcdefghij ok", "stripe [REDACTED:api-key] ok"],
+    ["https://user:p@ss@host.com/x", "https://[REDACTED:credentials]@host.com/x"],
+    ["?token=abc&page=2", "?token=[REDACTED]&page=2"],
   ];
   for (const [input, expected] of cases) assert.equal(redact(input), expected, input);
 });
@@ -77,6 +90,8 @@ test("redact leaves ordinary delivery text alone", () => {
     "merge 5b715b78e7c02a2cfd18491f02464768d3d03db9 on spec/048-delivery-lifecycle",
     "session e210b054-abe1-402c-974a-28700d01b4a5 author: gabo",
     "see https://github.com/gaboesquivel/flow-signal/pull/31",
+    "render ChatMessageListItem2Renderer.tsx via handleGenerativeUi2Preview",
+    "pnpm -p vitest run tests/mcp/route.test.ts",
   ])
     assert.equal(redact(text), text);
 });
