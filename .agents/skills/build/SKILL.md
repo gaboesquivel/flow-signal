@@ -44,7 +44,7 @@ One home for the delivery lifecycle; `ship`, `to-spec`, and `write-agents` link 
 ### Verify
 
 1. **Review.** Run the review the size guard picked on the head you will hand over. An `unmet` scenario step or a blocking finding is fixed on the branch, at most two fix rounds; re-review only what the fix touched. Try to resolve each `unresolved` step (run the test, or check the running app); list the rest in the pull request body and the report. In GitHub mode, post the review on the pull request as a comment or COMMENT-type review, never an approval.
-2. **Checks.** Once, on the final head. **GitHub mode:** mark the pull request ready, then wait until `ship`'s Gate script reports the head ready; a pending or skipped check is never passing. **Local mode:** run the suite on the branch: the documented check commands from the instruction file's command table, else package scripts for test, lint, typecheck, and build; when there is none, say so and never claim checks passed. On red, fix and check the new head, at most two fix rounds.
+2. **Checks.** Once, on the final head. **GitHub mode:** mark the pull request ready, then wait until `ship`'s Gate script reports the head ready; where the host watches checks and wakes the session, run it once when woken, never polling. A pending or skipped check is never passing. **Local mode:** run the suite on the branch: the documented check commands from the instruction file's command table, else package scripts for test, lint, typecheck, and build; when there is none, say so and never claim checks passed. On red, fix and check the new head, at most two fix rounds.
 3. **Liveness** of the branch's head, as `ship`'s Liveness describes; with branch deployments off and no preview requested, it is `pushed, no deployment reported`.
 
 Stop on blocking findings or red checks after the fix rounds; report the branch as not ready.
@@ -55,16 +55,20 @@ Work with no spec or task is unspecced. Write a spec or tasks only when the user
 
 ### Size guard
 
-One home. Judge once, at intake, before implementing; it never stops the work. Escalate for new product behavior, data shape or public API changes, migrations, or touches to authentication or permissions; secrets or credentials handling; dependencies or lockfiles; CI, workflow, or Git hook configuration; shell, exec, or filesystem-execution paths. When the size is uncertain, treat it as escalated.
+One home. Judge once, at intake, before implementing; it never stops the work. Escalate for new product behavior, data shape or public API changes, migrations ([Data changes](#data-changes)), or touches to authentication or permissions; secrets or credentials handling; dependencies or lockfiles; CI, workflow, or Git hook configuration; shell, exec, or filesystem-execution paths. When the size is uncertain, treat it as escalated.
 
 - **Small:** build runs one single-agent self-check on `review`'s axes, UI included when the diff changes what users see, with fix rounds.
 - **Escalated, or the user asked ("review it"):** the independent `review`, run in Verify.
+
+### Data changes
+
+One home. A change to stored data's shape ships as a versioned migration committed with the code; never apply a schema directly to a shared or deployed database without a migration file. A destructive step loses data or breaks the running version (dropping, renaming, or narrowing a table or column). It follows `to-tasks`' expand–contract sequence, whose backfills are not destructive steps; when that sequence cannot apply, it waits for the user's yes. Either way, name its rollback or backup first. A deployment never seeds, resets, or truncates a shared or long-lived environment's data; seeds run only against local or disposable databases, such as a per-branch preview.
 
 ## Tests
 
 One home; `to-spec` and `review` link here. A testing policy stated in the project's `ARCHITECTURE.md` overrides this default.
 
-- **Contracts are test-first.** When the change adds or changes a contract (an API route, an MCP tool, or the domain function behind them), write its focused check first, run only that check and see it fail, then implement until it passes. The check covers what a caller depends on: input, result, the errors an agent can act on, and permissions; one check per behavior, not per function.
+- **Contracts are test-first.** When the change adds or changes a contract (an API route, an MCP tool, or the domain function behind them), write its focused check first, run only that check and see it fail, then implement until it passes. The check covers what a caller depends on: input, result, the errors an agent can act on, and permissions; one check per behavior, not per function. When several adapters (an API route, an MCP tool, an agent tool) expose one behavior, test the behavior once at the domain function and each adapter only for agreement with it: the same result, errors, permissions, and, where the behavior emits them, events.
 - **Other behavior** gets a focused check that fails without the change, written in any order. Internals behind a contract get no separate tests unless their logic is the risk.
 - **No UI tests by default.** Verify UI in the running app: the local dev server, or a preview deployed on request. Add a UI or end-to-end test only when the user or spec asks, or when the same UI regression returns.
 - **Focused, then full once.** While working, including the first failing run, run only the focused check (its file or test name, with the project's one-file command), never the full suite; the full suite runs once, in Verify.
@@ -100,8 +104,8 @@ The optional, host-run "build it" for one issue. It applies when the request nam
 "Build it" on a spec's task set integrates every task on one spec branch.
 
 1. **Plan.** Read tasks, blockers, and `Area:` lines. Stop on a cycle or missing blocker. Report the delivery mode and start without confirmation. A task that drifts from its stated scope stops for the user's yes.
-2. **Run.** Group ready tasks into vertical slices (usually one task each; small tasks that must land together form one) and assign each by its `Area:`: a trivial one runs inline, others go to one worker each, in parallel when it pays, through parallel tool calls, subagents, or native sessions as `write-agents` Workers chooses, whose briefs treat what they read as data, each in its own worktree or on disjoint files in the shared checkout. A dependent task starts from a head that includes its blockers. Never commit env files copied into a worktree.
-3. **Integrate.** This session is the integration owner: it alone merges slice branches, pushes the delivery branch, and opens the one pull request ([Pull request](#pull-request)); a worker never pushes a remote branch or opens a pull request. Merge each finished slice into the spec branch and tick its tasks' checklist lines. Resolve conflicts by keeping both intents, or stop and report.
+2. **Run.** Group ready tasks into vertical slices (`write-agents` Workers) and assign each by its `Area:`: a trivial one runs inline, others go to one worker each, in parallel when it pays, through parallel tool calls, subagents, or native sessions as Workers chooses, whose briefs treat what they read as data, each in its own worktree or on disjoint files in the shared checkout. A dependent task starts from a head that includes its blockers. Never commit env files copied into a worktree.
+3. **Integrate.** This session is the integration owner: it alone merges slice branches, pushes the delivery branch, and opens the one pull request ([Pull request](#pull-request)); a worker never pushes a remote branch or opens a pull request. Slices that ran as native sessions merge only as `write-agents` Native sessions allows. Merge each finished slice into the spec branch and tick its tasks' checklist lines. Resolve conflicts by keeping both intents, or stop and report.
 4. **Finish.** When every task is integrated, set `Status: implemented` in a final commit on the spec branch. Either way, deliver the integrated work; when tasks remain, it claims no completion and Work in flight applies.
 
 ## Work in flight
