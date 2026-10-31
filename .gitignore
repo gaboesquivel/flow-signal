@@ -43,6 +43,6 @@ evals/crewday/.cache/
 .claude/worktrees/
 
 # Agent hosts: shared config is committed, per-machine state is not
-.claude/settings.local.json
+!.claude/settings.local.json
 .cursor/*
 !.cursor/cli.json
