@@ -2,7 +2,7 @@
 
 ## Prompt Logging
 
-A hook (`tooling/hooks/log-prompt.mjs`) appends each user prompt, redacted, to this session's own Git-ignored log in the main checkout (`.sessions/<tag>.prompts.log`) and tells you the tag; harness events are not logged. After responding, run `node tooling/hooks/log-response.mjs <tag> "<brief summary>"`. Never paste secret values into a summary. Logging never blocks work: if it fails, say so and continue. `prompts.txt` is the frozen archive of the shared log (through 2026-10-31); don't append to it or commit new lines. Optional progress notes go beside the log as `.sessions/<tag>.progress.md`.
+A hook (`tooling/hooks/log-prompt.mjs`) appends each user prompt, redacted (including any value of a secret-named variable in the checkout's `.env*` files or environment), to this session's own Git-ignored log in the main checkout (`.sessions/<tag>.prompts.log`) and tells you the tag; harness events are not logged. After responding, run `node tooling/hooks/log-response.mjs <tag> "<brief summary>"`. Never paste secret values into a summary. Logging never blocks work: if it fails, say so and continue. `prompts.txt` is the frozen archive of the shared log (through 2026-10-31); don't append to it or commit new lines. Optional progress notes go beside the log as `.sessions/<tag>.progress.md`.
 
 ## Environment
 
