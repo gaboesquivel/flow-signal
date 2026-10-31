@@ -54,7 +54,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   subgraph Local
-    PC[pre-commit · simple-git-hooks<br/>block secret files + lint/format staged]
+    PC[pre-commit · simple-git-hooks<br/>block staged secret files]
     TC[pnpm test:changed<br/>+ lint + types for touched files]
     EV[matched eval, on demand]
   end
