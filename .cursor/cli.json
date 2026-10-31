@@ -6,6 +6,7 @@
       "Shell(gh:pr create *)",
       "Shell(gh:pr merge *)",
       "Shell(gh:pr edit *)",
+      "Shell(gh:pr ready *)",
       "Shell(gh:run view *)",
       "Shell(gh:run watch *)",
       "Shell(vercel:env ls *)",

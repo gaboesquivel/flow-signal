@@ -1,6 +1,6 @@
 ---
 name: push
-description: Push the current or named branch with no pull request, review, or CI wait, then a light liveness check of the pushed commit; the host's Git integration deploys it. Use when the user says "push it" or "deploy it".
+description: Push the current or named branch with no pull request, review, or CI wait, then check the pushed commit is live; the host's Git integration deploys it. Use when the user says "push it" or "deploy it".
 disable-model-invocation: false
 ---
 

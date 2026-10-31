@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { applyDataPreset, readDatabaseUrl, upsertEnvLine } from "./data-preset.mjs";
+import { removeStaleHooks } from "./stale-hooks.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const envExample = path.join(root, ".env.example");
@@ -24,6 +25,19 @@ try {
 
 if (!existsSync(path.join(root, "node_modules")))
   execSync("pnpm install", { cwd: root, stdio: "inherit" });
+
+// The template no longer installs Git hooks; drop any an older clone still has.
+try {
+  const hooksDir = execSync("git rev-parse --git-path hooks", {
+    cwd: root,
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  const removed = removeStaleHooks(path.resolve(root, hooksDir));
+  if (removed.length) console.log(`removed stale Git hooks: ${removed.join(", ")}`);
+} catch {
+  // Not a Git checkout; nothing to clean.
+}
 
 // Skills are committed under .agents/skills; restore them from skills-lock.json only when missing.
 if (!existsSync(path.join(root, ".agents/skills")))

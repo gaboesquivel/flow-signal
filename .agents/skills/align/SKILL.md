@@ -1,6 +1,6 @@
 ---
 name: align
-description: Check whether the product being built matches its vision, users' problems, success metrics, and roadmap; read-only. Use when the user says "are we building the right thing", "check product alignment", or "has the product drifted".
+description: Check whether the product still matches its vision, users' problems, metrics, and roadmap; read-only. Use when the user says "are we building the right thing" or "has the product drifted".
 disable-model-invocation: false
 ---
 

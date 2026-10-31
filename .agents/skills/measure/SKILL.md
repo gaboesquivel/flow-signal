@@ -1,6 +1,6 @@
 ---
 name: measure
-description: Evaluate a product's metrics and journeys against available evidence and name what blocks a conclusion; read-only. Use when the user says "measure our progress", "how are our metrics doing", or "are users completing this journey".
+description: Check a product's metrics and journeys against the evidence and name what blocks a conclusion; read-only. Use when the user says "measure our progress" or "how are our metrics doing".
 disable-model-invocation: false
 ---
 
@@ -10,7 +10,7 @@ disable-model-invocation: false
 
 ## Gather
 
-Read the definitions first: the main metric, supporting metrics, and core journeys in `PRODUCT.md` (steps in `DESIGN.md`), and any measurement a relevant spec defines. Then read evidence through whatever the host reaches: tools, local data, or exports the user supplies. Nothing is required: no Git, vendor, or connector. When a definition is missing, say so and measure only what is defined.
+Read the definitions first: the main metric, supporting metrics, and core journeys in `PRODUCT.md` (steps in `DESIGN.md`), and any measurement a relevant spec defines. Then read evidence through whatever the host reaches: tools, local data, or exports the user supplies. Nothing is required: no Git, vendor, or connector. When a definition is missing, say so and measure only what is defined. Delivery metrics a project defines (idea to production, delivery within appetite, cost per shipped change) follow the same rules.
 
 ## Report each metric
 

@@ -6,6 +6,7 @@
       "Bash(gh pr create *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr edit *)",
+      "Bash(gh pr ready *)",
       "Bash(gh run view *)",
       "Bash(gh run watch *)",
       "Bash(vercel env ls *)",
@@ -46,6 +47,16 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/tooling/hooks/log-prompt.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] && pnpm install --frozen-lockfile || true"
           }
         ]
       }

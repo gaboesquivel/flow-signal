@@ -3,7 +3,6 @@ packages:
 allowBuilds:
   "@openuidev/lang-core": true
   esbuild: true
-  simple-git-hooks: true
 overrides:
   undici: ">=8.12.2"
   body-parser: ">=2.4.0"

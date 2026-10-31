@@ -1,6 +1,6 @@
 ---
 name: tldr
-description: Visual human summary and session alignment check. Use when the user says "tldr", "show me", "recap", or "are we still aligned".
+description: Visual summary for a person, or a session recap and alignment check. Use when the user says "tldr", "show me", "recap", or "are we still aligned".
 disable-model-invocation: false
 ---
 
@@ -25,6 +25,12 @@ For an explanation, plan, or result, include only what that material supports.
 Chart only quantities the source states. Keep missing numbers and uncertainty visible. Do not imply controls the host does not provide.
 
 Short labels only. When words are required, lead with the point, use concrete nouns, and do not invent facts or promises.
+
+## Handoff digest
+
+The one home for summaries at major handoffs: an `explore` brief, a spec ready, a build ready or stopped before its first write, a ship result, a retro. Those skills link here; using it needs no `tldr` run and no extra review step.
+
+Lead with a few lines before any detail: the outcome, accepted versus deferred scope, appetite health only when measured, active work or conflicts that matter, verification status, and one next action. Link the spec, pull request, or diff instead of pasting it; give raw logs only on request. Use the visual rules above when structure helps; otherwise a compact table or a short paragraph. Keep it short, direct, and appropriately skeptical.
 
 ## Completion
 

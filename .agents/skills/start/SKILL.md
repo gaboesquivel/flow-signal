@@ -1,6 +1,6 @@
 ---
 name: start
-description: Initialize a new project from flow-next or flow-mono in a template clone with verified setup, renamed identity, and an initial Git commit, while explore shapes the product. Use when the user says "start a Next.js project", "start a new project", or "start a monorepo".
+description: Start a new project from flow-next or flow-mono with verified setup, renamed identity, and an initial Git commit, while explore shapes the product. Use when the user says "start a Next.js project", "start a new project", or "start a monorepo".
 disable-model-invocation: false
 ---
 
@@ -67,7 +67,7 @@ Exit 0 means committed with a clean tree; otherwise `blockers` names what stoppe
 
 ## Verification
 
-Record each check as **passed**, **failed**, or **unavailable**. The template's CI and the deployment cover build, evals, and the running app.
+Record each check as **passed**, **failed**, or **unavailable**. The template's CI (one deterministic pass with no model calls) and the deployment cover build and the running app; evals run only on demand. The template installs no Git hooks; its secret check runs in CI on ready pull requests, and branch previews deploy only on request (`build`'s Pull request).
 
 | Check | Command / action |
 | --- | --- |
@@ -80,7 +80,7 @@ If any check failed, report the blocker; do not claim success or create the init
 
 ## Deployment
 
-With an authorized GitHub repository, push the initial commit to it; push nowhere else, and deploy by no other means. Then apply Flow's GitHub governance preset with `node <skill-dir>/lib/github-governance.mjs <owner>/<repo>`: protected default branch, pull requests only, squash-only with linear history, required `verify` and `pr-title` checks, merged branches deleted, read-only Actions token, and no bypass for anyone. The yes that created or named the repository covers it. It is idempotent and verifies what took effect; report its `unsupported` and `missingPermissions` (a private repository on GitHub Free cannot hold rulesets) and never weaken the preset to get past them. When the repository is connected to Vercel, wait for that commit's first deployment (its GitHub deployment status) and report the URL once it is green; a failed deployment is a blocker to report. When it is not connected, connect it with the host's CLI when authenticated (that connection is how its deployment starts); otherwise hand off the sign-in once (`write-agents` Tools), never a dashboard path. When no deployment is configured, say so: the commit is the done signal.
+With an authorized GitHub repository, push the initial commit to it; push nowhere else, and deploy by no other means. Then apply Flow's GitHub governance preset with `node <skill-dir>/lib/github-governance.mjs <owner>/<repo>`: protected default branch, pull requests only, squash-only with linear history, required `verify` and `pr-title` checks, merged branches deleted, read-only Actions token, and no bypass for anyone. The yes that created or named the repository covers it. It is idempotent and verifies what took effect; report its `unsupported` and `missingPermissions` (a private repository on GitHub Free cannot hold rulesets) and never weaken the preset to get past them. The preset protects the default branch; it does not coordinate sessions or stop two from editing the same files (`write-agents` Sessions). When the repository is connected to Vercel, wait for that commit's first deployment (its GitHub deployment status) and report the URL once it is green; a failed deployment is a blocker to report. When it is not connected, connect it with the host's CLI when authenticated (that connection is how its deployment starts); otherwise hand off the sign-in once (`write-agents` Tools), never a dashboard path. When no deployment is configured, say so: the commit is the done signal.
 
 ## Boundaries
 
@@ -89,4 +89,4 @@ With an authorized GitHub repository, push the initial commit to it; push nowher
 
 ## Completion
 
-Report the template and its commit SHA, destination, preserved and skipped files, slug and host, files created or updated, the Flow block (file, tracked, imports), each check, the initial commit SHA, the governance report (verified, unsupported, missing permissions), the deployment URL or that none is configured, and blockers. Report the bootstrap lane when it finishes, without interrupting an open exploration question. After the first deployment, name "design this" once as an optional way to choose the product's visual identity; it never delays the bootstrap.
+Lead with `tldr`'s Handoff digest, then report the template and its commit SHA, destination, preserved and skipped files, slug and host, files created or updated, the Flow block (file, tracked, imports), each check, the initial commit SHA, the governance report (verified, unsupported, missing permissions), the deployment URL or that none is configured, and blockers. Report the bootstrap lane when it finishes, without interrupting an open exploration question. After the first deployment, name "design this" once as an optional way to choose the product's visual identity; it never delays the bootstrap.
