@@ -840,6 +840,7 @@ Response [f225a668]: Cleaned up: removed the 049 worktree (with its local traces
 
 [2026-10-31T20:46:57Z] session:474ad476
 Prompt: Background (from the session that started this one): Flow spec 048 (gaboesquivel/flow-skills `docs/specs/048-delivery-lifecycle.md`, decision 0057) is implemented in flow-skills, flow-next (#18, #19) and flow-mono (#15, #16): drafts run no CI and no Vercel branch builds, ready_for_review runs the checks, `ship` merges only when `required-checks.mjs` confirms checks ran and passed, no git hooks, tracked AGENTS.md/CLAUDE.md, Cursor/Claude cloud setup. flow-signal (this repo, derived from the flow-
+Response [474ad476]: Applied spec 048 to flow-signal on spec/048-delivery-lifecycle: draft-skipping CI and PR title, Vercel builds only main, simple-git-hooks removed with stale-hook cleanup in setup, delivery lines in AGENTS.md, Cursor environment, cloud install hook, gh pr ready, Flow skills refreshed.
 
 [2026-10-31T20:47:03Z] session:a821232c
 Prompt: Yes, push it
