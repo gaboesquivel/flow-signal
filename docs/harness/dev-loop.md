@@ -54,19 +54,18 @@ flowchart LR
 ```mermaid
 flowchart LR
   subgraph Local
-    PC[pre-commit · simple-git-hooks<br/>block staged secret files]
     TC[pnpm test:changed<br/>+ lint + types for touched files]
     EV[matched eval, on demand]
   end
   subgraph GitHub
-    CI[CI verify<br/>security:check + pnpm qa on PGlite]
-    PT[PR title check]
+    CI[CI verify on ready PRs<br/>security:check + pnpm qa on PGlite]
+    PT[PR title check on ready PRs]
   end
   subgraph Vercel
-    PV[preview deploy<br/>no schema changes]
+    PV[preview deploy, explicit<br/>vercel deploy, no schema changes]
     PR[production deploy from main<br/>vercel-build.mjs applies migrations]
   end
-  PC --> TC --> CI --> PV --> PR
+  TC --> CI --> PV --> PR
   PT --> PV
   EV -.-> TC
 ```
