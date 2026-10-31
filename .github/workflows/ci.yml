@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Draft runs skip in their own group so a late one never cancels the ready run.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.pull_request.draft }}
   cancel-in-progress: true
 
 permissions:
@@ -14,6 +16,8 @@ permissions:
 
 jobs:
   verify:
+    # Drafts run nothing; ready_for_review and later pushes run it (spec 048).
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
