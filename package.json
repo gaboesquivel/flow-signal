@@ -21,7 +21,7 @@
     "lint:fix": "oxlint --fix . && oxfmt --write --no-error-on-unmatched-pattern .",
     "format": "oxfmt --write --no-error-on-unmatched-pattern .",
     "check-types": "tsc-ts --noEmit",
-    "test": "pnpm run build:mcp-app && vitest run && node --test tooling/setup/data-preset.test.mjs tooling/setup/skills-lock.test.mjs tooling/setup/env-sync.test.mjs tooling/setup/stale-hooks.test.mjs tooling/hooks/prompt-log.test.mjs",
+    "test": "pnpm run build:mcp-app && vitest run && node --test tooling/setup/data-preset.test.mjs tooling/setup/skills-lock.test.mjs tooling/setup/env-sync.test.mjs tooling/hooks/prompt-log.test.mjs tooling/setup/stale-hooks.test.mjs",
     "test:changed": "git fetch -q origin main; (test -f mcp-app/dist/genui-preview.html || pnpm run build:mcp-app) && vitest run --changed origin/main",
     "qa": "pnpm lint && pnpm check-types && pnpm test",
     "eval": "pnpm eval:genui:offline && vitest run evals/eve-smoke.test.ts && pnpm eval:matching && pnpm eval:agents",

@@ -8,7 +8,7 @@ A hook (`tooling/hooks/log-prompt.mjs`) appends each user prompt, redacted, to t
 
 - The GitHub repo `gaboesquivel/flow-signal`, the Vercel project `flow-signal`, and the Neon project `signal` are the user's own; run their CLIs directly. In an unlinked worktree, use `vercel --cwd <main checkout>` or copy `.env.local` and `.vercel/` (Claude Code worktrees get them from `.worktreeinclude`).
 - Pipe secrets into CLIs; never print them.
-- Workers run `pnpm test:changed` (or the one focused test file) plus lint and types for their files; the full suite runs once, in ready-PR CI. Live evals run on demand, matched to the changed path (ARCHITECTURE.md → Testing). Commits run no hooks.
+- Workers run `pnpm format`, `pnpm test:changed` (or the one focused test file), plus lint and types for their files; the full suite runs once, in ready-PR CI. Live evals run on demand, matched to the changed path (ARCHITECTURE.md → Testing). Commits run no hooks.
 
 ## Delivery
 

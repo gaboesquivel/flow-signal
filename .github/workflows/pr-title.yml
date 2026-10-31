@@ -9,7 +9,7 @@ permissions: {}
 
 jobs:
   pr-title:
-    # Drafts run nothing; ready_for_review and later pushes run it (Flow spec 048).
+    # Drafts run nothing; ready_for_review and later pushes run it (spec 048).
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 1
