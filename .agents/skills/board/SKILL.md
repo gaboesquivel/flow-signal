@@ -1,6 +1,6 @@
 ---
 name: board
-description: Read-only progress board of the project's specs by stage, derived from git. Use when the user says "show the board", "show progress", or "open the board".
+description: Show a read-only board of the project's specs by stage, built from git. Use when the user says "show the board" or "show progress".
 disable-model-invocation: false
 ---
 
@@ -34,7 +34,7 @@ A card shows the spec number, title, task progress (`done/total`, from `- [x] NN
 
 **Stages.** An open spec branch is Building only when it changes something outside `docs/`; otherwise a ticked task moves the card, a draft stays in Specced, and an accepted spec with tasks sits in Ready. A spec with `Status: dropped`, or one that exists only on a branch whose pull request closed unmerged, leaves the columns; `--json` lists it under `dropped`.
 
-**GitHub links** (when `gh` is installed and authenticated, and delivery is not `local`; an unset `Delivery` means GitHub when `origin` is on GitHub): cards also link the pull request (head branch matches the slug, or its body closes a task issue) and any task issues, with each state in text. When GitHub cannot be reached, the board renders from git alone and its header says why; pass that note on, never treat it as an error. `--no-github` skips `gh` entirely.
+**GitHub links** (read through `gh api` REST, which also works behind hosts that proxy GitHub, when delivery is not `local`; an unset `Delivery` means GitHub when `origin` is on GitHub): cards also link the pull request (head branch matches the slug, or its body closes a task issue) and any task issues, with each state in text. When GitHub cannot be reached, the board renders from git alone and its header says why; pass that note on, never treat it as an error. `--no-github` skips `gh` entirely.
 
 Markers flag what needs a human look:
 
@@ -44,6 +44,6 @@ Markers flag what needs a human look:
 
 Report markers rather than fixing specs unasked.
 
-Limits: a merged branch ships a spec only when it changed something outside `docs/` and the spec's tasks are done. With GitHub links, a merged pull request counts the same way when its merge commit is in the local clone; a rebase merge is judged by its last commit only. Without them, fast-forward merges, and squash merges later edited on the default branch, may show as Building; a spec reads as Shipped for good once its `Status:` line says `implemented`, which `build` or `ship` sets.
+Limits: the board shows committed and pushed evidence, never who is working now. Uncommitted work, stopped sessions, and other clones are invisible; say so rather than infer a roster. A merged branch ships a spec only when it changed something outside `docs/` and the spec's tasks are done. With GitHub links, a merged pull request counts the same way when its merge commit is in the local clone; a rebase merge is judged by its last commit only. Without them, fast-forward merges, and squash merges later edited on the default branch, may show as Building; a spec reads as Shipped for good once its `Status:` line says `implemented`, which `build` or `ship` sets.
 
 The script exits nonzero with a message when it is not inside a git repository or finds no default branch (`main`, `origin/HEAD`, `master`, or `init.defaultBranch`); report that message and the command you ran. Outside a repository, offer `git init` and stop on a no.

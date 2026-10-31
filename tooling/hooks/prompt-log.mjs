@@ -1,50 +1,141 @@
-// Pure helpers for the prompt log hook (`log-prompt.mjs`, spec 010).
-import { appendFileSync } from "node:fs";
+// Pure helpers for the per-session prompt log (`log-prompt.mjs`, `log-response.mjs`).
+// Each session appends to its own Git-ignored `.sessions/<tag>.prompts.log` in the main checkout,
+// redacted before anything is written. The tracked prompts.txt is a frozen archive.
+import { execFileSync } from "node:child_process";
+import { appendFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 /**
  * Harness-generated turns that arrive through UserPromptSubmit but are not the user's words:
- * subagent hand-backs, background task notifications, side-session and CI monitor events.
+ * subagent hand-backs, background task notifications, side-session, cross-session, and CI events.
  */
 const HARNESS_TAGS = [
   "agent-message",
   "task-notification",
   "side-sessions-event",
+  "cross-session-message",
   "ci-monitor-event",
 ];
 
 const SYSTEM_REMINDER = /<system-reminder>[\s\S]*?<\/system-reminder>/gu;
+const MAX_LENGTH = 2000;
 
-/** The user's own words in a prompt, or "" for a harness turn or a reminder-only prompt. */
+/** Content no pattern can redact with confidence: the whole entry is dropped. */
+const UNREDACTABLE = /-----BEGIN [A-Z ]*PRIVATE KEY/u;
+
+const SECRET_KEY =
+  /\b(?<key>[\w.-]*(?:secret|token|password|passwd|api[_-]?key|access[_-]?key|private[_-]?key|credentials?|cookie)[\w.-]*)(?<sep>["']?\s*[:=]\s*)(?!\[REDACTED)(?<value>"[^"]*"|'[^']*'|[^\s,;'"}]+)/giu;
+
+/** Ordered: keyed values first (they keep their key name), then known token shapes. */
+const RULES = [
+  // Environment assignments: NAME=value, whatever the name.
+  [/\b(?<name>[A-Z][A-Z0-9_]+)=(?!\[REDACTED)(?:"[^"]*"|'[^']*'|\S+)/gu, "$<name>=[REDACTED]"],
+  [
+    SECRET_KEY,
+    (...args) => {
+      const { key, sep, value } = args.at(-1);
+      return `${key}${sep}${value.startsWith('"') ? '"[REDACTED]"' : "[REDACTED]"}`;
+    },
+  ],
+  [/\bBearer\s+[\w.~+/-]+=*/giu, "Bearer [REDACTED:token]"],
+  [/\b(?<scheme>[a-z][a-z0-9+.-]*:\/\/)[^\s/@:]+:[^\s/@]+@/giu, "$<scheme>[REDACTED:credentials]@"],
+  [/\bsk-(?:ant-)?[\w-]{16,}/gu, "[REDACTED:api-key]"],
+  [/\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_\w{20,})/gu, "[REDACTED:github-token]"],
+  [/\bAKIA[0-9A-Z]{16}\b/gu, "[REDACTED:aws-key]"],
+  [/\beyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]{8,}/gu, "[REDACTED:jwt]"],
+  // Opaque high-entropy strings: mixed case and digits, 24+ characters.
+  [/\b(?=[\w-]*[A-Z])(?=[\w-]*[a-z])(?=[\w-]*\d)[\w-]{24,}/gu, "[REDACTED:token]"],
+];
+
+/** Text with credentials, environment values, and tokens replaced, or null when unsafe to keep. */
+export const redact = (text) => {
+  const value = String(text ?? "");
+  if (UNREDACTABLE.test(value)) return null;
+  let out = value;
+  for (const [pattern, replacement] of RULES) out = out.replace(pattern, replacement);
+  return out;
+};
+
+const oneLine = (text) => {
+  const redacted = redact(
+    String(text ?? "")
+      .replaceAll(/\s+/gu, " ")
+      .trim(),
+  );
+  return redacted === null ? "" : redacted.slice(0, MAX_LENGTH);
+};
+
+/** The user's own words, redacted and on one line; "" for a harness turn or an unsafe prompt. */
 export const userPromptText = (prompt) => {
   const text = String(prompt ?? "")
     .replaceAll(SYSTEM_REMINDER, " ")
     .trim();
   if (HARNESS_TAGS.some((tag) => text.startsWith(`<${tag}`))) return "";
-  return text.replaceAll(/\s+/gu, " ").trim().slice(0, 500);
+  return oneLine(text);
 };
 
-/** Short, stable tag for a Claude Code session id (first 8 characters). */
+/** Short, stable tag for a session id (first 8 characters). */
 export const sessionTag = (sessionId) =>
   String(sessionId ?? "")
     .replaceAll(/[^a-z0-9]/giu, "")
     .slice(0, 8) || "unknown";
 
-/** One prompts.txt entry: `[<utc>] session:<tag>` then `Prompt: <text>`. */
-export const formatEntry = ({ now = new Date(), prompt, session }) => {
-  const stamp = now.toISOString().replace(/\.\d{3}Z$/u, "Z");
-  return `\n[${stamp}] session:${session}\nPrompt: ${prompt}\n`;
+/** The main checkout, so logs outlive the worktree a session ran in. */
+export const sharedRoot = (cwd = process.cwd()) => {
+  try {
+    const common = execFileSync(
+      "git",
+      ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+      {
+        cwd,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    ).trim();
+    return path.basename(common) === ".git" ? path.dirname(common) : cwd;
+  } catch {
+    return cwd;
+  }
+};
+
+export const promptLogFile = (root, session) =>
+  path.join(root, ".sessions", `${session}.prompts.log`);
+
+const stamp = (now = new Date()) => now.toISOString().replace(/\.\d{3}Z$/u, "Z");
+
+const append = (file, text) => {
+  mkdirSync(path.dirname(file), { recursive: true });
+  // One appendFile call per entry, so a session's own concurrent writes never interleave.
+  appendFileSync(file, text);
 };
 
 /**
- * Appends the entry for a hook input (one appendFile call, so concurrent sessions never
- * interleave inside an entry) and returns the session tag, or undefined when nothing was logged.
+ * Appends the prompt entry for a hook input (Claude Code UserPromptSubmit, or Cursor
+ * beforeSubmitPrompt) and returns `{ file, session }`, or undefined when nothing was logged.
  */
 export const logPrompt = (input, { now, root } = {}) => {
   const prompt = userPromptText(input.prompt);
   if (!prompt) return;
-  const session = sessionTag(input.session_id);
-  const dir = root || process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
-  appendFileSync(path.join(dir, "prompts.txt"), formatEntry({ now, prompt, session }));
-  return session;
+  const session = sessionTag(input.session_id ?? input.conversation_id);
+  const file = promptLogFile(
+    root || sharedRoot(input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd()),
+    session,
+  );
+  const host = input.hook_event_name === "beforeSubmitPrompt" ? "cursor" : "claude-code";
+  const worktree = input.cwd ? path.basename(input.cwd) : "unknown";
+  const trace = input.transcript_path ? path.basename(input.transcript_path) : "unknown";
+  append(
+    file,
+    `\n[${stamp(now)}] host:${host} model:${input.model || "unknown"} worktree:${worktree} trace:${trace}\nPrompt: ${prompt}\n`,
+  );
+  return { file, session };
+};
+
+/** Appends the agent's response summary to the session's log; returns the file, or undefined. */
+export const logResponse = ({ now, root, session, summary }) => {
+  const text = oneLine(summary);
+  if (!text) return;
+  const file = promptLogFile(root || sharedRoot(), sessionTag(session));
+  append(file, `[${stamp(now)}] Response: ${text}\n`);
+  return file;
 };

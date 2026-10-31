@@ -1,6 +1,6 @@
 ---
 name: grill
-description: Stress-test an idea or plan through focused questions and evidence. Use when the user says "grill me", "grill this", or "poke holes in it".
+description: Stress-test an idea or plan with focused questions and evidence. Use when the user says "grill me", "grill this", or "poke holes in it".
 disable-model-invocation: false
 ---
 

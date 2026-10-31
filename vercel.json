@@ -1,4 +1,10 @@
 {
   "buildCommand": "node scripts/vercel-build.mjs",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "installCommand": "pnpm install --frozen-lockfile",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
 }

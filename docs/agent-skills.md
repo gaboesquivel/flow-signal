@@ -23,4 +23,4 @@ pnpm skills:install   # restore skills from the lock (pnpm setup runs it when .a
 
 **Runtime and UI:** `ai-sdk`, `eve`, `typesafe-ai`, `nextjs`, `next-dev-loop`, `shadcn`, `building-components`, `nuqs`, `portless`, `vercel-cli`, `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`
 
-**MCP and testing:** `mcp-builder`, `agent-browser`, `vitest`, `playwright`, `test-driven-development`
+**MCP and testing:** `mcp-builder`, `agent-browser`, `vitest`, `playwright`. Test-first contract work is Flow's `build`, so no separate TDD skill is installed.

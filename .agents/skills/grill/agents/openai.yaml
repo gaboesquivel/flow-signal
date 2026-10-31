@@ -1,5 +1,5 @@
 interface:
   display_name: "Grill"
-  short_description: "Stress-test thinking a round of questions at a time"
+  short_description: "Stress-test an idea with focused questions"
 policy:
   allow_implicit_invocation: true

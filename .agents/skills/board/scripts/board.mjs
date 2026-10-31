@@ -260,14 +260,44 @@ function ghFailure(error) {
   if (error?.code === 'ENOENT') return 'gh not installed'
   if (error?.code === 'ETIMEDOUT' || error?.killed || error?.signal === 'SIGTERM') return 'GitHub request timed out'
   const stderr = String(error?.stderr ?? '')
+  if (/HTTP 403/u.test(stderr)) return 'GitHub refused the request (HTTP 403): the token or a proxy blocks this API'
   if (/auth login|not logged in|authenticat/iu.test(stderr)) return 'gh not authenticated'
   return 'gh request failed'
 }
 
+const PAGE = 100
+
+/** Pull request from REST, in the field names and uppercase states the board reads. */
+export function restPr(pr) {
+  return {
+    number: pr.number,
+    title: pr.title,
+    state: pr.merged_at ? 'MERGED' : String(pr.state).toUpperCase(),
+    headRefName: pr.head?.ref,
+    baseRefName: pr.base?.ref,
+    url: pr.html_url,
+    mergedAt: pr.merged_at ?? null,
+    mergeCommit: pr.merged_at && pr.merge_commit_sha ? { oid: pr.merge_commit_sha } : null,
+    body: pr.body ?? '',
+  }
+}
+
+/** Pages `gh api <path>&page=N` until `limit` kept items, a short page, or `maxPages`; `full` says more may exist. */
+function* paged(path, limit, keep = () => true, maxPages = Math.ceil(limit / PAGE)) {
+  const items = []
+  for (let page = 1; ; page++) {
+    const batch = JSON.parse(yield ['api', `${path}&per_page=${PAGE}&page=${page}`])
+    if (!Array.isArray(batch)) throw new SyntaxError('not an array')
+    items.push(...batch.filter(keep))
+    if (batch.length < PAGE) return { items, full: false }
+    if (items.length >= limit || page >= maxPages) return { items: items.slice(0, limit), full: true }
+  }
+}
+
 /**
- * The fetch as a sequence of `gh` calls: yields argument arrays, receives stdout (or a thrown error), returns
- * `{ available: true, prs, issues, truncated }` or `{ available: false, reason }`. One sequence, two drivers:
- * synchronous for `--once`/`--json`, asynchronous for the live server.
+ * The fetch as a sequence of `gh` calls (REST only: cloud proxies refuse GraphQL): yields argument arrays, receives
+ * stdout (or a thrown error), returns `{ available: true, prs, issues, truncated }` or `{ available: false, reason }`.
+ * One sequence, two drivers: synchronous for `--once`/`--json`, asynchronous for the live server.
  */
 function* githubSteps(repoRoot) {
   const remotes = (tryGit(repoRoot, ['remote']) ?? '').split('\n').filter(Boolean).sort((a, b) => Number(b === 'origin') - Number(a === 'origin'))
@@ -275,19 +305,24 @@ function* githubSteps(repoRoot) {
   let repo = null
   for (const remote of remotes) repo ??= parseGithubRemote(tryGit(repoRoot, ['remote', 'get-url', remote]) ?? '')
   if (!repo) {
-    // Host aliases (`github.com-work`) or other hosts: let gh resolve the remote.
+    // Host aliases (`github.com-work`) or other hosts: let gh resolve the remote through its {owner}/{repo} placeholders.
     let view
-    try { view = JSON.parse(yield ['repo', 'view', '--json', 'nameWithOwner,url']) } catch { return { available: false, reason: 'no GitHub remote' } }
-    const host = /^https?:\/\/([^/]+)\//u.exec(String(view?.url ?? ''))?.[1]?.toLowerCase()
-    if (!view?.nameWithOwner || !host) return { available: false, reason: 'no GitHub remote' }
+    try { view = JSON.parse(yield ['api', 'repos/{owner}/{repo}']) } catch { return { available: false, reason: 'no GitHub remote' } }
+    const host = /^https?:\/\/([^/]+)\//u.exec(String(view?.html_url ?? ''))?.[1]?.toLowerCase()
+    if (!view?.full_name || !host) return { available: false, reason: 'no GitHub remote' }
     if (host !== 'github.com') return { available: false, reason: `remote is on ${host}, links support github.com only` }
-    repo = view.nameWithOwner
+    repo = view.full_name
   }
   try {
-    const prs = JSON.parse(yield ['pr', 'list', '--repo', repo, '--state', 'all', '--limit', String(PR_LIMIT), '--json', 'number,title,state,headRefName,baseRefName,url,mergedAt,mergeCommit,body'])
-    const issues = JSON.parse(yield ['issue', 'list', '--repo', repo, '--state', 'all', '--limit', String(ISSUE_LIMIT), '--json', 'number,title,state,url'])
-    if (!Array.isArray(prs) || !Array.isArray(issues)) return { available: false, reason: 'unexpected gh output' }
-    return { available: true, prs, issues, truncated: { prs: prs.length >= PR_LIMIT, issues: issues.length >= ISSUE_LIMIT } }
+    const prs = yield* paged(`repos/${repo}/pulls?state=all&sort=created&direction=desc`, PR_LIMIT)
+    // The issues endpoint lists pull requests too, so it may read their pages as well.
+    const issues = yield* paged(`repos/${repo}/issues?state=all&sort=created&direction=desc`, ISSUE_LIMIT, (issue) => !issue.pull_request, Math.ceil((ISSUE_LIMIT + PR_LIMIT) / PAGE))
+    return {
+      available: true,
+      prs: prs.items.map(restPr),
+      issues: issues.items.map((issue) => ({ number: issue.number, title: issue.title, state: String(issue.state).toUpperCase(), url: issue.html_url })),
+      truncated: { prs: prs.full, issues: issues.full },
+    }
   } catch (error) {
     return { available: false, reason: error instanceof SyntaxError ? 'unexpected gh output' : ghFailure(error) }
   }
@@ -861,4 +896,4 @@ export async function main(argv = process.argv.slice(2), { error: report = conso
   return 0
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = await main()
+if (process.argv[1] && realRoot(process.argv[1]) === realRoot(fileURLToPath(import.meta.url))) process.exitCode = await main()

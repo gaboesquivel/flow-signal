@@ -1,6 +1,6 @@
 ---
 name: interview
-description: Interview the user, with a guess attached to each question, to extract what they actually want before any plan, spec, or code exists. Use when the user says "interview me", "ask me questions", or "figure out what I want".
+description: Interview the user, with a guess on each question, to learn what they want before any plan, spec, or code exists. Use when the user says "interview me", "ask me questions", or "figure out what I want".
 disable-model-invocation: false
 ---
 
@@ -12,7 +12,7 @@ Read the conversation, root context, and relevant code first. Recover facts with
 
 Open with a one-sentence hypothesis of what the user wants and an honest confidence percentage. Below about 70%, name what is still missing.
 
-Ask open questions one question per message in plain text, each with your guess and the reasoning behind it. Batch closed questions: up to three independent multiple-choice questions per form, using the host's structured question UI, marking your guess among the options and giving each option's tradeoff. Without a form UI, use numbered options in text. Wait for the answers before asking more, and update the hypothesis and confidence as you go. Be visibly willing to be wrong, and sometimes guess in a direction you expect pushback on, so agreement is not mere politeness.
+Ask open questions one question per message in plain text, each with your guess and the reasoning behind it. Batch closed questions: up to three independent multiple-choice questions per form, using the host's structured question UI, marking your guess among the options and giving each option's tradeoff. Without a form UI, use numbered options in text; never require a custom widget. Wait for the answers before asking more, and update the hypothesis and confidence as you go. Be visibly willing to be wrong, and sometimes guess in a direction you expect pushback on, so agreement is not mere politeness.
 
 Forms make accepting the marked guess easy. Occasionally present a closed question without a marked guess.
 
@@ -20,6 +20,6 @@ Watch for answers that describe what a good answer sounds like rather than what 
 
 Stop asking when you can predict the user's reaction to the next three questions you would ask. If several rounds pass without confidence rising, say so and suggest stepping back rather than grinding on.
 
-Restate intent in the user's words, one line each: outcome, user, why now, success, constraint, out of scope. Always include out of scope. Note how many of your guesses were accepted unchanged. Ask for confirmation. "Sounds good", "sure", or silence are not a yes; ask what they would refine. Fold corrections in and restate until the user gives an explicit yes.
+Restate intent in the user's words, one line each: outcome, user, why now, success, constraint (for substantial work, the delivery appetite and first verifiable increment), out of scope. Always include out of scope. Note how many of your guesses were accepted unchanged. Ask for confirmation. "Sounds good", "sure", or silence are not a yes; ask what they would refine. Fold corrections in and restate until the user gives an explicit yes.
 
 On an explicit yes, return the confirmed statement of intent, offer sensible next steps (for example `grill`, `to-spec`, or saving the intent when the user wants it), and end the turn. Do not save, plan, or start downstream work in the same turn. A confirmed intent does not authorize implementation.
