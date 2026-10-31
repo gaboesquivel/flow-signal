@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(gh:pr view *)",
+      "Shell(gh:pr checks *)",
+      "Shell(gh:pr create *)",
+      "Shell(gh:pr merge *)",
+      "Shell(gh:pr edit *)",
+      "Shell(gh:run view *)",
+      "Shell(gh:run watch *)",
+      "Shell(vercel:env ls *)",
+      "Shell(vercel:env add *)",
+      "Shell(vercel:env pull *)",
+      "Shell(vercel:inspect *)",
+      "Shell(vercel:logs *)",
+      "Shell(vercel:ls *)",
+      "Shell(neonctl:branches list *)",
+      "Shell(neonctl:connection-string *)",
+      "Shell(neonctl:branches create *)",
+      "Shell(pnpm:qa)",
+      "Shell(pnpm:lint *)",
+      "Shell(pnpm:check-types)",
+      "Shell(pnpm:test:changed *)",
+      "Shell(pnpm:eval:matching *)",
+      "Shell(pnpm:eval:agents *)",
+      "Shell(docker:compose -p signal *)",
+      "Shell(pnpm:lint)",
+      "Shell(pnpm:test:changed)",
+      "Shell(pnpm:eval:matching)",
+      "Shell(pnpm:eval:agents)"
+    ],
+    "deny": []
+  }
+}
