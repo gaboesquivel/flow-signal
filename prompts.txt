@@ -845,3 +845,7 @@ Response [474ad476]: Applied spec 048 to flow-signal on spec/048-delivery-lifecy
 [2026-10-31T20:47:03Z] session:a821232c
 Prompt: Yes, push it
 Response [a821232c]: Committed and pushed prompts.txt to flow-signal main.
+
+[2026-10-31T20:53:45Z] session:474ad476
+Prompt: merge with admin permission ignore ci and test and evals
+Response [474ad476]: Admin-merged PR #32 (spec 048) without waiting for CI, tests, or evals, as asked.
