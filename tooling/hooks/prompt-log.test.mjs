@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import {
+  knownSecrets,
   logPrompt,
   logResponse,
   promptLogFile,
@@ -98,6 +99,47 @@ test("redact leaves ordinary delivery text alone", () => {
 
 test("redact drops what it cannot redact with confidence", () => {
   assert.equal(redact("-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaA=="), null);
+});
+
+test("knownSecrets reads secret-named values from env files and the environment", () => {
+  const dir = tempRoot();
+  writeFileSync(
+    path.join(dir, ".env.local"),
+    [
+      "# local",
+      'OPERATOR_SECRET="local-operator-phrase"',
+      "export AI_GATEWAY_API_KEY=vck_local_0123",
+      "POSTGRES_USER=postgres",
+      "NEXT_PUBLIC_SITE_URL=https://signal.localhost",
+      "SHORT_TOKEN=abc",
+    ].join("\n"),
+  );
+  writeFileSync(path.join(dir, ".env.example"), "OPERATOR_SECRET=example-placeholder-value\n");
+  assert.deepEqual(knownSecrets([dir], { GITHUB_TOKEN: "env-token-value-1", HOME: "/Users/x" }), [
+    "local-operator-phrase",
+    "env-token-value-1",
+    "vck_local_0123",
+  ]);
+  assert.deepEqual(knownSecrets([path.join(dir, "missing")], {}), []);
+});
+
+test("a known secret value pasted on its own is redacted", () => {
+  const secrets = ["local-operator-phrase"];
+  assert.equal(redact("local-operator-phrase", secrets), "[REDACTED:secret]");
+  assert.equal(
+    redact("operator secret is local-operator-phrase now", secrets),
+    "operator secret is [REDACTED:secret] now",
+  );
+  const root = tempRoot();
+  writeFileSync(path.join(root, ".env.local"), "OPERATOR_SECRET=local-operator-phrase\n");
+  const { file } = logPrompt(
+    { cwd: root, prompt: "local-operator-phrase", session_id: "abcdef12" },
+    { env: {}, now, root },
+  );
+  logResponse({ env: {}, now, root, session: "abcdef12", summary: "used local-operator-phrase" });
+  const log = readFileSync(file, "utf-8");
+  assert.ok(!log.includes("local-operator-phrase"), log);
+  assert.match(log, /Prompt: \[REDACTED:secret\]\n.*Response: used \[REDACTED:secret\]\n$/su);
 });
 
 test("each session writes its own redacted log under the shared root", () => {

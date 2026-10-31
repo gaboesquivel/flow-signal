@@ -2,7 +2,7 @@
 // Each session appends to its own Git-ignored `.sessions/<tag>.prompts.log` in the main checkout,
 // redacted before anything is written. The tracked prompts.txt is a frozen archive.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, mkdirSync } from "node:fs";
+import { appendFileSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -63,31 +63,80 @@ const RULES = [
   [/\b(?=[\w-]*[A-Z])(?=[\w-]*[a-z])(?=(?:[\w-]*\d){3})[\w-]{32,}/gu, "[REDACTED:token]"],
 ];
 
+/** Environment names whose values are credentials, wherever those values later appear. */
+const SECRET_NAME = /secret|token|password|passwd|key|credential|database_url|postgres/iu;
+const MIN_SECRET = 8;
+/** A plain word ("postgres") is too common to redact everywhere it appears. */
+const PLAIN_WORD = /^[a-z]+$/iu;
+
+const envFileSecrets = (dir) => {
+  let names = [];
+  try {
+    names = readdirSync(dir).filter(
+      (name) => /^\.env(?:\..+)?$/u.test(name) && name !== ".env.example",
+    );
+  } catch {
+    return [];
+  }
+  return names.flatMap((name) => {
+    try {
+      return [
+        ...readFileSync(path.join(dir, name), "utf-8").matchAll(
+          /^\s*(?:export\s+)?(?<key>[\w.-]+)\s*=\s*(?<value>.*)$/gmu,
+        ),
+      ].map(({ groups }) => [
+        groups.key,
+        groups.value.trim().replace(/^(?<quote>["'])(?<inner>.*)\k<quote>$/u, "$<inner>"),
+      ]);
+    } catch {
+      return [];
+    }
+  });
+};
+
+/**
+ * Credential values this checkout knows (secret-named variables in `.env*` files under `dirs`,
+ * and in the process environment), so a bare pasted value is redacted even without a key.
+ */
+export const knownSecrets = (dirs = [], env = process.env) => {
+  const values = [...Object.entries(env), ...dirs.filter(Boolean).flatMap(envFileSecrets)]
+    .map(([key, value]) => [key, String(value ?? "")])
+    .filter(
+      ([key, value]) =>
+        SECRET_NAME.test(key) && value.length >= MIN_SECRET && !PLAIN_WORD.test(value),
+    )
+    .map(([, value]) => value);
+  // Longest first, so a value never leaves a fragment of a longer one that contains it.
+  return [...new Set(values)].toSorted((a, b) => b.length - a.length);
+};
+
 /** Text with credentials, environment values, and tokens replaced, or null when unsafe to keep. */
-export const redact = (text) => {
+export const redact = (text, secrets = []) => {
   const value = String(text ?? "");
   if (UNREDACTABLE.test(value)) return null;
   let out = value;
+  for (const secret of secrets) out = out.replaceAll(secret, "[REDACTED:secret]");
   for (const [pattern, replacement] of RULES) out = out.replace(pattern, replacement);
   return out;
 };
 
-const oneLine = (text) => {
+const oneLine = (text, secrets = []) => {
   const redacted = redact(
     String(text ?? "")
       .replaceAll(/\s+/gu, " ")
       .trim(),
+    secrets,
   );
   return redacted === null ? "" : redacted.slice(0, MAX_LENGTH);
 };
 
 /** The user's own words, redacted and on one line; "" for a harness turn or an unsafe prompt. */
-export const userPromptText = (prompt) => {
+export const userPromptText = (prompt, secrets = []) => {
   const text = String(prompt ?? "")
     .replaceAll(SYSTEM_REMINDER, " ")
     .trim();
   if (HARNESS_TAGS.some((tag) => text.startsWith(`<${tag}`))) return "";
-  return oneLine(text);
+  return oneLine(text, secrets);
 };
 
 /** Short, stable tag for a session id (first 8 characters). */
@@ -129,14 +178,13 @@ const append = (file, text) => {
  * Appends the prompt entry for a hook input (Claude Code UserPromptSubmit, or Cursor
  * beforeSubmitPrompt) and returns `{ file, session }`, or undefined when nothing was logged.
  */
-export const logPrompt = (input, { now, root } = {}) => {
-  const prompt = userPromptText(input.prompt);
+export const logPrompt = (input, { env, now, root } = {}) => {
+  const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const base = root || sharedRoot(cwd);
+  const prompt = userPromptText(input.prompt, knownSecrets([base, cwd], env));
   if (!prompt) return;
   const session = sessionTag(input.session_id ?? input.conversation_id);
-  const file = promptLogFile(
-    root || sharedRoot(input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd()),
-    session,
-  );
+  const file = promptLogFile(base, session);
   const host = input.hook_event_name === "beforeSubmitPrompt" ? "cursor" : "claude-code";
   const worktree = input.cwd ? path.basename(input.cwd) : "unknown";
   const trace = input.transcript_path ? path.basename(input.transcript_path) : "unknown";
@@ -148,10 +196,11 @@ export const logPrompt = (input, { now, root } = {}) => {
 };
 
 /** Appends the agent's response summary to the session's log; returns the file, or undefined. */
-export const logResponse = ({ now, root, session, summary }) => {
-  const text = oneLine(summary);
+export const logResponse = ({ env, now, root, session, summary }) => {
+  const base = root || sharedRoot();
+  const text = oneLine(summary, knownSecrets([base, process.cwd()], env));
   if (!text) return;
-  const file = promptLogFile(root || sharedRoot(), sessionTag(session));
+  const file = promptLogFile(base, sessionTag(session));
   append(file, `[${stamp(now)}] Response: ${text}\n`);
   return file;
 };
